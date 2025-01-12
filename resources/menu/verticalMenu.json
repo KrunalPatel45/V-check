@@ -1,0 +1,62 @@
+{
+  "menu": [
+    {
+      "name": "Dashboards",
+      "icon": "menu-icon tf-icons ti ti-smart-home",
+      "slug": "dashboard",
+      "badge": [
+        "danger",
+        "5"
+      ],
+      "submenu": [
+        {
+          "url": "/",
+          "name": "Analytics",
+          "slug": "dashboard-analytics"
+        },
+        {
+          "url": "dashboard/crm",
+          "name": "CRM",
+          "slug": "dashboard-crm"
+        },
+        {
+          "url": "app/ecommerce/dashboard",
+          "name": "eCommerce",
+          "slug": "app-ecommerce-dashboard"
+        },
+        {
+          "url": "app/logistics/dashboard",
+          "name": "Logistics",
+          "slug": "app-logistics-dashboard"
+        },
+        {
+          "url": "app/academy/dashboard",
+          "name": "Academy",
+          "slug": "app-academy-dashboard"
+        }
+      ],
+      "access": "admin"
+    },
+    {
+      "url": "/admin/package",
+      "name": "Packages",
+      "icon": "menu-icon tf-icons ti ti-layout-sidebar",
+      "slug": "packages",
+      "access": "admin"
+    },
+    {
+      "url": "/admin/users",
+      "name": "Users",
+      "icon": "menu-icon tf-icons ti ti-users",
+      "slug": "users",
+      "access": "admin"
+    },
+    {
+      "url": "/user/company",
+      "name": "Companies",
+      "icon": "menu-icon tf-icons ti ti-color-swatch",
+      "slug": "company",
+      "access": "web"
+    }
+  ]
+}
