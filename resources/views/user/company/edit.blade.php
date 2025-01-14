@@ -23,7 +23,7 @@
         <div class="col-xxl">
             <div class="card mb-6">
                 <div class="card-header d-flex align-items-center justify-content-between">
-                    <h5 class="mb-0">Add Company</h5>
+                    <h5 class="mb-0">Edit Company</h5>
                     <a href="{{ route('user.company') }}" class="btn btn-primary mr-4"><i class="fa-solid fa-arrow-left"></i>
                         &nbsp;
                         Back</a>

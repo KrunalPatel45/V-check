@@ -51,11 +51,11 @@ class UserAuthController extends Controller
         // Check credentials manually without using guards
         $user = User::where('Email', $request->email)->first();
 
-        if(empty($user->CurrentPackageID)) {
+        if(!empty($user) && empty($user->CurrentPackageID)) {
             return redirect()->route('user.package', ['user_id' => $user->UserID]); 
         } 
  
-        if($user->Status == 'Inactive') {
+        if(!empty($user) && $user->Status == 'Inactive') {
             return redirect()->back()->withErrors(['email' => 'User Status is not Active'])->withInput();
         } 
 

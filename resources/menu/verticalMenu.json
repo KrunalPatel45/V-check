@@ -57,6 +57,13 @@
       "icon": "menu-icon tf-icons ti ti-color-swatch",
       "slug": "company",
       "access": "web"
+    },
+    {
+      "url": "/user/payors",
+      "name": "Payors",
+      "icon": "menu-icon tf-icons ti ti-users",
+      "slug": "payors",
+      "access": "web"
     }
   ]
 }

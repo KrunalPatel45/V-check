@@ -167,6 +167,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserAuthController;
 use App\Http\Controllers\UserDashboardController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\PayorsController;
 
 
 Route::get('/admin/login', [AdminAuthController::class, 'adminLogin'])->name('admin.login');
@@ -206,6 +207,12 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::get('/user/company/edit/{id}', [CompanyController::class, 'edit'])->name('user.company.edit');
     Route::post('/user/company/edit/{id}', [CompanyController::class, 'update'])->name('user.company.update');
     Route::delete('/user/company/delete/{id}', [CompanyController::class, 'delete'])->name('user.company.delete');
+    Route::get('/user/payors', [PayorsController::class, 'index'])->name('user.payors');
+    Route::get('/user/payors/add', [PayorsController::class, 'create'])->name('user.payors.add');
+    Route::post('/user/payors/add', [PayorsController::class, 'store'])->name('user.payors.store');
+    Route::get('/user/payors/edit/{id}', [PayorsController::class, 'edit'])->name('user.payors.edit');
+    Route::post('/user/payors/edit/{id}', [PayorsController::class, 'update'])->name('user.payors.update');
+    Route::delete('/user/payors/delete/{id}', [PayorsController::class, 'delete'])->name('user.payors.delete');
 });
 
 

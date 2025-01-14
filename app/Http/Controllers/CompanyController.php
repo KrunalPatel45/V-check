@@ -15,7 +15,7 @@ class CompanyController extends Controller
         if(!Auth::check()) {
             return redirect()->route('user.login');
         }
-        $companies = Company::all();
+        $companies = Company::where('UserID', Auth::id())->get();
         return view('user.company.index', compact('companies'));
     }
 
