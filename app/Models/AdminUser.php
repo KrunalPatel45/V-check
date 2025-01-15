@@ -10,7 +10,7 @@ class AdminUser extends Authenticatable
 {
     use Notifiable;
 
-    protected $table = 'adminuser';
+    protected $table = 'AdminUser';
 
     protected $primaryKey = 'AdminID';
 

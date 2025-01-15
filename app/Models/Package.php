@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Package extends Model
 {
-    protected $table = 'package';
+    protected $table = 'Package';
 
     protected $primaryKey = 'PackageID';
 
