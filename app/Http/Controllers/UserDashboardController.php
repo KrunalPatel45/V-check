@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use App\Models\PaymentSubscription;
+use App\Models\Package;
+use Carbon\Carbon;
 
 class UserDashboardController extends Controller
 {
@@ -25,7 +28,21 @@ class UserDashboardController extends Controller
         }
 
         $user = User::where('userID', Auth::user()->UserID)->first();
-        return view('user.profile.profile', compact('user'));
+        $paymentSubscription = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('PackageID', $user->CurrentPackageID)->first();
+        $package = Package::find($user->CurrentPackageID);
+        $total_days = $package->Duration;
+        $package_name = $package->Name;
+        $expiry = Carbon::createFromFormat('Y-m-d', $paymentSubscription->NextRenewalDate);
+        $expiryDate = $expiry->format('M d, Y');
+        $remainingDays = $expiry->diffInDays(Carbon::now(), false);
+        $package_data = [
+            'total_days' => $total_days,
+            'package_name' => $package_name,
+            'expiryDate' => $expiryDate,
+            'remainingDays' => abs(round($remainingDays)),
+        ];
+
+        return view('user.profile.profile', compact('user', 'package_data'));
     }
 
     public function updateProfile(Request $request)

@@ -10,24 +10,32 @@ use App\Models\Payors;
 
 class PayorsController extends Controller
 {
-    public function index()
+    public function client_index()
     {
         if(!Auth::check()) {
             return redirect()->route('user.login');
         }
-        $payors = Payors::where('UserID', Auth::id())->get();
-        return view('user.payors.index', compact('payors'));
+        $payors = Payors::where('UserID', Auth::id())->whereIn('Type', ['Client', 'Both'])->get();
+        return view('user.client.index', compact('payors'));
     }
-
-    public function create() 
+    public function vendor_index()
     {
         if(!Auth::check()) {
             return redirect()->route('user.login');
         }
-        return view('user.payors.new');   
+        $payors = Payors::where('UserID', Auth::id())->whereIn('Type', ['Vendor', 'Both'])->get();
+        return view('user.vendor.index', compact('payors'));
     }
 
-    public function store(Request $request) 
+    public function create($type) 
+    {
+        if(!Auth::check()) {
+            return redirect()->route('user.login');
+        }
+        return view('user.'.$type.'.new');   
+    }
+
+    public function store(Request $request, $type) 
     {  
         $validator = Validator::make($request->all(), [
             'name' => 'required' ,
@@ -41,14 +49,22 @@ class PayorsController extends Controller
             'routing_number' => 'required',
             'account_number' => 'required',
             'status' => 'required',
-            'type' => 'required',
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        
+        $payors_type = $request->type;
+        if(!empty($request->same_as) && $request->same_as == 'on') {
+            if($payors_type == 'Client') {
+                $payors_type .= ', Vendor';
+            }
+            if($payors_type == 'Vendor') {
+                $payors_type .= ', Client';
+            }
+        }
+       
         $payor = new Payors();
 
         $payor->Name = $request->name;
@@ -63,24 +79,24 @@ class PayorsController extends Controller
         $payor->RoutingNumber = $request->routing_number;
         $payor->AccountNumber = $request->account_number;
         $payor->Status = $request->status;
-        $payor->Type = $request->type;
+        $payor->Type = $payors_type;
 
         $payor->save();
 
 
-        return redirect()->route('user.payors')->with('success', 'payors added successfully');
+        return redirect()->route('user.'. $type)->with('success', $type.' added successfully');
     }
 
-    public function edit($id)
+    public function edit($type, $id)
     {
         if(!Auth::check()) {
             return redirect()->route('user.login');
         }
         $payor = Payors::find($id);
-        return view('user.payors.edit', compact('payor'));
+        return view('user.'.$type.'.edit', compact('payor'));
     }
 
-    public function update(Request $request, $id) 
+    public function update(Request $request, $type, $id) 
     {  
         $validator = Validator::make($request->all(), [
             'name' => 'required' ,
@@ -100,6 +116,10 @@ class PayorsController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
+        $payors_type = $request->type;
+        if(!empty($request->same_as) && $request->same_as == 'on') {
+            $payors_type = 'Both';
+        }
         
         $payor = Payors::find($id);
 
@@ -114,21 +134,21 @@ class PayorsController extends Controller
         $payor->BankName = $request->bank_name;
         $payor->RoutingNumber = $request->routing_number;
         $payor->AccountNumber = $request->account_number;
-        $payor->Type = $request->type;
+        $payor->Type = $payors_type;
         $payor->Status = $request->status;
 
         $payor->save();
 
 
-        return redirect()->route('user.payors')->with('success', 'Updated added successfully');
+        return redirect()->route('user.'.$type)->with('success', $type . ' updated successfully');
     }
 
-    public function delete($id)
+    public function delete($type, $id)
     {
         $package = Payors::find($id);
         $package->delete();
 
-        return redirect()->route('user.payors')->with('success', 'payors deleted successfully');
+        return redirect()->route('user.'.$type)->with('success', $type . ' deleted successfully');
     }
 
 }

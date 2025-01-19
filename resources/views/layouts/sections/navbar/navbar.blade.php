@@ -42,7 +42,7 @@
 
 <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
 
-    @if (!isset($menuHorizontal))
+    {{-- @if (!isset($menuHorizontal))
         <!-- Search -->
         <div class="navbar-nav align-items-center">
             <div class="nav-item navbar-search-wrapper mb-0">
@@ -51,24 +51,24 @@
                     <span class="d-none d-md-inline-block text-muted fw-normal">Search (Ctrl+/)</span>
                 </a>
             </div>
-        </div>
-        <!-- /Search -->
-    @endif
+        </div> --}}
+    <!-- /Search -->
+    {{-- @endif --}}
 
     <ul class="navbar-nav flex-row align-items-center ms-auto">
-        @if (isset($menuHorizontal))
-            <!-- Search -->
-            <li class="nav-item navbar-search-wrapper">
+        {{-- @if (isset($menuHorizontal)) --}}
+        <!-- Search -->
+        {{-- <li class="nav-item navbar-search-wrapper">
                 <a class="nav-link btn btn-text-secondary btn-icon rounded-pill search-toggler"
                     href="javascript:void(0);">
                     <i class="ti ti-search ti-md"></i>
                 </a>
-            </li>
-            <!-- /Search -->
-        @endif
+            </li> --}}
+        <!-- /Search -->
+        {{-- @endif --}}
 
         <!-- Language -->
-        <li class="nav-item dropdown-language dropdown">
+        {{-- <li class="nav-item dropdown-language dropdown">
             <a class="nav-link btn btn-text-secondary btn-icon rounded-pill dropdown-toggle hide-arrow"
                 href="javascript:void(0);" data-bs-toggle="dropdown">
                 <i class='ti ti-language rounded-circle ti-md'></i>
@@ -99,7 +99,7 @@
                     </a>
                 </li>
             </ul>
-        </li>
+        </li> --}}
         <!--/ Language -->
 
         @if ($configData['hasCustomizer'] == true)
@@ -132,7 +132,7 @@
         @endif
 
         <!-- Quick links  -->
-        <li class="nav-item dropdown-shortcuts navbar-dropdown dropdown">
+        {{-- <li class="nav-item dropdown-shortcuts navbar-dropdown dropdown">
             <a class="nav-link btn btn-text-secondary btn-icon rounded-pill btn-icon dropdown-toggle hide-arrow"
                 href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                 <i class='ti ti-layout-grid-add ti-md'></i>
@@ -214,14 +214,13 @@
                     </div>
                 </div>
             </div>
-        </li>
+        </li> --}}
         <!-- Quick links -->
 
         <!-- Notification -->
-        <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-2">
+        {{-- <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-3 me-xl-2">
             <a class="nav-link btn btn-text-secondary btn-icon rounded-pill dropdown-toggle hide-arrow"
-                href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside"
-                aria-expanded="false">
+                href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                 <span class="position-relative">
                     <i class="ti ti-bell ti-md"></i>
                     <span class="badge rounded-pill bg-danger badge-dot badge-notifications border"></span>
@@ -246,8 +245,7 @@
                             <div class="d-flex">
                                 <div class="flex-shrink-0 me-3">
                                     <div class="avatar">
-                                        <img src="{{ asset('assets/img/avatars/1.png') }}" alt
-                                            class="rounded-circle">
+                                        <img src="{{ asset('assets/img/avatars/1.png') }}" alt class="rounded-circle">
                                     </div>
                                 </div>
                                 <div class="flex-grow-1">
@@ -288,8 +286,7 @@
                             <div class="d-flex">
                                 <div class="flex-shrink-0 me-3">
                                     <div class="avatar">
-                                        <img src="{{ asset('assets/img/avatars/2.png') }}" alt
-                                            class="rounded-circle">
+                                        <img src="{{ asset('assets/img/avatars/2.png') }}" alt class="rounded-circle">
                                     </div>
                                 </div>
                                 <div class="flex-grow-1">
@@ -330,8 +327,7 @@
                             <div class="d-flex">
                                 <div class="flex-shrink-0 me-3">
                                     <div class="avatar">
-                                        <img src="{{ asset('assets/img/avatars/9.png') }}" alt
-                                            class="rounded-circle">
+                                        <img src="{{ asset('assets/img/avatars/9.png') }}" alt class="rounded-circle">
                                     </div>
                                 </div>
                                 <div class="flex-grow-1">
@@ -444,7 +440,7 @@
                     </div>
                 </li>
             </ul>
-        </li>
+        </li> --}}
         <!--/ Notification -->
 
         <!-- User -->
@@ -582,8 +578,7 @@
 
 <!-- Search Small Screens -->
 <div class="navbar-search-wrapper search-input-wrapper {{ isset($menuHorizontal) ? $containerNav : '' }} d-none">
-    <input type="text"
-        class="form-control search-input {{ isset($menuHorizontal) ? '' : $containerNav }} border-0"
+    <input type="text" class="form-control search-input {{ isset($menuHorizontal) ? '' : $containerNav }} border-0"
         placeholder="Search..." aria-label="Search...">
     <i class="ti ti-x search-toggler cursor-pointer"></i>
 </div>

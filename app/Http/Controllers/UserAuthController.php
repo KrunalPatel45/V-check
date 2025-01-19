@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\Package;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
+use App\Models\PaymentSubscription;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class UserAuthController extends Controller
 {
@@ -90,6 +93,33 @@ class UserAuthController extends Controller
         $user->CurrentPackageID = $plan;
         $user->Status = 'Active';
         $user->save();
+
+
+        $packages = Package::find($plan);
+
+        $paymentStartDate = Carbon::now();
+
+        $paymentEndDate = $paymentStartDate->copy()->addHours(24);
+
+        $nextRenewalDate = $paymentStartDate->copy()->addDays($packages->Duration);
+
+
+        $paymentSubscription = PaymentSubscription::create([
+            'UserID' => $id,
+            'PackageID' => $plan,
+            'PaymentMethodID' => 1,
+            'PaymentAmount' => $packages->Price,
+            'PaymentStartDate' => $paymentStartDate,
+            'PaymentEndDate' => $paymentEndDate,
+            'NextRenewalDate' => $nextRenewalDate,
+            'ChecksGiven' => $packages->CheckLimitPerMonth,
+            'ChecksUsed'=> 0,
+            'RemainingChecks' => 0,
+            'PaymentDate' => $paymentStartDate,
+            'PaymentAttempts' => 0 ,
+            'TransactionID' => Str::random(10),
+            'Status' => 'Active', 
+        ]);
 
         return redirect()->route('user.login')->with('success', 'Account created successful!');
     }

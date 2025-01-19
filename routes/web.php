@@ -207,12 +207,13 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::get('/user/company/edit/{id}', [CompanyController::class, 'edit'])->name('user.company.edit');
     Route::post('/user/company/edit/{id}', [CompanyController::class, 'update'])->name('user.company.update');
     Route::delete('/user/company/delete/{id}', [CompanyController::class, 'delete'])->name('user.company.delete');
-    Route::get('/user/payors', [PayorsController::class, 'index'])->name('user.payors');
-    Route::get('/user/payors/add', [PayorsController::class, 'create'])->name('user.payors.add');
-    Route::post('/user/payors/add', [PayorsController::class, 'store'])->name('user.payors.store');
-    Route::get('/user/payors/edit/{id}', [PayorsController::class, 'edit'])->name('user.payors.edit');
-    Route::post('/user/payors/edit/{id}', [PayorsController::class, 'update'])->name('user.payors.update');
-    Route::delete('/user/payors/delete/{id}', [PayorsController::class, 'delete'])->name('user.payors.delete');
+    Route::get('/user/client', [PayorsController::class, 'client_index'])->name('user.client');
+    Route::get('/user/vendor', [PayorsController::class, 'vendor_index'])->name('user.vendor');
+    Route::get('/user/payors/{type}/add', [PayorsController::class, 'create'])->name('user.payors.add');
+    Route::post('/user/payors/{type}/add', [PayorsController::class, 'store'])->name('user.payors.store');
+    Route::get('/user/payors/{type}/edit/{id}', [PayorsController::class, 'edit'])->name('user.payors.edit');
+    Route::post('/user/payors/{type}/edit/{id}', [PayorsController::class, 'update'])->name('user.payors.update');
+    Route::delete('/user/payors/{type}/delete/{id}', [PayorsController::class, 'delete'])->name('user.payors.delete');
 });
 
 

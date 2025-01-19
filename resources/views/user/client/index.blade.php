@@ -3,7 +3,7 @@
 @endphp
 @extends('layouts/layoutMaster')
 
-@section('title', 'Payors')
+@section('title', 'Vendor')
 
 @section('content')
     <div class="card">
@@ -13,10 +13,10 @@
             </div>
         @endif
         <div class="d-flex justify-content-between align-items-center">
-            <h5 class="card-header">Payors</h5>
-            <a href="{{ route('user.payors.add') }}" class="btn btn-primary mr-4"
+            <h5 class="card-header">Client</h5>
+            <a href="{{ route('user.payors.add', ['type' => 'client']) }}" class="btn btn-primary mr-4"
                 style="height: 40px !important;margin-right: 25px !important;"><i class="fa-solid fa-plus"></i> &nbsp; Add
-                Payors</a>
+                Client</a>
         </div>
         <div class="table-responsive text-nowrap">
             <table class="table">
@@ -55,7 +55,7 @@
                                     <button type="button" class="btn p-0 dropdown-toggle hide-arrow"
                                         data-bs-toggle="dropdown"><i class="ti ti-dots-vertical"></i></button>
                                     <div class="dropdown-menu">
-                                        <a href="{{ route('user.payors.edit', ['id' => $payor->EntityID]) }}"
+                                        <a href="{{ route('user.payors.edit', ['type' => 'client', 'id' => $payor->EntityID]) }}"
                                             class="dropdown-item" href="javascript:void(0);"><i
                                                 class="ti ti-pencil me-1"></i>
                                             Edit</a>
@@ -82,7 +82,7 @@
                                                 <button type="button" class="btn btn-label-secondary"
                                                     data-bs-dismiss="modal">Close</button>
                                                 <form
-                                                    action="{{ route('user.payors.delete', ['id' => $payor->EntityID]) }}"
+                                                    action="{{ route('user.payors.delete', ['type' => 'client', 'id' => $payor->EntityID]) }}"
                                                     method="POST" style="display: inline;">
                                                     @csrf
                                                     @method('DELETE')
