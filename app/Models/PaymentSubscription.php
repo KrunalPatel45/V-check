@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PaymentSubscription extends Model
 {
-    protected $table = 'paymentsubscription';
+    protected $table = 'PaymentSubscription';
 
     protected $primaryKey = 'PaymentSubscriptionID';
 
