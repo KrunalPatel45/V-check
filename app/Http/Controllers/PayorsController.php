@@ -57,7 +57,7 @@ class PayorsController extends Controller
 
         $payors_type = $request->type;
         if(!empty($request->same_as) && $request->same_as == 'on') {
-            $payors_type .= 'Both';
+            $payors_type = 'Both';
         }
        
         $payor = new Payors();
