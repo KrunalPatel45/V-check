@@ -10,21 +10,136 @@ use App\Models\Payors;
 
 class PayorsController extends Controller
 {
-    public function client_index()
+    public function client_index(Request $request)
     {
-        if(!Auth::check()) {
+        if (!Auth::check()) {
             return redirect()->route('user.login');
         }
-        $payors = Payors::where('UserID', Auth::id())->whereIn('Type', ['Client', 'Both'])->get();
-        return view('user.client.index', compact('payors'));
+
+        if ($request->ajax()) {
+            $payors = Payors::where('UserID', Auth::id())
+                ->whereIn('Type', ['Client', 'Both'])
+                ->get();
+
+            return datatables()->of($payors)
+                ->addIndexColumn()
+                ->addColumn('status', function ($row) {
+                    return '<span class="badge ' . 
+                        ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') . 
+                        '">' . $row->Status . '</span>';
+                })
+                ->addColumn('actions', function ($row) {
+                    $editUrl = route('user.payors.edit', ['type' => 'client', 'id' => $row->EntityID]);
+                    $deleteUrl = route('user.payors.delete', ['type' => 'client', 'id' => $row->EntityID]);
+                
+                    return '<div class="dropdown">
+                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                    <i class="ti ti-dots-vertical"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a href="' . $editUrl . '" class="dropdown-item">
+                                        <i class="ti ti-pencil me-1"></i> Edit
+                                    </a>
+                                    <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="modal" 
+                                    data-bs-target="#delete' . $row->EntityID . '">
+                                        <i class="ti ti-trash me-1"></i> Delete
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="modal fade" id="delete' . $row->EntityID . '" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Delete Payor</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to delete this Payor?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
+                                                ' . csrf_field() . '
+                                                ' . method_field('DELETE') . '
+                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>';
+                })
+                
+                ->rawColumns(['status', 'actions'])
+                ->make(true);
+        }
+
+        return view('user.client.index');
     }
-    public function vendor_index()
+
+    public function vendor_index(Request $request)
     {
         if(!Auth::check()) {
             return redirect()->route('user.login');
         }
-        $payors = Payors::where('UserID', Auth::id())->whereIn('Type', ['Vendor', 'Both'])->get();
-        return view('user.vendor.index', compact('payors'));
+
+        if ($request->ajax()) {
+            $payors = Payors::where('UserID', Auth::id())
+                ->whereIn('Type', ['Vendor', 'Both'])
+                ->get();
+
+            return datatables()->of($payors)
+                ->addIndexColumn()
+                ->addColumn('status', function ($row) {
+                    return '<span class="badge ' . 
+                        ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') . 
+                        '">' . $row->Status . '</span>';
+                })
+                ->addColumn('actions', function ($row) {
+                    $editUrl = route('user.payors.edit', ['type' => 'client', 'id' => $row->EntityID]);
+                    $deleteUrl = route('user.payors.delete', ['type' => 'client', 'id' => $row->EntityID]);
+                
+                    return '<div class="dropdown">
+                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                    <i class="ti ti-dots-vertical"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a href="' . $editUrl . '" class="dropdown-item">
+                                        <i class="ti ti-pencil me-1"></i> Edit
+                                    </a>
+                                    <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="modal" 
+                                    data-bs-target="#delete' . $row->EntityID . '">
+                                        <i class="ti ti-trash me-1"></i> Delete
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="modal fade" id="delete' . $row->EntityID . '" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Delete Payor</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to delete this Payor?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
+                                                ' . csrf_field() . '
+                                                ' . method_field('DELETE') . '
+                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>';
+                })
+                
+                ->rawColumns(['status', 'actions'])
+                ->make(true);
+        }
+
+        return view('user.vendor.index');
     }
 
     public function create($type) 

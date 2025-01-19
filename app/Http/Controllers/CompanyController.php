@@ -10,13 +10,70 @@ use App\Models\Company;
 
 class CompanyController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        if(!Auth::check()) {
+        if (!Auth::check()) {
             return redirect()->route('user.login');
         }
-        $companies = Company::where('UserID', Auth::id())->get();
-        return view('user.company.index', compact('companies'));
+
+        if ($request->ajax()) {
+            $companies = Company::where('UserID', Auth::id())->get();
+
+            return datatables()->of($companies)
+                ->addIndexColumn()
+                ->addColumn('logo', function ($row) {
+                    return '<img src="' . asset('storage/' . $row->Logo) . '" alt="Company Logo" style="width: 50px;">';
+                })
+                ->addColumn('status', function ($row) {
+                    return '<span class="badge ' .
+                        ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') .
+                        '">' . $row->Status . '</span>';
+                })
+                ->addColumn('actions', function ($row) {
+                    $editUrl = route('user.company.edit', ['id' => $row->CompanyID]);
+                    $deleteUrl = route('user.company.delete', ['id' => $row->CompanyID]);
+
+                    return '<div class="dropdown">
+                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                    <i class="ti ti-dots-vertical"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a href="' . $editUrl . '" class="dropdown-item">
+                                        <i class="ti ti-pencil me-1"></i> Edit
+                                    </a>
+                                    <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="modal" 
+                                    data-bs-target="#delete' . $row->CompanyID . '">
+                                        <i class="ti ti-trash me-1"></i> Delete
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="modal fade" id="delete' . $row->CompanyID . '" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Delete Company</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to delete this company?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
+                                                ' . csrf_field() . '
+                                                ' . method_field('DELETE') . '
+                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>';
+                })
+                ->rawColumns(['logo', 'status', 'actions'])
+                ->make(true);
+        }
+
+        return view('user.company.index');
     }
 
     public function create() 
@@ -36,7 +93,7 @@ class CompanyController extends Controller
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:Company,email',
             'logo' => 'required|image|mimes:jpeg,png,jpg',
             'bank_name' => 'required',
             'routing_number' => 'required',
@@ -100,7 +157,7 @@ class CompanyController extends Controller
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:Company,email,' . $id.',CompanyID',
             'bank_name' => 'required',
             'routing_number' => 'required',
             'account_number' => 'required',
@@ -111,16 +168,17 @@ class CompanyController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $logoPath = null;
+        $slug = Str::slug($request->name, '-');
+        
+        $company = Company::find($id);
+
+        
+        $logoPath =  $company->Logo;
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
             $uniqueName = Str::uuid() . '.' . $file->getClientOriginalExtension(); // Generate a unique name with extension
             $logoPath = $file->storeAs('logos', $uniqueName, 'public'); // Store in "storage/app/public/logos"
         }
-
-        $slug = Str::slug($request->name, '-');
-        
-        $company = Company::find($id);
 
         $company->Name = $request->name;
         $company->UserID = Auth::id();

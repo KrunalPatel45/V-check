@@ -2,6 +2,15 @@
 
 @section('title', 'Package')
 
+@section('vendor-style')
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss'])
+@endsection
+
+<!-- Vendor Scripts -->
+@section('vendor-script')
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
+@endsection
+
 @section('content')
     <div class="card">
         @if (session('success'))
@@ -10,8 +19,8 @@
             </div>
         @endif
         <h5 class="card-header">Users</h5>
-        <div class="table-responsive text-nowrap">
-            <table class="table">
+        <div class="card-datatable table-responsive pt-0">
+            <table class="table" id="users-table">
                 <thead>
                     <tr>
                         <th>#</th>
@@ -26,26 +35,70 @@
                         <th>UpdatedAt</th>
                     </tr>
                 </thead>
-                <tbody class="table-border-bottom-0">
-                    @foreach ($users as $key => $user)
-                        <tr>
-                            <td>{{ $key + 1 }}</td>
-                            <td>{{ $user->FirstName }} {{ $user->LastName }}</td>
-                            <td>{{ $user->Username }}</td>
-                            <td>{{ $user->Email }}</td>
-                            <td>{{ $user->PhoneNumber }}</td>
-                            <td>{{ $user->package }}</td>
-                            <td>${{ $user->package_price }}</td>
-                            <td><span
-                                    class="badge {{ $user->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning' }} me-1">{{ $user->Status }}</span>
-                            </td>
-                            <td>{{ $user->CreatedAt }}</td>
-                            <td>{{ $user->UpdatedAt }}</td>
-                        </tr>
-                    @endforeach
+                <tbody>
                 </tbody>
             </table>
         </div>
     </div>
 
+@endsection
+@section('page-script')
+    <script>
+        $(document).ready(function() {
+            $('#users-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('admin.users') }}", // Your route to fetch data
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex'
+                    }, // Automatically generated index column
+                    {
+                        data: 'FirstName',
+                        name: 'FirstName'
+                    },
+                    {
+                        data: 'Username',
+                        name: 'Username'
+                    },
+                    {
+                        data: 'Email',
+                        name: 'Email'
+                    },
+                    {
+                        data: 'PhoneNumber',
+                        name: 'PhoneNumber'
+                    },
+                    {
+                        data: 'package',
+                        name: 'package'
+                    },
+                    {
+                        data: 'package_price',
+                        name: 'package_price'
+                    },
+                    {
+                        data: 'status',
+                        name: 'status',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at'
+                    },
+                    {
+                        data: 'updated_at',
+                        name: 'updated_at'
+                    }
+                ],
+                columnDefs: [{
+                    targets: [0, 7, 8,
+                        9
+                    ], // You can customize the columns for no sorting or searching
+                    orderable: false
+                }]
+            });
+        });
+    </script>
 @endsection

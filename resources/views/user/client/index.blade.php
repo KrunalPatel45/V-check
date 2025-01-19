@@ -3,7 +3,15 @@
 @endphp
 @extends('layouts/layoutMaster')
 
-@section('title', 'Vendor')
+@section('title', 'Clinet')
+@section('vendor-style')
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss'])
+@endsection
+
+<!-- Vendor Scripts -->
+@section('vendor-script')
+    @vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
+@endsection
 
 @section('content')
     <div class="card">
@@ -15,89 +23,77 @@
         <div class="d-flex justify-content-between align-items-center">
             <h5 class="card-header">Client</h5>
             <a href="{{ route('user.payors.add', ['type' => 'client']) }}" class="btn btn-primary mr-4"
-                style="height: 40px !important;margin-right: 25px !important;"><i class="fa-solid fa-plus"></i> &nbsp; Add
-                Client</a>
+                style="height: 40px !important;margin-right: 25px !important;">
+                <i class="fa-solid fa-plus"></i> &nbsp; Add Client
+            </a>
         </div>
-        <div class="table-responsive text-nowrap">
-            <table class="table">
+        <div class="card-datatable table-responsive pt-0">
+            <table id="clientTable" class="table">
                 <thead>
                     <tr>
                         <th>#</th>
                         <th>Name</th>
                         <th>Email</th>
                         <th>Routing Number</th>
-                        <th>City</th>
-                        <th>State</th>
-                        <th>Zip</th>
                         <th>Status</th>
                         <th>CreatedAt</th>
                         <th>UpdatedAt</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody class="table-border-bottom-0">
-                    @foreach ($payors as $key => $payor)
-                        <tr>
-                            <td>{{ $key + 1 }}</td>
-                            <td>{{ $payor->Name }}</td>
-                            <td>{{ $payor->Email }}</td>
-                            <td>{{ $payor->RoutingNumber }}</td>
-                            <td>{{ $payor->City }}</td>
-                            <td>{{ $payor->State }}</td>
-                            <td>{{ $payor->Zip }}</td>
-                            <td><span
-                                    class="badge {{ $payor->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning' }} me-1">{{ $payor->Status }}</span>
-                            </td>
-                            <td>{{ $payor->CreatedAt }}</td>
-                            <td>{{ $payor->UpdatedAt }}</td>
-                            <td>
-                                <div class="dropdown">
-                                    <button type="button" class="btn p-0 dropdown-toggle hide-arrow"
-                                        data-bs-toggle="dropdown"><i class="ti ti-dots-vertical"></i></button>
-                                    <div class="dropdown-menu">
-                                        <a href="{{ route('user.payors.edit', ['type' => 'client', 'id' => $payor->EntityID]) }}"
-                                            class="dropdown-item" href="javascript:void(0);"><i
-                                                class="ti ti-pencil me-1"></i>
-                                            Edit</a>
-                                        <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="modal"
-                                            data-bs-target="#delete{{ $payor->EntityID }}"><i class="ti ti-trash me-1"></i>
-                                            Delete</a>
-                                    </div>
-                                </div>
-
-                                <div class="modal fade" id="delete{{ $payor->EntityID }}" tabindex="-1"
-                                    aria-hidden="true">
-                                    <div class="modal-dialog" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="exampleModalLabel1">Delete Package
-                                                    {{ $payor->Name }}</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <p>Are you sure you want to delete this Payors? </p>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-label-secondary"
-                                                    data-bs-dismiss="modal">Close</button>
-                                                <form
-                                                    action="{{ route('user.payors.delete', ['type' => 'client', 'id' => $payor->EntityID]) }}"
-                                                    method="POST" style="display: inline;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
+                <tbody>
                 </tbody>
             </table>
         </div>
     </div>
-
+@endsection
+@section('page-script')
+    <script>
+        $(document).ready(function() {
+            $('#clientTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('user.client') }}",
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'Name',
+                        name: 'Name'
+                    },
+                    {
+                        data: 'Email',
+                        name: 'Email'
+                    },
+                    {
+                        data: 'RoutingNumber',
+                        name: 'RoutingNumber'
+                    },
+                    {
+                        data: 'status',
+                        name: 'status',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'CreatedAt',
+                        name: 'CreatedAt'
+                    },
+                    {
+                        data: 'UpdatedAt',
+                        name: 'UpdatedAt'
+                    },
+                    {
+                        data: 'actions',
+                        name: 'actions',
+                        orderable: false,
+                        searchable: false
+                    }
+                ]
+            });
+        });
+    </script>
 @endsection

@@ -70,19 +70,34 @@ class AdminDashboardController extends Controller
         return redirect()->route('admin.profile')->with('pass_success', 'Password changed successfully');
     }
 
-    public function users()
+    public function users(Request $request)
     {
-        $users = User::all();
-        foreach($users as $user) {
-            $package = Package::find($user->CurrentPackageID);
-            $user->package = "";
-            $user->package_price = 0;
-            if(!empty($package)) {
-                $user->package = $package->Name;
-                $user->package_price = $package->Price;
+        if ($request->ajax()) {
+            $users = User::all();
+
+            foreach ($users as $user) {
+                $package = Package::find($user->CurrentPackageID);
+                $user->package = $package ? $package->Name : 'N/A'; 
+                $user->package_price = $package ? $package->Price : 0;
             }
+
+            return datatables()->of($users)
+                ->addIndexColumn()
+                ->addColumn('status', function ($user) {
+                    return $user->Status == 'Active' 
+                        ? '<span class="badge bg-label-primary">' . $user->Status . '</span>' 
+                        : '<span class="badge bg-label-warning">' . $user->Status . '</span>';
+                })
+                ->addColumn('created_at', function ($user) {
+                    return $user->CreatedAt;
+                })
+                ->addColumn('updated_at', function ($user) {
+                    return $user->UpdatedAt;
+                })
+                ->rawColumns(['status', 'created_at', 'updated_at']) // Allow raw HTML content
+                ->make(true);
         }
 
-        return view('admin.user.index', compact('users'));
+        return view('admin.user.index');
     }
 }
