@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\PaymentSubscription;
 use App\Models\Package;
 use Carbon\Carbon;
+use App\Models\Company;
+use App\Models\Payors;
 
 class UserDashboardController extends Controller
 {
@@ -18,7 +20,34 @@ class UserDashboardController extends Controller
         if(!Auth::check()) {
             return redirct()->route('user.login');
         }
-        return view('content.dashboard.dashboards-analytics');
+
+        $user = User::where('userID', Auth::user()->UserID)->first();
+        $paymentSubscription = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('PackageID', $user->CurrentPackageID)->first();
+        $package = Package::find($user->CurrentPackageID);
+        $total_days = $package->Duration;
+        $package_name = $package->Name;
+        $expiry = Carbon::createFromFormat('Y-m-d', $paymentSubscription->NextRenewalDate);
+        $expiryDate = $expiry->format('M d, Y');
+        $remainingDays = $expiry->diffInDays(Carbon::now(), false);
+        $package_data = [
+            'total_days' => $total_days,
+            'package_name' => $package_name,
+            'expiryDate' => $expiryDate,
+            'remainingDays' => abs(round($remainingDays)),
+        ];
+        
+        $total_vendor = Payors::where('UserID', Auth::user()->UserID)
+                        ->whereIn('Type', ['Vendor', 'Both'])
+                        ->count();
+
+        //
+        $total_client = Payors::where('UserID', Auth::user()->UserID)
+                        ->whereIn('Type', ['Client', 'Both'])
+                        ->count();                
+        //
+        $total_companies = Company::where('UserID', Auth::user()->UserID)->count();
+
+        return view('content.dashboard.user-dashboards-analytics', compact('package_data', 'total_vendor', 'total_client', 'total_companies'));
     }
 
     public function profile()

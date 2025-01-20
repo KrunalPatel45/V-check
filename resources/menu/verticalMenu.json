@@ -8,6 +8,13 @@
       "access": "admin"
     },
     {
+      "name": "Dashboards",
+      "icon": "menu-icon tf-icons ti ti-smart-home",
+      "slug": "dashboard",
+      "url": "/dashboard",
+      "access": "web"
+    },
+    {
       "url": "/admin/package",
       "name": "Packages",
       "icon": "menu-icon tf-icons ti ti-layout-sidebar",

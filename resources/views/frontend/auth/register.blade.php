@@ -46,35 +46,65 @@
                             <div class="mb-6">
                                 <label for="firstname" class="form-label">First Name</label>
                                 <input type="text" class="form-control" id="firstname" name="firstname"
-                                    placeholder="Enter your first name" autofocus>
+                                    placeholder="Enter your first name" value="{{ old('firstname') }}" autofocus>
+                                @if ($errors->has('firstname'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('firstname') }}
+                                    </span>
+                                @endif
                             </div>
                             <div class="mb-6">
                                 <label for="lastname" class="form-label">Last Name</label>
                                 <input type="text" class="form-control" id="lastname" name="lastname"
-                                    placeholder="Enter your last name">
+                                    placeholder="Enter your last name" value="{{ old('lastname') }}">
+                                @if ($errors->has('lastname'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('lastname') }}
+                                    </span>
+                                @endif
                             </div>
                             <div class="mb-6">
                                 <label for="username" class="form-label">Username</label>
                                 <input type="text" class="form-control" id="username" name="username"
-                                    placeholder="Enter your username">
+                                    placeholder="Enter your username" value="{{ old('username') }}">
+                                @if ($errors->has('username'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('username') }}
+                                    </span>
+                                @endif
                             </div>
                             <div class="mb-6">
                                 <label for="email" class="form-label">Email</label>
                                 <input type="text" class="form-control" id="email" name="email"
-                                    placeholder="Enter your email">
+                                    placeholder="Enter your email" value="{{ old('email') }}">
+                                @if ($errors->has('email'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('email') }}
+                                    </span>
+                                @endif
                             </div>
                             <div class="mb-6">
                                 <label for="phone_number" class="form-label">Phone Number</label>
                                 <input type="text" class="form-control" id="phone_number" name="phone_number"
-                                    placeholder="Enter your phone number">
+                                    placeholder="Enter your phone number" value="{{ old('phone_number') }}">
+                                @if ($errors->has('phone_number'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('phone_number') }}
+                                    </span>
+                                @endif
                             </div>
                             <div class="mb-6 form-password-toggle">
                                 <label class="form-label" for="password">Password</label>
                                 <div class="input-group input-group-merge">
                                     <input type="password" id="password" class="form-control" name="password"
                                         placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
-                                        aria-describedby="password" />
+                                        aria-describedby="password" value="{{ old('password') }}" />
                                     <span class="input-group-text cursor-pointer"><i class="ti ti-eye-off"></i></span>
+                                    @if ($errors->has('password'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('password') }}
+                                        </span>
+                                    @endif
                                 </div>
                             </div>
 
@@ -84,7 +114,7 @@
                                     <input type="password" id="confirm-password" class="form-control"
                                         name="confirm-password"
                                         placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
-                                        aria-describedby="confirm-password" />
+                                        aria-describedby="confirm-password" value="{{ old('confirm-password') }}" />
                                     <span class="input-group-text cursor-pointer"><i class="ti ti-eye-off"></i></span>
                                 </div>
                             </div>

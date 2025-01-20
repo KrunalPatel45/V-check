@@ -72,7 +72,19 @@ class UserAuthController extends Controller
 
     public function store(Request $request)
     {
-           $user = User::create([
+        $validator = Validator::make($request->all(), [
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'username' => 'required|string|unique:user,Username|max:255',
+            'email' => 'required|string|email|unique:user,Email|max:255',
+            'phone_number' => 'required|string|max:20',
+        ]);
+        
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $user = User::create([
             'FirstName' => $request->firstname,
             'LastName' => $request->lastname,
             'Username' => $request->username,

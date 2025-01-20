@@ -79,9 +79,9 @@
                                             Remember Me
                                         </label>
                                     </div>
-                                    <a href="{{ url('auth/forgot-password-basic') }}">
+                                    {{-- <a href="{{ url('auth/forgot-password-basic') }}">
                                         <p class="mb-0">Forgot Password?</p>
-                                    </a>
+                                    </a> --}}
                                 </div>
                             </div>
                             <div class="mb-6">
