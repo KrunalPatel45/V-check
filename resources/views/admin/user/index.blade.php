@@ -18,6 +18,16 @@
                 {{ session('success') }}
             </div>
         @endif
+        @if (session('profile_success'))
+            <div class="alert alert-success">
+                {{ session('profile_success') }}
+            </div>
+        @endif
+        @if (session('pass_success'))
+            <div class="alert alert-success">
+                {{ session('pass_success') }}
+            </div>
+        @endif
         <h5 class="card-header">Users</h5>
         <div class="card-datatable table-responsive pt-0">
             <table class="table" id="users-table">
@@ -33,6 +43,7 @@
                         <th>Status</th>
                         <th>CreatedAt</th>
                         <th>UpdatedAt</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -90,6 +101,12 @@
                     {
                         data: 'updated_at',
                         name: 'updated_at'
+                    },
+                    {
+                        data: 'actions',
+                        name: 'actions',
+                        orderable: false,
+                        searchable: false
                     }
                 ],
                 columnDefs: [{
