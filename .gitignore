@@ -1,8 +1,8 @@
 /.phpunit.cache
 
-/public/hot
-/public/storage
-/storage/*.key
+# /public/hot
+# /public/storage
+# /storage/*.key
 # /vendor
 
 # .env
@@ -20,7 +20,7 @@ yarn-error.log
 /.idea
 /.vscode
 
-!/public/assets
-!/public/assets/*
-/public/css
-/public/js
+# !/public/assets
+# !/public/assets/*
+# /public/css
+# /public/js
