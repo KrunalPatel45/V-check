@@ -57,7 +57,7 @@
                             <div class="plan-statistics">
                                 <div class="d-flex justify-content-between">
                                     <h6 class="mb-1">Days</h6>
-                                    <h6 class="mb-1">{{ $package_data['total_days'] - $package_data['remainingDays'] }} of
+                                    <h6 class="mb-1">{{ $package_data['remainingDays'] }} of
                                         {{ $package_data['total_days'] }} Days</h6>
                                 </div>
                                 <div class="progress rounded mb-1">
