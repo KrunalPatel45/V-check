@@ -18,9 +18,6 @@
 @endsection
 
 @section('content')
-    @php
-        $progress = ($package_data['remainingDays'] * 100) / $package_data['total_days'];
-    @endphp
     <div class="col-xxl">
         <div class="card mb-6">
             @if (session('profile_success'))
@@ -30,6 +27,10 @@
             @endif
             <div class="card-header d-flex align-items-center justify-content-between">
                 <h5 class="mb-0">User Profile</h5>
+                <a href="{{ route('admin.user.edit', ['id' => $user->UserID]) }}" class="btn btn-primary mr-4"><i
+                        class="fa-solid fa-arrow-left"></i>
+                    &nbsp;
+                    Back</a>
             </div>
             <div class="card-body">
                 <form id="profile-form" action="{{ route('admin.user.update_profile') }}" method="POST">
@@ -128,7 +129,7 @@
             </div>
         </div>
     </div>
-
+    {{-- 
     <div class="col-xxl">
         <div class="card mb-6">
             @if (session('pass_success'))
@@ -186,9 +187,9 @@
                 </form>
             </div>
         </div>
-    </div>
+    </div> --}}
 
-    <div class="col-xxl">
+    {{-- <div class="col-xxl">
         <div class="card mb-6">
             <h5 class="card-header">Current Plan</h5>
             <div class="card-body">
@@ -257,5 +258,5 @@
                 </form>
             </div>
         </div>
-    </div>
+    </div> --}}
 @endsection

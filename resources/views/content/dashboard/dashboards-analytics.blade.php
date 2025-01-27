@@ -29,7 +29,7 @@
                 <div class="card-header pb-0">
                     <h5 class="mb-3 card-title">Users</h5>
                     <p class="mb-0 text-body">Total Number of Users</p>
-                    <h4 class="mb-0">450</h4>
+                    <h4 class="mb-0">{{ $total_users }}</h4>
                 </div>
             </div>
         </div>
@@ -38,7 +38,7 @@
                 <div class="card-header pb-0">
                     <h5 class="mb-3 card-title">Checks</h5>
                     <p class="mb-0 text-body">Total Number of Checks</p>
-                    <h4 class="mb-0">4500</h4>
+                    <h4 class="mb-0">{{ $total_checks }}</h4>
                 </div>
             </div>
         </div>
@@ -47,7 +47,7 @@
                 <div class="card-header pb-0">
                     <h5 class="mb-3 card-title">Revenue</h5>
                     <p class="mb-0 text-body">Total Revenue</p>
-                    <h4 class="mb-0">$54000</h4>
+                    <h4 class="mb-0">${{ $total_revanue }}</h4>
                 </div>
             </div>
         </div>
@@ -202,7 +202,7 @@
                 <div class="card-body row">
                     <div class="col-12 col-sm-4 col-md-12 col-lg-4">
                         <div class="mt-lg-4 mt-lg-2 mb-lg-6 mb-2">
-                            <h2 class="mb-0">4500</h2>
+                            <h2 class="mb-0">{{ $total_checks }}</h2>
                             <p class="mb-0">Total Checks</p>
                         </div>
                         <ul class="p-0 m-0">
@@ -210,7 +210,7 @@
                                 <div class="badge rounded bg-label-primary p-1_5"><i class="ti ti-ticket ti-md"></i></div>
                                 <div>
                                     <h6 class="mb-0 text-nowrap">Unused Checks</h6>
-                                    <small class="text-muted">675</small>
+                                    <small class="text-muted">{{ $total_unused_checks }}</small>
                                 </div>
                             </li>
                             <li class="d-flex gap-4 align-items-center mb-lg-3 pb-1">
@@ -218,7 +218,7 @@
                                 </div>
                                 <div>
                                     <h6 class="mb-0 text-nowrap">Used Checks</h6>
-                                    <small class="text-muted">3825</small>
+                                    <small class="text-muted">{{ $total_used_checks }}</small>
                                 </div>
                             </li>
                         </ul>

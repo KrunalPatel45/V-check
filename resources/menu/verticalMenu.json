@@ -54,6 +54,40 @@
           "access": "web"
         }
       ]
+    },
+    {
+      "name": "Checks",
+      "icon": "menu-icon tf-icons ti ti-files",
+      "slug": "checks",
+      "access": "web",
+      "submenu": [
+        {
+          "url": "/check/process-payment",
+          "name": "Receive payment ",
+          "slug": "Receive-payment",
+          "access": "web"
+        },
+        {
+          "url": "/check/send-payment",
+          "name": "Send Payment",
+          "slug": "send-payment",
+          "access": "web"
+        }
+      ]
+    },
+    {
+      "url": "/check-history",
+      "name": "History",
+      "icon": "menu-icon tf-icons ti ti-map",
+      "slug": "history",
+      "access": "web"
+    },
+    {
+      "url": "billing-and-plan",
+      "name": "Billing & Plan",
+      "icon": "menu-icon tf-icons ti ti-file-dollar",
+      "slug": "history",
+      "access": "web"
     }
   ]
 }

@@ -168,6 +168,8 @@ use App\Http\Controllers\UserAuthController;
 use App\Http\Controllers\UserDashboardController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\PayorsController;
+use App\Http\Controllers\CheckController;
+use App\Http\Controllers\BillingAndPlanController;
 
 
 Route::get('/admin/login', [AdminAuthController::class, 'adminLogin'])->name('admin.login');
@@ -191,6 +193,12 @@ Route::middleware([AdminMiddleware::class])->group(function () {
     Route::post('admin/user/change-password', [AdminDashboardController::class, 'changeUserPassword'])->name('admin.user.change-password');
     Route::delete('/admin/users/delete/{id}', [AdminDashboardController::class, 'user_delete'])->name('admin.user.delete');
     Route::post('admin/user/plan', [AdminDashboardController::class, 'change_plan'])->name('admin.user.plan');
+    Route::get('/admin/users/profile/edit/{id}', [AdminDashboardController::class, 'user_profile_edit'])->name('admin.user_profile_edit');
+    Route::get('/admin/users/plan/upgrade/{id}', [AdminDashboardController::class, 'upgragde_plan'])->name('admin.user_upgragde_plan');
+    Route::get('/company/{id}', [AdminDashboardController::class, 'company'])->name('admin.user.company');
+    Route::get('/invoice/{id}', [AdminDashboardController::class, 'invoice'])->name('admin.user.invoice');
+    Route::get('/client/{id}', [AdminDashboardController::class, 'client'])->name('admin.user.client');
+    Route::get('/vendor/{id}', [AdminDashboardController::class, 'vendor'])->name('admin.user.vendor');
 });
 
 Route::get('/login', [UserAuthController::class, 'login'])->name('user.login');
@@ -219,8 +227,17 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::get('/user/payors/{type}/edit/{id}', [PayorsController::class, 'edit'])->name('user.payors.edit');
     Route::post('/user/payors/{type}/edit/{id}', [PayorsController::class, 'update'])->name('user.payors.update');
     Route::delete('/user/payors/{type}/delete/{id}', [PayorsController::class, 'delete'])->name('user.payors.delete');
+    Route::get('/check/process-payment', [CheckController::class, 'process_payment'])->name('check.process_payment');
+    Route::get('/check/process-payment/generate', [CheckController::class, 'process_payment_check'])->name('check.process_payment_check');
+    Route::post('/check/process-payment/generate', [CheckController::class, 'process_payment_check_generate'])->name('check.process_payment_check_generate');
+    Route::get('/check/send-payment', [CheckController::class, 'send_payment'])->name('check.send_payment');
+    Route::get('/check/send-payment/generate', [CheckController::class, 'send_payment_check'])->name('check.send_payment_check');
+    Route::post('/check/send-payment/generate', [CheckController::class, 'send_payment_check_generate'])->name('check.send_payment_check_generate');
+    Route::get('check_pdf', [CheckController::class, 'check'])->name('check_pdf');
+    Route::post('change-status', [CheckController::class, 'change_status'])->name('change_status');
+    Route::get('check-history', [CheckController::class, 'history'])->name('check_history');
+    Route::get('billing-and-plan', [BillingAndPlanController::class, 'index'])->name('billing_and_plan');
 });
-
 
 // Main Page Route
 Route::get('/', [HomeController::class, 'index'])->name('index');

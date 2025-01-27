@@ -12,6 +12,9 @@ use App\Models\Package;
 use App\Models\PaymentSubscription;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use App\Models\Checks;
+use App\Models\Company;
+use App\Models\Payors;
 
 class AdminDashboardController extends Controller
 {
@@ -20,7 +23,12 @@ class AdminDashboardController extends Controller
         if(!Auth::guard('admin')->check()) {
             return redirect()->route('admin.login');
         }
-        return view('content.dashboard.dashboards-analytics');
+        $total_users = User::count();
+        $total_checks = PaymentSubscription::sum('ChecksGiven');
+        $total_revanue = PaymentSubscription::sum('PaymentAmount');
+        $total_used_checks = PaymentSubscription::sum('ChecksUsed');
+        $total_unused_checks = $total_checks - $total_used_checks;
+        return view('content.dashboard.dashboards-analytics', compact('total_users', 'total_checks', 'total_revanue', 'total_used_checks', 'total_unused_checks'));
     }
 
     public function profile()
@@ -150,7 +158,7 @@ class AdminDashboardController extends Controller
         return view('admin.user.index');
     }
 
-    public function user_edit($id)
+    public function user_edit(Request $request, $id)
     {
         if(!Auth::guard('admin')->check()) {
             return redirect()->route('admin.login');
@@ -172,8 +180,15 @@ class AdminDashboardController extends Controller
             'expiryDate' => $expiryDate,
             'remainingDays' => abs(round($remainingDays)),
         ];
-
-        return view('admin.user.edit', compact('user', 'package_data', 'packages'));
+        $check_used = $paymentSubscription->ChecksUsed;
+        $remaining_checks = $paymentSubscription->RemainingChecks;
+        $type = 'default';
+        if(!empty($request->type)) {
+            $type = $request->type;
+        }
+        $maxPricePackage = Package::orderBy('price', 'desc')->first();
+        $stander_Plan_price = $maxPricePackage->Price;
+        return view('admin.user.user_detail_page', compact('user', 'package_data', 'packages', 'check_used', 'remaining_checks', 'package', 'type', 'stander_Plan_price'));
     }
 
     public function updateUserProfile(Request $request)
@@ -199,7 +214,7 @@ class AdminDashboardController extends Controller
         $admin->UpdatedAt = now();
         $admin->save();
 
-        return redirect()->route('admin.users')->with('profile_success', 'Profile updated successfully');
+        return redirect()->route('admin.user.edit', ['id' => $request->user_id])->with('profile_success', 'Profile updated successfully');
     }
 
     public function changeUserPassword(Request $request)
@@ -215,7 +230,7 @@ class AdminDashboardController extends Controller
         $admin->save();
 
         // Redirect back with success message
-        return redirect()->route('admin.users')->with('pass_success', 'Password changed successfully');
+        return redirect()->route('admin.user.edit', ['id' => $request->user_id, 'type' => 'security'])->with('pass_success', 'Password changed successfully');
     }
 
     public function user_delete($id)
@@ -260,8 +275,7 @@ class AdminDashboardController extends Controller
                     'PaymentEndDate' => $paymentEndDate,
                     'NextRenewalDate' => $nextRenewalDate,
                     'ChecksGiven' => $packages->CheckLimitPerMonth,
-                    'ChecksUsed'=> 0,
-                    'RemainingChecks' => 0,
+                    'RemainingChecks' => $packages->CheckLimitPerMonth,
                     'PaymentDate' => $paymentStartDate,
                     'PaymentAttempts' => 0 ,
                     'TransactionID' => Str::random(10),
@@ -270,6 +284,118 @@ class AdminDashboardController extends Controller
 
             }
         }
-        return redirect()->route('admin.users')->with('success', 'User plan changed successfully');
+        return redirect()->route('admin.user.edit', ['id' => $request->user_id])->with('success', 'User plan changed successfully');
+    }
+
+    public function user_profile_edit($id)
+    {
+        if(!Auth::guard('admin')->check()) {
+            return redirect()->route('admin.login');
+        }
+
+        $user = User::where('userID', $id)->first();
+        return view('admin.user.edit', compact('user'));
+    }
+
+    public function upgragde_plan($id)
+    {
+        if(!Auth::guard('admin')->check()) {
+            return redirect()->route('admin.login');
+        }
+
+        $user = User::where('userID', $id)->first();
+        $paymentSubscription = PaymentSubscription::where('UserID', $id)->where('PackageID', $user->CurrentPackageID)->first();
+        $package = Package::find($user->CurrentPackageID);
+        $total_days = $package->Duration;
+        $package_name = $package->Name;
+        $expiry = Carbon::createFromFormat('Y-m-d', $paymentSubscription->NextRenewalDate);
+        $expiryDate = $expiry->format('M d, Y');
+        $remainingDays = $expiry->diffInDays(Carbon::now(), false);
+        $packages = Package::all();
+        $package_data = [
+            'total_days' => $total_days,
+            'package_name' => $package_name,
+            'expiryDate' => $expiryDate,
+            'remainingDays' => abs(round($remainingDays)),
+        ];
+
+        return view('admin.user.plan_upgrade', compact('user', 'package_data', 'packages'));
+    }
+
+
+    public function company(Request $request, $id)
+    {
+        if ($request->ajax()) {
+            $companies = Company::where('UserID', $id)->get();
+
+            return datatables()->of($companies)
+                ->addIndexColumn()
+                ->addColumn('logo', function ($row) {
+                    return '<img src="' . asset('storage/' . $row->Logo) . '" alt="Company Logo" style="width: 50px;">';
+                })
+                ->addColumn('status', function ($row) {
+                    return '<span class="badge ' .
+                        ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') .
+                        '">' . $row->Status . '</span>';
+                })
+                ->rawColumns(['logo', 'status'])
+                ->make(true);
+        }
+    }
+
+    public function invoice(Request $request, $id)
+    {
+        if ($request->ajax()) {
+            $invoice = PaymentSubscription::where('UserID', $id)->get();
+
+            return datatables()->of($invoice)
+                ->addIndexColumn()
+                ->addColumn('Status', function ($row) {
+                    return '<span class="badge ' .
+                        ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') .
+                        '">'. ($row->Status == 'Active' ? 'paid' : 'unpaid'). '</span>';
+                })
+                ->rawColumns(['Status'])
+                ->make(true);
+        }
+    }
+
+    public function client(Request $request, $id)
+    {
+
+        if ($request->ajax()) {
+            $payors = Payors::where('UserID', $id)
+                ->whereIn('Type', ['Client', 'Both'])
+                ->get();
+
+            return datatables()->of($payors)
+                ->addIndexColumn()
+                ->addColumn('Status', function ($row) {
+                    return '<span class="badge ' . 
+                        ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') . 
+                        '">' . $row->Status . '</span>';
+                })
+                ->rawColumns(['Status'])
+                ->make(true);
+        }
+    }
+    public function vendor(Request $request, $id)
+    {
+
+        if ($request->ajax()) {
+            $payors = Payors::where('UserID', $id)
+                ->whereIn('Type', ['Vendor', 'Both'])
+                ->get();
+
+            return datatables()->of($payors)
+                ->addIndexColumn()
+                ->addColumn('Status', function ($row) {
+                    return '<span class="badge ' . 
+                        ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') . 
+                        '">' . $row->Status . '</span>';
+                })
+                ->rawColumns(['Status'])
+                ->make(true);
+        }
     }
 }

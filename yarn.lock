@@ -5700,6 +5700,11 @@
   "resolved" "https://registry.npmjs.org/signal-exit/-/signal-exit-4.1.0.tgz"
   "version" "4.1.0"
 
+"signature_pad@^5.0.4":
+  "integrity" "sha512-nngOixbwLAUOuH3QnZwlgwmynQblxmo4iWacKFwfymJfiY+Qt+9icNtcIe/okqXKun4hJ5QTFmHyC7dmv6lf2w=="
+  "resolved" "https://registry.npmjs.org/signature_pad/-/signature_pad-5.0.4.tgz"
+  "version" "5.0.4"
+
 "simple-update-notifier@^1.0.7":
   "integrity" "sha512-VpsrsJSUcJEseSbMHkrsrAVSdvVS5I96Qo1QAQ4FxQ9wXFcB+pjj7FB7/us9+GcgfW4ziHtYMc1J0PLczb55mg=="
   "resolved" "https://registry.npmjs.org/simple-update-notifier/-/simple-update-notifier-1.1.0.tgz"
