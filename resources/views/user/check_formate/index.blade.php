@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Check Design</title>
     <style>
-        body {
+        .c_body {
             font-family: "Arial", sans-serif;
             margin: 50px 0 0;
             padding: 0;
@@ -22,7 +22,7 @@
         }
 
         .check {
-            width: 690px;
+            width: 600px;
             height: 400px;
             background: white;
             border: 1px solid black;

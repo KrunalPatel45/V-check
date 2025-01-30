@@ -155,7 +155,6 @@ class PayorsController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required' ,
             'address1' => 'required',
-            'address2' => 'required',
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
@@ -259,6 +258,47 @@ class PayorsController extends Controller
         $package->delete();
 
         return redirect()->route('user.'.$type)->with('success', $type . ' deleted successfully');
+    }
+
+    public function add_payor(Request $request)
+    {
+         $validator = Validator::make($request->all(), [
+            'name' => 'required' ,
+            'address1' => 'required',
+            'city' => 'required',
+            'state' => 'required',
+            'zip' => 'required',
+            'email' => 'required|email|unique:Entities,email',
+            'bank_name' => 'required',
+            'routing_number' => 'required',
+            'account_number' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()]);
+        }
+
+        // Create a new Payee entry (optional)
+        $payor = new Payors();
+
+        $payor->Name = $request->name;
+        $payor->UserID = Auth::id();
+        $payor->Address1 = $request->address1;
+        $payor->Address2 = $request->address2;
+        $payor->City = $request->city;
+        $payor->State = $request->state;
+        $payor->Zip = $request->zip;
+        $payor->Email = $request->email;
+        $payor->BankName = $request->bank_name;
+        $payor->RoutingNumber = $request->routing_number;
+        $payor->AccountNumber = $request->account_number;
+        $payor->Status = 'Active';
+        $payor->Type = $request->type;
+
+        $payor->save();
+
+        // Return success message
+        return response()->json(['success' => true,'payor' => $payor]);
     }
 
 }

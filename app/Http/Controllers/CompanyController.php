@@ -94,7 +94,6 @@ class CompanyController extends Controller
             'state' => 'required',
             'zip' => 'required',
             'email' => 'required|email|unique:Company,email',
-            'logo' => 'required|image|mimes:jpeg,png,jpg',
             'bank_name' => 'required',
             'routing_number' => 'required',
             'account_number' => 'required',
@@ -210,5 +209,57 @@ class CompanyController extends Controller
 
         return redirect()->route('user.company')->with('success', 'Company deleted successfully');
     }
+
+    public function add_payee(Request $request)
+    {
+         $validator = Validator::make($request->all(), [
+            'name' => 'required' ,
+            'address1' => 'required',
+            'city' => 'required',
+            'state' => 'required',
+            'zip' => 'required',
+            'email' => 'required|email|unique:Company,email',
+            'bank_name' => 'required',
+            'routing_number' => 'required',
+            'account_number' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()]);
+        }
+
+        // Create a new Payee entry (optional)
+        $company = new Company();
+
+        $slug = Str::slug($request->name, '-');
+        $originalSlug = $slug;
+
+        // Check for uniqueness and append a counter if necessary
+        $counter = 1;
+        while (Company::where('Slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+
+        $company->Name = $request->name;
+        $company->UserID = Auth::id();
+        $company->Address1 = $request->address1;
+        $company->Address2 = $request->address2;
+        $company->City = $request->city;
+        $company->State = $request->state;
+        $company->Zip = $request->zip;
+        $company->Email = $request->email;
+        $company->BankName = $request->bank_name;
+        $company->RoutingNumber = $request->routing_number;
+        $company->AccountNumber = $request->account_number;
+        $company->Slug = $slug;
+        $company->Status = 'Active';
+
+        $company->save();
+
+        // Return success message
+        return response()->json(['success' => true, 'payee' => $company]);
+    }
+    
 
 }

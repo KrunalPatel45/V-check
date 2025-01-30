@@ -390,4 +390,25 @@ class CheckController extends Controller
 
         return $number;
     }
+    
+    public function amount_word(Request $request)
+    {
+        $word = '';
+        if(!empty($request->amount)) {
+            $word = $this->numberToWords($request->amount);
+        }
+        return response()->json(['success' => true,'word' => $word]);
+    }
+
+    public function get_payee($id) 
+    {
+        $payee = Company::find($id);
+        return response()->json(['success' => true,'payee' => $payee]);
+    }
+
+    public function get_payor($id) 
+    {
+        $payor = Payors::find($id);
+        return response()->json(['success' => true,'payor' => $payor]);
+    }
 }
