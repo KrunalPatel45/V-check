@@ -268,7 +268,7 @@ class PayorsController extends Controller
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
-            'email' => 'required|email|unique:Entities,email',
+            'email' => !empty($request->id) ? 'required|email|unique:Entities,email,' . $request->id.',EntityID'  :'required|email|unique:Entities,email',
             'bank_name' => 'required',
             'routing_number' => 'required',
             'account_number' => 'required',
@@ -279,8 +279,11 @@ class PayorsController extends Controller
         }
 
         // Create a new Payee entry (optional)
-        $payor = new Payors();
-
+        if(!empty($request->id)) {
+            $payor = Payors::find($request->id);
+        } else {
+            $payor = new Payors();
+        }
         $payor->Name = $request->name;
         $payor->UserID = Auth::id();
         $payor->Address1 = $request->address1;

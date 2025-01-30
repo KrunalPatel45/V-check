@@ -218,7 +218,7 @@ class CompanyController extends Controller
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
-            'email' => 'required|email|unique:Company,email',
+            'email' => (empty($request->id)) ?'required|email|unique:Company,email' :  'required|email|unique:Company,email,' . $request->id.',CompanyID',
             'bank_name' => 'required',
             'routing_number' => 'required',
             'account_number' => 'required',
@@ -229,17 +229,23 @@ class CompanyController extends Controller
         }
 
         // Create a new Payee entry (optional)
-        $company = new Company();
+        if(!empty($request->id)) {
+            $company = Company::find($request->id);
+        } else {
+            $company = new Company();
+            $slug = Str::slug($request->name, '-');
+            $originalSlug = $slug;
 
-        $slug = Str::slug($request->name, '-');
-        $originalSlug = $slug;
+            // Check for uniqueness and append a counter if necessary
+            $counter = 1;
+            while (Company::where('Slug', $slug)->exists()) {
+                $slug = $originalSlug . '-' . $counter;
+                $counter++;
+            }
 
-        // Check for uniqueness and append a counter if necessary
-        $counter = 1;
-        while (Company::where('Slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $counter;
-            $counter++;
+            $company->Slug = $slug;
         }
+        
 
         $company->Name = $request->name;
         $company->UserID = Auth::id();
@@ -252,7 +258,6 @@ class CompanyController extends Controller
         $company->BankName = $request->bank_name;
         $company->RoutingNumber = $request->routing_number;
         $company->AccountNumber = $request->account_number;
-        $company->Slug = $slug;
         $company->Status = 'Active';
 
         $company->save();

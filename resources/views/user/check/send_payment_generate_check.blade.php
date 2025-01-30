@@ -13,7 +13,7 @@
             justify-content: center;
             align-items: center;
             /* width: 850px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            height: 400px; */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            height: 400px; */
             background-color: #fff;
             -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -144,15 +144,41 @@
                 id = $(this).val();
                 const selectedValue = $(this).find('option:selected').attr(
                     'id');
+
+                $('.new-payor').removeClass('d-none');
                 if (selectedValue === 'add_other_payor') {
-                    $('.new-payor').removeClass('d-none');
+                    $('#payor_id').val('');
+                    $('#add-payor #name').val('');
+                    $('#add-payor #email').val('');
+                    $('#add-payor #address1').val('');
+                    $('#add-payor #address2').val('');
+                    $('#add-payor #city').val('');
+                    $('#add-payor #state').val('');
+                    $('#add-payor #zip').val('');
+                    $('#add-payor #bank_name').val('');
+                    $('#add-payor #account_number').val('');
+                    $('#add-payor #routing_number').val('');
+                    $('#payor_h').text('Add');
                 } else {
-                    $('.new-payor').addClass('d-none'); // Hide the form
                     $.ajax({
                         url: "{{ route('get_payor', ':id') }}".replace(':id', id),
                         method: 'GET',
                         success: function(response) {
                             $("#c_payee_name").text(response.payor.Name || "XXXXXX");
+
+                            $('#payor_id').val(response.payor.EntityID);
+                            $('#add-payor #name').val(response.payor.Name);
+                            $('#add-payor #email').val(response.payor.Email);
+                            $('#add-payor #address1').val(response.payor.Address1);
+                            $('#add-payor #address2').val(response.payor.Address2);
+                            $('#add-payor #city').val(response.payor.City);
+                            $('#add-payor #state').val(response.payor.State);
+                            $('#add-payor #zip').val(response.payor.Zip);
+                            $('#add-payor #bank_name').val(response.payor.BankName);
+                            $('#add-payor #account_number').val(response.payor.AccountNumber);
+                            $('#add-payor #routing_number').val(response.payor.RoutingNumber);
+                            $('#add-payor #type').val(response.payor.Type);
+                            $('#payor_h').text('Edit');
                         }
                     });
                 }
@@ -160,6 +186,7 @@
             $('#add-payor-btn').on('click', function(event) {
                 event.preventDefault();
 
+                var id = $('#payor_id').val();
                 // Collect form data manually
                 let formData = {
                     _token: "{{ csrf_token() }}", // Include CSRF token manually
@@ -174,6 +201,7 @@
                     account_number: $('#add-payor #account_number').val(),
                     routing_number: $('#add-payor #routing_number').val(),
                     type: $('#add-payor #type').val(),
+                    id: id
                 };
 
                 // Clear any previous error messages
@@ -195,9 +223,14 @@
                             });
                         } else if (response.success) {
                             // Success message
-                            let newOption =
-                                `<option value="${response.payor.EntityID}" selected>${response.payor.Name}</option>`;
-                            $('#payee').append(newOption).val(response.payor.EntityID);
+                            if (!id) {
+                                let newOption =
+                                    `<option value="${response.payor.EntityID}" selected>${response.payor.Name}</option>`;
+                                $('#payee').append(newOption).val(response.payor.EntityID);
+                            } else {
+                                $('#payee').val(response.payor.EntityID);
+                                $('#payee option:selected').text(response.payor.Name);
+                            }
 
                             $("#c_payee_name").text(response.payor.Name || "XXXXXX");
 
@@ -220,10 +253,21 @@
                 id = $(this).val();
                 const selectedValue = $(this).find('option:selected').attr(
                     'id');
+                $('.new-company').removeClass('d-none');
                 if (selectedValue === 'add_other_company') {
-                    $('.new-company').removeClass('d-none');
+                    $('#payee_id').val('');
+                    $('#payee-name').val('');
+                    $('#payee-email').val('');
+                    $('#payee-address1').val('');
+                    $('#payee-address2').val('');
+                    $('#payee-city').val('');
+                    $('#payee-state').val('');
+                    $('#payee-zip').val('');
+                    $('#payee-bank_name').val('');
+                    $('#payee-account_number').val('');
+                    $('#payee-routing_number').val('');
+                    $('#h_lable').text('Add');
                 } else {
-                    $('.new-company').addClass('d-none');
                     var id = $(this).val();
                     $.ajax({
                         url: "{{ route('get_payee', ':id') }}".replace(':id', id),
@@ -240,6 +284,20 @@
                             $("#c_account_number").text(response.payee.AccountNumber ||
                                 "XXXXXXXXXX");
                             $("#c_bank_name").text(response.payee.BankName || "XXXXXXX");
+
+                            $('#payee_id').val(response.payee.CompanyID);
+                            $('#payee-name').val(response.payee.Name);
+                            $('#payee-email').val(response.payee.Email);
+                            $('#payee-address1').val(response.payee.Address1);
+                            $('#payee-address2').val(response.payee.Address2);
+                            $('#payee-city').val(response.payee.City);
+                            $('#payee-state').val(response.payee.State);
+                            $('#payee-zip').val(response.payee.Zip);
+                            $('#payee-bank_name').val(response.payee.BankName);
+                            $('#payee-account_number').val(response.payee.AccountNumber);
+                            $('#payee-routing_number').val(response.payee.RoutingNumber);
+
+                            $('#h_lable').text('Edit');
                         }
                     });
                 }
@@ -247,6 +305,7 @@
 
             $('#add-payee-btn').on('click', function(event) {
                 event.preventDefault();
+                var id = $('#payee_id').val();
 
                 let formData = {
                     _token: "{{ csrf_token() }}", // Include CSRF token manually
@@ -260,6 +319,7 @@
                     bank_name: $('#payee-bank_name').val(),
                     account_number: $('#payee-account_number').val(),
                     routing_number: $('#payee-routing_number').val(),
+                    id: id
                 };
 
 
@@ -284,9 +344,14 @@
                             });
                         } else if (response.success) {
                             // Success message
-                            let newOption =
-                                `<option value="${response.payee.CompanyID}" selected>${response.payee.Name}</option>`;
-                            $('#payor').append(newOption).val(response.payee.CompanyID);
+                            if (!id) {
+                                let newOption =
+                                    `<option value="${response.payee.CompanyID}" selected>${response.payee.Name}</option>`;
+                                $('#payor').append(newOption).val(response.payee.CompanyID);
+                            } else {
+                                $('#payor').val(response.payee.CompanyID);
+                                $('#payor option:selected').text(response.payee.Name);
+                            }
 
                             $("#c_name").text(response.payee.Name || "XXXXXX XXX");
                             $("#c_address1").text(response.payee.Address1 || "XXXXXXX XXXX");
@@ -421,8 +486,9 @@
                                 @endif
                                 <div class="mb-6 mt-6 new-payor d-none">
                                     <div class="card-body" id="add-payor">
-                                        <h5>Add Payee</h5>
+                                        <h5><span id="payor_h">Add</span> Payee</h5>
                                         <div class="row g-6">
+                                            <input type="hidden" id="payor_id" name="id" />
                                             <div class="col-md-6">
                                                 <label class="form-label" for="name">Name</label>
                                                 <input type="text" name="name" id="name" class="form-control"
@@ -568,8 +634,9 @@
                                 <div class="mb-6 mt-6 new-company d-none">
                                     <div class="card-body" id="add-payee">
                                         {{-- @csrf --}}
-                                        <h5>Add Payor</h5>
+                                        <h5><span id="h_lable">Add</span> Payor</h5>
                                         <div class="row g-6">
+                                            <input type="hidden" id="payee_id" name="id" />
                                             <div class="col-md-6">
                                                 <label class="form-label" for="payee-name">Name</label>
                                                 <input type="text" name="name" id="payee-name"
