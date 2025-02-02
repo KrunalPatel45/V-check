@@ -38,30 +38,31 @@
                             </a>
                         </div>
                         <!-- /Logo -->
-                        <h4 class="mb-1">Welcome to V Check Direct! 👋</h4>
-                        <p class="mb-6">Please sign-up to your account and start the adventure</p>
+                        <p class="mb-6">Please sign-up to your account</p>
 
                         <form id="formAuthentication" class="mb-6" action="{{ route('register.store') }}" method="POST">
                             @csrf
-                            <div class="mb-6">
-                                <label for="firstname" class="form-label">First Name</label>
-                                <input type="text" class="form-control" id="firstname" name="firstname"
-                                    placeholder="Enter your first name" value="{{ old('firstname') }}" autofocus>
-                                @if ($errors->has('firstname'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('firstname') }}
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="mb-6">
-                                <label for="lastname" class="form-label">Last Name</label>
-                                <input type="text" class="form-control" id="lastname" name="lastname"
-                                    placeholder="Enter your last name" value="{{ old('lastname') }}">
-                                @if ($errors->has('lastname'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('lastname') }}
-                                    </span>
-                                @endif
+                            <div class="row">
+                                <div class="col-6 mb-6">
+                                    <label for="firstname" class="form-label">First Name</label>
+                                    <input type="text" class="form-control" id="firstname" name="firstname"
+                                        placeholder="First name" value="{{ old('firstname') }}" autofocus>
+                                    @if ($errors->has('firstname'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('firstname') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-6 mb-6">
+                                    <label for="lastname" class="form-label">Last Name</label>
+                                    <input type="text" class="form-control" id="lastname" name="lastname"
+                                        placeholder="Last name" value="{{ old('lastname') }}">
+                                    @if ($errors->has('lastname'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('lastname') }}
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
                             <div class="mb-6">
                                 <label for="username" class="form-label">Username</label>

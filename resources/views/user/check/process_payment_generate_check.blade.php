@@ -13,7 +13,7 @@
             justify-content: center;
             align-items: center;
             /* width: 850px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        height: 400px; */
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                height: 400px; */
             background-color: #fff;
             -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -416,9 +416,59 @@
 
 @section('content')
     <div class="row">
-        <!-- Basic Layout -->
-        <div class="col-xxl">
-            <div class="card mb-6">
+        <div class="col-6">
+            <div class="card mb-6 c_body">
+                <div class="check">
+                    <div class="header">
+                        <div class="address">
+                            <span id="c_name">XXXXXX XXX</span><br>
+                            <span id="c_address1">XXXXXXX XXXX</span><br>
+                            <span id="c_address2">XXXX XXXX XXXX</span>
+                            <span id="c_city">XXXXXX</span>, <span id="c_state">XXXX</span> <span
+                                id="c_zip">XXXXXX</span>
+                        </div>
+                        <div class="date">
+                            <div id="c_check_number">XXXX</div>
+                            <div id="c_check_date">XX-XX-XXXX</div>
+                        </div>
+                    </div>
+
+                    <div class="payee">
+                        PAY TO THE ORDER OF <b> <span id="c_payee_name">XXXXXX</span></b>
+                    </div>
+
+                    <div class="amount">
+                        <div class="words"><span id="c_amount_word">XXXXX XXXX XXXX</span>+ 0.00***</div>
+                        <div class="number">***<span id="c_amount">XXXX.XX</span></div>
+                    </div>
+
+                    <div class="dollars">DOLLARS
+                    </div>
+
+                    <div class="bank" id="c_bank_name">XXXXXXX</div>
+
+                    <div class="footer">
+                        <div class="memo" id="c_memo">XXXXXXX XXXX XXXX XX</div>
+                        <div class="signature">
+                            SIGNATURE NOT REQUIRED<br>
+                            Your depositor has authorized this payment to payee.<br>
+                            Payee to hold you harmless for payment of this document.<br>
+                            This document shall be deposited only to the credit of payee.
+                        </div>
+                    </div>
+
+                    <div class="micr">
+                        <span id="c_routing_number">XXXXXXXXX</span>
+                        <span>●</span>
+                        <span id="c_account_number">XXXXXXXXXX</span>
+                        <span>●</span>
+                        <span id="c_check_number_1">XXXX</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="card mb-2">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h5 class="mb-0">Generate Checks</h5>
                     <a href="{{ route('check.process_payment') }}" class="btn btn-primary mr-4"><i
@@ -430,7 +480,7 @@
                     <form action="{{ route('check.process_payment_check_generate') }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
-                        <div class="row mb-6">
+                        <div class="row mb-2">
                             <label class="col-sm-2 col-form-label" for="check_date">Check Date</label>
                             <div class="col-sm-10">
                                 <input type="text" id="check_date" name="check_date" class="form-control dob-picker"
@@ -442,7 +492,7 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="row mb-6">
+                        <div class="row mb-2">
                             <label class="col-sm-2 col-form-label" for="check_number">Check Number</label>
                             <div class="col-sm-10">
                                 <input type="text" name="check_number" id="check_number" class="form-control"
@@ -454,7 +504,7 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="row mb-6">
+                        <div class="row mb-2">
                             <label class="col-sm-2 col-form-label" for="amount">Amount</label>
                             <div class="col-sm-10">
                                 <input type="text" name="amount" id="amount" class="form-control"
@@ -466,7 +516,7 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="row mb-6">
+                        <div class="row mb-2">
                             <label class="col-sm-2 col-form-label" for="payee">Payee</label>
                             <div class="col-sm-10">
                                 <select id="payee" name="payee" class="form-control form-select">
@@ -483,7 +533,7 @@
                                         {{ $errors->first('payee') }}
                                     </span>
                                 @endif
-                                <div class="mb-6 mt-6 new-company d-none">
+                                <div class="mb-2 mt-2 new-company d-none">
                                     <div class="card-body" id="add-payee">
                                         {{-- @csrf --}}
                                         <h5><span id="h_lable">Add</span> Payee</h5>
@@ -501,8 +551,8 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label" for="payee-email">Email</label>
-                                                <input type="text" name="email" id="payee-email" class="form-control"
-                                                    value="{{ old('email') }}" />
+                                                <input type="text" name="email" id="payee-email"
+                                                    class="form-control" value="{{ old('email') }}" />
                                                 @if ($errors->has('email'))
                                                     <span class="text-danger">
                                                         {{ $errors->first('email') }}
@@ -529,8 +579,8 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label" for="payee-city">City</label>
-                                                <input type="text" name="city" id="payee-city" class="form-control"
-                                                    value="{{ old('city') }}" />
+                                                <input type="text" name="city" id="payee-city"
+                                                    class="form-control" value="{{ old('city') }}" />
                                                 @if ($errors->has('city'))
                                                     <span class="text-danger">
                                                         {{ $errors->first('city') }}
@@ -597,7 +647,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row mb-6">
+                        <div class="row mb-2">
                             <label class="col-sm-2 col-form-label" for="payor">Payor</label>
                             <div class="col-sm-10">
                                 <select id="payor" name="payor" class="form-control form-select">
@@ -613,7 +663,7 @@
                                         {{ $errors->first('payor') }}
                                     </span>
                                 @endif
-                                <div class="mb-6 mt-6 new-payor d-none">
+                                <div class="mb-2 mt-2 new-payor d-none">
                                     <div class="card-body" id="add-payor">
                                         <h5><span id="payor_h">Add</span> Payor</h5>
                                         <div class="row g-6">
@@ -743,7 +793,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row mb-6">
+                        <div class="row mb-2">
                             <label class="col-sm-2 col-form-label" for="memo">Memo</label>
                             <div class="col-sm-10">
                                 <input type="text" name="memo" id="memo" class="form-control"
@@ -761,57 +811,6 @@
                             </div>
                         </div>
                     </form>
-                </div>
-            </div>
-        </div>
-        <div class="col-xxl">
-            <div class="card mb-6 c_body">
-                <div class="check">
-                    <div class="header">
-                        <div class="address">
-                            <span id="c_name">XXXXXX XXX</span><br>
-                            <span id="c_address1">XXXXXXX XXXX</span><br>
-                            <span id="c_address2">XXXX XXXX XXXX</span>
-                            <span id="c_city">XXXXXX</span>, <span id="c_state">XXXX</span> <span
-                                id="c_zip">XXXXXX</span>
-                        </div>
-                        <div class="date">
-                            <div id="c_check_number">XXXX</div>
-                            <div id="c_check_date">XX-XX-XXXX</div>
-                        </div>
-                    </div>
-
-                    <div class="payee">
-                        PAY TO THE ORDER OF <b> <span id="c_payee_name">XXXXXX</span></b>
-                    </div>
-
-                    <div class="amount">
-                        <div class="words"><span id="c_amount_word">XXXXX XXXX XXXX</span>+ 0.00***</div>
-                        <div class="number">***<span id="c_amount">XXXX.XX</span></div>
-                    </div>
-
-                    <div class="dollars">DOLLARS
-                    </div>
-
-                    <div class="bank" id="c_bank_name">XXXXXXX</div>
-
-                    <div class="footer">
-                        <div class="memo" id="c_memo">XXXXXXX XXXX XXXX XX</div>
-                        <div class="signature">
-                            SIGNATURE NOT REQUIRED<br>
-                            Your depositor has authorized this payment to payee.<br>
-                            Payee to hold you harmless for payment of this document.<br>
-                            This document shall be deposited only to the credit of payee.
-                        </div>
-                    </div>
-
-                    <div class="micr">
-                        <span id="c_routing_number">XXXXXXXXX</span>
-                        <span>●</span>
-                        <span id="c_account_number">XXXXXXXXXX</span>
-                        <span>●</span>
-                        <span id="c_check_number_1">XXXX</span>
-                    </div>
                 </div>
             </div>
         </div>

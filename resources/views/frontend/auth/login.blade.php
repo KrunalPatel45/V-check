@@ -51,8 +51,8 @@
                             </a>
                         </div>
                         <!-- /Logo -->
-                        <h4 class="mb-1">Welcome to {{ config('variables.templateName') }}! 👋</h4>
-                        <p class="mb-6">Please sign-in to your account and start the adventure</p>
+                        {{-- <h4 class="mb-1">Welcome to {{ config('variables.templateName') }}! 👋</h4> --}}
+                        <p class="mb-6">Please sign-in to your account</p>
 
                         <form id="formAuthentication" class="mb-4" action="{{ route('user.login-action') }}"
                             method="POST">
