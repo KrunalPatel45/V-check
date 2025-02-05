@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Package;
+use Carbon\Carbon;
 
 class PackageController extends Controller
 {
@@ -26,10 +27,10 @@ class PackageController extends Controller
                         : '<span class="badge bg-label-warning">' . $package->Status . '</span>';
                 })
                 ->addColumn('created_at', function ($package) {
-                    return $package->CreatedAt;
+                    return Carbon::parse($package->CreatedAt)->format('m/d/Y H:i:m'); 
                 })
                 ->addColumn('updated_at', function ($package) {
-                    return $package->UpdatedAt;
+                    return Carbon::parse($package->UpdatedAt)->format('m/d/Y H:i:m');
                 })
                 ->addColumn('actions', function ($row) {
                     // Dynamically build URLs for the edit and delete actions

@@ -23,7 +23,7 @@
     },
     {
       "url": "/admin/users",
-      "name": "Users",
+      "name": "Customers",
       "icon": "menu-icon tf-icons ti ti-users",
       "slug": "users",
       "access": "admin"

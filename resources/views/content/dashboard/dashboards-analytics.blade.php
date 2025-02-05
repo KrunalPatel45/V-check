@@ -27,8 +27,8 @@
         <div class="col-xl-4 col-sm-6">
             <div class="card">
                 <div class="card-header pb-0">
-                    <h5 class="mb-3 card-title">Users</h5>
-                    <p class="mb-0 text-body">Total Number of Users</p>
+                    <h5 class="mb-3 card-title">Customers</h5>
+                    <p class="mb-0 text-body">Total Number of Customers</p>
                     <h4 class="mb-0">{{ $total_users }}</h4>
                 </div>
             </div>
@@ -244,13 +244,15 @@
                 <div class="card-body">
                     <ul class="p-0 m-0">
                         <li class="d-flex mb-6">
-                            <div class="chart-progress me-4" data-color="primary" data-series="72"
-                                data-progress_variant="true"></div>
+                            <div class="chart-progress me-4" data-color="primary"
+                                data-series="{{ !empty($total_basic) ? round(($total_basic / $total_users) * 100) : '0' }}"
+                                data-progress_variant="true">
+                            </div>
                             <div class="row w-100 align-items-center">
                                 <div class="col-9">
                                     <div class="me-2">
                                         <h6 class="mb-2">Basic Package</h6>
-                                        <small>220 Tasks</small>
+                                        <small>{{ $total_basic }} Tasks</small>
                                     </div>
                                 </div>
                                 <div class="col-3 text-end">
@@ -261,13 +263,15 @@
                             </div>
                         </li>
                         <li class="d-flex mb-6">
-                            <div class="chart-progress me-4" data-color="success" data-series="48"
-                                data-progress_variant="true"></div>
+                            <div class="chart-progress me-4" data-color="success"
+                                data-series="{{ !empty($total_silver) ? round(($total_silver / $total_users) * 100) : '0' }}"
+                                data-progress_variant="true">
+                            </div>
                             <div class="row w-100 align-items-center">
                                 <div class="col-9">
                                     <div class="me-2">
                                         <h6 class="mb-2">Silver Package</h6>
-                                        <small>150 Tasks</small>
+                                        <small>{{ $total_silver }} Tasks</small>
                                     </div>
                                 </div>
                                 <div class="col-3 text-end">
@@ -278,13 +282,14 @@
                             </div>
                         </li>
                         <li class="d-flex mb-6">
-                            <div class="chart-progress me-4" data-color="danger" data-series="15"
+                            <div class="chart-progress me-4" data-color="danger"
+                                data-series="{{ !empty($total_gold) ? round(($total_gold / $total_users) * 100) : '0' }}"
                                 data-progress_variant="true"></div>
                             <div class="row w-100 align-items-center">
                                 <div class="col-9">
                                     <div class="me-2">
                                         <h6 class="mb-2">Gold Package</h6>
-                                        <small>80 Tasks</small>
+                                        <small>{{ $total_gold }} Tasks</small>
                                     </div>
                                 </div>
                                 <div class="col-3 text-end">

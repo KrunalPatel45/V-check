@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Payors;
+use Carbon\Carbon;
 
 class PayorsController extends Controller
 {
@@ -27,6 +28,12 @@ class PayorsController extends Controller
                     return '<span class="badge ' . 
                         ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') . 
                         '">' . $row->Status . '</span>';
+                })
+                ->addColumn('CreatedAt', function ($row) {
+                    return Carbon::parse($row->CreatedAt)->format('m/d/Y H:i:m'); 
+                })
+                ->addColumn('UpdatedAt', function ($row) {
+                    return Carbon::parse($row->UpdatedAt)->format('m/d/Y H:i:m');
                 })
                 ->addColumn('actions', function ($row) {
                     $editUrl = route('user.payors.edit', ['type' => 'client', 'id' => $row->EntityID]);
@@ -93,6 +100,12 @@ class PayorsController extends Controller
                     return '<span class="badge ' . 
                         ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') . 
                         '">' . $row->Status . '</span>';
+                })
+                ->addColumn('CreatedAt', function ($row) {
+                    return Carbon::parse($row->CreatedAt)->format('m/d/Y H:i:m'); 
+                })
+                ->addColumn('UpdatedAt', function ($row) {
+                    return Carbon::parse($row->UpdatedAt)->format('m/d/Y H:i:m');
                 })
                 ->addColumn('actions', function ($row) {
                     $editUrl = route('user.payors.edit', ['type' => 'client', 'id' => $row->EntityID]);

@@ -28,7 +28,10 @@ class AdminDashboardController extends Controller
         $total_revanue = PaymentSubscription::sum('PaymentAmount');
         $total_used_checks = PaymentSubscription::sum('ChecksUsed');
         $total_unused_checks = $total_checks - $total_used_checks;
-        return view('content.dashboard.dashboards-analytics', compact('total_users', 'total_checks', 'total_revanue', 'total_used_checks', 'total_unused_checks'));
+        $total_basic = PaymentSubscription::select('PaymentSubscriptionID')->where('Status', 'Active')->where('PackageID', 1)->count();
+        $total_silver = PaymentSubscription::select('PaymentSubscriptionID')->where('Status', 'Active')->where('PackageID', 2)->count();
+        $total_gold = PaymentSubscription::select('PaymentSubscriptionID')->where('Status', 'Active')->where('PackageID', 3)->count();
+        return view('content.dashboard.dashboards-analytics', compact('total_users', 'total_checks', 'total_revanue', 'total_used_checks', 'total_unused_checks', 'total_basic', 'total_silver', 'total_gold', ));
     }
 
     public function profile()
@@ -100,10 +103,10 @@ class AdminDashboardController extends Controller
                         : '<span class="badge bg-label-warning">' . $user->Status . '</span>';
                 })
                 ->addColumn('created_at', function ($user) {
-                    return $user->CreatedAt;
+                    return Carbon::parse($user->CreatedAt)->format('m/d/Y H:i:m'); // Convert to MM/DD/YYYY
                 })
                 ->addColumn('updated_at', function ($user) {
-                    return $user->UpdatedAt;
+                    return Carbon::parse($user->UpdatedAt)->format('m/d/Y H:i:m'); // Convert to MM/DD/YYYY
                 })
                 ->rawColumns(['status', 'created_at', 'updated_at']) // Allow raw HTML content
                 ->addColumn('actions', function ($user) {

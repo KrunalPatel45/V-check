@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Company;
+use Carbon\Carbon;
 
 class CompanyController extends Controller
 {
@@ -23,6 +24,12 @@ class CompanyController extends Controller
                 ->addIndexColumn()
                 ->addColumn('logo', function ($row) {
                     return '<img src="' . asset('storage/' . $row->Logo) . '" alt="Company Logo" style="width: 50px;">';
+                })
+                ->addColumn('CreatedAt', function ($row) {
+                    return Carbon::parse($row->CreatedAt)->format('m/d/Y H:i:m'); 
+                })
+                ->addColumn('UpdatedAt', function ($row) {
+                    return Carbon::parse($row->UpdatedAt)->format('m/d/Y H:i:m');
                 })
                 ->addColumn('status', function ($row) {
                     return '<span class="badge ' .
@@ -69,7 +76,7 @@ class CompanyController extends Controller
                                 </div>
                             </div>';
                 })
-                ->rawColumns(['logo', 'status', 'actions'])
+                ->rawColumns(['logo','CreatedAt', 'UpdatedAt', 'status', 'actions'])
                 ->make(true);
         }
 

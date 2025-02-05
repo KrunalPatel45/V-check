@@ -41,8 +41,7 @@
                         <th>Payee</th>
                         <th>Payor</th>
                         <th>Amount</th>
-                        <th>Issue Date</th>
-                        <th style="width: 90px;!important">Expiry Date</th>
+                        <th>Print Date</th>
                         <th style="width: 140px !important;">Status</th>
                         <th style="width: 50px;!important">Check Preview</th>
                     </tr>
@@ -85,10 +84,6 @@
                     {
                         data: 'IssueDate',
                         name: 'IssueDate'
-                    },
-                    {
-                        data: 'ExpiryDate',
-                        name: 'ExpiryDate'
                     },
                     {
                         data: 'Status',
