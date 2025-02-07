@@ -36,24 +36,18 @@
       "access": "web"
     },
     {
+      "url": "/user/vendor",
       "name": "Payors",
       "icon": "menu-icon tf-icons ti ti-users",
-      "slug": "payors",
-      "access": "web",
-      "submenu": [
-        {
-          "url": "/user/client",
-          "name": "Client",
-          "slug": "client",
-          "access": "web"
-        },
-        {
-          "url": "/user/vendor",
-          "name": "Vendor",
-          "slug": "vendor",
-          "access": "web"
-        }
-      ]
+      "slug": "peyors",
+      "access": "web"
+    },
+    {
+      "url": "/user/client",
+      "name": "Payee",
+      "icon": "menu-icon tf-icons ti ti-users",
+      "slug": "payee",
+      "access": "web"
     },
     {
       "name": "Checks",

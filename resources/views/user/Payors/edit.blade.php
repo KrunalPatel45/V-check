@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'Add Vendor')
+@section('title', 'Edit Payors')
 
 <!-- Vendor Styles -->
 @section('vendor-style')
@@ -23,20 +23,20 @@
         <div class="col-xxl">
             <div class="card mb-6">
                 <div class="card-header d-flex align-items-center justify-content-between">
-                    <h5 class="mb-0">Add Vendor</h5>
-                    <a href="{{ route('user.vendor') }}" class="btn btn-primary mr-4"><i class="fa-solid fa-arrow-left"></i>
+                    <h5 class="mb-0">Edit Payors</h5>
+                    <a href="{{ route('user.Payors') }}" class="btn btn-primary mr-4"><i class="fa-solid fa-arrow-left"></i>
                         &nbsp;
                         Back</a>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('user.payors.store', ['type' => 'vendor']) }}" method="POST"
-                        enctype="multipart/form-data">
+                    <form action="{{ route('user.payors.update', ['type' => 'Payors', 'id' => $payor->EntityID]) }}"
+                        method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="name">Name</label>
                             <div class="col-sm-10">
                                 <input type="text" name="name" id="name" class="form-control"
-                                    value="{{ old('name') }}" />
+                                    value="{{ $payor->Name }}" />
                                 @if ($errors->has('name'))
                                     <span class="text-danger">
                                         {{ $errors->first('name') }}
@@ -48,7 +48,7 @@
                             <label class="col-sm-2 col-form-label" for="email">Email</label>
                             <div class="col-sm-10">
                                 <input type="text" name="email" id="email" class="form-control"
-                                    value="{{ old('email') }}" />
+                                    value="{{ $payor->Email }}" />
                                 @if ($errors->has('email'))
                                     <span class="text-danger">
                                         {{ $errors->first('email') }}
@@ -59,7 +59,7 @@
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="address1">Address 1</label>
                             <div class="col-sm-10">
-                                <textarea id="address1" name="address1" class="form-control">{{ old('address1') }}</textarea>
+                                <textarea id="address1" name="address1" class="form-control">{{ $payor->Address1 }}</textarea>
                                 @if ($errors->has('address1'))
                                     <span class="text-danger">
                                         {{ $errors->first('address1') }}
@@ -70,7 +70,7 @@
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="address1">Address 2</label>
                             <div class="col-sm-10">
-                                <textarea id="address1" name="address2" class="form-control">{{ old('address2') }}</textarea>
+                                <textarea id="address1" name="address2" class="form-control">{{ $payor->Address2 }}</textarea>
                                 @if ($errors->has('address1'))
                                     <span class="text-danger">
                                         {{ $errors->first('address2') }}
@@ -82,7 +82,7 @@
                             <label class="col-sm-2 col-form-label" for="city">City</label>
                             <div class="col-sm-10">
                                 <input type="text" name="city" id="city" class="form-control"
-                                    value="{{ old('city') }}" />
+                                    value="{{ $payor->City }}" />
                                 @if ($errors->has('city'))
                                     <span class="text-danger">
                                         {{ $errors->first('city') }}
@@ -94,7 +94,7 @@
                             <label class="col-sm-2 col-form-label" for="state">State</label>
                             <div class="col-sm-10">
                                 <input type="text" name="state" id="state" class="form-control"
-                                    value="{{ old('state') }}" />
+                                    value="{{ $payor->State }}" />
                                 @if ($errors->has('state'))
                                     <span class="text-danger">
                                         {{ $errors->first('state') }}
@@ -106,7 +106,7 @@
                             <label class="col-sm-2 col-form-label" for="zip">Zip</label>
                             <div class="col-sm-10">
                                 <input type="text" name="zip" id="zip" class="form-control"
-                                    value="{{ old('zip') }}" />
+                                    value="{{ $payor->Zip }}" />
                                 @if ($errors->has('zip'))
                                     <span class="text-danger">
                                         {{ $errors->first('zip') }}
@@ -118,7 +118,7 @@
                             <label class="col-sm-2 col-form-label" for="bank_name">Bank Name</label>
                             <div class="col-sm-10">
                                 <input type="text" name="bank_name" id="bank_name" class="form-control"
-                                    value="{{ old('bank_name') }}" />
+                                    value="{{ $payor->BankName }}" />
                                 @if ($errors->has('bank_name'))
                                     <span class="text-danger">
                                         {{ $errors->first('bank_name') }}
@@ -130,7 +130,7 @@
                             <label class="col-sm-2 col-form-label" for="account_number">Account Number</label>
                             <div class="col-sm-10">
                                 <input type="text" name="account_number" id="account_number" class="form-control"
-                                    value="{{ old('account_number') }}" />
+                                    value="{{ $payor->AccountNumber }}" />
                                 @if ($errors->has('account_number'))
                                     <span class="text-danger">
                                         {{ $errors->first('account_number') }}
@@ -143,7 +143,7 @@
                             <label class="col-sm-2 col-form-label" for="routing_number">Routing Number</label>
                             <div class="col-sm-10">
                                 <input type="text" name="routing_number" id="routing_number" class="form-control"
-                                    value="{{ old('routing_number') }}" />
+                                    value="{{ $payor->RoutingNumber }}" />
                                 @if ($errors->has('routing_number'))
                                     <span class="text-danger">
                                         {{ $errors->first('routing_number') }}
@@ -156,9 +156,10 @@
                             <label class="col-sm-2 col-form-label" for="status">Status</label>
                             <div class="col-sm-10">
                                 <select id="status" name="status" class="form-control form-select">
-                                    <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>Active
+                                    <option value="active" {{ $payor->Status == 'Active' ? 'selected' : '' }}>Active
                                     </option>
-                                    <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Inactive
+                                    <option value="inactive" {{ $payor->Status == 'Inactive' ? 'selected' : '' }}>
+                                        Inactive
                                     </option>
                                 </select>
                                 @if ($errors->has('status'))
@@ -168,11 +169,12 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="row mb-6">
+                        {{-- <div class="row mb-6">
                             <div class="col-sm-2"></div>
                             <div class="col-sm-10 p-6">
                                 <label class="switch switch-square" for="same_as">
-                                    <input type="checkbox" class="switch-input" name="same_as" id="same_as" />
+                                    <input type="checkbox" class="switch-input" name="same_as" id="same_as"
+                                        {{ $payor->Type == 'Both' ? 'checked ' : '' }} />
                                     <span class="switch-toggle-slider">
                                         <span class="switch-on"></span>
                                         <span class="switch-off"></span>
@@ -180,16 +182,17 @@
                                     <span class="switch-label">Same As Client</span>
                                 </label>
                             </div>
-                        </div>
-
-                        <div class="row justify-content-end">
-                            <div class="col-sm-10">
-                                <button type="submit" class="btn btn-primary">Save</button>
-                            </div>
-                        </div>
-                    </form>
+                        </div> --}}
                 </div>
+
+                <div class="row justify-content-end">
+                    <div class="col-sm-10">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </div>
+                </form>
             </div>
         </div>
+    </div>
     </div>
 @endsection

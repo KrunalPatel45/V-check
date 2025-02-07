@@ -35,22 +35,22 @@ class CheckController extends Controller
                     $payor = Payors::find($row->EntityID);
                     return $payor->Name;
                 })
-                ->addColumn('Status', function ($row) {
-                    $statusOptions = ['Pending', 'Issued', 'Cleared', 'Expired', 'Cancelled'];
-                    $optionsHtml = '';
+                // ->addColumn('Status', function ($row) {
+                //     $statusOptions = ['Pending', 'Issued', 'Cleared', 'Expired', 'Cancelled'];
+                //     $optionsHtml = '';
                 
-                    // Loop through options and set the selected option if it matches the row status
-                    foreach ($statusOptions as $status) {
-                        $selected = ($row->Status === $status) ? 'selected' : '';
-                        $optionsHtml .= "<option value=\"$status\" $selected>$status</option>";
-                    }
+                //     // Loop through options and set the selected option if it matches the row status
+                //     foreach ($statusOptions as $status) {
+                //         $selected = ($row->Status === $status) ? 'selected' : '';
+                //         $optionsHtml .= "<option value=\"$status\" $selected>$status</option>";
+                //     }
                 
-                    return '<div class="col-sm-10">
-                                <select id="change_status" name="change_status" data-id="'.$row->CheckID.'" class="form-control form-select">
-                                    ' . $optionsHtml . '
-                                </select>
-                            </div>';
-                })
+                //     return '<div class="col-sm-10">
+                //                 <select id="change_status" name="change_status" data-id="'.$row->CheckID.'" class="form-control form-select">
+                //                     ' . $optionsHtml . '
+                //                 </select>
+                //             </div>';
+                // })
                 ->addColumn('actions', function ($row) {
                     $check_preview = asset('checks/' . $row->CheckPDF);
 
@@ -163,22 +163,22 @@ class CheckController extends Controller
                     $payor = Payors::find($row->EntityID);
                     return $payor->Name;
                 })
-                ->addColumn('Status', function ($row) {
-                    $statusOptions = ['Pending', 'Issued', 'Cleared', 'Expired', 'Cancelled'];
-                    $optionsHtml = '';
+                // ->addColumn('Status', function ($row) {
+                //     $statusOptions = ['Pending', 'Issued', 'Cleared', 'Expired', 'Cancelled'];
+                //     $optionsHtml = '';
                 
-                    // Loop through options and set the selected option if it matches the row status
-                    foreach ($statusOptions as $status) {
-                        $selected = ($row->Status === $status) ? 'selected' : '';
-                        $optionsHtml .= "<option value=\"$status\" $selected>$status</option>";
-                    }
+                //     // Loop through options and set the selected option if it matches the row status
+                //     foreach ($statusOptions as $status) {
+                //         $selected = ($row->Status === $status) ? 'selected' : '';
+                //         $optionsHtml .= "<option value=\"$status\" $selected>$status</option>";
+                //     }
                 
-                    return '<div class="col-sm-10">
-                                <select id="change_status" name="change_status" data-id="'.$row->CheckID.'" class="form-control form-select">
-                                    ' . $optionsHtml . '
-                                </select>
-                            </div>';
-                })
+                //     return '<div class="col-sm-10">
+                //                 <select id="change_status" name="change_status" data-id="'.$row->CheckID.'" class="form-control form-select">
+                //                     ' . $optionsHtml . '
+                //                 </select>
+                //             </div>';
+                // })
                 ->addColumn('actions', function ($row) {
                     $check_preview = asset('checks/' . $row->CheckPDF);
 

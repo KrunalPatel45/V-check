@@ -36,8 +36,8 @@ class PayorsController extends Controller
                     return Carbon::parse($row->UpdatedAt)->format('m/d/Y H:i:m');
                 })
                 ->addColumn('actions', function ($row) {
-                    $editUrl = route('user.payors.edit', ['type' => 'client', 'id' => $row->EntityID]);
-                    $deleteUrl = route('user.payors.delete', ['type' => 'client', 'id' => $row->EntityID]);
+                    $editUrl = route('user.payors.edit', ['type' => 'Payee', 'id' => $row->EntityID]);
+                    $deleteUrl = route('user.payors.delete', ['type' => 'Payee', 'id' => $row->EntityID]);
                 
                     return '<div class="dropdown">
                                 <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
@@ -80,7 +80,7 @@ class PayorsController extends Controller
                 ->make(true);
         }
 
-        return view('user.client.index');
+        return view('user.Payee.index');
     }
 
     public function vendor_index(Request $request)
@@ -108,8 +108,8 @@ class PayorsController extends Controller
                     return Carbon::parse($row->UpdatedAt)->format('m/d/Y H:i:m');
                 })
                 ->addColumn('actions', function ($row) {
-                    $editUrl = route('user.payors.edit', ['type' => 'client', 'id' => $row->EntityID]);
-                    $deleteUrl = route('user.payors.delete', ['type' => 'client', 'id' => $row->EntityID]);
+                    $editUrl = route('user.payors.edit', ['type' => 'Payors', 'id' => $row->EntityID]);
+                    $deleteUrl = route('user.payors.delete', ['type' => 'Payors', 'id' => $row->EntityID]);
                 
                     return '<div class="dropdown">
                                 <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
@@ -152,7 +152,7 @@ class PayorsController extends Controller
                 ->make(true);
         }
 
-        return view('user.vendor.index');
+        return view('user.Payors.index');
     }
 
     public function create($type) 
@@ -173,8 +173,8 @@ class PayorsController extends Controller
             'zip' => 'required',
             'email' => 'required|email|unique:Entities,email',
             'bank_name' => 'required',
-            'routing_number' => 'required',
-            'account_number' => 'required',
+            'routing_number' => 'required|digits:9',
+            'account_number' => 'required|numeric',
             'status' => 'required',
         ]);
 
@@ -183,9 +183,9 @@ class PayorsController extends Controller
         }
 
         $payors_type = $request->type;
-        if(!empty($request->same_as) && $request->same_as == 'on') {
-            $payors_type = 'Both';
-        }
+        // if(!empty($request->same_as) && $request->same_as == 'on') {
+        //     $payors_type = 'Both';
+        // }
        
         $payor = new Payors();
 
@@ -229,8 +229,8 @@ class PayorsController extends Controller
             'zip' => 'required',
             'email' => 'required|email|unique:Entities,email,' . $id.',EntityID',
             'bank_name' => 'required',
-            'routing_number' => 'required',
-            'account_number' => 'required',
+            'routing_number' => 'required|digits:9',
+            'account_number' => 'required|numeric',
             'status' => 'required',
         ]);
 
@@ -283,8 +283,8 @@ class PayorsController extends Controller
             'zip' => 'required',
             'email' => !empty($request->id) ? 'required|email|unique:Entities,email,' . $request->id.',EntityID'  :'required|email|unique:Entities,email',
             'bank_name' => 'required',
-            'routing_number' => 'required',
-            'account_number' => 'required',
+            'routing_number' => 'required|digits:9',
+            'account_number' => 'required|numeric',
         ]);
 
         if ($validator->fails()) {

@@ -42,8 +42,8 @@
                         <th>Payor</th>
                         <th>Amount</th>
                         <th>Print Date</th>
-                        <th style="width: 140px !important;">Status</th>
-                        <th style="width: 50px;!important">Check Preview</th>
+                        {{-- <th style="width: 140px !important;">Status</th> --}}
+                        <th>Check Preview</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -85,12 +85,12 @@
                         data: 'IssueDate',
                         name: 'IssueDate'
                     },
-                    {
-                        data: 'Status',
-                        name: 'Status',
-                        orderable: false,
-                        searchable: false
-                    },
+                    // {
+                    //     data: 'Status',
+                    //     name: 'Status',
+                    //     orderable: false,
+                    //     searchable: false
+                    // },
                     {
                         data: 'actions',
                         name: 'actions',

@@ -102,8 +102,8 @@ class CompanyController extends Controller
             'zip' => 'required',
             'email' => 'required|email|unique:Company,email',
             'bank_name' => 'required',
-            'routing_number' => 'required',
-            'account_number' => 'required',
+            'routing_number' => 'required|digits:9',
+            'account_number' => 'required|numeric',
             'status' => 'required',
         ]);
 
@@ -165,8 +165,8 @@ class CompanyController extends Controller
             'zip' => 'required',
             'email' => 'required|email|unique:Company,email,' . $id.',CompanyID',
             'bank_name' => 'required',
-            'routing_number' => 'required',
-            'account_number' => 'required',
+            'routing_number' => 'required|digits:9',
+            'account_number' => 'required|numeric',
             'status' => 'required',
         ]);
 

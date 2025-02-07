@@ -3,7 +3,7 @@
 @endphp
 @extends('layouts/layoutMaster')
 
-@section('title', 'Clinet')
+@section('title', 'Payee')
 @section('vendor-style')
     @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss'])
 @endsection
@@ -21,10 +21,10 @@
             </div>
         @endif
         <div class="d-flex justify-content-between align-items-center">
-            <h5 class="card-header">Client</h5>
-            <a href="{{ route('user.payors.add', ['type' => 'client']) }}" class="btn btn-primary mr-4"
+            <h5 class="card-header">Payee</h5>
+            <a href="{{ route('user.payors.add', ['type' => 'Payee']) }}" class="btn btn-primary mr-4"
                 style="height: 40px !important;margin-right: 25px !important;">
-                <i class="fa-solid fa-plus"></i> &nbsp; Add Client
+                <i class="fa-solid fa-plus"></i> &nbsp; Add Payee
             </a>
         </div>
         <div class="card-datatable table-responsive pt-0">
@@ -53,7 +53,7 @@
             $('#clientTable').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('user.client') }}",
+                ajax: "{{ route('user.Payee') }}",
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',
