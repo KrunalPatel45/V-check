@@ -57,6 +57,7 @@
   if (datepickerList) {
     datepickerList.forEach(function (datepicker) {
       datepicker.flatpickr({
+        dateFormat: 'm-d-Y',
         monthSelectorType: 'static'
       });
     });

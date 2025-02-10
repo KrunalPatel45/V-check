@@ -7,113 +7,128 @@
     <title>Subscription Plan </title>
     <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/favicon.ico') }}" />
     <style>
-        * {
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            background-color: #f4f4f9;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
         }
 
-        .plan-container {
+        .pricing-table {
             display: flex;
             gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-            max-width: 1200px;
-            margin: 20px;
         }
 
-        .plan {
-            background: #fff;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            width: 300px;
+        .pricing-card {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
             padding: 20px;
-            transition: 0.3s;
+            width: 220px;
+            overflow: hidden;
+            position: relative;
         }
 
-        .plan:hover {
-            transform: scale(1.05);
-            border-color: #007BFF;
-        }
-
-        .plan h3 {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .plan .price {
-            font-size: 2em;
+        .pricing-card.popular::before {
+            content: "POPULAR";
+            background-color: #000000;
+            color: #ffffff;
+            font-size: 12px;
             font-weight: bold;
-            color: #7367f0;
-            margin: 15px 0;
+            padding: 5px 10px;
+            position: absolute;
+            top: 18px;
+            right: -31px;
+            border-radius: 3px;
+            transform: rotate(45deg);
+            width: 100px;
         }
 
-        .plan .description {
-            font-size: 0.9em;
-            color: #666;
-            margin: 15px 0;
-            margin-bottom: 30px;
+        .pricing-card h3 {
+            background-color: #00a7cf;
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 8px 8px 0 0;
+            margin: -20px -20px 20px -20px;
         }
 
-        .plan ul {
-            list-style: none;
-            text-align: left;
-            padding: 0;
-            margin: 20px 0;
-        }
-
-        .plan ul li {
+        .price {
+            font-size: 40px;
+            color: #7e57c2;
             margin: 10px 0;
+            font-weight: 600;
+        }
+
+        .price span {
+            font-size: 16px;
             color: #555;
         }
 
-        .plan .plan-button {
-            background-color: #7367f0;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            padding: 10px 15px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: 0.3s;
-            text-decoration: none;
-            margin-top: 20px;
+        .features {
+            list-style: none;
+            padding: 0;
+            margin: 30px 0;
+            text-align: left;
         }
 
-        .plan .plan-button:hover {
-            background-color: #7367f0;
+        .features li {
+            margin: 15px 0;
+            color: #555;
         }
 
-        @media (max-width: 768px) {
-            .plan {
-                width: 100%;
-            }
+        .features li::before {
+            content: "\2713";
+            color: #4caf50;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .pricing-card:hover {
+            transform: scale(1.05);
+            transition: 0.3s ease-in-out;
+        }
+
+        .pricing-card .plan-button {
+            background-color: #7367f0 !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 5px !important;
+            padding: 10px 15px !important;
+            font-size: 1em !important;
+            cursor: pointer !important;
+            transition: 0.3s !important;
+            text-decoration: none !important;
+            margin-top: 20px !important;
+        }
+
+        .pricing-card .plan-button:hover {
+            background-color: #7367f0 !important;
         }
     </style>
 </head>
 
 <body>
-    <div class="plan-container">
+    <div class="pricing-table">
         @foreach ($packages as $package)
-            <div class="plan">
+            <div class="pricing-card {{ $package->Name == 'PRO' || $package->Name == 'ENTERPRISE' ? 'popular' : '' }}">
                 <h3>{{ $package->Name }}</h3>
-                <p class="price">${{ number_format($package->Price) }} / {{ number_format($package->Duration / 30.44) }}
-                    Month
-                </p>
-                <p class="description">
-                    {{ $package->Description }}
-                </p>
+                <p class="price">${{ $package->Price }} <span>monthly</span></p>
+                <ul class="features">
+                    <li>Up to {{ $package->Name != 'UNLIMITED' ? $package->CheckLimitPerMonth : 'Unlimited ' }} checks
+                        / month</li>
+                    <li>Email Support</li>
+                    <li>Unlimited Users</li>
+                    @if ($package->Name != 'BASIC')
+                        <li>Custom Webform*</li>
+                    @endif
+                    <li>3 mos History Storage</li>
+                </ul>
                 <a href="{{ route('user.select-package', ['id' => $userId, 'plan' => $package->PackageID]) }}"
                     class="plan-button">Select Plan</a>
             </div>

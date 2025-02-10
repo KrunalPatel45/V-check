@@ -5,125 +5,150 @@
 <!-- Vendor Styles -->
 @section('vendor-style')
     <style>
-        .c_body {
-            font-family: "Arial", sans-serif;
-            margin: 50px 0 0;
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            /* width: 850px;
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                height: 400px; */
-            background-color: #fff;
-            -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: #f4f4f4;
         }
 
-        .check {
-            width: 100%;
-            height: 400px;
-            background: white;
-            border: 1px solid black;
+        .form-container {
+            background: #fffacd;
+            border: 2px solid green;
+            /* max-width: 90%; */
+            margin: 20px auto;
             padding: 20px;
-            box-sizing: border-box;
-            position: relative;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
         }
 
-        .header {
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-title {
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: green;
+            font-weight: bold;
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        label {
+            font-weight: bold;
+            flex: 1;
+            min-width: 120px;
+        }
+
+        input,
+        select {
+            /* flex: 2; */
+            /* padding: 8px; */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            min-width: 200px;
+        }
+
+        .pay-section {
             display: flex;
             justify-content: space-between;
-            font-size: 12px;
+            align-items: center;
+            padding: 10px;
+            /* border: 1px solid #ccc; */
+            /* border-radius: 4px; */
+            font-size: 1.2rem;
+            margin: 20px 0;
+        }
+
+        .pay-amount {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        button {
+            background-color: green;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        button:hover {
+            background-color: darkgreen;
+        }
+
+        .fileds {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .fileds-row {
+            gap: 10px;
+        }
+
+        .payor-filed {
+            min-width: 350px !important;
         }
 
         .address {
-            line-height: 1.5;
+            justify-content: normal !important;
+            gap: 6px !important;
         }
 
-        .date {
-            text-align: right;
-            font-size: 12px;
+        .address .fileds input {
+            min-width: 100px;
+            width: 100px;
         }
 
-        .payee {
-            margin-top: 40px;
-            font-size: 12px;
+        .dob-picker {
+            background: #ffffff !important;
+            min-width: 200px !important;
         }
 
-        .payee b {
-            margin-left: 10px;
+        .f-basic {
+            flex-basis: 60% !important;
         }
 
-        .amount {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-            font-size: 14px;
+        .text-right {
+            text-align: right !important;
         }
 
-        .amount .words {
-            flex: 1;
-            border-bottom: 1px solid black;
-            padding-right: 10px;
+        .text-center {
+            text-align: center !important;
         }
 
-        .amount .number {
-            width: 200px;
-            text-align: right;
-            border-bottom: 1px solid black;
+        .j-center {
+            justify-content: center !important;
+            margin: 20px 0 !important;
         }
 
-        .dollars {
-            position: absolute;
-            right: 103px;
-            top: 148px;
-            font-size: 12px;
-            font-weight: bold;
-        }
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
 
-        .bank {
-            margin-top: 20px;
-            font-size: 12px;
-            font-weight: bold;
-        }
+            label {
+                text-align: left;
+            }
 
-        .footer {
-            margin-top: 30px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 10px;
-        }
-
-        .footer .memo {
-            flex: 1;
-            border-bottom: 1px solid black;
-            padding-top: 40px;
-        }
-
-        .footer .signature {
-            text-align: right;
-            flex: 1;
-            line-height: 1.5;
-        }
-
-        .micr {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            text-align: center;
-            font-family: "OCR A", monospace;
-            font-size: 16px;
-        }
-
-        .micr span {
-            margin: 0 2px;
-        }
-
-        @media print {
-            .check {
-                width: 850px;
-                height: 400px;
+            input,
+            select {
+                flex: 1;
             }
         }
     </style>
@@ -138,48 +163,15 @@
 <!-- Page Scripts -->
 @section('page-script')
     @vite(['resources/assets/js/form-layouts.js'])
+    @vite(['resources/assets/js/ui-modals.js'])
     <script>
         $(document).ready(function() {
             $('#payee').on('change', function() {
                 id = $(this).val();
                 const selectedValue = $(this).find('option:selected').attr(
                     'id');
-                $('.new-company').removeClass('d-none');
-                if (selectedValue != 'add_other_company') {
-                    $.ajax({
-                        url: "{{ route('get_payee', ':id') }}".replace(':id', id),
-                        method: 'GET',
-                        success: function(response) {
-                            $('#payee_id').val(response.payee.CompanyID);
-                            $('#payee-name').val(response.payee.Name);
-                            $('#payee-email').val(response.payee.Email);
-                            $('#payee-address1').val(response.payee.Address1);
-                            $('#payee-address2').val(response.payee.Address2);
-                            $('#payee-city').val(response.payee.City);
-                            $('#payee-state').val(response.payee.State);
-                            $('#payee-zip').val(response.payee.Zip);
-                            $('#payee-bank_name').val(response.payee.BankName);
-                            $('#payee-account_number').val(response.payee.AccountNumber);
-                            $('#payee-routing_number').val(response.payee.RoutingNumber);
-
-                            $('#h_lable').text('Edit');
-
-                            $("#c_payee_name").text(response.payee.Name || "XXXXXX");
-                        }
-                    });
-                } else {
-                    $('#payee_id').val('');
-                    $('#payee-name').val('');
-                    $('#payee-email').val('');
-                    $('#payee-address1').val('');
-                    $('#payee-address2').val('');
-                    $('#payee-city').val('');
-                    $('#payee-state').val('');
-                    $('#payee-zip').val('');
-                    $('#payee-bank_name').val('');
-                    $('#payee-account_number').val('');
-                    $('#payee-routing_number').val('');
-                    $('#h_lable').text('Add');
+                if (selectedValue == 'add_other_company') {
+                    $('#payeeModel').modal('show');
                 }
             });
 
@@ -224,18 +216,12 @@
                                 );
                             });
                         } else if (response.success) {
+                            $('#payeeModel').modal('hide');
                             // Success message
-                            if (!id) {
-                                let newOption =
-                                    `<option value="${response.payee.CompanyID}" selected>${response.payee.Name}</option>`;
-                                $('#payee').append(newOption).val(response.payee.CompanyID);
-                            } else {
-                                $('#payee').val(response.payee.CompanyID);
-                                $('#payee option:selected').text(response.payee.Name);
-                            }
-                            $("#c_payee_name").text(response.payee.Name || "XXXXXX");
+                            let newOption =
+                                `<option value="${response.payee.CompanyID}" selected>${response.payee.Name}</option>`;
+                            $('#payee').append(newOption).val(response.payee.CompanyID);
 
-                            $('.new-company').addClass('d-none');
                             $('#add-payee')[0].reset(); // Reset form
                         }
                     },
@@ -253,8 +239,8 @@
                 id = $(this).val();
                 const selectedValue = $(this).find('option:selected').attr(
                     'id');
-                $('.new-payor').removeClass('d-none');
                 if (selectedValue === 'add_other_payor') {
+                    $('#payorModel').modal('show');
                     $('#payor_id').val('');
                     $('#add-payor #name').val('');
                     $('#add-payor #email').val('');
@@ -272,31 +258,14 @@
                         url: "{{ route('get_payor', ':id') }}".replace(':id', id),
                         method: 'GET',
                         success: function(response) {
-                            $("#c_name").text(response.payor.Name || "XXXXXX XXX");
-                            $("#c_address1").text(response.payor.Address1 || "XXXXXXX XXXX");
-                            $("#c_address2").text(response.payor.Address2 || "XXXX XXXX XXXX");
-                            $("#c_city").text(response.payor.City || "XXXXXX");
-                            $("#c_zip").text(response.payor.Zip || "XXXXXX");
-                            $("#c_state").text(response.payor.State || "XXXX");
-                            $("#c_routing_number").text(response.payor.RoutingNumber ||
-                                "XXXXXXXXX");
-                            $("#c_account_number").text(response.payor.AccountNumber ||
-                                "XXXXXXXXXX");
-                            $("#c_bank_name").text(response.payor.BankName || "XXXXXXX");
-
                             $('#payor_id').val(response.payor.EntityID);
-                            $('#add-payor #name').val(response.payor.Name);
-                            $('#add-payor #email').val(response.payor.Email);
-                            $('#add-payor #address1').val(response.payor.Address1);
-                            $('#add-payor #address2').val(response.payor.Address2);
-                            $('#add-payor #city').val(response.payor.City);
-                            $('#add-payor #state').val(response.payor.State);
-                            $('#add-payor #zip').val(response.payor.Zip);
-                            $('#add-payor #bank_name').val(response.payor.BankName);
-                            $('#add-payor #account_number').val(response.payor.AccountNumber);
-                            $('#add-payor #routing_number').val(response.payor.RoutingNumber);
-                            $('#add-payor #type').val(response.payor.Type);
-                            $('#payor_h').text('Edit');
+                            $('#address').val(response.payor.Address1);
+                            $('#city').val(response.payor.City);
+                            $('#state').val(response.payor.State);
+                            $('#zip').val(response.payor.Zip);
+                            $('#account_number').val(response.payor.AccountNumber);
+                            $('#routing_number').val(response.payor.RoutingNumber);
+                            $('#confirm_account_number').val(response.payor.AccountNumber);
                         }
                     });
                 }
@@ -319,7 +288,7 @@
                     bank_name: $('#add-payor #bank_name').val(),
                     account_number: $('#add-payor #account_number').val(),
                     routing_number: $('#add-payor #routing_number').val(),
-                    type: $('#add-payor #type').val(),
+                    type: 'Vendor',
                     id: id
                 };
 
@@ -341,29 +310,21 @@
                                 );
                             });
                         } else if (response.success) {
+
+                            $('#payorModel').modal('hide');
                             // Success message
-                            if (!id) {
-                                let newOption =
-                                    `<option value="${response.payor.EntityID}" selected>${response.payor.Name}</option>`;
-                                $('#payor').append(newOption).val(response.payor.EntityID);
-                            } else {
-                                $('#payor').val(response.payor.EntityID);
-                                $('#payor option:selected').text(response.payor.Name);
-                            }
-                            $("#c_name").text(response.payor.Name || "XXXXXX XXX");
-                            $("#c_address1").text(response.payor.Address1 || "XXXXXXX XXXX");
-                            $("#c_address2").text(response.payor.Address2 || "XXXX XXXX XXXX");
-                            $("#c_city").text(response.payor.City || "XXXXXX");
-                            $("#c_zip").text(response.payor.Zip || "XXXXXX");
-                            $("#c_state").text(response.payor.State || "XXXX");
-                            $("#c_routing_number").text(response.payor.RoutingNumber ||
-                                "XXXXXXXXX");
-                            $("#c_account_number").text(response.payor.AccountNumber ||
-                                "XXXXXXXXXX");
-                            $("#c_bank_name").text(response.payor.BankName || "XXXXXXX");
+                            let newOption =
+                                `<option value="${response.payor.EntityID}" selected>${response.payor.Name}</option>`;
+                            $('#payor').append(newOption).val(response.payor.EntityID);
 
-
-                            $('.new-payor').addClass('d-none');
+                            $('#payor_id').val(response.payor.EntityID);
+                            $('#address').val(response.payor.Address1);
+                            $('#city').val(response.payor.City);
+                            $('#state').val(response.payor.State);
+                            $('#zip').val(response.payor.Zip);
+                            $('#account_number').val(response.payor.AccountNumber);
+                            $('#routing_number').val(response.payor.RoutingNumber);
+                            $('#confirm_account_number').val(response.payor.AccountNumber);
                             $('#add-payor')[0].reset(); // Reset form
                         }
                     },
@@ -415,404 +376,367 @@
 @endsection
 
 @section('content')
-    <div class="row">
-        <div class="col-6">
-            <div class="card mb-6 c_body">
-                <div class="check">
-                    <div class="header">
-                        <div class="address">
-                            <span id="c_name">XXXXXX XXX</span><br>
-                            <span id="c_address1">XXXXXXX XXXX</span><br>
-                            <span id="c_address2">XXXX XXXX XXXX</span>
-                            <span id="c_city">XXXXXX</span>, <span id="c_state">XXXX</span> <span
-                                id="c_zip">XXXXXX</span>
+    <div class="form-container">
+        <form action="{{ route('check.process_payment_check_generate') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="form-row">
+                <div class="fileds">
+                    <label for="account-name">Account Holder's Name:</label>
+                    <select id="payor" name="payor" class="payor-filed">
+                        <option value="" selected>Select Payors</option>
+                        @foreach ($payors as $payor)
+                            <option value="{{ $payor->EntityID }}" id="added_company">{{ $payor->Name }}
+                            </option>
+                        @endforeach
+                        <option value="" id="add_other_payor" style="font-weight: bold;">Add New Payors
+                        </option>
+                    </select>
+                    @if ($errors->has('payor'))
+                        <span class="text-danger">
+                            {{ $errors->first('payor') }}
+                        </span>
+                    @endif
+                </div>
+                <div class="fileds">
+                    <label for="check-number">Check Number:</label>
+                    <input type="text" id="check_number" name="check_number">
+                    @if ($errors->has('check_number'))
+                        <span class="text-danger">
+                            {{ $errors->first('check_number') }}
+                        </span>
+                    @endif
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="fileds">
+                    <label for="street-address">Your Street Address:</label>
+                    <input type="text" id="address" name="address" class="payor-filed">
+                </div>
+                <div class="fileds">
+                    <label for="phone">Date:</label>
+                    <input type="text" id="check_date" name="check_date" class="dob-picker" placeholder="MM-DD-YYYY" />
+                    @if ($errors->has('check_date'))
+                        <span class="text-danger">
+                            {{ $errors->first('check_date') }}
+                        </span>
+                    @endif
+                </div>
+            </div>
+
+            <div class="form-row address">
+                <div class="fileds">
+                    <label for="city">Your City:</label>
+                    <input type="text" id="city" name="city">
+                </div>
+                <div class="fileds">
+                    <label for="state">Your State:</label>
+                    <input type="text" id="state" name="state">
+                </div>
+                <div class="fileds">
+                    <label for="zip">Your Zip:</label>
+                    <input type="text" id="zip" name="zip">
+                </div>
+            </div>
+
+            <div class="pay-section">
+                <div class="fileds-row f-basic">
+                    <label for="account-name">Pay to the Order of:</label>
+                    <select id="payee" name="payee" class="payor-filed">
+                        <option value="" selected>Select Payee</option>
+                        @foreach ($payees as $payee)
+                            <option value="{{ $payee->CompanyID }}" id="added_company">{{ $payee->Name }}
+                            </option>
+                        @endforeach
+                        <option value="" id="add_other_company" style="font-weight: bold;">Add New Payee
+                        </option>
+                    </select>
+                    @if ($errors->has('payee'))
+                        <br>
+                        <span class="text-danger">
+                            {{ $errors->first('payee') }}
+                        </span>
+                    @endif
+                </div>
+                <div class="fileds-row">
+                    <label for="amount" class="text-right">Amount: $</label>
+                    <input type="text" id="amount" name="amount">
+                    @if ($errors->has('amount'))
+                        <br>
+                        <span class="text-danger">
+                            {{ $errors->first('amount') }}
+                        </span>
+                    @endif
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="fileds-row">
+                    <label for="memo" style="min-width: 0;">Memo:</label>
+                    <input type="text" id="memo" name="memo">
+                    @if ($errors->has('memo'))
+                        <span class="text-danger">
+                            {{ $errors->first('memo') }}
+                        </span>
+                    @endif
+                </div>
+            </div>
+
+            <div class="form-row j-center">
+                <div class="fileds">
+                    <label for="routing-number" class="text-center">Routing #:</label>
+                    <input type="text" id="routing_number" name="routing_number">
+                </div>
+                <div class="fileds">
+                    <label for="checking-number" class="text-center">Checking Account #:</label>
+                    <input type="text" id="account_number" name="account_number">
+                </div>
+                <div class="fileds">
+                    <label for="confirm_account_number" class="text-center">Confirm Account #:</label>
+                    <input type="text" id="confirm_account_number" name="confirm_account_number">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <button type="submit">Generate</button>
+            </div>
+        </form>
+
+        <div class="modal fade" id="payorModel" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel1">Add Payor</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-6" id="add-payor">
+                            <div class="col-md-6">
+                                <label class="form-label" for="name">Name</label>
+                                <input type="text" name="name" id="name" class="form-control"
+                                    value="{{ old('name') }}" />
+                                @if ($errors->has('name'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('name') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="email">Email</label>
+                                <input type="text" name="email" id="email" class="form-control"
+                                    value="{{ old('email') }}" />
+                                @if ($errors->has('email'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('email') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="address1">Address 1</label>
+                                <textarea id="address1" name="address1" class="form-control">{{ old('address1') }}</textarea>
+                                @if ($errors->has('address1'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('address1') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="address2">Address 2</label>
+                                <textarea id="address2" name="address2" class="form-control">{{ old('address2') }}</textarea>
+                                @if ($errors->has('address2'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('address2') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="city">City</label>
+                                <input type="text" name="city" id="city" class="form-control"
+                                    value="{{ old('city') }}" />
+                                @if ($errors->has('city'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('city') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="state">State</label>
+                                <input type="text" name="state" id="state" class="form-control"
+                                    value="{{ old('state') }}" />
+                                @if ($errors->has('state'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('state') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="zip">Zip</label>
+                                <input type="text" name="zip" id="zip" class="form-control"
+                                    value="{{ old('zip') }}" />
+                                @if ($errors->has('zip'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('zip') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="bank_name">Bank Name</label>
+                                <input type="text" name="bank_name" id="bank_name" class="form-control"
+                                    value="{{ old('bank_name') }}" />
+                                @if ($errors->has('bank_name'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('bank_name') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="account_number">Account Number</label>
+                                <input type="text" name="account_number" id="account_number" class="form-control"
+                                    value="{{ old('account_number') }}" />
+                                @if ($errors->has('account_number'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('account_number') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="routing_number">Routing Number</label>
+                                <input type="text" name="routing_number" id="routing_number" class="form-control"
+                                    value="{{ old('routing_number') }}" />
+                                @if ($errors->has('routing_number'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('routing_number') }}
+                                    </span>
+                                @endif
+                            </div>
                         </div>
-                        <div class="date">
-                            <div id="c_check_number">XXXX</div>
-                            <div id="c_check_date">XX-XX-XXXX</div>
-                        </div>
+                        <input type="hidden" name="type" id="type" value="Vendor" />
                     </div>
-
-                    <div class="payee">
-                        PAY TO THE ORDER OF <b> <span id="c_payee_name">XXXXXX</span></b>
-                    </div>
-
-                    <div class="amount">
-                        <div class="words"><span id="c_amount_word">XXXXX XXXX XXXX</span>+ 0.00***</div>
-                        <div class="number">***<span id="c_amount">XXXX.XX</span></div>
-                    </div>
-
-                    <div class="dollars">DOLLARS
-                    </div>
-
-                    <div class="bank" id="c_bank_name">XXXXXXX</div>
-
-                    <div class="footer">
-                        <div class="memo" id="c_memo">XXXXXXX XXXX XXXX XX</div>
-                        <div class="signature">
-                            SIGNATURE NOT REQUIRED<br>
-                            Your depositor has authorized this payment to payee.<br>
-                            Payee to hold you harmless for payment of this document.<br>
-                            This document shall be deposited only to the credit of payee.
-                        </div>
-                    </div>
-
-                    <div class="micr">
-                        <span id="c_routing_number">XXXXXXXXX</span>
-                        <span>●</span>
-                        <span id="c_account_number">XXXXXXXXXX</span>
-                        <span>●</span>
-                        <span id="c_check_number_1">XXXX</span>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
+                        <button id="add-payor-btn" type="button" class="btn btn-primary">Save</button>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-6">
-            <div class="card mb-2">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <h5 class="mb-0">Generate Checks</h5>
-                    <a href="{{ route('check.process_payment') }}" class="btn btn-primary mr-4"><i
-                            class="fa-solid fa-arrow-left"></i>
-                        &nbsp;
-                        Back</a>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('check.process_payment_check_generate') }}" method="POST"
-                        enctype="multipart/form-data">
-                        @csrf
-                        <div class="row mb-2">
-                            <label class="col-sm-2 col-form-label" for="check_date">Check Date</label>
-                            <div class="col-sm-10">
-                                <input type="text" id="check_date" name="check_date" class="form-control dob-picker"
-                                    placeholder="YYYY-MM-DD" />
-                                @if ($errors->has('check_date'))
+        <div class="modal fade" id="payeeModel" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel1">Add Payor</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-6" id="add-payee">
+                            <div class="col-md-6">
+                                <label class="form-label" for="payee-name">Name</label>
+                                <input type="text" name="name" id="payee-name" class="form-control"
+                                    value="{{ old('name') }}" />
+                                @if ($errors->has('name'))
                                     <span class="text-danger">
-                                        {{ $errors->first('check_date') }}
+                                        {{ $errors->first('name') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="payee-email">Email</label>
+                                <input type="text" name="email" id="payee-email" class="form-control"
+                                    value="{{ old('email') }}" />
+                                @if ($errors->has('email'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('email') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="payee-address1">Address 1</label>
+                                <textarea id="payee-address1" name="address1" class="form-control">{{ old('address1') }}</textarea>
+                                @if ($errors->has('address1'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('address1') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="payee-address2">Address 2</label>
+                                <textarea id="payee-address2" name="address2" class="form-control">{{ old('address2') }}</textarea>
+                                @if ($errors->has('address1'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('address2') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="payee-city">City</label>
+                                <input type="text" name="city" id="payee-city" class="form-control"
+                                    value="{{ old('city') }}" />
+                                @if ($errors->has('city'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('city') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="payee-state">State</label>
+                                <input type="text" name="state" id="payee-state" class="form-control"
+                                    value="{{ old('state') }}" />
+                                @if ($errors->has('state'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('state') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="payee-zip">Zip</label>
+                                <input type="text" name="zip" id="payee-zip" class="form-control"
+                                    value="{{ old('zip') }}" />
+                                @if ($errors->has('zip'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('zip') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="payee-bank_name">Bank Name</label>
+                                <input type="text" name="bank_name" id="payee-bank_name" class="form-control"
+                                    value="{{ old('bank_name') }}" />
+                                @if ($errors->has('bank_name'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('bank_name') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="payee-account_number">Account
+                                    Number</label>
+                                <input type="text" name="account_number" id="payee-account_number"
+                                    class="form-control" value="{{ old('account_number') }}" />
+                                @if ($errors->has('account_number'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('account_number') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label" for="payee-routing_number">Routing
+                                    Number</label>
+                                <input type="text" name="routing_number" id="payee-routing_number"
+                                    class="form-control" value="{{ old('routing_number') }}" />
+                                @if ($errors->has('routing_number'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('routing_number') }}
                                     </span>
                                 @endif
                             </div>
                         </div>
-                        <div class="row mb-2">
-                            <label class="col-sm-2 col-form-label" for="check_number">Check Number</label>
-                            <div class="col-sm-10">
-                                <input type="text" name="check_number" id="check_number" class="form-control"
-                                    value="{{ old('check_number') }}" />
-                                @if ($errors->has('check_number'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('check_number') }}
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="row mb-2">
-                            <label class="col-sm-2 col-form-label" for="amount">Amount</label>
-                            <div class="col-sm-10">
-                                <input type="text" name="amount" id="amount" class="form-control"
-                                    value="{{ old('amount') }}" />
-                                @if ($errors->has('amount'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('amount') }}
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="row mb-2">
-                            <label class="col-sm-2 col-form-label" for="payee">Payee</label>
-                            <div class="col-sm-10">
-                                <select id="payee" name="payee" class="form-control form-select">
-                                    <option value="" selected>Select Payee</option>
-                                    @foreach ($payees as $payee)
-                                        <option value="{{ $payee->CompanyID }}" id="added_company">{{ $payee->Name }}
-                                        </option>
-                                    @endforeach
-                                    <option value="" id="add_other_company" style="font-weight: bold;">Add New Payee
-                                    </option>
-                                </select>
-                                @if ($errors->has('payee'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('payee') }}
-                                    </span>
-                                @endif
-                                <div class="mb-2 mt-2 new-company d-none">
-                                    <div class="card-body" id="add-payee">
-                                        {{-- @csrf --}}
-                                        <h5><span id="h_lable">Add</span> Payee</h5>
-                                        <div class="row g-6">
-                                            <input type="hidden" id="payee_id" name="id" />
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="payee-name">Name</label>
-                                                <input type="text" name="name" id="payee-name" class="form-control"
-                                                    value="{{ old('name') }}" />
-                                                @if ($errors->has('name'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('name') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="payee-email">Email</label>
-                                                <input type="text" name="email" id="payee-email"
-                                                    class="form-control" value="{{ old('email') }}" />
-                                                @if ($errors->has('email'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('email') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="payee-address1">Address 1</label>
-                                                <textarea id="payee-address1" name="address1" class="form-control">{{ old('address1') }}</textarea>
-                                                @if ($errors->has('address1'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('address1') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="payee-address2">Address 2</label>
-                                                <textarea id="payee-address2" name="address2" class="form-control">{{ old('address2') }}</textarea>
-                                                @if ($errors->has('address1'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('address2') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="payee-city">City</label>
-                                                <input type="text" name="city" id="payee-city"
-                                                    class="form-control" value="{{ old('city') }}" />
-                                                @if ($errors->has('city'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('city') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="payee-state">State</label>
-                                                <input type="text" name="state" id="payee-state"
-                                                    class="form-control" value="{{ old('state') }}" />
-                                                @if ($errors->has('state'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('state') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="payee-zip">Zip</label>
-                                                <input type="text" name="zip" id="payee-zip" class="form-control"
-                                                    value="{{ old('zip') }}" />
-                                                @if ($errors->has('zip'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('zip') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="payee-bank_name">Bank Name</label>
-                                                <input type="text" name="bank_name" id="payee-bank_name"
-                                                    class="form-control" value="{{ old('bank_name') }}" />
-                                                @if ($errors->has('bank_name'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('bank_name') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="payee-account_number">Account
-                                                    Number</label>
-                                                <input type="text" name="account_number" id="payee-account_number"
-                                                    class="form-control" value="{{ old('account_number') }}" />
-                                                @if ($errors->has('account_number'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('account_number') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="payee-routing_number">Routing
-                                                    Number</label>
-                                                <input type="text" name="routing_number" id="payee-routing_number"
-                                                    class="form-control" value="{{ old('routing_number') }}" />
-                                                @if ($errors->has('routing_number'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('routing_number') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div class="pt-6">
-                                            <button class="btn btn-primary me-4" id="add-payee-btn">Save</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mb-2">
-                            <label class="col-sm-2 col-form-label" for="payor">Payor</label>
-                            <div class="col-sm-10">
-                                <select id="payor" name="payor" class="form-control form-select">
-                                    <option value="" selected>Select Payor</option>
-                                    @foreach ($payors as $payor)
-                                        <option value="{{ $payor->EntityID }}">{{ $payor->Name }}</option>
-                                    @endforeach
-                                    <option value="" id="add_other_payor" style="font-weight: bold;">Add New Payor
-                                    </option>
-                                </select>
-                                @if ($errors->has('payor'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('payor') }}
-                                    </span>
-                                @endif
-                                <div class="mb-2 mt-2 new-payor d-none">
-                                    <div class="card-body" id="add-payor">
-                                        <h5><span id="payor_h">Add</span> Payor</h5>
-                                        <div class="row g-6">
-                                            <input type="hidden" id="payor_id" name="id" />
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="name">Name</label>
-                                                <input type="text" name="name" id="name" class="form-control"
-                                                    value="{{ old('name') }}" />
-                                                @if ($errors->has('name'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('name') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="email">Email</label>
-                                                <input type="text" name="email" id="email" class="form-control"
-                                                    value="{{ old('email') }}" />
-                                                @if ($errors->has('email'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('email') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="address1">Address 1</label>
-                                                <textarea id="address1" name="address1" class="form-control">{{ old('address1') }}</textarea>
-                                                @if ($errors->has('address1'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('address1') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="address1">Address 2</label>
-                                                <textarea id="address1" name="address2" class="form-control">{{ old('address2') }}</textarea>
-                                                @if ($errors->has('address1'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('address2') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="city">City</label>
-                                                <input type="text" name="city" id="city" class="form-control"
-                                                    value="{{ old('city') }}" />
-                                                @if ($errors->has('city'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('city') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="state">State</label>
-                                                <input type="text" name="state" id="state" class="form-control"
-                                                    value="{{ old('state') }}" />
-                                                @if ($errors->has('state'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('state') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="zip">Zip</label>
-                                                <input type="text" name="zip" id="zip" class="form-control"
-                                                    value="{{ old('zip') }}" />
-                                                @if ($errors->has('zip'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('zip') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="bank_name">Bank Name</label>
-                                                <input type="text" name="bank_name" id="bank_name"
-                                                    class="form-control" value="{{ old('bank_name') }}" />
-                                                @if ($errors->has('bank_name'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('bank_name') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="account_number">Account Number</label>
-                                                <input type="text" name="account_number" id="account_number"
-                                                    class="form-control" value="{{ old('account_number') }}" />
-                                                @if ($errors->has('account_number'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('account_number') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="routing_number">Routing Number</label>
-                                                <input type="text" name="routing_number" id="routing_number"
-                                                    class="form-control" value="{{ old('routing_number') }}" />
-                                                @if ($errors->has('routing_number'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('routing_number') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label" for="type">Tyoe</label>
-                                                <select id="type" name="type" class="form-control form-select">
-                                                    <option value="Client"
-                                                        {{ old('type') == 'Client' ? 'selected' : '' }}>Client
-                                                    </option>
-                                                    <option value="Vendor"
-                                                        {{ old('type') == 'Vendor' ? 'selected' : '' }}>Vendor
-                                                    </option>
-                                                    <option value="Both" {{ old('type') == 'Both' ? 'selected' : '' }}>
-                                                        Both
-                                                    </option>
-                                                </select>
-                                                @if ($errors->has('type'))
-                                                    <span class="text-danger">
-                                                        {{ $errors->first('type') }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        <div class="pt-6">
-                                            <button id="add-payor-btn" class="btn btn-primary me-4">Save</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mb-2">
-                            <label class="col-sm-2 col-form-label" for="memo">Memo</label>
-                            <div class="col-sm-10">
-                                <input type="text" name="memo" id="memo" class="form-control"
-                                    value="{{ old('memo') }}" />
-                                @if ($errors->has('memo'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('memo') }}
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="row justify-content-end">
-                            <div class="col-sm-10">
-                                <button type="submit" class="btn btn-primary">Generate</button>
-                            </div>
-                        </div>
-                    </form>
+                        <input type="hidden" name="type" id="type" value="Vendor" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
+                        <button id="add-payee-btn" type="button" class="btn btn-primary">Save</button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </div>s
     </div>
 @endsection

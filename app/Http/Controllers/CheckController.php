@@ -13,6 +13,7 @@ use NumberToWords\NumberToWords;
 use Illuminate\Support\Facades\File;
 use App\Models\Package;
 use App\Models\PaymentSubscription;
+use Carbon\Carbon;
 
 class CheckController extends Controller
 {
@@ -79,7 +80,7 @@ class CheckController extends Controller
         }
 
         $payees = Company::where('UserID', Auth::id())->get();
-        $payors = Payors::where('UserID', Auth::id())->get();
+        $payors = Payors::where('UserID', Auth::id())->where('Type', 'Vendor')->get();
         return view('user.check.process_payment_generate_check', compact('payees', 'payors'));
     }
     public function process_payment_check_generate(Request $request)
@@ -89,7 +90,7 @@ class CheckController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'check_date' => 'required|date',
+            'check_date' => 'required',
             'check_number' => 'required|numeric|unique:Checks,CheckNumber',
             'amount' => 'required|numeric|min:0.01',
             'payee' => 'required|exists:Company,CompanyID',
@@ -122,6 +123,8 @@ class CheckController extends Controller
     
         $check_file = $this->generateAndSavePDF($data);
         
+        $check_date = Carbon::parse(str_replace('-', '/', $request->check_date));
+        
         $checks = Checks::create([
             'UserID' => Auth::id(),
             'CompanyID'=> $request->payee,
@@ -130,7 +133,7 @@ class CheckController extends Controller
             'EntityID' => $request->payor,
             'CheckNumber' => $request->check_number,
             'IssueDate' => now(),
-            'ExpiryDate' => $request->check_date,
+            'ExpiryDate' => $check_date,
             'Status' => 'Pending',
             'Memo' => $request->memo, 
             'CheckPDF' => $check_file,
@@ -205,7 +208,7 @@ class CheckController extends Controller
             return redirect()->route('check.process_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
 
-        $payees = Payors::where('UserID', Auth::id())->get();
+        $payees = Payors::where('UserID', Auth::id())->where('Type', 'Client')->get();
         $payors = Company::where('UserID', Auth::id())->get();
         return view('user.check.send_payment_generate_check', compact('payees', 'payors'));
     }
@@ -216,7 +219,7 @@ class CheckController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'check_date' => 'required|date',
+            'check_date' => 'required',
             'check_number' => 'required|numeric|unique:Checks,CheckNumber',
             'amount' => 'required|numeric|min:0.01',
             'payor' => 'required|exists:Company,CompanyID',
@@ -248,6 +251,8 @@ class CheckController extends Controller
         $data['bank_name'] = $payor->BankName;
     
         $check_file = $this->generateAndSavePDF($data);
+
+        $check_date = Carbon::parse(str_replace('-', '/', $request->check_date));
         
         $checks = Checks::create([
             'UserID' => Auth::id(),
@@ -257,7 +262,7 @@ class CheckController extends Controller
             'EntityID' => $request->payee,
             'CheckNumber' => $request->check_number,
             'IssueDate' => now(),
-            'ExpiryDate' => $request->check_date,
+            'ExpiryDate' => $check_date,
             'Status' => 'Pending',
             'Memo' => $request->memo, 
             'CheckPDF' => $check_file,

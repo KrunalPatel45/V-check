@@ -22,7 +22,7 @@
         }
 
         .check {
-            width: 600px;
+            width: 100%;
             height: 400px;
             background: white;
             border: 1px solid black;
@@ -175,7 +175,7 @@
             <span>●</span>
             <span>{{ $data['account_number'] }}</span>
             <span>●</span>
-            <span>{{ $data['check_number'] }}</span>
+            <span>{{ $data['account_number'] }}</span>
         </div>
     </div>
 
