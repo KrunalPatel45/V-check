@@ -25,7 +25,7 @@
         form {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 4px;
         }
 
         .form-title {
@@ -150,6 +150,31 @@
             select {
                 flex: 1;
             }
+
+            .pay-section {
+                flex-direction: column;
+            }
+        }
+
+        #payor-edit,
+        #payee-edit {
+            cursor: pointer;
+            color: blue;
+        }
+
+        .kbw-signature {
+            width: 250px;
+            height: 100px;
+            border: none !important;
+        }
+
+        #sig canvas {
+            width: 250px;
+            height: 100px;
+        }
+
+        .m-60 {
+            margin-top: -60px !important;
         }
     </style>
     @vite(['resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
@@ -171,7 +196,40 @@
                 const selectedValue = $(this).find('option:selected').attr(
                     'id');
                 if (selectedValue == 'add_other_company') {
+                    $('#payee-edit').addClass('d-none');
+                    $('#payee_id').val('');
+                    $('#payee-name').val('');
+                    $('#payee-email').val('');
+                    $('#payee-address1').val('');
+                    $('#payee-address2').val('');
+                    $('#payee-city').val('');
+                    $('#payee-state').val('');
+                    $('#payee-zip').val('');
+                    $('#payee-bank_name').val('');
+                    $('#payee-account_number').val('');
+                    $('#payee-routing_number').val('');
+                    $('#payee_h').text('Add');
                     $('#payeeModel').modal('show');
+                } else {
+                    $.ajax({
+                        url: "{{ route('get_payee', ':id') }}".replace(':id', id),
+                        method: 'GET',
+                        success: function(response) {
+                            $('#payee-edit').removeClass('d-none');
+
+                            $('#payee_id').val(response.payee.CompanyID);
+                            $('#payee-name').val(response.payee.Name);
+                            $('#payee-email').val(response.payee.Email);
+                            $('#payee-address1').val(response.payee.Address1);
+                            $('#payee-address2').val(response.payee.Address2);
+                            $('#payee-city').val(response.payee.City);
+                            $('#payee-state').val(response.payee.State);
+                            $('#payee-zip').val(response.payee.Zip);
+                            $('#payee-bank_name').val(response.payee.BankName);
+                            $('#payee-account_number').val(response.payee.RoutingNumber);
+                            $('#payee-routing_number').val(response.payee.AccountNumber);
+                        }
+                    });
                 }
             });
 
@@ -218,11 +276,14 @@
                         } else if (response.success) {
                             $('#payeeModel').modal('hide');
                             // Success message
-                            let newOption =
-                                `<option value="${response.payee.CompanyID}" selected>${response.payee.Name}</option>`;
-                            $('#payee').append(newOption).val(response.payee.CompanyID);
 
-                            $('#add-payee')[0].reset(); // Reset form
+                            if (id) {
+                                $('#payee option:selected').text(response.payee.Name);
+                            } else {
+                                let newOption =
+                                    `<option value="${response.payee.CompanyID}" selected>${response.payee.Name}</option>`;
+                                $('#payee').append(newOption).val(response.payee.CompanyID);
+                            }
                         }
                     },
                     error: function(xhr, status, error) {
@@ -240,6 +301,7 @@
                 const selectedValue = $(this).find('option:selected').attr(
                     'id');
                 if (selectedValue === 'add_other_payor') {
+                    $('#payor-edit').addClass('d-none');
                     $('#payorModel').modal('show');
                     $('#payor_id').val('');
                     $('#add-payor #name').val('');
@@ -252,12 +314,14 @@
                     $('#add-payor #bank_name').val('');
                     $('#add-payor #account_number').val('');
                     $('#add-payor #routing_number').val('');
-                    $('#payor_h').text('Add');
+                    ('#payor_h').text('Add');
                 } else {
                     $.ajax({
                         url: "{{ route('get_payor', ':id') }}".replace(':id', id),
                         method: 'GET',
                         success: function(response) {
+                            $('#payor-edit').removeClass('d-none');
+
                             $('#payor_id').val(response.payor.EntityID);
                             $('#address').val(response.payor.Address1);
                             $('#city').val(response.payor.City);
@@ -266,6 +330,17 @@
                             $('#account_number').val(response.payor.AccountNumber);
                             $('#routing_number').val(response.payor.RoutingNumber);
                             $('#confirm_account_number').val(response.payor.AccountNumber);
+
+                            $('#add-payor #name').val(response.payor.Name);
+                            $('#add-payor #email').val(response.payor.Email);
+                            $('#add-payor #address1').val(response.payor.Address1);
+                            $('#add-payor #address2').val(response.payor.Address2);
+                            $('#add-payor #city').val(response.payor.City);
+                            $('#add-payor #state').val(response.payor.State);
+                            $('#add-payor #zip').val(response.payor.Zip);
+                            $('#add-payor #bank_name').val(response.payor.BankName);
+                            $('#add-payor #account_number').val(response.payor.RoutingNumber);
+                            $('#add-payor #routing_number').val(response.payor.AccountNumber);
                         }
                     });
                 }
@@ -313,11 +388,16 @@
 
                             $('#payorModel').modal('hide');
                             // Success message
-                            let newOption =
-                                `<option value="${response.payor.EntityID}" selected>${response.payor.Name}</option>`;
-                            $('#payor').append(newOption).val(response.payor.EntityID);
 
-                            $('#payor_id').val(response.payor.EntityID);
+                            if (id) {
+                                $('#payor option:selected').text(response.payor.Name);
+                            } else {
+                                let newOption =
+                                    `<option value="${response.payor.EntityID}" selected>${response.payor.Name}</option>`;
+                                $('#payor').append(newOption).val(response.payor.EntityID);
+                            }
+
+
                             $('#address').val(response.payor.Address1);
                             $('#city').val(response.payor.City);
                             $('#state').val(response.payor.State);
@@ -325,6 +405,18 @@
                             $('#account_number').val(response.payor.AccountNumber);
                             $('#routing_number').val(response.payor.RoutingNumber);
                             $('#confirm_account_number').val(response.payor.AccountNumber);
+
+                            $('#payor_id').val(response.payor.EntityID);
+                            $('#add-payor #name').val(response.payor.Name);
+                            $('#add-payor #email').val(response.payor.Email);
+                            $('#add-payor #address1').val(response.payor.Address1);
+                            $('#add-payor #address2').val(response.payor.Address2);
+                            $('#add-payor #city').val(response.payor.City);
+                            $('#add-payor #state').val(response.payor.State);
+                            $('#add-payor #zip').val(response.payor.Zip);
+                            $('#add-payor #bank_name').val(response.payor.BankName);
+                            $('#add-payor #account_number').val(response.payor.RoutingNumber);
+                            $('#add-payor #routing_number').val(response.payor.AccountNumber);
                             $('#add-payor')[0].reset(); // Reset form
                         }
                     },
@@ -371,6 +463,46 @@
                 const memo = $(this).val();
                 $("#c_memo").text(memo || "XXXXXXX XXXX XXXX XX");
             });
+
+            $('#payor_close').on('click', function(e) {
+                event.preventDefault();
+                $('#payorModel').modal('hide');
+                $("#payor").val("");
+            });
+            $('#payor-edit').on('click', function(e) {
+                event.preventDefault();
+                $('#payorModel').modal('show');
+                $('#payor_h').text('Edit');
+            });
+            $('#payee-edit').on('click', function(e) {
+                event.preventDefault();
+                $('#payeeModel').modal('show');
+                $('#payee_h').text('Edit');
+            });
+
+            $('#is_sign').change(function() {
+                if ($(this).is(':checked')) {
+                    $('.sing-box').removeClass('d-none'); // Show the signature field
+                } else {
+                    $('.sing-box').addClass('d-none'); // Hide the signature field
+                }
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        var sig = $('#sig').signature({
+            syncField: '#signature64',
+            syncFormat: 'PNG'
+        });
+
+        $('#clear').click(function(e) {
+
+            e.preventDefault();
+
+            sig.signature('clear');
+
+            $("#signature64").val('');
+
         });
     </script>
 @endsection
@@ -382,15 +514,18 @@
             <div class="form-row">
                 <div class="fileds">
                     <label for="account-name">Account Holder's Name:</label>
-                    <select id="payor" name="payor" class="payor-filed">
-                        <option value="" selected>Select Payors</option>
-                        @foreach ($payors as $payor)
-                            <option value="{{ $payor->EntityID }}" id="added_company">{{ $payor->Name }}
+                    <div class="secton-warp">
+                        <select id="payor" name="payor" class="payor-filed">
+                            <option value="" selected>Select Payors</option>
+                            @foreach ($payors as $payor)
+                                <option value="{{ $payor->EntityID }}" id="added_company">{{ $payor->Name }}
+                                </option>
+                            @endforeach
+                            <option value="" id="add_other_payor" style="font-weight: bold;">Add New Payors
                             </option>
-                        @endforeach
-                        <option value="" id="add_other_payor" style="font-weight: bold;">Add New Payors
-                        </option>
-                    </select>
+                        </select>
+                        <span id="payor-edit" class="d-none"><i class="ti ti-pencil me-1"></i></span>
+                    </div>
                     @if ($errors->has('payor'))
                         <span class="text-danger">
                             {{ $errors->first('payor') }}
@@ -451,6 +586,7 @@
                         <option value="" id="add_other_company" style="font-weight: bold;">Add New Payee
                         </option>
                     </select>
+                    <span id="payee-edit" class="d-none"><i class="ti ti-pencil me-1"></i></span>
                     @if ($errors->has('payee'))
                         <br>
                         <span class="text-danger">
@@ -470,8 +606,8 @@
                 </div>
             </div>
 
-            <div class="form-row">
-                <div class="fileds-row">
+            <div class="form-row sign-section">
+                <div class="fileds">
                     <label for="memo" style="min-width: 0;">Memo:</label>
                     <input type="text" id="memo" name="memo">
                     @if ($errors->has('memo'))
@@ -479,6 +615,22 @@
                             {{ $errors->first('memo') }}
                         </span>
                     @endif
+                </div>
+                <div class="fileds">
+                    <label class="switch switch-square" for="is_sign">
+                        <input type="checkbox" class="switch-input" name="is_sign" id="is_sign" />
+                        <span class="switch-toggle-slider">
+                            <span class="switch-on"></span>
+                            <span class="switch-off"></span>
+                        </span>
+                        <span class="switch-label">Sign is Required</span>
+                    </label>
+                    <div class="fileds sing-box d-none" style="margin-top: 10px;">
+                        <label class="" for="">Signature:</label>
+                        <div id="sig"></div>
+                        <button id="clear" class="btn btn-danger btn-sm">Clear Signature</button>
+                        <textarea id="signature64" name="signed" style="display: none"></textarea>
+                    </div>
                 </div>
             </div>
 
@@ -506,9 +658,11 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel1">Add Payor</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <h5 class="modal-title" id="exampleModalLabel1"><span id="payor_h">Add</span> Payor</h5>
+                        <button type="button" class="btn-close" id="payor_close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                     </div>
+                    <input type="hidden" name="payor_id" id="payor_id" />
                     <div class="modal-body">
                         <div class="row g-6" id="add-payor">
                             <div class="col-md-6">
@@ -623,9 +777,10 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel1">Add Payor</h5>
+                        <h5 class="modal-title" id="exampleModalLabel1"><span class="payee_h">Add</span> Payee</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
+                    <input type="hidden" name="payee_id" id="payee_id">
                     <div class="modal-body">
                         <div class="row g-6" id="add-payee">
                             <div class="col-md-6">
@@ -737,6 +892,6 @@
                     </div>
                 </div>
             </div>
-        </div>s
+        </div>
     </div>
 @endsection

@@ -286,10 +286,10 @@
                             Plans</a></li>
                     <li class="nav-item"><a class="nav-link {{ $type == 'client' ? 'active' : '' }}"
                             href="{{ route('admin.user.edit', ['id' => $user->UserID, 'type' => 'client']) }}"><i
-                                class="ti ti-bell ti-sm me-1_5"></i>Client</a></li>
+                                class="ti ti-bell ti-sm me-1_5"></i>Payees</a></li>
                     <li class="nav-item"><a class="nav-link {{ $type == 'vendor' ? 'active' : '' }}"
                             href="{{ route('admin.user.edit', ['id' => $user->UserID, 'type' => 'vendor']) }}"><i
-                                class="ti ti-link ti-sm me-1_5"></i>Vendor</a>
+                                class="ti ti-link ti-sm me-1_5"></i>Payors</a>
                     </li>
                 </ul>
             </div>

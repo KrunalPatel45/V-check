@@ -25,7 +25,7 @@
         form {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 4px;
         }
 
         .form-title {
@@ -151,6 +151,27 @@
                 flex: 1;
             }
         }
+
+        #payor-edit,
+        #payee-edit {
+            cursor: pointer;
+            color: blue;
+        }
+
+        .kbw-signature {
+            width: 250px;
+            height: 100px;
+            border: none !important;
+        }
+
+        #sig canvas {
+            width: 250px;
+            height: 100px;
+        }
+
+        .m-60 {
+            margin-top: -60px !important;
+        }
     </style>
     @vite(['resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
@@ -171,13 +192,29 @@
                 const selectedValue = $(this).find('option:selected').attr(
                     'id');
                 if (selectedValue == 'add_other_company') {
+                    $('#payee_id').val('');
+                    $('#add-payor #name').val('');
+                    $('#add-payor #email').val('');
+                    $('#add-payor #address1').val('');
+                    $('#add-payor #address2').val('');
+                    $('#add-payor #city').val('');
+                    $('#add-payor #state').val('');
+                    $('#add-payor #zip').val('');
+                    $('#add-payor #bank_name').val('');
+                    $('#add-payor #account_number').val('');
+                    $('#add-payor #routing_number').val('');
+                    $('#payee_h').text('Add');
+
                     $('#payeeModel').modal('show');
                 } else {
                     $.ajax({
                         url: "{{ route('get_payee', ':id') }}".replace(':id', id),
                         method: 'GET',
                         success: function(response) {
-                            $('#payor_id').val(response.payee.CompanyID);
+
+                            $('#payor-edit').removeClass('d-none');
+
+                            $('#payee_id').val(response.payee.CompanyID);
                             $('#address').val(response.payee.Address1);
                             $('#city').val(response.payee.City);
                             $('#state').val(response.payee.State);
@@ -185,6 +222,19 @@
                             $('#account_number').val(response.payee.AccountNumber);
                             $('#routing_number').val(response.payee.RoutingNumber);
                             $('#confirm_account_number').val(response.payee.AccountNumber);
+
+                            $('#payee-name').val(response.payee.Name);
+                            $('#payee-email').val(response.payee.Email);
+                            $('#payee-address1').val(response.payee.Address1);
+                            $('#payee-address2').val(response.payee.Address2);
+                            $('#payee-city').val(response.payee.City);
+                            $('#payee-state').val(response.payee.State);
+                            $('#payee-zip').val(response.payee.Zip);
+                            $('#payee-bank_name').val(response.payee.BankName);
+                            $('#payee-account_number').val(response.payee.RoutingNumber);
+                            $('#payee-routing_number').val(response.payee.AccountNumber);
+
+                            $('#payee_h').text('Add');
                         }
                     });
                 }
@@ -233,18 +283,35 @@
                         } else if (response.success) {
                             $('#payeeModel').modal('hide');
                             // Success message
-                            let newOption =
-                                `<option value="${response.payee.CompanyID}" selected>${response.payee.Name}</option>`;
-                            $('#payor').append(newOption).val(response.payee.CompanyID);
 
-                            $('#payor_id').val(response.payor.CompanyID);
-                            $('#address').val(response.payor.Address1);
-                            $('#city').val(response.payor.City);
-                            $('#state').val(response.payor.State);
-                            $('#zip').val(response.payor.Zip);
-                            $('#account_number').val(response.payor.AccountNumber);
-                            $('#routing_number').val(response.payor.RoutingNumber);
-                            $('#confirm_account_number').val(response.payor.AccountNumber);
+                            if (id) {
+                                $('#payor option:selected').text(response.payee.Name);
+                            } else {
+                                let newOption =
+                                    `<option value="${response.payee.CompanyID}" selected>${response.payee.Name}</option>`;
+                                $('#payor').append(newOption).val(response.payee.CompanyID);
+                            }
+
+                            $('#payee_id').val(response.payee.CompanyID);
+                            $('#address').val(response.payee.Address1);
+                            $('#city').val(response.payee.City);
+                            $('#state').val(response.payee.State);
+                            $('#zip').val(response.payee.Zip);
+                            $('#account_number').val(response.payee.AccountNumber);
+                            $('#routing_number').val(response.payee.RoutingNumber);
+                            $('#confirm_account_number').val(response.payee.AccountNumber);
+
+                            $('#payee-name').val(response.payee.Name);
+                            $('#payee-email').val(response.payee.Email);
+                            $('#payee-address1').val(response.payee.Address1);
+                            $('#payee-address2').val(response.payee.Address2);
+                            $('#payee-city').val(response.payee.City);
+                            $('#payee-state').val(response.payee.State);
+                            $('#payee-zip').val(response.payee.Zip);
+                            $('#payee-bank_name').val(response.payee.BankName);
+                            $('#payee-account_number').val(response.payee.RoutingNumber);
+                            $('#payee-routing_number').val(response.payee.AccountNumber);
+
                             $('#add-payee')[0].reset(); // Reset form // Reset form
                         }
                     },
@@ -276,6 +343,27 @@
                     $('#add-payor #account_number').val('');
                     $('#add-payor #routing_number').val('');
                     $('#payor_h').text('Add');
+                } else {
+                    $.ajax({
+                        url: "{{ route('get_payor', ':id') }}".replace(':id', id),
+                        method: 'GET',
+                        success: function(response) {
+                            $('#payee-edit').removeClass('d-none');
+
+                            $('#payor_id').val(response.payor.EntityID);
+                            $('#add-payor #name').val(response.payor.Name);
+                            $('#add-payor #email').val(response.payor.Email);
+                            $('#add-payor #address1').val(response.payor.Address1);
+                            $('#add-payor #address2').val(response.payor.Address2);
+                            $('#add-payor #city').val(response.payor.City);
+                            $('#add-payor #state').val(response.payor.State);
+                            $('#add-payor #zip').val(response.payor.Zip);
+                            $('#add-payor #bank_name').val(response.payor.BankName);
+                            $('#add-payor #account_number').val(response.payor.RoutingNumber);
+                            $('#add-payor #routing_number').val(response.payor.AccountNumber);
+                            $('#payee_h').text('Edit');
+                        }
+                    });
                 }
             });
 
@@ -296,7 +384,7 @@
                     bank_name: $('#add-payor #bank_name').val(),
                     account_number: $('#add-payor #account_number').val(),
                     routing_number: $('#add-payor #routing_number').val(),
-                    type: 'Vendor',
+                    type: 'Client',
                     id: id
                 };
 
@@ -321,9 +409,13 @@
 
                             $('#payorModel').modal('hide');
                             // Success message
-                            let newOption =
-                                `<option value="${response.payor.EntityID}" selected>${response.payor.Name}</option>`;
-                            $('#payee').append(newOption).val(response.payor.EntityID);
+                            if (id) {
+                                $('#payee option:selected').text(response.payor.Name);
+                            } else {
+                                let newOption =
+                                    `<option value="${response.payor.EntityID}" selected>${response.payor.Name}</option>`;
+                                $('#payee').append(newOption).val(response.payor.EntityID);
+                            }
 
                             $('#add-payor')[0].reset(); // Reset form
                         }
@@ -338,39 +430,39 @@
                 });
             });
 
-            //Print value on check
-            // $("#check_date").on("change", function() {
-            //     const selectedDate = $(this).val();
-            //     $("#c_check_date").text(selectedDate || "XX-XX-XXXX");
-            // });
+            $('#payor-edit').on('click', function(e) {
+                event.preventDefault();
+                $('#payeeModel').modal('show');
+                $('#payor_h').text('Edit');
+            });
+            $('#payee-edit').on('click', function(e) {
+                event.preventDefault();
+                $('#payorModel').modal('show');
+                $('#payee_h').text('Edit');
+            });
+            $('#is_sign').change(function() {
+                if ($(this).is(':checked')) {
+                    $('.sing-box').removeClass('d-none'); // Show the signature field
+                } else {
+                    $('.sing-box').addClass('d-none'); // Hide the signature field
+                }
+            });
+        });
+    </script>
+    <script type="text/javascript">
+        var sig = $('#sig').signature({
+            syncField: '#signature64',
+            syncFormat: 'PNG'
+        });
 
-            // $("#check_number").on("input", function() {
-            //     const check_number = $(this).val();
-            //     $("#c_check_number").text(check_number || "XXXX");
-            //     $("#c_check_number_1").text(check_number || "XXXX");
-            // });
+        $('#clear').click(function(e) {
 
-            // $("#amount").on("input", function() {
-            //     const amount = $(this).val();
+            e.preventDefault();
 
-            //     $.ajax({
-            //         url: "{{ route('amount_word') }}",
-            //         method: 'POST',
-            //         data: {
-            //             _token: "{{ csrf_token() }}",
-            //             amount: amount,
-            //         },
-            //         success: function(response) {
-            //             $("#c_amount").text(amount || "XXXX.XX");
-            //             $("#c_amount_word").text(response.word || "XXXXX XXXX XXXX");
-            //         }
-            //     });
-            // });
+            sig.signature('clear');
 
-            // $("#memo").on("input", function() {
-            //     const memo = $(this).val();
-            //     $("#c_memo").text(memo || "XXXXXXX XXXX XXXX XX");
-            // });
+            $("#signature64").val('');
+
         });
     </script>
 @endsection
@@ -382,15 +474,18 @@
             <div class="form-row">
                 <div class="fileds">
                     <label for="account-name">Account Holder's Name:</label>
-                    <select id="payor" name="payor" class="payor-filed">
-                        <option value="" selected>Select Payors</option>
-                        @foreach ($payors as $payor)
-                            <option value="{{ $payor->CompanyID }}" id="added_company">{{ $payor->Name }}
+                    <div class="secton-warp">
+                        <select id="payor" name="payor" class="payor-filed">
+                            <option value="" selected>Select Payors</option>
+                            @foreach ($payors as $payor)
+                                <option value="{{ $payor->CompanyID }}" id="added_company">{{ $payor->Name }}
+                                </option>
+                            @endforeach
+                            <option value="" id="add_other_company" style="font-weight: bold;">Add New Payors
                             </option>
-                        @endforeach
-                        <option value="" id="add_other_company" style="font-weight: bold;">Add New Payors
-                        </option>
-                    </select>
+                        </select>
+                        <span id="payor-edit" class="d-none"><i class="ti ti-pencil me-1"></i></span>
+                    </div>
                     @if ($errors->has('payor'))
                         <span class="text-danger">
                             {{ $errors->first('payor') }}
@@ -451,6 +546,7 @@
                         <option value="" id="add_other_payor" style="font-weight: bold;">Add New Payee
                         </option>
                     </select>
+                    <span id="payee-edit" class="d-none"><i class="ti ti-pencil me-1"></i></span>
                     @if ($errors->has('payee'))
                         <br>
                         <span class="text-danger">
@@ -471,7 +567,7 @@
             </div>
 
             <div class="form-row">
-                <div class="fileds-row">
+                <div class="fileds">
                     <label for="memo" style="min-width: 0;">Memo:</label>
                     <input type="text" id="memo" name="memo">
                     @if ($errors->has('memo'))
@@ -479,6 +575,22 @@
                             {{ $errors->first('memo') }}
                         </span>
                     @endif
+                </div>
+                <div class="fileds">
+                    <label class="switch switch-square" for="is_sign">
+                        <input type="checkbox" class="switch-input" name="is_sign" id="is_sign" />
+                        <span class="switch-toggle-slider">
+                            <span class="switch-on"></span>
+                            <span class="switch-off"></span>
+                        </span>
+                        <span class="switch-label">Sign is Required</span>
+                    </label>
+                    <div class="fileds sing-box d-none" style="margin-top: 10px;">
+                        <label class="" for="">Signature:</label>
+                        <div id="sig"></div>
+                        <button id="clear" class="btn btn-danger btn-sm">Clear Signature</button>
+                        <textarea id="signature64" name="signed" style="display: none"></textarea>
+                    </div>
                 </div>
             </div>
 
@@ -506,9 +618,10 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel1">Add Payor</h5>
+                        <h5 class="modal-title" id="exampleModalLabel1"><span class="payee_h">Add</span> Payor</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
+                    <input type="hidden" name="payor_id" id="payor_id" />
                     <div class="modal-body">
                         <div class="row g-6" id="add-payor">
                             <div class="col-md-6">
@@ -623,9 +736,10 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel1">Add Payor</h5>
+                        <h5 class="modal-title" id="exampleModalLabel1"><span class="payor_h">Add</span> Payor</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
+                    <input type="hidden" name="payee_id" id="payee_id">
                     <div class="modal-body">
                         <div class="row g-6" id="add-payee">
                             <div class="col-md-6">

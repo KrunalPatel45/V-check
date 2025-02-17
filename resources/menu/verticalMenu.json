@@ -82,6 +82,13 @@
       "icon": "menu-icon tf-icons ti ti-file-dollar",
       "slug": "history",
       "access": "web"
+    },
+    {
+      "url": "",
+      "name": "Web Form",
+      "icon": "menu-icon tf-icons ti ti-files",
+      "slug": "web-form",
+      "access": "web"
     }
   ]
 }

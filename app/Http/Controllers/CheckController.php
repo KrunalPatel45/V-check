@@ -101,6 +101,20 @@ class CheckController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
+        if(!empty($request->signed)) {
+            $folderPath = public_path('sign/');
+
+            $image_parts = explode(";base64,", $request->signed);
+            $image_type_aux = explode("image/", $image_parts[0]);
+
+            $image_type = $image_type_aux[1];
+            $image_base64 = base64_decode($image_parts[1]);
+            $fileName = uniqid() . '.'.$image_type;
+            $file = $folderPath . $fileName;
+
+            file_put_contents($file, $image_base64);
+        }
+
         $data = [];
         $payor = Payors::find($request->payor);
         $payee = Company::find($request->payee);
@@ -120,7 +134,8 @@ class CheckController extends Controller
         $data['account_number'] = $payor->AccountNumber;
         $data['memo'] = $request->memo;
         $data['bank_name'] = $payor->BankName; 
-    
+        $data['signature'] = (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '';
+
         $check_file = $this->generateAndSavePDF($data);
         
         $check_date = Carbon::parse(str_replace('-', '/', $request->check_date));
@@ -137,6 +152,8 @@ class CheckController extends Controller
             'Status' => 'Pending',
             'Memo' => $request->memo, 
             'CheckPDF' => $check_file,
+            'DigitalSignatureRequired' => (!empty($request->is_sign) && $request->is_sign == 'on') ? 1 : 0,
+            'DigitalSignature' => (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '',
         ]);
 
         $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->orderBy('PaymentSubscriptionID', 'desc')->first();
@@ -230,6 +247,20 @@ class CheckController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
+        if(!empty($request->signed)) {
+            $folderPath = public_path('sign/');
+
+            $image_parts = explode(";base64,", $request->signed);
+            $image_type_aux = explode("image/", $image_parts[0]);
+
+            $image_type = $image_type_aux[1];
+            $image_base64 = base64_decode($image_parts[1]);
+            $fileName = uniqid() . '.'.$image_type;
+            $file = $folderPath . $fileName;
+            file_put_contents($file, $image_base64);
+        }
+        
+
         $data = [];
         $payor = Company::find($request->payor);
         $payee = Payors::find($request->payee);
@@ -249,6 +280,8 @@ class CheckController extends Controller
         $data['account_number'] = $payor->AccountNumber;
         $data['memo'] = $request->memo;
         $data['bank_name'] = $payor->BankName;
+        $data['signature'] = (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '';
+
     
         $check_file = $this->generateAndSavePDF($data);
 
@@ -266,6 +299,8 @@ class CheckController extends Controller
             'Status' => 'Pending',
             'Memo' => $request->memo, 
             'CheckPDF' => $check_file,
+            'DigitalSignatureRequired' => (!empty($request->is_sign) && $request->is_sign == 'on') ? 1 : 0,
+            'DigitalSignature' => (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '',
         ]);
 
         $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->orderBy('PaymentSubscriptionID', 'desc')->first();
@@ -284,8 +319,6 @@ class CheckController extends Controller
         if (!File::exists($directoryPath)) {
             File::makeDirectory($directoryPath, 0755, true);
         }
-        // return view('user.check_formate.index', compact('data'));
-    
         // Generate PDF from a view
         $pdf = PDF::loadView('user.check_formate.index', compact('data'))->setPaper('a4', 'portrait')
         ->set_option('isHtml5ParserEnabled', true)

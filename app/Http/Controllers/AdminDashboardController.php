@@ -336,6 +336,9 @@ class AdminDashboardController extends Controller
                 ->addColumn('logo', function ($row) {
                     return '<img src="' . asset('storage/' . $row->Logo) . '" alt="Company Logo" style="width: 50px;">';
                 })
+                ->addColumn('CreatedAt', function ($row) {
+                    return Carbon::parse($row->CreatedAt)->format('m/d/Y H:i:m'); 
+                })
                 ->addColumn('status', function ($row) {
                     return '<span class="badge ' .
                         ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') .
@@ -353,6 +356,9 @@ class AdminDashboardController extends Controller
 
             return datatables()->of($invoice)
                 ->addIndexColumn()
+                ->addColumn('PaymentDate', function ($row) {
+                    return Carbon::parse($row->PaymentDate)->format('m/d/Y H:i:m'); 
+                })
                 ->addColumn('Status', function ($row) {
                     return '<span class="badge ' .
                         ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') .
@@ -373,6 +379,9 @@ class AdminDashboardController extends Controller
 
             return datatables()->of($payors)
                 ->addIndexColumn()
+                ->addColumn('CreatedAt', function ($row) {
+                    return Carbon::parse($row->CreatedAt)->format('m/d/Y H:i:m'); 
+                })
                 ->addColumn('Status', function ($row) {
                     return '<span class="badge ' . 
                         ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') . 
@@ -392,6 +401,9 @@ class AdminDashboardController extends Controller
 
             return datatables()->of($payors)
                 ->addIndexColumn()
+                ->addColumn('CreatedAt', function ($row) {
+                    return Carbon::parse($row->CreatedAt)->format('m/d/Y H:i:m'); 
+                })
                 ->addColumn('Status', function ($row) {
                     return '<span class="badge ' . 
                         ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') . 

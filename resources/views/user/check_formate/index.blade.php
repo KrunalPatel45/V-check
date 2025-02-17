@@ -13,8 +13,8 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            /* width: 850px;
-            height: 400px; */
+            width: 100%;
+            height: auto;
             background-color: #fff;
             -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -89,9 +89,10 @@
         }
 
         .footer {
-            margin-top: 30px;
             display: flex;
             justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 30px;
             font-size: 10px;
         }
 
@@ -102,10 +103,35 @@
         }
 
         .footer .signature {
-            text-align: right;
             flex: 1;
-            line-height: 1.5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            position: relative;
         }
+
+        .signature img {
+            max-width: 150px;
+            /* Adjust size if necessary */
+            height: auto;
+            margin-bottom: 5px;
+            /* Space between image and line */
+        }
+
+        .signature-line {
+            width: 200px;
+            /* Adjust width */
+            border-top: 1px solid black;
+            margin-top: 5px;
+        }
+
+        .signature-text {
+            font-size: 10px;
+            margin-top: 2px;
+            text-align: center;
+        }
+
 
         .micr {
             position: absolute;
@@ -121,12 +147,12 @@
             margin: 0 2px;
         }
 
-        @media print {
+        /* @media print {
             .check {
                 width: 850px;
                 height: 400px;
             }
-        }
+        } */
     </style>
 </head>
 
@@ -163,10 +189,17 @@
         <div class="footer">
             <div class="memo">{{ $data['memo'] }}</div>
             <div class="signature">
-                SIGNATURE NOT REQUIRED<br>
-                Your depositor has authorized this payment to payee.<br>
-                Payee to hold you harmless for payment of this document.<br>
-                This document shall be deposited only to the credit of payee.
+
+                @if (!empty($data['signature']))
+                    <img src="{{ asset('sign/' . $data['signature']) }}">
+                    <div class="signature-line"></div>
+                    <div class="signature-text">Authorized Signature</div>
+                @else
+                    SIGNATURE NOT REQUIRED<br>
+                    Your depositor has authorized this payment to payee.<br>
+                    Payee to hold you harmless for payment of this document.<br>
+                    This document shall be deposited only to the credit of payee.
+                @endif
             </div>
         </div>
 

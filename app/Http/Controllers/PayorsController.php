@@ -281,7 +281,7 @@ class PayorsController extends Controller
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
-            'email' => !empty($request->id) ? 'required|email|unique:Entities,email,' . $request->id.',EntityID'  :'required|email|unique:Entities,email',
+            'email' => !empty($request->id) ? 'required|email|unique:Entities,Email,' . $request->id.',EntityID'  :'required|email|unique:Entities,Email',
             'bank_name' => 'required',
             'routing_number' => 'required|digits:9',
             'account_number' => 'required|numeric',
