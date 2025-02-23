@@ -465,10 +465,15 @@
                                     @if (Auth::guard('admin')->check())
                                         {{ Auth::guard('admin')->user()->Username }}
                                     @else
-                                        John Doe
+                                        {{ Auth::user()->FirstName . ' ' . Auth::user()->LastName }}
                                     @endif
                                 </h6>
-                                <small class="text-muted">Admin</small>
+                                @if (Auth::guard('admin')->check())
+                                    <small class="text-muted">Admin</small>
+                                @else
+                                    <small class="text-muted">User</small>
+                                @endif
+
                             </div>
                         </div>
                     </a>

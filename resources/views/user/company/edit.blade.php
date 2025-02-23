@@ -56,9 +56,15 @@
                                 @endif
 
                                 <div
-                                    style="padding: 14px;margin-top: 20px;border: 1px solid;width: 130px;text-align: center;">
-                                    <img src="{{ asset('storage/' . $company->Logo) }}" alt="Company Logo"
-                                        style="width:100px;">
+                                    style="padding: 14px;margin-top: 20px;border: 1px solid #efe6e6;width: 130px;text-align: center;">
+                                    @php
+                                        if (!empty($company->Logo)) {
+                                            $img_path = asset('storage/' . $company->Logo);
+                                        } else {
+                                            $img_path = asset('assets/img/empty.jpg');
+                                        }
+                                    @endphp
+                                    <img src="{{ $img_path }}" alt="Company Logo" style="width:100px;">
                                 </div>
                             </div>
                         </div>

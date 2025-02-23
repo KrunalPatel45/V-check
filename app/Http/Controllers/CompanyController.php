@@ -23,13 +23,17 @@ class CompanyController extends Controller
             return datatables()->of($companies)
                 ->addIndexColumn()
                 ->addColumn('logo', function ($row) {
-                    return '<img src="' . asset('storage/' . $row->Logo) . '" alt="Company Logo" style="width: 50px;">';
+                    if(!empty($row->Logo)) {
+                        return '<img src="' . asset('storage/' . $row->Logo) . '" alt="Company Logo" style="width: 50px;">';
+                    } else {
+                        return '<img src="' . asset('assets/img/empty.jpg') . '" alt="Company Logo" style="width: 50px;">';
+                    }
                 })
                 ->addColumn('CreatedAt', function ($row) {
-                    return Carbon::parse($row->CreatedAt)->format('m/d/Y H:i:m'); 
+                    return Carbon::parse($row->CreatedAt)->format('m/d/Y'); 
                 })
                 ->addColumn('UpdatedAt', function ($row) {
-                    return Carbon::parse($row->UpdatedAt)->format('m/d/Y H:i:m');
+                    return Carbon::parse($row->UpdatedAt)->format('m/d/Y');
                 })
                 ->addColumn('status', function ($row) {
                     return '<span class="badge ' .
@@ -100,7 +104,6 @@ class CompanyController extends Controller
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
-            'email' => 'required|email|unique:Company,email',
             'bank_name' => 'required',
             'routing_number' => 'required|digits:9',
             'account_number' => 'required|numeric',
@@ -163,7 +166,6 @@ class CompanyController extends Controller
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
-            'email' => 'required|email|unique:Company,email,' . $id.',CompanyID',
             'bank_name' => 'required',
             'routing_number' => 'required|digits:9',
             'account_number' => 'required|numeric',
@@ -225,7 +227,6 @@ class CompanyController extends Controller
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
-            'email' => (empty($request->id)) ?'required|email|unique:Company,email' :  'required|email|unique:Company,email,' . $request->id.',CompanyID',
             'bank_name' => 'required',
             'routing_number' => 'required',
             'account_number' => 'required',
@@ -272,6 +273,5 @@ class CompanyController extends Controller
         // Return success message
         return response()->json(['success' => true, 'payee' => $company]);
     }
-    
 
 }

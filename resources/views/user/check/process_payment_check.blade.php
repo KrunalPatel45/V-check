@@ -29,7 +29,7 @@
             <h5 class="card-header">Receive Payment</h5>
             <a href="{{ route('check.process_payment_check') }}" class="btn btn-primary mr-4"
                 style="height: 40px !important;margin-right: 25px !important;">
-                <i class="fa-solid fa-plus"></i> &nbsp; Generate Checks
+                <i class="fa-solid fa-plus"></i> &nbsp; Create Check
             </a>
         </div>
         <div class="card-datatable table-responsive pt-0">
@@ -42,8 +42,7 @@
                         <th>Payor</th>
                         <th>Amount</th>
                         <th>Print Date</th>
-                        {{-- <th style="width: 140px !important;">Status</th> --}}
-                        <th>Check Preview</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -85,18 +84,13 @@
                         data: 'IssueDate',
                         name: 'IssueDate'
                     },
-                    // {
-                    //     data: 'Status',
-                    //     name: 'Status',
-                    //     orderable: false,
-                    //     searchable: false
-                    // },
                     {
                         data: 'actions',
                         name: 'actions',
                         orderable: false,
-                        searchable: false
-                    }
+                        searchable: false,
+                        className: 'text-center',
+                    },
                 ]
             });
 

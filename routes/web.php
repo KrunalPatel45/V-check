@@ -170,6 +170,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\PayorsController;
 use App\Http\Controllers\CheckController;
 use App\Http\Controllers\BillingAndPlanController;
+use App\Http\Controllers\TestController;
 
 
 Route::get('/admin/login', [AdminAuthController::class, 'adminLogin'])->name('admin.login');
@@ -230,9 +231,11 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::get('/check/process-payment', [CheckController::class, 'process_payment'])->name('check.process_payment');
     Route::get('/check/process-payment/generate', [CheckController::class, 'process_payment_check'])->name('check.process_payment_check');
     Route::post('/check/process-payment/generate', [CheckController::class, 'process_payment_check_generate'])->name('check.process_payment_check_generate');
+    Route::get('/check/process-payment/edit/{id}', [CheckController::class, 'process_payment_check_edit'])->name('check.process_payment_check_edit');
     Route::get('/check/send-payment', [CheckController::class, 'send_payment'])->name('check.send_payment');
     Route::get('/check/send-payment/generate', [CheckController::class, 'send_payment_check'])->name('check.send_payment_check');
     Route::post('/check/send-payment/generate', [CheckController::class, 'send_payment_check_generate'])->name('check.send_payment_check_generate');
+    Route::get('/check/send-payment/edit/{id}', [CheckController::class, 'process_send_check_edit'])->name('check.process_send_check_edit');
     Route::get('check_pdf', [CheckController::class, 'check'])->name('check_pdf');
     Route::post('change-status', [CheckController::class, 'change_status'])->name('change_status');
     Route::get('check-history', [CheckController::class, 'history'])->name('check_history');
@@ -242,7 +245,16 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::post('amount-word', [CheckController::class, 'amount_word'])->name('amount_word');
     Route::get('get-payee/{id}', [CheckController::class, 'get_payee'])->name('get_payee');
     Route::get('get-payor/{id}', [CheckController::class, 'get_payor'])->name('get_payor');
+    Route::get('check-generate/{id}', [CheckController::class, 'check_generate'])->name('check_generate');
+    Route::get('webform', [CheckController::class, 'get_web_forms'])->name('get_web_forms');
+    Route::get('webform/new', [CheckController::class, 'new_web_form'])->name('new_web_form');
+    Route::post('webform/new', [CheckController::class, 'new_web_form_store'])->name('store_web_form');
 });
+
+Route::get('web-form/{id}', [CheckController::class, 'web_form'])->name('web_form');
+Route::post('store_web_form_data', [CheckController::class, 'store_web_form_data'])->name('store_web_form_data');
+Route::get('thank-you', [CheckController::class, 'thankyou'])->name('thankyou');
+Route::get('test', [TestController::class, 'test'])->name('test');
 
 // Main Page Route
 Route::get('/', [HomeController::class, 'index'])->name('index');

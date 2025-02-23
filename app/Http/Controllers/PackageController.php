@@ -27,10 +27,10 @@ class PackageController extends Controller
                         : '<span class="badge bg-label-warning">' . $package->Status . '</span>';
                 })
                 ->addColumn('created_at', function ($package) {
-                    return Carbon::parse($package->CreatedAt)->format('m/d/Y H:i:m'); 
+                    return Carbon::parse($package->CreatedAt)->format('m/d/Y'); 
                 })
                 ->addColumn('updated_at', function ($package) {
-                    return Carbon::parse($package->UpdatedAt)->format('m/d/Y H:i:m');
+                    return Carbon::parse($package->UpdatedAt)->format('m/d/Y');
                 })
                 ->addColumn('actions', function ($row) {
                     // Dynamically build URLs for the edit and delete actions

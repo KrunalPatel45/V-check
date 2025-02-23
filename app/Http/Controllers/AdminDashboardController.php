@@ -103,10 +103,10 @@ class AdminDashboardController extends Controller
                         : '<span class="badge bg-label-warning">' . $user->Status . '</span>';
                 })
                 ->addColumn('created_at', function ($user) {
-                    return Carbon::parse($user->CreatedAt)->format('m/d/Y H:i:m'); // Convert to MM/DD/YYYY
+                    return Carbon::parse($user->CreatedAt)->format('m/d/Y'); // Convert to MM/DD/YYYY
                 })
                 ->addColumn('updated_at', function ($user) {
-                    return Carbon::parse($user->UpdatedAt)->format('m/d/Y H:i:m'); // Convert to MM/DD/YYYY
+                    return Carbon::parse($user->UpdatedAt)->format('m/d/Y'); // Convert to MM/DD/YYYY
                 })
                 ->rawColumns(['status', 'created_at', 'updated_at']) // Allow raw HTML content
                 ->addColumn('actions', function ($user) {
@@ -334,10 +334,14 @@ class AdminDashboardController extends Controller
             return datatables()->of($companies)
                 ->addIndexColumn()
                 ->addColumn('logo', function ($row) {
-                    return '<img src="' . asset('storage/' . $row->Logo) . '" alt="Company Logo" style="width: 50px;">';
+                    if(!empty($row->Logo)) {
+                        return '<img src="' . asset('storage/' . $row->Logo) . '" alt="Company Logo" style="width: 50px;">';
+                    } else {
+                        return '<img src="' . asset('assets/img/empty.jpg') . '" alt="Company Logo" style="width: 50px;">';
+                    }
                 })
                 ->addColumn('CreatedAt', function ($row) {
-                    return Carbon::parse($row->CreatedAt)->format('m/d/Y H:i:m'); 
+                    return Carbon::parse($row->CreatedAt)->format('m/d/Y'); 
                 })
                 ->addColumn('status', function ($row) {
                     return '<span class="badge ' .
@@ -357,7 +361,7 @@ class AdminDashboardController extends Controller
             return datatables()->of($invoice)
                 ->addIndexColumn()
                 ->addColumn('PaymentDate', function ($row) {
-                    return Carbon::parse($row->PaymentDate)->format('m/d/Y H:i:m'); 
+                    return Carbon::parse($row->PaymentDate)->format('m/d/Y'); 
                 })
                 ->addColumn('Status', function ($row) {
                     return '<span class="badge ' .
@@ -380,7 +384,7 @@ class AdminDashboardController extends Controller
             return datatables()->of($payors)
                 ->addIndexColumn()
                 ->addColumn('CreatedAt', function ($row) {
-                    return Carbon::parse($row->CreatedAt)->format('m/d/Y H:i:m'); 
+                    return Carbon::parse($row->CreatedAt)->format('m/d/Y'); 
                 })
                 ->addColumn('Status', function ($row) {
                     return '<span class="badge ' . 
@@ -402,7 +406,7 @@ class AdminDashboardController extends Controller
             return datatables()->of($payors)
                 ->addIndexColumn()
                 ->addColumn('CreatedAt', function ($row) {
-                    return Carbon::parse($row->CreatedAt)->format('m/d/Y H:i:m'); 
+                    return Carbon::parse($row->CreatedAt)->format('m/d/Y'); 
                 })
                 ->addColumn('Status', function ($row) {
                     return '<span class="badge ' . 

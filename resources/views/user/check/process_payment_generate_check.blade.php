@@ -13,8 +13,7 @@
         }
 
         .form-container {
-            background: #fffacd;
-            border: 2px solid green;
+            /* border: 2px solid green; */
             /* max-width: 90%; */
             margin: 20px auto;
             padding: 20px;
@@ -48,6 +47,7 @@
             font-weight: bold;
             flex: 1;
             min-width: 120px;
+            font-size: 12px;
         }
 
         input,
@@ -57,17 +57,18 @@
             border: 1px solid #ccc;
             border-radius: 4px;
             min-width: 200px;
+            font-size: 12px;
         }
 
         .pay-section {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px;
+            padding: 0 10px;
             /* border: 1px solid #ccc; */
             /* border-radius: 4px; */
             font-size: 1.2rem;
-            margin: 20px 0;
+            margin: 15px 0;
         }
 
         .pay-amount {
@@ -175,6 +176,28 @@
 
         .m-60 {
             margin-top: -60px !important;
+        }
+
+        .btn-primary.btn[class*=btn-]:not([class*=btn-label-]):not([class*=btn-outline-]):not([class*=btn-text-]):not(.btn-icon):not(:disabled):not(.disabled) {
+            box-shadow: 0 .125rem .375rem #7367f04d;
+        }
+
+        .btn:not(.dropdown-toggle):not([class*=btn-text-]) {
+            transition: all .135s ease-in-out;
+            transform: scale(1.001);
+        }
+
+        .btn-primary {
+            color: #fff;
+            background-color: #7367f0;
+            border-color: #7367f0;
+        }
+
+        .btn {
+            cursor: pointer;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
         }
     </style>
     @vite(['resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
@@ -495,6 +518,19 @@
             syncFormat: 'PNG'
         });
 
+        var existingSignature = {!! json_encode(!empty($check->DigitalSignature) ? asset('sign/' . $check->DigitalSignature) : '') !!};
+
+        if (existingSignature) {
+            var img = new Image();
+            img.src = existingSignature;
+            img.onload = function() {
+                var canvas = $('#sig canvas')[0]; // Get the canvas element
+                var ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                $("#signature64").val(existingSignature); // Ensure the saved signature stays
+            };
+        }
+
         $('#clear').click(function(e) {
 
             e.preventDefault();
@@ -508,9 +544,17 @@
 @endsection
 
 @section('content')
+    <div class="card-header d-flex align-items-center justify-content-between mb-5">
+        <h5 class="mb-0">Create Check</h5>
+        <a href="{{ route('check.process_payment') }}" class="btn btn-primary mr-4"><i class="fa-solid fa-arrow-left"></i>
+            &nbsp;
+            Back</a>
+    </div>
     <div class="form-container">
         <form action="{{ route('check.process_payment_check_generate') }}" method="POST" enctype="multipart/form-data">
             @csrf
+            <input type="hidden" id="id" name="id"
+                value="{{ !empty($check->CheckID) ? $check->CheckID : '' }}">
             <div class="form-row">
                 <div class="fileds">
                     <label for="account-name">Account Holder's Name:</label>
@@ -518,13 +562,16 @@
                         <select id="payor" name="payor" class="payor-filed">
                             <option value="" selected>Select Payors</option>
                             @foreach ($payors as $payor)
-                                <option value="{{ $payor->EntityID }}" id="added_company">{{ $payor->Name }}
+                                <option value="{{ $payor->EntityID }}" id="added_company"
+                                    {{ !empty($check->EntityID) && $check->EntityID == $payor->EntityID ? 'selected' : '' }}>
+                                    {{ $payor->Name }}
                                 </option>
                             @endforeach
                             <option value="" id="add_other_payor" style="font-weight: bold;">Add New Payors
                             </option>
                         </select>
-                        <span id="payor-edit" class="d-none"><i class="ti ti-pencil me-1"></i></span>
+                        <span id="payor-edit" class="{{ !empty($check->EntityID) ? '' : 'd-none' }}"><i
+                                class="ti ti-pencil me-1"></i></span>
                     </div>
                     @if ($errors->has('payor'))
                         <span class="text-danger">
@@ -534,7 +581,8 @@
                 </div>
                 <div class="fileds">
                     <label for="check-number">Check Number:</label>
-                    <input type="text" id="check_number" name="check_number">
+                    <input type="text" id="check_number" name="check_number"
+                        value="{{ !empty($check->CheckNumber) && $check->CheckNumber ? $check->CheckNumber : old('check_number') }}">
                     @if ($errors->has('check_number'))
                         <span class="text-danger">
                             {{ $errors->first('check_number') }}
@@ -546,11 +594,13 @@
             <div class="form-row">
                 <div class="fileds">
                     <label for="street-address">Your Street Address:</label>
-                    <input type="text" id="address" name="address" class="payor-filed">
+                    <input type="text" id="address" name="address" class="payor-filed"
+                        value="{{ !empty($old_payor->Address1) && $old_payor->Address1 ? $old_payor->Address1 : old('address') }}">
                 </div>
                 <div class="fileds">
                     <label for="phone">Date:</label>
-                    <input type="text" id="check_date" name="check_date" class="dob-picker" placeholder="MM-DD-YYYY" />
+                    <input type="text" id="check_date" name="check_date" class="dob-picker" placeholder="MM-DD-YYYY"
+                        value="{{ !empty($check->ExpiryDate) && $check->ExpiryDate ? $check->ExpiryDate : old('check_date') }}" />
                     @if ($errors->has('check_date'))
                         <span class="text-danger">
                             {{ $errors->first('check_date') }}
@@ -562,31 +612,37 @@
             <div class="form-row address">
                 <div class="fileds">
                     <label for="city">Your City:</label>
-                    <input type="text" id="city" name="city">
+                    <input type="text" id="city" name="city"
+                        value="{{ !empty($old_payor->City) && $old_payor->City ? $old_payor->City : old('city') }}">
                 </div>
                 <div class="fileds">
                     <label for="state">Your State:</label>
-                    <input type="text" id="state" name="state">
+                    <input type="text" id="state" name="state"
+                        value="{{ !empty($old_payor->State) && $old_payor->State ? $old_payor->State : old('state') }}">
                 </div>
                 <div class="fileds">
                     <label for="zip">Your Zip:</label>
-                    <input type="text" id="zip" name="zip">
+                    <input type="text" id="zip" name="zip"
+                        value="{{ !empty($old_payor->Zip) && $old_payor->Zip ? $old_payor->Zip : old('zip') }}">
                 </div>
             </div>
 
             <div class="pay-section">
                 <div class="fileds-row f-basic">
-                    <label for="account-name">Pay to the Order of:</label>
-                    <select id="payee" name="payee" class="payor-filed">
+                    <label for="account-name" style="font-size: 17px;">Pay to the Order of:</label>
+                    <select id="payee" name="payee" class="payor-filed" style="font-size: 17px;">
                         <option value="" selected>Select Payee</option>
                         @foreach ($payees as $payee)
-                            <option value="{{ $payee->CompanyID }}" id="added_company">{{ $payee->Name }}
+                            <option value="{{ $payee->CompanyID }}" id="added_company"
+                                {{ !empty($check->CompanyID) && $check->CompanyID == $payee->CompanyID ? 'selected' : '' }}>
+                                {{ $payee->Name }}
                             </option>
                         @endforeach
                         <option value="" id="add_other_company" style="font-weight: bold;">Add New Payee
                         </option>
                     </select>
-                    <span id="payee-edit" class="d-none"><i class="ti ti-pencil me-1"></i></span>
+                    <span id="payee-edit" class="{{ !empty($check->CompanyID) ? '' : 'd-none' }}"><i
+                            class="ti ti-pencil me-1"></i></span>
                     @if ($errors->has('payee'))
                         <br>
                         <span class="text-danger">
@@ -595,8 +651,9 @@
                     @endif
                 </div>
                 <div class="fileds-row">
-                    <label for="amount" class="text-right">Amount: $</label>
-                    <input type="text" id="amount" name="amount">
+                    <label for="amount" class="text-right" style="font-size: 17px;">Amount: $</label>
+                    <input type="text" id="amount" name="amount" style="font-size: 17px;"
+                        value="{{ !empty($check->Amount) && $check->Amount ? $check->Amount : old('amount') }}">
                     @if ($errors->has('amount'))
                         <br>
                         <span class="text-danger">
@@ -609,7 +666,8 @@
             <div class="form-row sign-section">
                 <div class="fileds">
                     <label for="memo" style="min-width: 0;">Memo:</label>
-                    <input type="text" id="memo" name="memo">
+                    <input type="text" id="memo" name="memo"
+                        value="{{ !empty($check->Memo) && $check->Memo ? $check->Memo : old('memo') }}">
                     @if ($errors->has('memo'))
                         <span class="text-danger">
                             {{ $errors->first('memo') }}
@@ -618,14 +676,16 @@
                 </div>
                 <div class="fileds">
                     <label class="switch switch-square" for="is_sign">
-                        <input type="checkbox" class="switch-input" name="is_sign" id="is_sign" />
+                        <input type="checkbox" class="switch-input" name="is_sign" id="is_sign"
+                            {{ !empty($check->DigitalSignatureRequired) ? 'checked' : '' }} />
                         <span class="switch-toggle-slider">
                             <span class="switch-on"></span>
                             <span class="switch-off"></span>
                         </span>
                         <span class="switch-label">Sign is Required</span>
                     </label>
-                    <div class="fileds sing-box d-none" style="margin-top: 10px;">
+                    <div class="fileds sing-box {{ !empty($check->DigitalSignatureRequired) ? '' : 'd-none' }}"
+                        style="margin-top: 10px;">
                         <label class="" for="">Signature:</label>
                         <div id="sig"></div>
                         <button id="clear" class="btn btn-danger btn-sm">Clear Signature</button>
@@ -637,20 +697,23 @@
             <div class="form-row j-center">
                 <div class="fileds">
                     <label for="routing-number" class="text-center">Routing #:</label>
-                    <input type="text" id="routing_number" name="routing_number">
+                    <input type="text" id="routing_number" name="routing_number"
+                        value="{{ !empty($old_payor->RoutingNumber) && $old_payor->RoutingNumber ? $old_payor->RoutingNumber : old('routing_number') }}">
                 </div>
                 <div class="fileds">
                     <label for="checking-number" class="text-center">Checking Account #:</label>
-                    <input type="text" id="account_number" name="account_number">
+                    <input type="text" id="account_number" name="account_number"
+                        value="{{ !empty($old_payor->AccountNumber) && $old_payor->AccountNumber ? $old_payor->AccountNumber : old('account_number') }}">
                 </div>
                 <div class="fileds">
                     <label for="confirm_account_number" class="text-center">Confirm Account #:</label>
-                    <input type="text" id="confirm_account_number" name="confirm_account_number">
+                    <input type="text" id="confirm_account_number" name="confirm_account_number"
+                        value="{{ !empty($old_payor->AccountNumber) && $old_payor->AccountNumber ? $old_payor->AccountNumber : old('confirm_account_number') }}">
                 </div>
             </div>
 
             <div class="form-row">
-                <button type="submit">Generate</button>
+                <button type="submit" class="btn btn-primary waves-effect waves-light">Save</button>
             </div>
         </form>
 
@@ -662,13 +725,14 @@
                         <button type="button" class="btn-close" id="payor_close" data-bs-dismiss="modal"
                             aria-label="Close"></button>
                     </div>
-                    <input type="hidden" name="payor_id" id="payor_id" />
+                    <input type="hidden" name="payor_id" id="payor_id"
+                        value={{ !empty($old_payor->EntityID) ? $old_payor->EntityID : '' }} />
                     <div class="modal-body">
                         <div class="row g-6" id="add-payor">
                             <div class="col-md-6">
                                 <label class="form-label" for="name">Name</label>
                                 <input type="text" name="name" id="name" class="form-control"
-                                    value="{{ old('name') }}" />
+                                    value="{{ !empty($old_payor->Name) ? $old_payor->Name : old('name') }}" />
                                 @if ($errors->has('name'))
                                     <span class="text-danger">
                                         {{ $errors->first('name') }}
@@ -678,7 +742,7 @@
                             <div class="col-md-6">
                                 <label class="form-label" for="email">Email</label>
                                 <input type="text" name="email" id="email" class="form-control"
-                                    value="{{ old('email') }}" />
+                                    value="{{ !empty($old_payor->Email) ? $old_payor->Email : old('email') }}" />
                                 @if ($errors->has('email'))
                                     <span class="text-danger">
                                         {{ $errors->first('email') }}
@@ -687,7 +751,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="address1">Address 1</label>
-                                <textarea id="address1" name="address1" class="form-control">{{ old('address1') }}</textarea>
+                                <textarea id="address1" name="address1" class="form-control">{{ !empty($old_payor->Address1) ? $old_payor->Address1 : old('address1') }}</textarea>
                                 @if ($errors->has('address1'))
                                     <span class="text-danger">
                                         {{ $errors->first('address1') }}
@@ -696,7 +760,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="address2">Address 2</label>
-                                <textarea id="address2" name="address2" class="form-control">{{ old('address2') }}</textarea>
+                                <textarea id="address2" name="address2" class="form-control">{{ !empty($old_payor->Address2) ? $old_payor->Address2 : old('address2') }}</textarea>
                                 @if ($errors->has('address2'))
                                     <span class="text-danger">
                                         {{ $errors->first('address2') }}
@@ -706,7 +770,7 @@
                             <div class="col-md-6">
                                 <label class="form-label" for="city">City</label>
                                 <input type="text" name="city" id="city" class="form-control"
-                                    value="{{ old('city') }}" />
+                                    value="{{ !empty($old_payor->City) ? $old_payor->City : old('city') }}" />
                                 @if ($errors->has('city'))
                                     <span class="text-danger">
                                         {{ $errors->first('city') }}
@@ -716,7 +780,7 @@
                             <div class="col-md-6">
                                 <label class="form-label" for="state">State</label>
                                 <input type="text" name="state" id="state" class="form-control"
-                                    value="{{ old('state') }}" />
+                                    value="{{ !empty($old_payor->State) ? $old_payor->State : old('state') }}" />
                                 @if ($errors->has('state'))
                                     <span class="text-danger">
                                         {{ $errors->first('state') }}
@@ -726,7 +790,7 @@
                             <div class="col-md-6">
                                 <label class="form-label" for="zip">Zip</label>
                                 <input type="text" name="zip" id="zip" class="form-control"
-                                    value="{{ old('zip') }}" />
+                                    value="{{ !empty($old_payor->Zip) ? $old_payor->Zip : old('zip') }}" />
                                 @if ($errors->has('zip'))
                                     <span class="text-danger">
                                         {{ $errors->first('zip') }}
@@ -736,7 +800,7 @@
                             <div class="col-md-6">
                                 <label class="form-label" for="bank_name">Bank Name</label>
                                 <input type="text" name="bank_name" id="bank_name" class="form-control"
-                                    value="{{ old('bank_name') }}" />
+                                    value="{{ !empty($old_payor->BankName) ? $old_payor->BankName : old('bank_name') }}" />
                                 @if ($errors->has('bank_name'))
                                     <span class="text-danger">
                                         {{ $errors->first('bank_name') }}
@@ -746,7 +810,7 @@
                             <div class="col-md-6">
                                 <label class="form-label" for="account_number">Account Number</label>
                                 <input type="text" name="account_number" id="account_number" class="form-control"
-                                    value="{{ old('account_number') }}" />
+                                    value="{{ !empty($old_payor->AccountNumber) ? $old_payor->AccountNumber : old('account_number') }}" />
                                 @if ($errors->has('account_number'))
                                     <span class="text-danger">
                                         {{ $errors->first('account_number') }}
@@ -756,7 +820,7 @@
                             <div class="col-md-6">
                                 <label class="form-label" for="routing_number">Routing Number</label>
                                 <input type="text" name="routing_number" id="routing_number" class="form-control"
-                                    value="{{ old('routing_number') }}" />
+                                    value="{{ !empty($old_payor->RoutingNumber) ? $old_payor->RoutingNumber : old('routing_number') }}" />
                                 @if ($errors->has('routing_number'))
                                     <span class="text-danger">
                                         {{ $errors->first('routing_number') }}
@@ -780,13 +844,14 @@
                         <h5 class="modal-title" id="exampleModalLabel1"><span class="payee_h">Add</span> Payee</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <input type="hidden" name="payee_id" id="payee_id">
+                    <input type="hidden" name="payee_id" id="payee_id"
+                        value="{{ !empty($old_payee->CompanyID) ? $old_payee->CompanyID : '' }}">
                     <div class="modal-body">
                         <div class="row g-6" id="add-payee">
                             <div class="col-md-6">
                                 <label class="form-label" for="payee-name">Name</label>
                                 <input type="text" name="name" id="payee-name" class="form-control"
-                                    value="{{ old('name') }}" />
+                                    value="{{ !empty($old_payee->Name) ? $old_payee->Name : old('name') }}" />
                                 @if ($errors->has('name'))
                                     <span class="text-danger">
                                         {{ $errors->first('name') }}
@@ -796,7 +861,7 @@
                             <div class="col-md-6">
                                 <label class="form-label" for="payee-email">Email</label>
                                 <input type="text" name="email" id="payee-email" class="form-control"
-                                    value="{{ old('email') }}" />
+                                    value="{{ !empty($old_payee->Email) ? $old_payee->Email : old('email') }}" />
                                 @if ($errors->has('email'))
                                     <span class="text-danger">
                                         {{ $errors->first('email') }}
@@ -805,7 +870,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="payee-address1">Address 1</label>
-                                <textarea id="payee-address1" name="address1" class="form-control">{{ old('address1') }}</textarea>
+                                <textarea id="payee-address1" name="address1" class="form-control">{{ !empty($old_payee->Address1) ? $old_payee->Address1 : old('address1') }}</textarea>
                                 @if ($errors->has('address1'))
                                     <span class="text-danger">
                                         {{ $errors->first('address1') }}
@@ -814,7 +879,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="payee-address2">Address 2</label>
-                                <textarea id="payee-address2" name="address2" class="form-control">{{ old('address2') }}</textarea>
+                                <textarea id="payee-address2" name="address2" class="form-control">{{ !empty($old_payee->Address2) ? $old_payee->Address2 : old('address2') }}</textarea>
                                 @if ($errors->has('address1'))
                                     <span class="text-danger">
                                         {{ $errors->first('address2') }}
@@ -824,7 +889,7 @@
                             <div class="col-md-6">
                                 <label class="form-label" for="payee-city">City</label>
                                 <input type="text" name="city" id="payee-city" class="form-control"
-                                    value="{{ old('city') }}" />
+                                    value="{{ !empty($old_payee->City) ? $old_payee->City : old('city') }}" />
                                 @if ($errors->has('city'))
                                     <span class="text-danger">
                                         {{ $errors->first('city') }}
@@ -834,7 +899,7 @@
                             <div class="col-md-6">
                                 <label class="form-label" for="payee-state">State</label>
                                 <input type="text" name="state" id="payee-state" class="form-control"
-                                    value="{{ old('state') }}" />
+                                    value="{{ !empty($old_payee->State) ? $old_payee->State : old('state') }}" />
                                 @if ($errors->has('state'))
                                     <span class="text-danger">
                                         {{ $errors->first('state') }}
@@ -844,7 +909,7 @@
                             <div class="col-md-6">
                                 <label class="form-label" for="payee-zip">Zip</label>
                                 <input type="text" name="zip" id="payee-zip" class="form-control"
-                                    value="{{ old('zip') }}" />
+                                    value="{{ !empty($old_payee->Zip) ? $old_payee->Zip : old('zip') }}" />
                                 @if ($errors->has('zip'))
                                     <span class="text-danger">
                                         {{ $errors->first('zip') }}
@@ -854,7 +919,7 @@
                             <div class="col-md-6">
                                 <label class="form-label" for="payee-bank_name">Bank Name</label>
                                 <input type="text" name="bank_name" id="payee-bank_name" class="form-control"
-                                    value="{{ old('bank_name') }}" />
+                                    value="{{ !empty($old_payee->BankName) ? $old_payee->BankName : old('bank_name') }}" />
                                 @if ($errors->has('bank_name'))
                                     <span class="text-danger">
                                         {{ $errors->first('bank_name') }}
@@ -865,7 +930,8 @@
                                 <label class="form-label" for="payee-account_number">Account
                                     Number</label>
                                 <input type="text" name="account_number" id="payee-account_number"
-                                    class="form-control" value="{{ old('account_number') }}" />
+                                    class="form-control"
+                                    value="{{ !empty($old_payee->AccountNumber) ? $old_payee->AccountNumber : old('account_number') }}" />
                                 @if ($errors->has('account_number'))
                                     <span class="text-danger">
                                         {{ $errors->first('account_number') }}
@@ -876,7 +942,8 @@
                                 <label class="form-label" for="payee-routing_number">Routing
                                     Number</label>
                                 <input type="text" name="routing_number" id="payee-routing_number"
-                                    class="form-control" value="{{ old('routing_number') }}" />
+                                    class="form-control"
+                                    value="{{ !empty($old_payee->RoutingNumber) ? $old_payee->RoutingNumber : old('routing_number') }}" />
                                 @if ($errors->has('routing_number'))
                                     <span class="text-danger">
                                         {{ $errors->first('routing_number') }}

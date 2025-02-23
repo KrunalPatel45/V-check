@@ -30,10 +30,10 @@ class PayorsController extends Controller
                         '">' . $row->Status . '</span>';
                 })
                 ->addColumn('CreatedAt', function ($row) {
-                    return Carbon::parse($row->CreatedAt)->format('m/d/Y H:i:m'); 
+                    return Carbon::parse($row->CreatedAt)->format('m/d/Y'); 
                 })
                 ->addColumn('UpdatedAt', function ($row) {
-                    return Carbon::parse($row->UpdatedAt)->format('m/d/Y H:i:m');
+                    return Carbon::parse($row->UpdatedAt)->format('m/d/Y');
                 })
                 ->addColumn('actions', function ($row) {
                     $editUrl = route('user.payors.edit', ['type' => 'Payee', 'id' => $row->EntityID]);
@@ -102,10 +102,10 @@ class PayorsController extends Controller
                         '">' . $row->Status . '</span>';
                 })
                 ->addColumn('CreatedAt', function ($row) {
-                    return Carbon::parse($row->CreatedAt)->format('m/d/Y H:i:m'); 
+                    return Carbon::parse($row->CreatedAt)->format('m/d/Y'); 
                 })
                 ->addColumn('UpdatedAt', function ($row) {
-                    return Carbon::parse($row->UpdatedAt)->format('m/d/Y H:i:m');
+                    return Carbon::parse($row->UpdatedAt)->format('m/d/Y');
                 })
                 ->addColumn('actions', function ($row) {
                     $editUrl = route('user.payors.edit', ['type' => 'Payors', 'id' => $row->EntityID]);
@@ -171,7 +171,6 @@ class PayorsController extends Controller
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
-            'email' => 'required|email|unique:Entities,email',
             'bank_name' => 'required',
             'routing_number' => 'required|digits:9',
             'account_number' => 'required|numeric',
@@ -227,7 +226,6 @@ class PayorsController extends Controller
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
-            'email' => 'required|email|unique:Entities,email,' . $id.',EntityID',
             'bank_name' => 'required',
             'routing_number' => 'required|digits:9',
             'account_number' => 'required|numeric',
@@ -281,7 +279,6 @@ class PayorsController extends Controller
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
-            'email' => !empty($request->id) ? 'required|email|unique:Entities,Email,' . $request->id.',EntityID'  :'required|email|unique:Entities,Email',
             'bank_name' => 'required',
             'routing_number' => 'required|digits:9',
             'account_number' => 'required|numeric',

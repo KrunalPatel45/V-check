@@ -99,8 +99,8 @@
                         <th>Payor</th>
                         <th>Amount</th>
                         <th>Print Date</th>
-                        <th style="width: 140px !important;">Status</th>
-                        <th style="width: 50px;!important">Check Preview</th>
+                        <th>Status</th>
+                        <th>Check Preview</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -150,7 +150,8 @@
                         data: 'actions',
                         name: 'actions',
                         orderable: false,
-                        searchable: false
+                        searchable: false,
+                        className: 'text-center',
                     }
                 ]
             });

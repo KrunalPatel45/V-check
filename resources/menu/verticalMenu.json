@@ -44,7 +44,7 @@
     },
     {
       "url": "/user/client",
-      "name": "Payee",
+      "name": "Payees",
       "icon": "menu-icon tf-icons ti ti-users",
       "slug": "payee",
       "access": "web"
@@ -84,7 +84,7 @@
       "access": "web"
     },
     {
-      "url": "",
+      "url": "/webform",
       "name": "Web Form",
       "icon": "menu-icon tf-icons ti ti-files",
       "slug": "web-form",

@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\File;
 use App\Models\Package;
 use App\Models\PaymentSubscription;
 use Carbon\Carbon;
+use App\Models\WebForm;
+use Illuminate\Support\Str;
 
 class CheckController extends Controller
 {
@@ -36,28 +38,57 @@ class CheckController extends Controller
                     $payor = Payors::find($row->EntityID);
                     return $payor->Name;
                 })
-                // ->addColumn('Status', function ($row) {
-                //     $statusOptions = ['Pending', 'Issued', 'Cleared', 'Expired', 'Cancelled'];
-                //     $optionsHtml = '';
-                
-                //     // Loop through options and set the selected option if it matches the row status
-                //     foreach ($statusOptions as $status) {
-                //         $selected = ($row->Status === $status) ? 'selected' : '';
-                //         $optionsHtml .= "<option value=\"$status\" $selected>$status</option>";
-                //     }
-                
-                //     return '<div class="col-sm-10">
-                //                 <select id="change_status" name="change_status" data-id="'.$row->CheckID.'" class="form-control form-select">
-                //                     ' . $optionsHtml . '
-                //                 </select>
-                //             </div>';
-                // })
+                ->addColumn('IssueDate', function ($row) {
+                    return Carbon::parse($row->IssueDate)->format('m/d/Y');
+                })
                 ->addColumn('actions', function ($row) {
-                    $check_preview = asset('checks/' . $row->CheckPDF);
+                    // $editUrl = route('user.payors.edit', ['type' => 'Payee', 'id' => $row->EntityID]);
+                    // $deleteUrl = route('user.payors.delete', ['type' => 'Payee', 'id' => $row->EntityID]);
+                    $editUrl = route('check.process_payment_check_edit', ['id' => $row->CheckID]);
+                    $check_generate = route('check_generate', ['id' => $row->CheckID]);
 
-                    return ' <a href="'.$check_preview.'" target="_blank" class="btn">
-                                    <i class="menu-icon tf-icons ti ti-files"></i>
-                            </a>';
+                    if($row->Status == 'draft') {
+                        return '<div class="dropdown">
+                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                    <i class="ti ti-dots-vertical"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a href="' . $editUrl . '" class="dropdown-item">
+                                        <i class="ti ti-pencil me-1"></i> Draft
+                                    </a>
+                                   <a href="javascript:void(0);" class="dropdown-item" data-bs-toggle="modal" 
+                                    data-bs-target="#check-generate' . $row->CheckID . '">
+                                        <i class="ti ti-bookmark-plus me-1"></i> generate
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="modal fade" id="check-generate' . $row->CheckID . '" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Check Generate</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to generate check ?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <a href="'.$check_generate.'" class="btn btn-primary">Generate</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>';
+                    } else {
+                        if(!empty($row->CheckPDF)) {
+                            return '<a href="'.asset('checks/' . $row->CheckPDF).'" target="_blank" class="btn">
+                                        <i class="menu-icon tf-icons ti ti-files"></i>
+                                </a>';
+    
+                        } else {
+                            return '-';
+                        }
+                    }
                 })
                 ->rawColumns(['logo', 'Status', 'actions'])
                 ->make(true);
@@ -91,7 +122,7 @@ class CheckController extends Controller
 
         $validator = Validator::make($request->all(), [
             'check_date' => 'required',
-            'check_number' => 'required|numeric|unique:Checks,CheckNumber',
+            'check_number' => 'required|numeric',
             'amount' => 'required|numeric|min:0.01',
             'payee' => 'required|exists:Company,CompanyID',
             'payor' => 'required|exists:Entities,EntityID',
@@ -107,61 +138,79 @@ class CheckController extends Controller
             $image_parts = explode(";base64,", $request->signed);
             $image_type_aux = explode("image/", $image_parts[0]);
 
-            $image_type = $image_type_aux[1];
-            $image_base64 = base64_decode($image_parts[1]);
-            $fileName = uniqid() . '.'.$image_type;
-            $file = $folderPath . $fileName;
+            $fileName = '';
+            if(!empty($image_type_aux[1])) {
+                $image_type = $image_type_aux[1];
+                $image_base64 = base64_decode($image_parts[1]);
+                $fileName = uniqid() . '.'.$image_type;
+                $file = $folderPath . $fileName;
 
-            file_put_contents($file, $image_base64);
+                file_put_contents($file, $image_base64);
+            }
         }
 
-        $data = [];
-        $payor = Payors::find($request->payor);
-        $payee = Company::find($request->payee);
-        $data['payor_name'] = $payor->Name;
-        $data['address1'] = $payor->Address1;
-        $data['address2'] = $payor->Address2;
-        $data['city'] = $payor->City;
-        $data['state'] = $payor->State;
-        $data['zip'] = $payor->Zip;
-        $data['check_number'] = $request->check_number;
-        $data['check_date'] = $request->check_date;
-        $data['payee_name'] = $payee->Name;
-        $data['amount'] = $request->amount;
-        $data['amount_word'] = $this->numberToWords($request->amount);
-        $data['memo'] = $request->memo;
-        $data['routing_number'] = $payor->RoutingNumber;
-        $data['account_number'] = $payor->AccountNumber;
-        $data['memo'] = $request->memo;
-        $data['bank_name'] = $payor->BankName; 
-        $data['signature'] = (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '';
-
-        $check_file = $this->generateAndSavePDF($data);
-        
         $check_date = Carbon::parse(str_replace('-', '/', $request->check_date));
         
-        $checks = Checks::create([
-            'UserID' => Auth::id(),
-            'CompanyID'=> $request->payee,
-            'CheckType' => 'Process Payment',
-            'Amount' => $request->amount,
-            'EntityID' => $request->payor,
-            'CheckNumber' => $request->check_number,
-            'IssueDate' => now(),
-            'ExpiryDate' => $check_date,
-            'Status' => 'Pending',
-            'Memo' => $request->memo, 
-            'CheckPDF' => $check_file,
-            'DigitalSignatureRequired' => (!empty($request->is_sign) && $request->is_sign == 'on') ? 1 : 0,
-            'DigitalSignature' => (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '',
-        ]);
+        if (!empty($request->id)) {
+            // Update existing record
+            $checks = Checks::find($request->id);
+            if(empty($fileName)) {
+                $fileName = $checks->DigitalSignature;
+            }
+            if ($checks) {
+                $checks->update([
+                    'CompanyID' => $request->payee,
+                    'CheckType' => 'Process Payment',
+                    'Amount' => $request->amount,
+                    'EntityID' => $request->payor,
+                    'CheckNumber' => $request->check_number,
+                    'IssueDate' => now(),
+                    'ExpiryDate' => $check_date,
+                    'Status' => 'draft',
+                    'Memo' => $request->memo, 
+                    'CheckPDF' => null,
+                    'DigitalSignatureRequired' => (!empty($request->is_sign) && $request->is_sign == 'on') ? 1 : 0,
+                    'DigitalSignature' => (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '',
+                ]);
+            }
+            $message = 'Check Updated successfully';
+        } else {
+            // Create new record
+            $checks = Checks::create([
+                'UserID' => Auth::id(),
+                'CompanyID'=> $request->payee,
+                'CheckType' => 'Process Payment',
+                'Amount' => $request->amount,
+                'EntityID' => $request->payor,
+                'CheckNumber' => $request->check_number,
+                'IssueDate' => now(),
+                'ExpiryDate' => $check_date,
+                'Status' => 'draft',
+                'Memo' => $request->memo, 
+                'CheckPDF' => null,
+                'DigitalSignatureRequired' => (!empty($request->is_sign) && $request->is_sign == 'on') ? 1 : 0,
+                'DigitalSignature' => (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '',
+            ]);
 
-        $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->orderBy('PaymentSubscriptionID', 'desc')->first();
-        $paymentSubscription->ChecksUsed  = $paymentSubscription->ChecksUsed + 1;
-        $paymentSubscription->RemainingChecks  = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
-        $paymentSubscription->save();
+            $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->orderBy('PaymentSubscriptionID', 'desc')->first();
+            $paymentSubscription->ChecksUsed  = $paymentSubscription->ChecksUsed + 1;
+            $paymentSubscription->RemainingChecks  = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
+            $paymentSubscription->save();
+            $message = 'Check Crated successfully';
+        }
+        
+        return redirect()->route('check.process_payment')->with('success', $message);
+    }
 
-        return redirect()->route('check.process_payment')->with('success', 'Check Generated successfully');
+    public function process_payment_check_edit(Request $request, $id)
+    {
+        $check = Checks::find($id);
+        $check->ExpiryDate = Carbon::parse($check->ExpiryDate)->format('m-d-Y');
+        $payees = Company::where('UserID', Auth::id())->get();
+        $payors = Payors::where('UserID', Auth::id())->where('Type', 'Vendor')->get();
+        $old_payee = Company::find($check->CompanyID);
+        $old_payor = Payors::find($check->EntityID);
+        return view('user.check.process_payment_generate_check', compact('payees', 'payors','check', 'old_payee', 'old_payor'));
     }
 
     public function send_payment(Request $request)
@@ -183,28 +232,56 @@ class CheckController extends Controller
                     $payor = Payors::find($row->EntityID);
                     return $payor->Name;
                 })
-                // ->addColumn('Status', function ($row) {
-                //     $statusOptions = ['Pending', 'Issued', 'Cleared', 'Expired', 'Cancelled'];
-                //     $optionsHtml = '';
-                
-                //     // Loop through options and set the selected option if it matches the row status
-                //     foreach ($statusOptions as $status) {
-                //         $selected = ($row->Status === $status) ? 'selected' : '';
-                //         $optionsHtml .= "<option value=\"$status\" $selected>$status</option>";
-                //     }
-                
-                //     return '<div class="col-sm-10">
-                //                 <select id="change_status" name="change_status" data-id="'.$row->CheckID.'" class="form-control form-select">
-                //                     ' . $optionsHtml . '
-                //                 </select>
-                //             </div>';
-                // })
+                ->addColumn('IssueDate', function ($row) {
+                    return Carbon::parse($row->IssueDate)->format('m/d/Y');
+                })
                 ->addColumn('actions', function ($row) {
-                    $check_preview = asset('checks/' . $row->CheckPDF);
+                    
+                    $editUrl = route('check.process_send_check_edit', ['id' => $row->CheckID]);
+                    $check_generate = route('check_generate', ['id' => $row->CheckID]);
 
-                    return ' <a href="'.$check_preview.'" target="_blank" class="btn">
-                                    <i class="menu-icon tf-icons ti ti-files"></i>
-                            </a>';
+                    if($row->Status == 'draft') {
+                        return '<div class="dropdown">
+                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                    <i class="ti ti-dots-vertical"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a href="' . $editUrl . '" class="dropdown-item">
+                                        <i class="ti ti-pencil me-1"></i> Draft
+                                    </a>
+                                   <a href="javascript:void(0);" class="dropdown-item" data-bs-toggle="modal" 
+                                    data-bs-target="#check-generate' . $row->CheckID . '">
+                                        <i class="ti ti-bookmark-plus me-1"></i> generate
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="modal fade" id="check-generate' . $row->CheckID . '" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Check Generate</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to generate check ?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <a href="'.$check_generate.'" class="btn btn-primary">Generate</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>';
+                    } else {
+                        if(!empty($row->CheckPDF)) {
+                            return '<a href="'.asset('checks/' . $row->CheckPDF).'" target="_blank" class="btn">
+                                        <i class="menu-icon tf-icons ti ti-files"></i>
+                                </a>';
+    
+                        } else {
+                            return '-';
+                        }
+                    }
                 })
                 ->rawColumns(['logo', 'Status', 'actions'])
                 ->make(true);
@@ -237,7 +314,7 @@ class CheckController extends Controller
 
         $validator = Validator::make($request->all(), [
             'check_date' => 'required',
-            'check_number' => 'required|numeric|unique:Checks,CheckNumber',
+            'check_number' => 'required|numeric',
             'amount' => 'required|numeric|min:0.01',
             'payor' => 'required|exists:Company,CompanyID',
             'payee' => 'required|exists:Entities,EntityID',
@@ -260,31 +337,6 @@ class CheckController extends Controller
             file_put_contents($file, $image_base64);
         }
         
-
-        $data = [];
-        $payor = Company::find($request->payor);
-        $payee = Payors::find($request->payee);
-        $data['payor_name'] = $payor->Name;
-        $data['address1'] = $payor->Address1;
-        $data['address2'] = $payor->Address2;
-        $data['city'] = $payor->City;
-        $data['state'] = $payor->State;
-        $data['zip'] = $payor->Zip;
-        $data['check_number'] = $request->check_number;
-        $data['check_date'] = $request->check_date;
-        $data['payee_name'] = $payee->Name;
-        $data['amount'] = $request->amount;
-        $data['amount_word'] = $this->numberToWords($request->amount);
-        $data['memo'] = $request->memo;
-        $data['routing_number'] = $payor->RoutingNumber;
-        $data['account_number'] = $payor->AccountNumber;
-        $data['memo'] = $request->memo;
-        $data['bank_name'] = $payor->BankName;
-        $data['signature'] = (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '';
-
-    
-        $check_file = $this->generateAndSavePDF($data);
-
         $check_date = Carbon::parse(str_replace('-', '/', $request->check_date));
         
         $checks = Checks::create([
@@ -296,9 +348,9 @@ class CheckController extends Controller
             'CheckNumber' => $request->check_number,
             'IssueDate' => now(),
             'ExpiryDate' => $check_date,
-            'Status' => 'Pending',
+            'Status' => 'draft',
             'Memo' => $request->memo, 
-            'CheckPDF' => $check_file,
+            'CheckPDF' => null,
             'DigitalSignatureRequired' => (!empty($request->is_sign) && $request->is_sign == 'on') ? 1 : 0,
             'DigitalSignature' => (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '',
         ]);
@@ -311,6 +363,17 @@ class CheckController extends Controller
         return redirect()->route('check.send_payment')->with('success', 'Check Generated successfully');
     }
 
+    public function process_send_check_edit(Request $request, $id)
+    {
+        $check = Checks::find($id);
+        $check->ExpiryDate = Carbon::parse($check->ExpiryDate)->format('m-d-Y');
+        $payors = Company::where('UserID', Auth::id())->get();
+        $payees = Payors::where('UserID', Auth::id())->where('Type', 'Client')->get();
+        $old_payor = Company::find($check->CompanyID);
+        $old_payee = Payors::find($check->EntityID);
+        return view('user.check.send_payment_generate_check', compact('payees', 'payors','check', 'old_payee', 'old_payor'));
+    }
+
     public function generateAndSavePDF($data)
     {
         $directoryPath = public_path('checks');
@@ -321,6 +384,7 @@ class CheckController extends Controller
         }
         // Generate PDF from a view
         $pdf = PDF::loadView('user.check_formate.index', compact('data'))->setPaper('a4', 'portrait')
+        ->setPaper([0, 0, 820, 800])
         ->set_option('isHtml5ParserEnabled', true)
         ->set_option('isRemoteEnabled', true);
     
@@ -372,7 +436,7 @@ class CheckController extends Controller
         }
 
         if ($request->ajax()) {
-            $checks = Checks::all();
+            $checks = Checks::where('UserID', Auth::id())->get();
             return datatables()->of($checks)
                 ->addIndexColumn()
                 ->addColumn('CompanyID', function ($row) {
@@ -383,27 +447,26 @@ class CheckController extends Controller
                     $payor = Payors::find($row->EntityID);
                     return $payor->Name;
                 })
+                ->addColumn('IssueDate', function ($row) {
+                    return Carbon::parse($row->IssueDate)->format('m/d/Y');
+                })
                 ->addColumn('Status', function ($row) {
-                    $html = '';
-                    if($row->Status == 'Pending') {
-                        $html =  '<span class="badge bg-label-info me-1">' . $row->Status . '</span>';
-                    } else if($row->Status == 'Issued') {
-                        $html =  '<span class="badge bg-label-primary me-1">' . $row->Status . '</span>';
-                    } else if($row->Status == 'Cleared') {
-                        $html =  '<span class="badge bg-label-success me-1">' . $row->Status . '</span>';
-                    }else if($row->Status == 'Expired') {
-                        $html =  '<span class="badge bg-label-warning me-1">' . $row->Status . '</span>';
-                    } else if($row->Status == 'Cancelled') {
-                        $html =  '<span class="badge bg-label-warning me-1">' . $row->Status . '</span>';
+                    if($row->Status == 'draft') {
+                        return 'Draft';
+                    } else {
+                        return 'Generated';
                     }
-                    return $html;
                 })
                 ->addColumn('actions', function ($row) {
                     $check_preview = asset('checks/' . $row->CheckPDF);
 
-                    return ' <a href="'.$check_preview.'" target="_blank" class="btn">
-                                    <i class="menu-icon tf-icons ti ti-files"></i>
-                            </a>';
+                    if(!empty($row->CheckPDF)) {
+                        return ' <a href="'.$check_preview.'" target="_blank" class="btn">
+                        <i class="menu-icon tf-icons ti ti-files"></i>
+                        </a>';
+                    } else {
+                        return '-';
+                    }
                 })
                 ->rawColumns(['Status','actions'])
                 ->make(true);
@@ -411,8 +474,8 @@ class CheckController extends Controller
 
         $clients = Payors::where('UserID', Auth::id())->count();
         $checks = Checks::where('UserID', Auth::id())->count();
-        $paidAmount = Checks::where('UserID', Auth::id())->where('Status', 'Cleared')->sum('Amount');
-        $unPaidAmount = Checks::where('UserID', Auth::id())->where('Status','!=','Cleared')->sum('Amount');
+        $paidAmount = Checks::where('UserID', Auth::id())->where('Status', 'generated')->sum('Amount');
+        $unPaidAmount = Checks::where('UserID', Auth::id())->where('Status','draft')->sum('Amount');
 
         
         $paidAmount = $this->formatToK($paidAmount);
@@ -448,5 +511,204 @@ class CheckController extends Controller
     {
         $payor = Payors::find($id);
         return response()->json(['success' => true,'payor' => $payor]);
+    }
+
+    public function check_generate($id)
+    {
+        $check = Checks::find($id);
+
+        $check_date = Carbon::parse(str_replace('/', '-', $check->ExpiryDate))->format('m/d/Y');
+
+        $data = [];
+        $payor = Payors::find($check->EntityID);
+        $payee = Company::find($check->CompanyID);
+        $data['payor_name'] = $payor->Name;
+        $data['address1'] = $payor->Address1;
+        $data['address2'] = $payor->Address2;
+        $data['city'] = $payor->City;
+        $data['state'] = $payor->State;
+        $data['zip'] = $payor->Zip;
+        $data['check_number'] = $check->CheckNumber;
+        $data['check_date'] = $check_date;
+        $data['payee_name'] = $payee->Name;
+        $data['amount'] = $check->Amount;
+        $data['amount_word'] = $this->numberToWords($check->Amount);
+        $data['memo'] = $check->Memo;
+        $data['routing_number'] = $payor->RoutingNumber;
+        $data['account_number'] = $payor->AccountNumber;
+        $data['bank_name'] = $payor->BankName; 
+        $data['signature'] = (!empty($check->DigitalSignatureRequired)) ? $check->DigitalSignature : '';
+
+        // return view('user.check_formate.index', compact('data'));
+        
+        $check_file = $this->generateAndSavePDF($data);
+
+        $check->Status = 'generated';
+        $check->CheckPDF = $check_file;
+
+        $check->save();
+
+        return redirect()->back()->with('success', 'Check generated successfully.');
+    }
+
+    public function web_form($id)
+    {
+        $data = WebForm::whereRaw("MD5(Id) = ?", [$id])->first();
+        $company = Company::find($data->CompanyID);
+        $data->company_name = $company->Name;
+        return view('user.web_form.web', compact('data'));
+    }
+
+    public function get_web_forms(Request $request)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('user.login');
+        }
+
+        if ($request->ajax()) {
+            $webforms = WebForm::where('UserID', Auth::id())->get();
+
+            return datatables()->of($webforms)
+                ->addIndexColumn()
+                ->addColumn('logo', function ($row) {
+                    if(!empty($row->Logo)) {
+                        return '<img src="' . asset('storage/' . $row->Logo) . '" alt="Webform Logo" style="width: 50px;">';
+                    } else {
+                        return '<img src="' . asset('assets/img/empty.jpg') . '" alt="Webform Logo" style="width: 50px;">';
+                    }
+                })
+                ->addColumn('CompanyID', function ($row) {
+                    $company = Company::find($row->CompanyID);
+                    return !empty($company->Name) ? $company->Name : '-'; 
+                })
+                ->addColumn('actions', function ($row) {
+                    $Preview = route('web_form', ['id' => md5($row->Id)]);
+                    return '<div class="dropdown">
+                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                                    <i class="ti ti-dots-vertical"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a href="'.$Preview.'" class="dropdown-item" target="_blank">
+                                        <i class="ti ti-files me-1"></i> Preview
+                                    </a>
+                                    <a href="'.$Preview.'" data-link="'.$Preview.'" class="dropdown-item copy-link">
+                                        <i class="ti ti-clipboard-copy me-1"></i> Copy Link
+                                    </a>
+                                </div>
+                            </div>';
+                })
+                ->rawColumns(['logo','actions'])
+                ->make(true);
+        }
+        return view('user.web_form.index');
+    }
+
+    public function new_web_form()
+    {
+        $companies = Company::all();
+        return view('user.web_form.new', compact('companies'));
+    }
+
+    public function new_web_form_store(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'address' => 'required',
+            'city' => 'required',
+            'state' => 'required',
+            'zip' => 'required',
+            'company' => 'required',
+            'logo' => 'required',
+            'phone_number' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $logoPath = null;
+        if ($request->hasFile('logo')) {
+            $file = $request->file('logo');
+            $uniqueName = Str::uuid() . '.' . $file->getClientOriginalExtension(); // Generate a unique name with extension
+            $logoPath = $file->storeAs('logos', $uniqueName, 'public'); // Store in "storage/app/public/logos"
+        }
+        
+        $webform = new WebForm();
+
+        $webform->UserID = Auth::id();
+        $webform->Address = $request->address;
+        $webform->City = $request->city;
+        $webform->State = $request->state;
+        $webform->Zip = $request->zip;
+        $webform->PhoneNumber = $request->phone_number;
+        $webform->Logo = $logoPath; // Save the path of the logo
+        $webform->CompanyID = $request->company;
+
+        $webform->save();
+
+        return redirect()->route('get_web_forms')->with('success', 'Web form generated successfully');
+    }
+    
+    public function store_web_form_data(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'check_number' => 'required',
+            'check_date' => 'required',
+            'amount' => 'required',
+            'name' => 'required',
+            'address' => 'required',
+            'city' => 'required',
+            'state' => 'required',
+            'zip' => 'required',
+            'bank_name' => 'required',
+            'routing_number' => 'required',
+            'account_number_verify' => 'required',
+        ]);
+        
+        if ($validator->fails()) {
+            return redirect()->back()->with('error', 'Please fill all required details.');
+        }
+
+        $company = Company::find($request->comany_id);
+        // dd($company->UserID);
+
+        $payor_data = [
+            'Name' => $request->name,
+            'Address1' => $request->address,
+            'City' => $request->city,
+            'State' => $request->state,
+            'Zip' => $request->zip,
+            'UserID' => $company->UserID,
+            'BankName' => $request->bank_name,
+            'RoutingNumber' => $request->routing_number,
+            'AccountNumber' => $request->account_number_verify,
+            'Type' => 'Vendor',
+        ];
+
+        $payor = Payors::create($payor_data);
+
+        $check_date = Carbon::parse(str_replace('-', '/', $request->check_date));
+        
+        $check_data = [
+            'UserID' => $company->UserID,
+            'CompanyID'=> $request->comany_id,
+            'CheckType' => 'Process Payment',
+            'Amount' => $request->amount,
+            'EntityID' => $payor->EntityID,
+            'CheckNumber' => $request->check_number,
+            'IssueDate' => now(),
+            'ExpiryDate' => $check_date,
+            'Status' => 'draft',
+            'Memo' => $request->memo, 
+            'CheckPDF' => null,
+            'DigitalSignatureRequired' => 0,
+        ];
+
+        $check = Checks::create($check_data);
+        return redirect()->route('thankyou');
+    }
+
+    public function thankyou()
+    {
+        return view('user.web_form.thank_you');
     }
 }
