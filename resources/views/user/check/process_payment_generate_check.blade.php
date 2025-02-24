@@ -503,7 +503,8 @@
                 $('#payee_h').text('Edit');
             });
 
-            $('#is_sign').change(function() {
+            $('#is_sign').change(function(e) {
+                e.preventDefault();
                 if ($(this).is(':checked')) {
                     $('.sing-box').removeClass('d-none'); // Show the signature field
                 } else {
