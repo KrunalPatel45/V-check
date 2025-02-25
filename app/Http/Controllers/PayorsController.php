@@ -167,6 +167,7 @@ class PayorsController extends Controller
     {  
         $validator = Validator::make($request->all(), [
             'name' => 'required' ,
+            'email' => 'nullable|email',
             'address1' => 'required',
             'city' => 'required',
             'state' => 'required',
@@ -221,6 +222,7 @@ class PayorsController extends Controller
     {  
         $validator = Validator::make($request->all(), [
             'name' => 'required' ,
+            'email' => 'nullable|email',
             'address1' => 'required',
             'address2' => 'required',
             'city' => 'required',
@@ -274,7 +276,8 @@ class PayorsController extends Controller
     public function add_payor(Request $request)
     {
          $validator = Validator::make($request->all(), [
-            'name' => 'required' ,
+            'name' => 'required',
+            'email' => 'nullable|email',
             'address1' => 'required',
             'city' => 'required',
             'state' => 'required',

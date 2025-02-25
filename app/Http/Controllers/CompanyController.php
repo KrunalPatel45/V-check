@@ -99,8 +99,8 @@ class CompanyController extends Controller
     {  
         $validator = Validator::make($request->all(), [
             'name' => 'required' ,
+            'email' => 'nullable|email',
             'address1' => 'required',
-            'address2' => 'required',
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
@@ -161,8 +161,8 @@ class CompanyController extends Controller
     {  
         $validator = Validator::make($request->all(), [
             'name' => 'required' ,
+            'email' => 'nullable|email',
             'address1' => 'required',
-            'address2' => 'required',
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
@@ -223,6 +223,7 @@ class CompanyController extends Controller
     {
          $validator = Validator::make($request->all(), [
             'name' => 'required' ,
+            'email' => 'nullable|email',
             'address1' => 'required',
             'city' => 'required',
             'state' => 'required',
