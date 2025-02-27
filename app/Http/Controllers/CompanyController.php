@@ -24,7 +24,7 @@ class CompanyController extends Controller
                 ->addIndexColumn()
                 ->addColumn('logo', function ($row) {
                     if(!empty($row->Logo)) {
-                        return '<img src="' . asset('storage/' . $row->Logo) . '" alt="Company Logo" style="width: 50px;">';
+                        return '<img src="' . asset($row->Logo) . '" alt="Company Logo" style="width: 50px;">';
                     } else {
                         return '<img src="' . asset('assets/img/empty.jpg') . '" alt="Company Logo" style="width: 50px;">';
                     }
@@ -118,12 +118,35 @@ class CompanyController extends Controller
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
             $uniqueName = Str::uuid() . '.' . $file->getClientOriginalExtension(); // Generate a unique name with extension
-            $logoPath = $file->storeAs('logos', $uniqueName, 'public'); // Store in "storage/app/public/logos"
+            $destinationPath = public_path('logos'); // Path to "public/logos"
+
+            // Ensure the directory exists
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+
+            // Move the uploaded file to the public path
+            $file->move($destinationPath, $uniqueName);
+            
+            // Save the path relative to public
+            $logoPath = 'logos/' . $uniqueName;
         }
 
-        $slug = Str::slug($request->name, '-');
+
         
         $company = new Company();
+
+        $slug = Str::slug($request->name, '-');
+        $originalSlug = $slug;
+
+        // Check for uniqueness and append a counter if necessary
+        $counter = 1;
+        while (Company::where('Slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+
+        $company->Slug = $slug;
 
         $company->Name = $request->name;
         $company->UserID = Auth::id();
@@ -185,8 +208,20 @@ class CompanyController extends Controller
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
             $uniqueName = Str::uuid() . '.' . $file->getClientOriginalExtension(); // Generate a unique name with extension
-            $logoPath = $file->storeAs('logos', $uniqueName, 'public'); // Store in "storage/app/public/logos"
+            $destinationPath = public_path('logos'); // Path to "public/logos"
+        
+            // Ensure the directory exists
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+        
+            // Move the uploaded file to the public path
+            $file->move($destinationPath, $uniqueName);
+            
+            // Save the path relative to public
+            $logoPath = 'logos/' . $uniqueName;
         }
+        
 
         $company->Name = $request->name;
         $company->UserID = Auth::id();

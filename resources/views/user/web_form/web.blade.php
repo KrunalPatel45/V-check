@@ -630,7 +630,7 @@
 
 <body>
     @php
-        $logo_img_path = asset('storage/' . $data->Logo);
+        $logo_img_path = asset($data->Logo);
     @endphp
     <div id="container">
         <div id="wb_Image1" style="position:absolute;left:27px;top:30px;width:220px;height:84px;z-index:25;">
