@@ -374,9 +374,61 @@ class CheckController extends Controller
         return view('user.check.send_payment_generate_check', compact('payees', 'payors','check', 'old_payee', 'old_payor'));
     }
 
+    // public function generateAndSavePDF($data)
+    // {
+    //     $directoryPath = public_path('checks');
+
+    //     // Check if the directory exists, if not, create it
+    //     if (!File::exists($directoryPath)) {
+    //         File::makeDirectory($directoryPath, 0755, true);
+    //     }
+    //     // Generate PDF from a view
+    //     $pdf = PDF::loadView('user.check_formate.index', compact('data'))->setPaper('a4', 'portrait')
+    //     ->setPaper([0, 0, 820, 800])
+    //     ->set_option('isHtml5ParserEnabled', true)
+    //     ->set_option('isRemoteEnabled', true);
+    
+    //     // Define the file path where you want to save the PDF
+    //     $file_name = 'check-' . $data['check_number'] . '.pdf';
+    //     $filePath = $directoryPath .  '/' . $file_name;
+    
+    //     // Save the PDF to the specified path
+    //     $pdf->save($filePath);
+    //     return $file_name;
+    // }
+
     public function generateAndSavePDF($data)
     {
         $directoryPath = public_path('checks');
+        // Create fonts directory if it doesn't exist
+        $fontPath = storage_path('fonts');
+        if (!File::exists($fontPath)) {
+            File::makeDirectory($fontPath, 0755, true);
+        }
+
+        // Define font file paths
+        $fontFiles = [
+            'MICRCheckPrixa.ttf',
+            'MICRCheckPrixa.woff',
+            'MICRCheckPrixa.woff2',
+            'MICRCheckPrixa.eot'
+        ];
+
+        // Copy font files from public to storage if they don't exist
+        foreach ($fontFiles as $fontFile) {
+            $sourcePath = public_path('storage/fonts/' . $fontFile);
+            $destPath = $fontPath . '/' . $fontFile;
+            
+            if (!File::exists($destPath) && File::exists($sourcePath)) {
+                File::copy($sourcePath, $destPath);
+            }
+        }
+
+        // Configure DOMPDF font cache directory
+        $configPath = config_path('dompdf.php');
+        if (File::exists($configPath)) {
+            config(['dompdf.options.font_cache' => $fontPath]);
+        }
 
         // Check if the directory exists, if not, create it
         if (!File::exists($directoryPath)) {
@@ -384,12 +436,12 @@ class CheckController extends Controller
         }
         // Generate PDF from a view
         $pdf = PDF::loadView('user.check_formate.index', compact('data'))->setPaper('a4', 'portrait')
-        ->setPaper([0, 0, 820, 800])
+        ->setPaper([0, 0, 800, 800])
         ->set_option('isHtml5ParserEnabled', true)
         ->set_option('isRemoteEnabled', true);
     
         // Define the file path where you want to save the PDF
-        $file_name = 'check-' . $data['check_number'] . '.pdf';
+        $file_name = 'check-' .'testing' . '.pdf';
         $filePath = $directoryPath .  '/' . $file_name;
     
         // Save the PDF to the specified path

@@ -6,10 +6,12 @@
     <style>
         @font-face {
             font-family: 'MICRCheckPrixa';
-            src: url('{{ asset('font/MICRCheckPrixa.eot?#iefix') }}') format('embedded-opentype'),
-                url('{{ asset('font/MICRCheckPrixa.woff2') }}') format('woff2'),
-                url('{{ asset('font/MICRCheckPrixa.woff') }}') format('woff'),
-                url('{{ asset('font/MICRCheckPrixa.ttf') }}') format('truetype');
+            src: url("{{ asset('storage/fonts/MICRCheckPrixa.eot?#iefix') }}") format('embedded-opentype'),
+                url("{{ asset('storage/fonts/MICRCheckPrixa.woff2') }}") format('woff2'),
+                url("{{ asset('storage/fonts/MICRCheckPrixa.woff') }}") format('woff'),
+                url("{{ asset('storage/fonts/MICRCheckPrixa.ttf') }}") format('truetype');
+            font-weight: normal;
+            font-style: normal;
         }
 
         body {

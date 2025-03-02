@@ -19,13 +19,42 @@ class TestController extends Controller
 {
     public function test()
     {
-        return view('user.check_formate.test');
+        // return view('user.check_formate.test');
         $check_file = $this->generateAndSavePDF();
     }
 
     public function generateAndSavePDF()
     {
         $directoryPath = public_path('checks');
+        // Create fonts directory if it doesn't exist
+        $fontPath = storage_path('fonts');
+        if (!File::exists($fontPath)) {
+            File::makeDirectory($fontPath, 0755, true);
+        }
+
+        // Define font file paths
+        $fontFiles = [
+            'MICRCheckPrixa.ttf',
+            'MICRCheckPrixa.woff',
+            'MICRCheckPrixa.woff2',
+            'MICRCheckPrixa.eot'
+        ];
+
+        // Copy font files from public to storage if they don't exist
+        foreach ($fontFiles as $fontFile) {
+            $sourcePath = public_path('storage/fonts/' . $fontFile);
+            $destPath = $fontPath . '/' . $fontFile;
+            
+            if (!File::exists($destPath) && File::exists($sourcePath)) {
+                File::copy($sourcePath, $destPath);
+            }
+        }
+
+        // Configure DOMPDF font cache directory
+        $configPath = config_path('dompdf.php');
+        if (File::exists($configPath)) {
+            config(['dompdf.options.font_cache' => $fontPath]);
+        }
 
         // Check if the directory exists, if not, create it
         if (!File::exists($directoryPath)) {
@@ -38,7 +67,7 @@ class TestController extends Controller
         ->set_option('isRemoteEnabled', true);
     
         // Define the file path where you want to save the PDF
-        $file_name = 'check-' .'new2' . '.pdf';
+        $file_name = 'check-' .'testing' . '.pdf';
         $filePath = $directoryPath .  '/' . $file_name;
     
         // Save the PDF to the specified path
