@@ -441,7 +441,7 @@ class CheckController extends Controller
         ->set_option('isRemoteEnabled', true);
     
         // Define the file path where you want to save the PDF
-        $file_name = 'check-' .'testing' . '.pdf';
+        $file_name = 'check-' . $data['check_number'] . '.pdf';
         $filePath = $directoryPath .  '/' . $file_name;
     
         // Save the PDF to the specified path
