@@ -68,16 +68,23 @@
                                     until your plan requires
                                     update</small>
                             </div>
+                            @if(!empty($package_data['downgrade_payment']))
+                            <div class="alert alert-warning mt-3" role="alert">
+                                Your subscription plan downgrade has been scheduled. The change will take effect on {{ \Carbon\Carbon::parse($package_data['downgrade_payment']->PaymentDate)->format('m-d-Y') }}, after your current plan expires. You can continue to enjoy your current plan benefits until then
+                            </div>
+                            @endif
                         </div>
                         <div class="col-12 d-flex gap-2 flex-wrap">
-                            <button class="btn btn-primary me-2" data-bs-toggle="modal"
-                                data-bs-target="#pricingModal">Upgrade Plan</button>
-                            <button class="btn btn-label-danger cancel-subscription">Cancel Subscription</button>
+                            <a href="{{ route('user_upgragde_plan', ['id' => $user->UserID]) }}"
+                                class="btn btn-primary">Change
+                                Plan</a>                            
+                            <a class="btn btn-label-danger cancel-subscription" href="{{ route('user_cancel_plan', ['id' => $user->UserID]) }}">Cancel Subscription</a>
                         </div>
                     </div>
                 </div>
                 <!-- /Current Plan -->
             </div>
+            @if(false)
             <div class="card mb-6">
                 <h5 class="card-header">Payment Methods</h5>
                 <div class="card-body">
@@ -261,6 +268,7 @@
                 </div>
                 <!-- /Billing Address -->
             </div>
+            @endif
             {{-- <div class="card">
                 <!-- Billing History -->
                 <h5 class="card-header">Billing History</h5>

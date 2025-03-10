@@ -118,6 +118,22 @@
                             </div>
                         </div>
                         <div class="row mb-6">
+                            <label class="col-sm-2 col-form-label" for="web_form">Web Form</label>
+                            <div class="col-sm-10">
+                                <select id="web_form" name="web_form" class="form-control form-select">
+                                    <option value="1" {{ $package->web_forms == 1 ? 'selected' : '' }}>Enable
+                                    </option>
+                                    <option value="0" {{ $package->web_forms == 0 ? 'selected' : '' }}>Disable
+                                    </option>
+                                </select>
+                                @if ($errors->has('web_form'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('web_form') }}
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="status">Status</label>
                             <div class="col-sm-10">
                                 <select id="status" name="status" class="form-control form-select">

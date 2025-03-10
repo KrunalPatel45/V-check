@@ -71,6 +71,11 @@
 
 
     <link rel="stylesheet" type="text/css" href="https://keith-wood.name/css/jquery.signature.css">
+    <style>
+        table thead th {
+            text-transform: none !important;
+        }
+    </style>
 </head>
 
 <body>

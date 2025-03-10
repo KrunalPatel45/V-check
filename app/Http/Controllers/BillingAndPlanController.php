@@ -8,6 +8,7 @@ use App\Models\Package;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\PaymentHistory;
 
 class BillingAndPlanController extends Controller
 {
@@ -21,14 +22,189 @@ class BillingAndPlanController extends Controller
         $expiry = Carbon::createFromFormat('Y-m-d', $paymentSubscription->NextRenewalDate);
         $expiryDate = $expiry->format('M d, Y');
         $remainingDays = $expiry->diffInDays(Carbon::now(), false);
+        $downgrade_payment = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('Status', 'Pending')->first();
         $package_data = [
             'total_days' => $total_days,
             'package_name' => $package_name,
             'expiryDate' => $expiryDate,
             'remainingDays' => abs(round($remainingDays)),
+            'downgrade_payment' => $downgrade_payment,
         ];
         $maxPricePackage = Package::orderBy('price', 'desc')->first();
         $stander_Plan_price = $maxPricePackage->Price;
-        return view('user.billing_and_plan.index', compact('package_data', 'stander_Plan_price'));
+        return view('user.billing_and_plan.index', compact('package_data', 'stander_Plan_price', 'user'));
+      }
+
+      public function upgragde_plan($id)
+      {
+          if(!Auth::guard('web')->check()) {
+              return redirect()->route('user.login');
+          }
+  
+          $user = User::where('userID', $id)->first();
+          $paymentSubscription = PaymentSubscription::where('UserID', $id)->where('PackageID', $user->CurrentPackageID)->first();
+          $package = Package::find($user->CurrentPackageID);
+          $total_days = $package->Duration;
+          $package_name = $package->Name;
+          $expiry = Carbon::createFromFormat('Y-m-d', $paymentSubscription->NextRenewalDate);
+          $expiryDate = $expiry->format('M d, Y');
+          $remainingDays = $expiry->diffInDays(Carbon::now(), false);
+          $packages = Package::all();
+          $package_data = [
+              'total_days' => $total_days,
+              'package_name' => $package_name,
+              'expiryDate' => $expiryDate,
+              'remainingDays' => abs(round($remainingDays)),
+          ];
+          
+          return view('user.billing_and_plan.plan_change', compact('user', 'package_data', 'packages'));
+      }
+  
+      public function change_plan($id, $plan)
+      {
+         $user = User::find($id);
+         $package = Package::find($plan);
+         $user_current_package = Package::find($user->CurrentPackageID);
+         $data_current_package = PaymentSubscription::where('UserId', $id)->where('PackageID', $user->CurrentPackageID)->first();
+         if($package->PackageID > $user_current_package->PackageID) {
+          $price = $package->Price - $user_current_package->Price;
+          $paymentSubscription = PaymentSubscription::create([
+              'UserID' => $id,
+              'PackageID' => $plan,
+              'PaymentMethodID' => 1,
+              'PaymentAmount' => $price,
+              'PaymentStartDate' => $data_current_package->PaymentStartDate,
+              'PaymentEndDate' => $data_current_package->PaymentEndDate,
+              'NextRenewalDate' => $data_current_package->NextRenewalDate,
+              'ChecksGiven' => $package->CheckLimitPerMonth,
+              'RemainingChecks' => $package->CheckLimitPerMonth,
+              'PaymentDate' => $data_current_package->PaymentDate,
+              'PaymentAttempts' => 0 ,
+              'TransactionID' => Str::random(10),
+              'Status' => 'Active', 
+          ]);
+  
+          $paymentSubscriptionId = $paymentSubscription->PaymentSubscriptionID;
+  
+          $paymentSubscription = PaymentHistory::create([
+              'PaymentSubscriptionID' => $paymentSubscriptionId,
+              'PaymentAmount' => $package->Price,
+              'PaymentDate' => $data_current_package->PaymentDate,
+              'PaymentStatus' => 'Success',
+              'PaymentAttempts' => 0,
+              'TransactionID' => $paymentSubscription->TransactionID,
+          ]);
+  
+          $user->CurrentPackageID = $plan;
+          $user->save();
+         } else {
+  
+          $paymentStartDate = Carbon::parse($data_current_package->NextRenewalDate);
+  
+          $paymentEndDate = $paymentStartDate->copy()->addHours(24);
+  
+          $nextRenewalDate = $paymentStartDate->copy()->addDays($package->Duration);
+  
+          $paymentSubscription = PaymentSubscription::create([
+              'UserID' => $id,
+              'PackageID' => $plan,
+              'PaymentMethodID' => 1,
+              'PaymentAmount' => $package->Price,
+              'PaymentStartDate' => $paymentStartDate,
+              'PaymentEndDate' => $paymentEndDate,
+              'NextRenewalDate' => $nextRenewalDate,
+              'ChecksGiven' => $package->CheckLimitPerMonth,
+              'RemainingChecks' => $package->CheckLimitPerMonth,
+              'PaymentDate' => $paymentStartDate,
+              'PaymentAttempts' => 0 ,
+              'TransactionID' => Str::random(10),
+              'Status' => 'Pending', 
+          ]);
+  
+          $paymentSubscriptionId = $paymentSubscription->PaymentSubscriptionID;
+          $paymentSubscription = PaymentHistory::create([
+              'PaymentSubscriptionID' => $paymentSubscriptionId,
+              'PaymentAmount' => $package->Price,
+              'PaymentDate' => $paymentStartDate,
+              'PaymentStatus' => 'Pending',
+              'PaymentAttempts' => 0,
+              'TransactionID' => $paymentSubscription->TransactionID,
+          ]);
+         }
+         return redirect()->route('billing_and_plan')->with('success', 'User plan changed successfully');
+      }
+
+      public function cancel_plan($id, $plan)
+      {
+         $user = User::find($id);
+         $package = Package::find($plan);
+         $user_current_package = Package::find($user->CurrentPackageID);
+         $data_current_package = PaymentSubscription::where('UserId', $id)->where('PackageID', $user->CurrentPackageID)->first();
+         if($package->PackageID > $user_current_package->PackageID) {
+          $price = $package->Price - $user_current_package->Price;
+          $paymentSubscription = PaymentSubscription::create([
+              'UserID' => $id,
+              'PackageID' => $plan,
+              'PaymentMethodID' => 1,
+              'PaymentAmount' => $price,
+              'PaymentStartDate' => $data_current_package->PaymentStartDate,
+              'PaymentEndDate' => $data_current_package->PaymentEndDate,
+              'NextRenewalDate' => $data_current_package->NextRenewalDate,
+              'ChecksGiven' => $package->CheckLimitPerMonth,
+              'RemainingChecks' => $package->CheckLimitPerMonth,
+              'PaymentDate' => $data_current_package->PaymentDate,
+              'PaymentAttempts' => 0 ,
+              'TransactionID' => Str::random(10),
+              'Status' => 'Active', 
+          ]);
+  
+          $paymentSubscriptionId = $paymentSubscription->PaymentSubscriptionID;
+  
+          $paymentSubscription = PaymentHistory::create([
+              'PaymentSubscriptionID' => $paymentSubscriptionId,
+              'PaymentAmount' => $package->Price,
+              'PaymentDate' => $data_current_package->PaymentDate,
+              'PaymentStatus' => 'Success',
+              'PaymentAttempts' => 0,
+              'TransactionID' => $paymentSubscription->TransactionID,
+          ]);
+  
+          $user->CurrentPackageID = $plan;
+          $user->save();
+         } else {
+  
+          $paymentStartDate = Carbon::parse($data_current_package->NextRenewalDate);
+  
+          $paymentEndDate = $paymentStartDate->copy()->addHours(24);
+  
+          $nextRenewalDate = $paymentStartDate->copy()->addDays($package->Duration);
+  
+          $paymentSubscription = PaymentSubscription::create([
+              'UserID' => $id,
+              'PackageID' => $plan,
+              'PaymentMethodID' => 1,
+              'PaymentAmount' => $package->Price,
+              'PaymentStartDate' => $paymentStartDate,
+              'PaymentEndDate' => $paymentEndDate,
+              'NextRenewalDate' => $nextRenewalDate,
+              'ChecksGiven' => $package->CheckLimitPerMonth,
+              'RemainingChecks' => $package->CheckLimitPerMonth,
+              'PaymentDate' => $paymentStartDate,
+              'PaymentAttempts' => 0 ,
+              'TransactionID' => Str::random(10),
+              'Status' => 'Pending', 
+          ]);
+  
+          $paymentSubscriptionId = $paymentSubscription->PaymentSubscriptionID;
+          $paymentSubscription = PaymentHistory::create([
+              'PaymentSubscriptionID' => $paymentSubscriptionId,
+              'PaymentAmount' => $package->Price,
+              'PaymentDate' => $paymentStartDate,
+              'PaymentStatus' => 'Pending',
+              'PaymentAttempts' => 0,
+              'TransactionID' => $paymentSubscription->TransactionID,
+          ]);
+         }
+         return redirect()->route('billing_and_plan')->with('success', 'User plan changed successfully');
       }
 }

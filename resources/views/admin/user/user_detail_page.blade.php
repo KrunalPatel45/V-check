@@ -33,12 +33,6 @@
                         name: 'Name'
                     },
                     {
-                        data: 'logo',
-                        name: 'logo',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
                         data: 'Email',
                         name: 'Email'
                     },
@@ -47,10 +41,6 @@
                         name: 'status',
                         orderable: false,
                         searchable: false
-                    },
-                    {
-                        data: 'CreatedAt',
-                        name: 'CreatedAt'
                     },
                 ]
             });
@@ -128,8 +118,8 @@
                         searchable: false
                     },
                     {
-                        data: 'Status',
-                        name: 'Status',
+                        data: 'PaymentStatus',
+                        name: 'PaymentStatus',
                     },
                     {
                         data: 'PaymentAmount',
@@ -228,43 +218,6 @@
                     </div>
                 </div>
             </div>
-            <!-- /User Card -->
-            <!-- Plan Card -->
-            <div class="card mb-6 border border-2 border-primary rounded primary-shadow">
-                @php
-                    $progress = ($package_data['remainingDays'] * 100) / $package_data['total_days'];
-                @endphp
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <span class="badge bg-label-primary">{{ $package->Name }}</span>
-                        <div class="d-flex justify-content-center">
-                            <sub class="h5 pricing-currency mb-auto mt-1 text-primary">$</sub>
-                            <h1 class="mb-0 text-primary">{{ round($package->Price) }}</h1>
-                            <sub class="h6 pricing-duration mt-auto mb-3 fw-normal">month</sub>
-                        </div>
-                    </div>
-                    <p>
-                        {{ $package->Description }}
-                    </p>
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="h6 mb-0">Days</span>
-                        <span class="h6 mb-0">{{ $package_data['remainingDays'] }} of
-                            {{ $package_data['total_days'] }}
-                            Days</span>
-                    </div>
-                    <div class="progress mb-1 bg-label-primary" style="height: 6px;">
-                        <div class="progress-bar" role="progressbar" style="width: {{ $progress }}%;"
-                            aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <small>{{ $package_data['remainingDays'] }} days remaining</small>
-                    <div class="d-grid w-100 mt-6">
-                        <a href="{{ route('admin.user_upgragde_plan', ['id' => $user->UserID]) }}"
-                            class="btn btn-primary">Change
-                            Plan</a>
-                    </div>
-                </div>
-            </div>
-            <!-- /Plan Card -->
         </div>
         <!--/ User Sidebar -->
 
@@ -276,7 +229,7 @@
                 <ul class="nav nav-pills flex-column flex-md-row flex-wrap mb-6 row-gap-2">
                     <li class="nav-item"><a class="nav-link {{ $type == 'default' ? 'active' : '' }}"
                             href="{{ route('admin.user.edit', ['id' => $user->UserID]) }}"><i
-                                class="ti ti-user-check ti-sm me-1_5"></i>Comapnies</a></li>
+                                class="ti ti-user-check ti-sm me-1_5"></i>Companies</a></li>
                     <li class="nav-item"><a class="nav-link {{ $type == 'security' ? 'active' : '' }}"
                             href="{{ route('admin.user.edit', ['id' => $user->UserID, 'type' => 'security']) }}"><i
                                 class="ti ti-lock ti-sm me-1_5"></i>Security</a></li>
@@ -284,13 +237,13 @@
                             href="{{ route('admin.user.edit', ['id' => $user->UserID, 'type' => 'billing']) }}"><i
                                 class="ti ti-bookmark ti-sm me-1_5"></i>Billing &
                             Plans</a></li>
-                    <li class="nav-item"><a class="nav-link {{ $type == 'client' ? 'active' : '' }}"
+                    {{-- <li class="nav-item"><a class="nav-link {{ $type == 'client' ? 'active' : '' }}"
                             href="{{ route('admin.user.edit', ['id' => $user->UserID, 'type' => 'client']) }}"><i
                                 class="ti ti-bell ti-sm me-1_5"></i>Payees</a></li>
                     <li class="nav-item"><a class="nav-link {{ $type == 'vendor' ? 'active' : '' }}"
                             href="{{ route('admin.user.edit', ['id' => $user->UserID, 'type' => 'vendor']) }}"><i
                                 class="ti ti-link ti-sm me-1_5"></i>Payors</a>
-                    </li>
+                    </li> --}}
                 </ul>
             </div>
             @if ($type == 'default')
@@ -301,15 +254,14 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Name</th>
-                                    <th>Logo</th>
                                     <th>Email</th>
                                     <th>Status</th>
-                                    <th>CreatedAt</th>
                                 </tr>
                             </thead>
                         </table>
                     </div>
                 </div>
+                @if(false)
                 <div class="card mb-6">
                     <h5 class="card-header">User Activity Timeline</h5>
                     <div class="card-body pt-1">
@@ -408,6 +360,7 @@
                         </ul>
                     </div>
                 </div>
+                @endif
             @endif
             @if ($type == 'security')
                 <form id="change-password" action="{{ route('admin.user.change-password') }}" method="POST">
@@ -464,6 +417,7 @@
                         </div>
                     </div>
                 </form>
+                @if(false)
                 <div class="card mb-6">
                     <h5 class="card-header">Recent Devices</h5>
                     <div class="table-responsive table-border-bottom-0">
@@ -512,67 +466,49 @@
                         </table>
                     </div>
                 </div>
+                @endif
             @endif
             @if ($type == 'billing')
-                <div class="card mb-6">
-                    <!-- Current Plan -->
-                    <h5 class="card-header">Current Plan</h5>
+                <div class="card mb-6 border border-2 border-primary rounded primary-shadow">
+                    @php
+                        $progress = ($package_data['remainingDays'] * 100) / $package_data['total_days'];
+                    @endphp
                     <div class="card-body">
-                        <div class="row row-gap-6">
-                            <div class="col-md-6 mb-1">
-                                <div class="mb-6">
-                                    <h6 class="mb-1">Your Current Plan is {{ $package_data['package_name'] }}</h6>
-                                    <p>A simple start for everyone</p>
-                                </div>
-                                <div class="mb-6">
-                                    <h6 class="mb-1">Active until {{ $package_data['expiryDate'] }}</h6>
-                                    <p>We will send you a notification upon Subscription expiration</p>
-                                </div>
-                                <div>
-                                    <h6 class="mb-1"><span class="me-1">${{ round($stander_Plan_price) }} Per
-                                            Month</span>
-                                        <span class="badge bg-label-primary rounded-pill">Popular</span>
-                                    </h6>
-                                    <p class="mb-1">Standard plan for small to medium businesses</p>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                @if ($package_data['remainingDays'])
-                                    <div class="alert alert-warning mb-6" role="alert">
-                                        <h5 class="alert-heading mb-1 d-flex align-items-center">
-                                            <span class="alert-icon rounded"><i
-                                                    class="ti ti-alert-triangle ti-md"></i></span>
-                                            <span>We need your attention!</span>
-                                        </h5>
-                                        <span class="ms-11 ps-1">Your plan requires update</span>
-                                    </div>
-                                @endif
-                                <div class="plan-statistics">
-                                    <div class="d-flex justify-content-between">
-                                        <h6 class="mb-1">Days</h6>
-                                        <h6 class="mb-1">
-                                            {{ $package_data['remainingDays'] }} of
-                                            {{ $package_data['total_days'] }} Days</h6>
-                                    </div>
-                                    <div class="progress rounded mb-1">
-                                        <div class="progress-bar rounded" role="progressbar" aria-valuenow="25"
-                                            aria-valuemin="0" aria-valuemax="100" style="width: {{ $progress }}%">
-                                        </div>
-                                    </div>
-                                    <small>{{ $package_data['remainingDays'] }} days remaining
-                                        until your plan requires
-                                        update</small>
-                                </div>
-                            </div>
-                            <div class="col-12 d-flex gap-2 flex-wrap">
-                                <a href="{{ route('admin.user_upgragde_plan', ['id' => $user->UserID]) }}"
-                                    class="btn btn-primary me-2">Upgrade Plan</a>
-                                <button class="btn btn-label-danger cancel-subscription">Cancel Subscription</button>
+                        <div class="d-flex justify-content-between align-items-start">
+                            <span class="badge bg-label-primary">{{ $package->Name }}</span>
+                            <div class="d-flex justify-content-center">
+                                <sub class="h5 pricing-currency mb-auto mt-1 text-primary">$</sub>
+                                <h1 class="mb-0 text-primary">{{ round($package->Price) }}</h1>
+                                <sub class="h6 pricing-duration mt-auto mb-3 fw-normal">month</sub>
                             </div>
                         </div>
+                        <p>
+                            {{ $package->Description }}
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="h6 mb-0">Days</span>
+                            <span class="h6 mb-0">{{ $package_data['remainingDays'] }} of
+                                {{ $package_data['total_days'] }}
+                                Days</span>
+                        </div>
+                        <div class="progress mb-1 bg-label-primary" style="height: 6px;">
+                            <div class="progress-bar" role="progressbar" style="width: {{ $progress }}%;"
+                                aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <small>{{ $package_data['remainingDays'] }} days remaining</small>
+                        @if(!empty($package_data['downgrade_payment']))
+                        <div class="alert alert-warning mt-3" role="alert">
+                            Your subscription plan downgrade has been scheduled. The change will take effect on {{ \Carbon\Carbon::parse($package_data['downgrade_payment']->PaymentDate)->format('m-d-Y') }}, after your current plan expires. You can continue to enjoy your current plan benefits until then
+                        </div>
+                        @endif
+                        <div class="d-grid w-100 mt-6">
+                            <a href="{{ route('admin.user_upgragde_plan', ['id' => $user->UserID]) }}"
+                                class="btn btn-primary">Change
+                                Plan</a>
+                        </div>
                     </div>
-                    <!-- /Current Plan -->
                 </div>
+                @if(false)
                 <div class="card card-action mb-6">
                     <div class="card-header align-items-center">
                         <h5 class="card-action-title mb-0">Payment Methods</h5>
@@ -654,6 +590,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
                 <div class="card mb-4">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="card-header">Invoice paid</h5>
@@ -664,7 +601,7 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Status</th>
-                                    <th>Total</th>
+                                    <th>Amount</th>
                                     <th>Issued Date</th>
                                 </tr>
                             </thead>

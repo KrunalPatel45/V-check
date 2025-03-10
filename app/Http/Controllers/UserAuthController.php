@@ -9,6 +9,7 @@ use App\Models\Package;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Models\PaymentSubscription;
+use App\Models\PaymentHistory;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 
@@ -26,6 +27,9 @@ class UserAuthController extends Controller
     {
         if(Auth::check()) {
             return redirect()->route('user.dashboard');
+        }
+        if(Auth::guard('admin')->check()) {
+            return redirect()->route('admin.login');
         }
         return view('frontend.auth.login');
     }
@@ -131,6 +135,17 @@ class UserAuthController extends Controller
             'PaymentAttempts' => 0 ,
             'TransactionID' => Str::random(10),
             'Status' => 'Active', 
+        ]);
+
+        $paymentSubscriptionId = $paymentSubscription->PaymentSubscriptionID;
+
+        $paymentSubscription = PaymentHistory::create([
+            'PaymentSubscriptionID' => $paymentSubscriptionId,
+            'PaymentAmount' => $packages->Price,
+            'PaymentDate' => $paymentStartDate,
+            'PaymentStatus' => 'Success',
+            'PaymentAttempts' => 0,
+            'TransactionID' => $paymentSubscription->TransactionID,
         ]);
 
         return redirect()->route('user.login')->with('success', 'Account created successful!');

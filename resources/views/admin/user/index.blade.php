@@ -34,15 +34,13 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th>Name</th>
-                        <th>User Name</th>
-                        <th>Email</th>
-                        <th>PhoneNumber</th>
-                        <th>Subscription Plan</th>
-                        <th>Plan Price</th>
+                        <th style="width:5%">Name</th>
+                        <th style="width:20%">User Name</th>
+                        <th style="width:10%">Email</th>
+                        <th style="width:20%">Phone Number</th>
+                        <th style="width:25%">Subscription Plan</th>
+                        <th style="width:20%">Plan Price</th>
                         <th>Status</th>
-                        <th>CreatedAt</th>
-                        <th>UpdatedAt</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -95,14 +93,6 @@
                         searchable: false
                     },
                     {
-                        data: 'created_at',
-                        name: 'created_at'
-                    },
-                    {
-                        data: 'updated_at',
-                        name: 'updated_at'
-                    },
-                    {
                         data: 'actions',
                         name: 'actions',
                         orderable: false,
@@ -110,9 +100,7 @@
                     }
                 ],
                 columnDefs: [{
-                    targets: [0, 7, 8,
-                        9
-                    ], // You can customize the columns for no sorting or searching
+                    targets: [0, 7],
                     orderable: false
                 }]
             });

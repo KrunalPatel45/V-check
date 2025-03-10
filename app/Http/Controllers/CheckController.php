@@ -373,30 +373,7 @@ class CheckController extends Controller
         $old_payee = Payors::find($check->EntityID);
         return view('user.check.send_payment_generate_check', compact('payees', 'payors','check', 'old_payee', 'old_payor'));
     }
-
-    // public function generateAndSavePDF($data)
-    // {
-    //     $directoryPath = public_path('checks');
-
-    //     // Check if the directory exists, if not, create it
-    //     if (!File::exists($directoryPath)) {
-    //         File::makeDirectory($directoryPath, 0755, true);
-    //     }
-    //     // Generate PDF from a view
-    //     $pdf = PDF::loadView('user.check_formate.index', compact('data'))->setPaper('a4', 'portrait')
-    //     ->setPaper([0, 0, 820, 800])
-    //     ->set_option('isHtml5ParserEnabled', true)
-    //     ->set_option('isRemoteEnabled', true);
     
-    //     // Define the file path where you want to save the PDF
-    //     $file_name = 'check-' . $data['check_number'] . '.pdf';
-    //     $filePath = $directoryPath .  '/' . $file_name;
-    
-    //     // Save the PDF to the specified path
-    //     $pdf->save($filePath);
-    //     return $file_name;
-    // }
-
     public function generateAndSavePDF($data)
     {
         $directoryPath = public_path('checks');

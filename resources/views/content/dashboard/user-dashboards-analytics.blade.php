@@ -38,8 +38,8 @@
         <div class="col-xl-4 col-sm-6">
             <div class="card">
                 <div class="card-header pb-0">
-                    <h5 class="mb-3 card-title">Vendors</h5>
-                    <p class="mb-0 text-body">Total Number of Vendor</p>
+                    <h5 class="mb-3 card-title">Payors</h5>
+                    <p class="mb-0 text-body">Total Number of Payors</p>
                     <h4 class="mb-0">{{ $total_vendor }}</h4>
                 </div>
             </div>
@@ -47,8 +47,8 @@
         <div class="col-xl-4 col-sm-6">
             <div class="card">
                 <div class="card-header pb-0">
-                    <h5 class="mb-3 card-title">Clients</h5>
-                    <p class="mb-0 text-body">Total Number of Client</p>
+                    <h5 class="mb-3 card-title">Payees</h5>
+                    <p class="mb-0 text-body">Total Number of Payees</p>
                     <h4 class="mb-0">{{ $total_client }}</h4>
                 </div>
             </div>

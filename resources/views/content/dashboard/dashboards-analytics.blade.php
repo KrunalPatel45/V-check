@@ -33,20 +33,20 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-4 col-sm-6">
+         <div class="col-xl-4 col-sm-6">
             <div class="card">
                 <div class="card-header pb-0">
-                    <h5 class="mb-3 card-title">Checks</h5>
-                    <p class="mb-0 text-body">Total Number of Checks</p>
-                    <h4 class="mb-0">{{ $total_checks }}</h4>
+                    <h5 class="mb-3 card-title">This Month Revenue</h5>
+                    <p class="mb-0 text-body">Total This Month Revenue</p>
+                    <h4 class="mb-0">${{ $month_revanue }}</h4>
                 </div>
             </div>
         </div>
         <div class="col-xl-4 col-sm-6">
             <div class="card">
                 <div class="card-header pb-0">
-                    <h5 class="mb-3 card-title">Revenue</h5>
-                    <p class="mb-0 text-body">Total Revenue</p>
+                    <h5 class="mb-3 card-title">Lifetime Revenue</h5>
+                    <p class="mb-0 text-body">Total Lifetime Revenue</p>
                     <h4 class="mb-0">${{ $total_revanue }}</h4>
                 </div>
             </div>
@@ -179,61 +179,11 @@
                 </div>
             </div>
         </div> --}}
-        <!--/ Earning Reports -->
-
-        <!-- Support Tracker -->
-        <div class="col-md-6">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between">
-                    <div class="card-title mb-0">
-                        <h5 class="mb-1">Check Used Analytics</h5>
-                    </div>
-                    <div class="dropdown">
-                        <button class="btn btn-text-secondary rounded-pill text-muted border-0 p-2 me-n1" type="button"
-                            id="supportTrackerMenu" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="ti ti-dots-vertical ti-md text-muted"></i>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="supportTrackerMenu">
-                            <a class="dropdown-item" href="javascript:void(0);">View More</a>
-                            <a class="dropdown-item" href="javascript:void(0);">Delete</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body row">
-                    <div class="col-12 col-sm-4 col-md-12 col-lg-4">
-                        <div class="mt-lg-4 mt-lg-2 mb-lg-6 mb-2">
-                            <h2 class="mb-0">{{ $total_checks }}</h2>
-                            <p class="mb-0">Total Checks</p>
-                        </div>
-                        <ul class="p-0 m-0">
-                            <li class="d-flex gap-4 align-items-center mb-lg-3 pb-1">
-                                <div class="badge rounded bg-label-primary p-1_5"><i class="ti ti-ticket ti-md"></i></div>
-                                <div>
-                                    <h6 class="mb-0 text-nowrap">Unused Checks</h6>
-                                    <small class="text-muted">{{ $total_unused_checks }}</small>
-                                </div>
-                            </li>
-                            <li class="d-flex gap-4 align-items-center mb-lg-3 pb-1">
-                                <div class="badge rounded bg-label-info p-1_5"><i class="ti ti-circle-check ti-md"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0 text-nowrap">Used Checks</h6>
-                                    <small class="text-muted">{{ $total_used_checks }}</small>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="col-12 col-sm-8 col-md-12 col-lg-8">
-                        <div id="supportTracker"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <div class="col-xxl-4 col-md-6">
             <div class="card h-100">
                 <div class="card-header d-flex align-items-center justify-content-between">
-                    <h5 class="card-title m-0 me-2">Package Usage</h5>
+                    <h5 class="card-title m-0 me-2">Packages</h5>
                     {{-- <div class="dropdown">
                         <button class="btn btn-text-secondary rounded-pill text-muted border-0 p-2 me-n1" type="button"
                             id="assignmentProgress" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

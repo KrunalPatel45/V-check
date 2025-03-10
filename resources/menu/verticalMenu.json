@@ -3,14 +3,14 @@
     {
       "name": "Dashboards",
       "icon": "menu-icon tf-icons ti ti-smart-home",
-      "slug": "dashboard",
+      "slug": "admin.dashboard",
       "url": "/admin",
       "access": "admin"
     },
     {
       "name": "Dashboards",
       "icon": "menu-icon tf-icons ti ti-smart-home",
-      "slug": "dashboard",
+      "slug": "user.dashboard",
       "url": "/dashboard",
       "access": "web"
     },
@@ -18,53 +18,53 @@
       "url": "/admin/package",
       "name": "Packages",
       "icon": "menu-icon tf-icons ti ti-layout-sidebar",
-      "slug": "packages",
+      "slug": "admin.package",
       "access": "admin"
     },
     {
       "url": "/admin/users",
       "name": "Customers",
       "icon": "menu-icon tf-icons ti ti-users",
-      "slug": "users",
+      "slug": "admin.users",
       "access": "admin"
     },
     {
       "url": "/user/company",
       "name": "Companies",
       "icon": "menu-icon tf-icons ti ti-color-swatch",
-      "slug": "company",
+      "slug": "user.company",
       "access": "web"
     },
     {
       "url": "/user/vendor",
       "name": "Payors",
       "icon": "menu-icon tf-icons ti ti-users",
-      "slug": "peyors",
+      "slug": "user.payors",
       "access": "web"
     },
     {
       "url": "/user/client",
       "name": "Payees",
       "icon": "menu-icon tf-icons ti ti-users",
-      "slug": "payee",
+      "slug": "user.payee",
       "access": "web"
     },
     {
       "name": "Checks",
       "icon": "menu-icon tf-icons ti ti-files",
-      "slug": "checks",
+      "slug": "check",
       "access": "web",
       "submenu": [
         {
           "url": "/check/process-payment",
           "name": "Receive payment ",
-          "slug": "Receive-payment",
+          "slug": "check.process_payment",
           "access": "web"
         },
         {
           "url": "/check/send-payment",
           "name": "Send Payment",
-          "slug": "send-payment",
+          "slug": "check.send_payment",
           "access": "web"
         }
       ]
@@ -73,21 +73,28 @@
       "url": "/check-history",
       "name": "History",
       "icon": "menu-icon tf-icons ti ti-map",
-      "slug": "history",
+      "slug": "check_history",
       "access": "web"
     },
     {
       "url": "billing-and-plan",
       "name": "Billing & Plan",
       "icon": "menu-icon tf-icons ti ti-file-dollar",
-      "slug": "history",
+      "slug": "billing_and_plan",
       "access": "web"
     },
     {
       "url": "/webform",
       "name": "Web Form",
       "icon": "menu-icon tf-icons ti ti-files",
-      "slug": "web-form",
+      "slug": "get_web_forms",
+      "access": "web"
+    },
+    {
+      "url": "/user/logout",
+      "name": "Logout",
+      "icon": "menu-icon tf-icons ti ti-logout",
+      "slug": "logout",
       "access": "web"
     }
   ]

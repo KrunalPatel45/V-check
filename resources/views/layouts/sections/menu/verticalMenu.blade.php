@@ -35,10 +35,18 @@
                 @else
                     {{-- active menu method --}}
                     @php
+                        $is_web_form = 1;
+                        if($menu->slug == 'get_web_forms' && $menu->access != 'admin') {
+                            $user = Auth::user();
+                            $package = \App\Models\Package::find($user->CurrentPackageID);
+                            $is_web_form = $package->web_forms;
+                        }
                         $activeClass = null;
                         $currentRouteName = Route::currentRouteName();
-
-                        if ($currentRouteName === $menu->slug) {
+                        $parts = explode('.', $currentRouteName);
+                        $currentRouteName = implode('.', array_slice($parts, 0, 2));
+                        // dd($currentRouteName);
+                        if (strtolower($currentRouteName) === strtolower($menu->slug)) {
                             $activeClass = 'active';
                         } elseif (isset($menu->submenu)) {
                             if (gettype($menu->slug) === 'array') {
@@ -61,6 +69,7 @@
                         }
                     @endphp
 
+                    @if(!empty($is_web_form))
                     {{-- main menu --}}
                     <li class="menu-item {{ $activeClass }}">
                         <a href="{{ isset($menu->url) ? url($menu->url) : 'javascript:void(0);' }}"
@@ -80,6 +89,7 @@
                             @include('layouts.sections.menu.submenu', ['menu' => $menu->submenu])
                         @endisset
                     </li>
+                    @endif
                 @endif
             @endif
         @endforeach

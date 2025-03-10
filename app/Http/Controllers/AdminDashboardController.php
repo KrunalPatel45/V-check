@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
 use App\Models\Checks;
 use App\Models\Company;
 use App\Models\Payors;
+use App\Models\PaymentHistory;
 
 class AdminDashboardController extends Controller
 {
@@ -26,6 +27,11 @@ class AdminDashboardController extends Controller
         $total_users = User::count();
         $total_checks = PaymentSubscription::sum('ChecksGiven');
         $total_revanue = PaymentSubscription::sum('PaymentAmount');
+        $month_revanue = PaymentSubscription::where('Status', 'Active')
+                        ->whereMonth('PaymentDate', Carbon::now()->month)
+                        ->whereYear('PaymentDate', Carbon::now()->year)
+                        ->sum('PaymentAmount');
+                        
         $total_used_checks = PaymentSubscription::sum('ChecksUsed');
         $total_unused_checks = abs($total_checks - $total_used_checks);
 
@@ -39,7 +45,7 @@ class AdminDashboardController extends Controller
         // $total_basic = PaymentSubscription::select('PaymentSubscriptionID')->where('Status', 'Active')->where('PackageID', 1)->count();
         // $total_silver = PaymentSubscription::select('PaymentSubscriptionID')->where('Status', 'Active')->where('PackageID', 2)->count();
         // $total_gold = PaymentSubscription::select('PaymentSubscriptionID')->where('Status', 'Active')->where('PackageID', 3)->count();
-        return view('content.dashboard.dashboards-analytics', compact('total_users', 'total_checks', 'total_revanue', 'total_used_checks', 'total_unused_checks', 'package_data', 'package_selected_user'));
+        return view('content.dashboard.dashboards-analytics', compact('total_users', 'total_checks', 'total_revanue', 'total_used_checks', 'total_unused_checks', 'package_data', 'package_selected_user', 'month_revanue'));
     }
 
     public function profile()
@@ -185,11 +191,13 @@ class AdminDashboardController extends Controller
         $expiryDate = $expiry->format('M d, Y');
         $remainingDays = $expiry->diffInDays(Carbon::now(), false);
         $packages = Package::all();
+        $downgrade_payment = PaymentSubscription::where('UserID', $id)->where('Status', 'Pending')->first();
         $package_data = [
             'total_days' => $total_days,
             'package_name' => $package_name,
             'expiryDate' => $expiryDate,
             'remainingDays' => abs(round($remainingDays)),
+            'downgrade_payment' => $downgrade_payment,
         ];
         $check_used = $paymentSubscription->ChecksUsed;
         $remaining_checks = $paymentSubscription->RemainingChecks;
@@ -256,47 +264,47 @@ class AdminDashboardController extends Controller
         return redirect()->route('admin.users')->with('success', 'User deleted successfully');
     }
 
-    public function change_plan(Request $request)
-    {
-        $user = User::find($request->user_id);
-        $plan = $request->plan;
+    // public function change_plan(Request $request)
+    // {
+    //     $user = User::find($request->user_id);
+    //     $plan = $request->plan;
 
-        if($plan != $user->CurrentPackageID)  {
-            $user->CurrentPackageID = $request->plan;
-            $user->Status = 'Active';
-            $user->save();
+    //     if($plan != $user->CurrentPackageID)  {
+    //         $user->CurrentPackageID = $request->plan;
+    //         $user->Status = 'Active';
+    //         $user->save();
     
     
-            $packages = Package::find($plan);
+    //         $packages = Package::find($plan);
     
-            $paymentStartDate = Carbon::now();
+    //         $paymentStartDate = Carbon::now();
     
-            $paymentEndDate = $paymentStartDate->copy()->addHours(24);
+    //         $paymentEndDate = $paymentStartDate->copy()->addHours(24);
     
-            $nextRenewalDate = $paymentStartDate->copy()->addDays($packages->Duration);
-            $paymentSubscription = PaymentSubscription::where('UserID', $request->user_id)->where('PackageID', $request->old_plan)->first();
+    //         $nextRenewalDate = $paymentStartDate->copy()->addDays($packages->Duration);
+    //         $paymentSubscription = PaymentSubscription::where('UserID', $request->user_id)->where('PackageID', $request->old_plan)->first();
     
-            if(!empty($paymentSubscription)) {
-                $paymentSubscription->update([
-                    'UserID' => $request->user_id,
-                    'PackageID' => $plan,
-                    'PaymentMethodID' => 1,
-                    'PaymentAmount' => $packages->Price,
-                    'PaymentStartDate' => $paymentStartDate,
-                    'PaymentEndDate' => $paymentEndDate,
-                    'NextRenewalDate' => $nextRenewalDate,
-                    'ChecksGiven' => $packages->CheckLimitPerMonth,
-                    'RemainingChecks' => $packages->CheckLimitPerMonth,
-                    'PaymentDate' => $paymentStartDate,
-                    'PaymentAttempts' => 0 ,
-                    'TransactionID' => Str::random(10),
-                    'Status' => 'Active', 
-                ]);
+    //         if(!empty($paymentSubscription)) {
+    //             $paymentSubscription->update([
+    //                 'UserID' => $request->user_id,
+    //                 'PackageID' => $plan,
+    //                 'PaymentMethodID' => 1,
+    //                 'PaymentAmount' => $packages->Price,
+    //                 'PaymentStartDate' => $paymentStartDate,
+    //                 'PaymentEndDate' => $paymentEndDate,
+    //                 'NextRenewalDate' => $nextRenewalDate,
+    //                 'ChecksGiven' => $packages->CheckLimitPerMonth,
+    //                 'RemainingChecks' => $packages->CheckLimitPerMonth,
+    //                 'PaymentDate' => $paymentStartDate,
+    //                 'PaymentAttempts' => 0 ,
+    //                 'TransactionID' => Str::random(10),
+    //                 'Status' => 'Active', 
+    //             ]);
 
-            }
-        }
-        return redirect()->route('admin.user.edit', ['id' => $request->user_id])->with('success', 'User plan changed successfully');
-    }
+    //         }
+    //     }
+    //     return redirect()->route('admin.user.edit', ['id' => $request->user_id])->with('success', 'User plan changed successfully');
+    // }
 
     public function user_profile_edit($id)
     {
@@ -329,8 +337,82 @@ class AdminDashboardController extends Controller
             'expiryDate' => $expiryDate,
             'remainingDays' => abs(round($remainingDays)),
         ];
+        
+        return view('admin.user.plan_change', compact('user', 'package_data', 'packages'));
+    }
 
-        return view('admin.user.plan_upgrade', compact('user', 'package_data', 'packages'));
+    public function change_plan($id, $plan)
+    {
+       $user = User::find($id);
+       $package = Package::find($plan);
+       $user_current_package = Package::find($user->CurrentPackageID);
+       $data_current_package = PaymentSubscription::where('UserId', $id)->where('PackageID', $user->CurrentPackageID)->first();
+       if($package->PackageID > $user_current_package->PackageID) {
+        $price = $package->Price - $user_current_package->Price;
+        $paymentSubscription = PaymentSubscription::create([
+            'UserID' => $id,
+            'PackageID' => $plan,
+            'PaymentMethodID' => 1,
+            'PaymentAmount' => $price,
+            'PaymentStartDate' => $data_current_package->PaymentStartDate,
+            'PaymentEndDate' => $data_current_package->PaymentEndDate,
+            'NextRenewalDate' => $data_current_package->NextRenewalDate,
+            'ChecksGiven' => $package->CheckLimitPerMonth,
+            'RemainingChecks' => $package->CheckLimitPerMonth,
+            'PaymentDate' => $data_current_package->PaymentDate,
+            'PaymentAttempts' => 0 ,
+            'TransactionID' => Str::random(10),
+            'Status' => 'Active', 
+        ]);
+
+        $paymentSubscriptionId = $paymentSubscription->PaymentSubscriptionID;
+
+        $paymentSubscription = PaymentHistory::create([
+            'PaymentSubscriptionID' => $paymentSubscriptionId,
+            'PaymentAmount' => $package->Price,
+            'PaymentDate' => $data_current_package->PaymentDate,
+            'PaymentStatus' => 'Success',
+            'PaymentAttempts' => 0,
+            'TransactionID' => $paymentSubscription->TransactionID,
+        ]);
+
+        $user->CurrentPackageID = $plan;
+        $user->save();
+       } else {
+
+        $paymentStartDate = Carbon::parse($data_current_package->NextRenewalDate);
+
+        $paymentEndDate = $paymentStartDate->copy()->addHours(24);
+
+        $nextRenewalDate = $paymentStartDate->copy()->addDays($package->Duration);
+
+        $paymentSubscription = PaymentSubscription::create([
+            'UserID' => $id,
+            'PackageID' => $plan,
+            'PaymentMethodID' => 1,
+            'PaymentAmount' => $package->Price,
+            'PaymentStartDate' => $paymentStartDate,
+            'PaymentEndDate' => $paymentEndDate,
+            'NextRenewalDate' => $nextRenewalDate,
+            'ChecksGiven' => $package->CheckLimitPerMonth,
+            'RemainingChecks' => $package->CheckLimitPerMonth,
+            'PaymentDate' => $paymentStartDate,
+            'PaymentAttempts' => 0 ,
+            'TransactionID' => Str::random(10),
+            'Status' => 'Pending', 
+        ]);
+
+        $paymentSubscriptionId = $paymentSubscription->PaymentSubscriptionID;
+        $paymentSubscription = PaymentHistory::create([
+            'PaymentSubscriptionID' => $paymentSubscriptionId,
+            'PaymentAmount' => $package->Price,
+            'PaymentDate' => $paymentStartDate,
+            'PaymentStatus' => 'Pending',
+            'PaymentAttempts' => 0,
+            'TransactionID' => $paymentSubscription->TransactionID,
+        ]);
+       }
+       return redirect()->route('admin.user.edit', ['id' => $id])->with('success', 'User plan changed successfully');
     }
 
 
@@ -364,19 +446,20 @@ class AdminDashboardController extends Controller
     public function invoice(Request $request, $id)
     {
         if ($request->ajax()) {
-            $invoice = PaymentSubscription::where('UserID', $id)->get();
+            $paymentSubscriptionIds = PaymentSubscription::where('UserID', $id)->pluck('PaymentSubscriptionID')->toArray();
+            $invoice = PaymentHistory::whereIn('PaymentSubscriptionID', $paymentSubscriptionIds);
 
             return datatables()->of($invoice)
                 ->addIndexColumn()
                 ->addColumn('PaymentDate', function ($row) {
                     return Carbon::parse($row->PaymentDate)->format('m/d/Y'); 
                 })
-                ->addColumn('Status', function ($row) {
+                ->addColumn('PaymentStatus', function ($row) {
                     return '<span class="badge ' .
-                        ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') .
-                        '">'. ($row->Status == 'Active' ? 'paid' : 'unpaid'). '</span>';
+                        ($row->PaymentStatus == 'Success' ? 'bg-label-primary' : 'bg-label-warning') .
+                        '">'. ($row->PaymentStatus == 'Success' ? 'paid' : 'unpaid'). '</span>';
                 })
-                ->rawColumns(['Status'])
+                ->rawColumns(['PaymentStatus'])
                 ->make(true);
         }
     }

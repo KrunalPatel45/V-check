@@ -200,6 +200,7 @@ Route::middleware([AdminMiddleware::class])->group(function () {
     Route::get('/invoice/{id}', [AdminDashboardController::class, 'invoice'])->name('admin.user.invoice');
     Route::get('/client/{id}', [AdminDashboardController::class, 'client'])->name('admin.user.client');
     Route::get('/vendor/{id}', [AdminDashboardController::class, 'vendor'])->name('admin.user.vendor');
+    Route::get('change-plan/{id}/{plan}', [AdminDashboardController::class, 'change_plan'])->name('admin.user.select-package');
 });
 
 Route::get('/login', [UserAuthController::class, 'login'])->name('user.login');
@@ -249,6 +250,9 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::get('webform', [CheckController::class, 'get_web_forms'])->name('get_web_forms');
     Route::get('webform/new', [CheckController::class, 'new_web_form'])->name('new_web_form');
     Route::post('webform/new', [CheckController::class, 'new_web_form_store'])->name('store_web_form');
+    Route::get('users/plan/upgrade/{id}', [BillingAndPlanController::class, 'upgragde_plan'])->name('user_upgragde_plan');
+    Route::get('user/change-plan/{id}/{plan}', [BillingAndPlanController::class, 'change_plan'])->name('user.select-package');
+    Route::get('user/cancel-plan/{id}', [BillingAndPlanController::class, 'cancel_plan'])->name('user_cancel_plan');
 });
 
 Route::get('web-form/{id}', [CheckController::class, 'web_form'])->name('web_form');

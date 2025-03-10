@@ -26,6 +26,11 @@ class PackageController extends Controller
                         ? '<span class="badge bg-label-primary">' . $package->Status . '</span>' 
                         : '<span class="badge bg-label-warning">' . $package->Status . '</span>';
                 })
+                ->addColumn('web_forms', function ($package) {
+                    return $package->web_forms == 1 
+                        ? '<span class="badge bg-label-primary">Enable</span>' 
+                        : '<span class="badge bg-label-warning">Disable</span>';
+                })
                 ->addColumn('created_at', function ($package) {
                     return Carbon::parse($package->CreatedAt)->format('m/d/Y'); 
                 })
@@ -77,7 +82,7 @@ class PackageController extends Controller
                         </div>
                     ';
                 })
-                ->rawColumns(['status', 'created_at', 'updated_at', 'actions']) // Specify which columns have HTML content
+                ->rawColumns(['status', 'web_forms', 'created_at', 'updated_at', 'actions']) // Specify which columns have HTML content
                 ->make(true); // Send response to DataTables
         }
 
@@ -108,6 +113,7 @@ class PackageController extends Controller
             'check_limit' => 'required|numeric',
             'frequency' => 'required',
             'status' => 'required',
+            'web_form' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -121,6 +127,7 @@ class PackageController extends Controller
         $package->Duration = $request->duration;
         $package->CheckLimitPerMonth = $request->check_limit;
         $package->RecurringPaymentFrequency = $request->frequency;
+        $package->web_forms = $request->web_form;
         $package->Status = $request->status;
 
         $package->save();
@@ -153,6 +160,7 @@ class PackageController extends Controller
             'check_limit' => 'required|numeric',
             'frequency' => 'required',
             'status' => 'required',
+            'web_form' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -165,6 +173,7 @@ class PackageController extends Controller
         $package->Price = $request->price;
         $package->Duration = $request->duration;
         $package->CheckLimitPerMonth = $request->check_limit;
+        $package->web_forms = $request->web_form;
         $package->RecurringPaymentFrequency = $request->frequency;
         $package->Status = $request->status;
 

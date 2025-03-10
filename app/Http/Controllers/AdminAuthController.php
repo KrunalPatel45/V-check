@@ -15,6 +15,9 @@ class AdminAuthController extends Controller
         if(Auth::guard('admin')->check()) {
             return redirect()->route('admin.dashboard');
         }
+        if(Auth::guard('web')->check()) {
+            return redirect()->route('user.login');
+        }
         $pageConfigs = ['myLayout' => 'blank'];
         return view('content.authentications.auth-login-basic', ['pageConfigs' => $pageConfigs]);
     }

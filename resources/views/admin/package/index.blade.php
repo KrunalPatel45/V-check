@@ -32,9 +32,8 @@
                         <th>Name</th>
                         <th>Price</th>
                         <th>Duration</th>
+                        <th>Web Form</th>
                         <th>Status</th>
-                        <th>CreatedAt</th>
-                        <th>UpdatedAt</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -66,18 +65,16 @@
                         name: 'Duration'
                     },
                     {
-                        data: 'status',
-                        name: 'status',
+                        data: 'web_forms',
+                        name: 'web_forms',
                         orderable: false,
                         searchable: false
                     },
                     {
-                        data: 'created_at',
-                        name: 'created_at'
-                    },
-                    {
-                        data: 'updated_at',
-                        name: 'updated_at'
+                        data: 'status',
+                        name: 'status',
+                        orderable: false,
+                        searchable: false
                     },
                     {
                         data: 'actions',
