@@ -259,7 +259,7 @@
                     <small>{{ $package_data['remainingDays'] }} days remaining</small>
                     <div class="d-grid w-100 mt-6">
                         <a href="{{ route('admin.user_upgragde_plan', ['id' => $user->UserID]) }}"
-                            class="btn btn-primary">Upgrade
+                            class="btn btn-primary">Change
                             Plan</a>
                     </div>
                 </div>
@@ -444,8 +444,8 @@
                                         <label class="form-label" for="new_password_confirmation">Confirm New
                                             Password</label>
                                         <div class="input-group input-group-merge">
-                                            <input class="form-control" type="new_password_confirmation"
-                                                name="new_password_confirmation" id="new_password_confirmation"
+                                            <input class="form-control" type="password" name="new_password_confirmation"
+                                                id="new_password_confirmation"
                                                 placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" />
                                             <span class="input-group-text cursor-pointer"><i
                                                     class="ti ti-eye-off"></i></span>

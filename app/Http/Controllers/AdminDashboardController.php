@@ -27,11 +27,19 @@ class AdminDashboardController extends Controller
         $total_checks = PaymentSubscription::sum('ChecksGiven');
         $total_revanue = PaymentSubscription::sum('PaymentAmount');
         $total_used_checks = PaymentSubscription::sum('ChecksUsed');
-        $total_unused_checks = $total_checks - $total_used_checks;
-        $total_basic = PaymentSubscription::select('PaymentSubscriptionID')->where('Status', 'Active')->where('PackageID', 1)->count();
-        $total_silver = PaymentSubscription::select('PaymentSubscriptionID')->where('Status', 'Active')->where('PackageID', 2)->count();
-        $total_gold = PaymentSubscription::select('PaymentSubscriptionID')->where('Status', 'Active')->where('PackageID', 3)->count();
-        return view('content.dashboard.dashboards-analytics', compact('total_users', 'total_checks', 'total_revanue', 'total_used_checks', 'total_unused_checks', 'total_basic', 'total_silver', 'total_gold', ));
+        $total_unused_checks = abs($total_checks - $total_used_checks);
+
+        $package_selected_user = User::whereNotNull('CurrentPackageID')->count();
+        $package_data = [];
+        $packages = Package::where('Status', 'Active')->get();
+        foreach($packages as $key => $package) {
+            $package_data[$key]['name'] = $package->Name;
+            $package_data[$key]['total_count'] = PaymentSubscription::select('PaymentSubscriptionID')->where('Status', 'Active')->where('PackageID', $package->PackageID)->count();
+        }
+        // $total_basic = PaymentSubscription::select('PaymentSubscriptionID')->where('Status', 'Active')->where('PackageID', 1)->count();
+        // $total_silver = PaymentSubscription::select('PaymentSubscriptionID')->where('Status', 'Active')->where('PackageID', 2)->count();
+        // $total_gold = PaymentSubscription::select('PaymentSubscriptionID')->where('Status', 'Active')->where('PackageID', 3)->count();
+        return view('content.dashboard.dashboards-analytics', compact('total_users', 'total_checks', 'total_revanue', 'total_used_checks', 'total_unused_checks', 'package_data', 'package_selected_user'));
     }
 
     public function profile()

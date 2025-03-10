@@ -234,16 +234,37 @@
             <div class="card h-100">
                 <div class="card-header d-flex align-items-center justify-content-between">
                     <h5 class="card-title m-0 me-2">Package Usage</h5>
-                    <div class="dropdown">
+                    {{-- <div class="dropdown">
                         <button class="btn btn-text-secondary rounded-pill text-muted border-0 p-2 me-n1" type="button"
                             id="assignmentProgress" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="ti ti-dots-vertical ti-md text-muted"></i>
                         </button>
-                    </div>
+                    </div> --}}
                 </div>
                 <div class="card-body">
                     <ul class="p-0 m-0">
-                        <li class="d-flex mb-6">
+                        @foreach ($package_data as $package)
+                            <li class="d-flex mb-6">
+                                <div class="chart-progress me-4" data-color="primary"
+                                    data-series="{{ !empty($package['total_count']) ? round(($package['total_count'] / $package_selected_user) * 100) : '0' }}"
+                                    data-progress_variant="true">
+                                </div>
+                                <div class="row w-100 align-items-center">
+                                    <div class="col-9">
+                                        <div class="me-2">
+                                            <h6 class="mb-2">{{ $package['name'] }}</h6>
+                                            <small>{{ $package['total_count'] }} People </small>
+                                        </div>
+                                    </div>
+                                    {{-- <div class="col-3 text-end">
+                                        <button type="button" class="btn btn-sm btn-icon btn-label-secondary">
+                                            <i class="ti ti-chevron-right scaleX-n1-rtl"></i>
+                                        </button>
+                                    </div> --}}
+                                </div>
+                            </li>
+                        @endforeach
+                        {{-- <li class="d-flex mb-6">
                             <div class="chart-progress me-4" data-color="primary"
                                 data-series="{{ !empty($total_basic) ? round(($total_basic / $total_users) * 100) : '0' }}"
                                 data-progress_variant="true">
@@ -298,7 +319,7 @@
                                     </button>
                                 </div>
                             </div>
-                        </li>
+                        </li> --}}
                     </ul>
                 </div>
             </div>
