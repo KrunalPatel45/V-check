@@ -96,6 +96,13 @@
       "icon": "menu-icon tf-icons ti ti-logout",
       "slug": "logout",
       "access": "web"
+    },
+    {
+      "url": "/admin/logout",
+      "name": "Logout",
+      "icon": "menu-icon tf-icons ti ti-logout",
+      "slug": "logout",
+      "access": "admin"
     }
   ]
 }

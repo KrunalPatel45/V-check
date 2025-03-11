@@ -261,105 +261,106 @@
                         </table>
                     </div>
                 </div>
-                @if(false)
-                <div class="card mb-6">
-                    <h5 class="card-header">User Activity Timeline</h5>
-                    <div class="card-body pt-1">
-                        <ul class="timeline mb-0">
-                            <li class="timeline-item timeline-item-transparent">
-                                <span class="timeline-point timeline-point-primary"></span>
-                                <div class="timeline-event">
-                                    <div class="timeline-header mb-3">
-                                        <h6 class="mb-0">12 Invoices have been paid</h6>
-                                        <small class="text-muted">12 min ago</small>
-                                    </div>
-                                    <p class="mb-2">
-                                        Invoices have been paid to the company
-                                    </p>
-                                    <div class="d-flex align-items-center mb-2">
-                                        <div class="badge bg-lighter rounded d-flex align-items-center">
-                                            <img src="{{ asset('assets/img/icons/misc/pdf.png') }}" alt="img"
-                                                width="15" class="me-2">
-                                            <span class="h6 mb-0 text-body">invoices.pdf</span>
+                @if (false)
+                    <div class="card mb-6">
+                        <h5 class="card-header">User Activity Timeline</h5>
+                        <div class="card-body pt-1">
+                            <ul class="timeline mb-0">
+                                <li class="timeline-item timeline-item-transparent">
+                                    <span class="timeline-point timeline-point-primary"></span>
+                                    <div class="timeline-event">
+                                        <div class="timeline-header mb-3">
+                                            <h6 class="mb-0">12 Invoices have been paid</h6>
+                                            <small class="text-muted">12 min ago</small>
                                         </div>
-                                    </div>
-                                </div>
-                            </li>
-                            <li class="timeline-item timeline-item-transparent">
-                                <span class="timeline-point timeline-point-success"></span>
-                                <div class="timeline-event">
-                                    <div class="timeline-header mb-3">
-                                        <h6 class="mb-0">Client Meeting</h6>
-                                        <small class="text-muted">45 min ago</small>
-                                    </div>
-                                    <p class="mb-2">
-                                        Project meeting with john @10:15am
-                                    </p>
-                                    <div class="d-flex justify-content-between flex-wrap gap-2 mb-2">
-                                        <div class="d-flex flex-wrap align-items-center mb-50">
-                                            <div class="avatar avatar-sm me-2">
-                                                <img src="{{ asset('assets/img/avatars/1.png') }}" alt="Avatar"
-                                                    class="rounded-circle" />
-                                            </div>
-                                            <div>
-                                                <p class="mb-0 small fw-medium">Lester McCarthy (Client)</p>
-                                                <small>CEO of {{ config('variables.creatorName') }}</small>
+                                        <p class="mb-2">
+                                            Invoices have been paid to the company
+                                        </p>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <div class="badge bg-lighter rounded d-flex align-items-center">
+                                                <img src="{{ asset('assets/img/icons/misc/pdf.png') }}" alt="img"
+                                                    width="15" class="me-2">
+                                                <span class="h6 mb-0 text-body">invoices.pdf</span>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </li>
-                            <li class="timeline-item timeline-item-transparent">
-                                <span class="timeline-point timeline-point-info"></span>
-                                <div class="timeline-event">
-                                    <div class="timeline-header mb-3">
-                                        <h6 class="mb-0">Create a new project for client</h6>
-                                        <small class="text-muted">2 Day Ago</small>
-                                    </div>
-                                    <p class="mb-2">
-                                        6 team members in a project
-                                    </p>
-                                    <ul class="list-group list-group-flush">
-                                        <li
-                                            class="list-group-item d-flex justify-content-between align-items-center flex-wrap border-top-0 p-0">
-                                            <div class="d-flex flex-wrap align-items-center">
-                                                <ul
-                                                    class="list-unstyled users-list d-flex align-items-center avatar-group m-0 me-2">
-                                                    <li data-bs-toggle="tooltip" data-popup="tooltip-custom"
-                                                        data-bs-placement="top" title="Vinnie Mostowy"
-                                                        class="avatar pull-up">
-                                                        <img class="rounded-circle"
-                                                            src="{{ asset('assets/img/avatars/5.png') }}"
-                                                            alt="Avatar" />
-                                                    </li>
-                                                    <li data-bs-toggle="tooltip" data-popup="tooltip-custom"
-                                                        data-bs-placement="top" title="Allen Rieske"
-                                                        class="avatar pull-up">
-                                                        <img class="rounded-circle"
-                                                            src="{{ asset('assets/img/avatars/12.png') }}"
-                                                            alt="Avatar" />
-                                                    </li>
-                                                    <li data-bs-toggle="tooltip" data-popup="tooltip-custom"
-                                                        data-bs-placement="top" title="Julee Rossignol"
-                                                        class="avatar pull-up">
-                                                        <img class="rounded-circle"
-                                                            src="{{ asset('assets/img/avatars/6.png') }}"
-                                                            alt="Avatar" />
-                                                    </li>
-                                                    <li class="avatar">
-                                                        <span class="avatar-initial rounded-circle pull-up text-heading"
-                                                            data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                                            title="3 more">+3</span>
-                                                    </li>
-                                                </ul>
+                                </li>
+                                <li class="timeline-item timeline-item-transparent">
+                                    <span class="timeline-point timeline-point-success"></span>
+                                    <div class="timeline-event">
+                                        <div class="timeline-header mb-3">
+                                            <h6 class="mb-0">Client Meeting</h6>
+                                            <small class="text-muted">45 min ago</small>
+                                        </div>
+                                        <p class="mb-2">
+                                            Project meeting with john @10:15am
+                                        </p>
+                                        <div class="d-flex justify-content-between flex-wrap gap-2 mb-2">
+                                            <div class="d-flex flex-wrap align-items-center mb-50">
+                                                <div class="avatar avatar-sm me-2">
+                                                    <img src="{{ asset('assets/img/avatars/1.png') }}" alt="Avatar"
+                                                        class="rounded-circle" />
+                                                </div>
+                                                <div>
+                                                    <p class="mb-0 small fw-medium">Lester McCarthy (Client)</p>
+                                                    <small>CEO of {{ config('variables.creatorName') }}</small>
+                                                </div>
                                             </div>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                        </ul>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="timeline-item timeline-item-transparent">
+                                    <span class="timeline-point timeline-point-info"></span>
+                                    <div class="timeline-event">
+                                        <div class="timeline-header mb-3">
+                                            <h6 class="mb-0">Create a new project for client</h6>
+                                            <small class="text-muted">2 Day Ago</small>
+                                        </div>
+                                        <p class="mb-2">
+                                            6 team members in a project
+                                        </p>
+                                        <ul class="list-group list-group-flush">
+                                            <li
+                                                class="list-group-item d-flex justify-content-between align-items-center flex-wrap border-top-0 p-0">
+                                                <div class="d-flex flex-wrap align-items-center">
+                                                    <ul
+                                                        class="list-unstyled users-list d-flex align-items-center avatar-group m-0 me-2">
+                                                        <li data-bs-toggle="tooltip" data-popup="tooltip-custom"
+                                                            data-bs-placement="top" title="Vinnie Mostowy"
+                                                            class="avatar pull-up">
+                                                            <img class="rounded-circle"
+                                                                src="{{ asset('assets/img/avatars/5.png') }}"
+                                                                alt="Avatar" />
+                                                        </li>
+                                                        <li data-bs-toggle="tooltip" data-popup="tooltip-custom"
+                                                            data-bs-placement="top" title="Allen Rieske"
+                                                            class="avatar pull-up">
+                                                            <img class="rounded-circle"
+                                                                src="{{ asset('assets/img/avatars/12.png') }}"
+                                                                alt="Avatar" />
+                                                        </li>
+                                                        <li data-bs-toggle="tooltip" data-popup="tooltip-custom"
+                                                            data-bs-placement="top" title="Julee Rossignol"
+                                                            class="avatar pull-up">
+                                                            <img class="rounded-circle"
+                                                                src="{{ asset('assets/img/avatars/6.png') }}"
+                                                                alt="Avatar" />
+                                                        </li>
+                                                        <li class="avatar">
+                                                            <span
+                                                                class="avatar-initial rounded-circle pull-up text-heading"
+                                                                data-bs-toggle="tooltip" data-bs-placement="bottom"
+                                                                title="3 more">+3</span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
                 @endif
             @endif
             @if ($type == 'security')
@@ -417,55 +418,57 @@
                         </div>
                     </div>
                 </form>
-                @if(false)
-                <div class="card mb-6">
-                    <h5 class="card-header">Recent Devices</h5>
-                    <div class="table-responsive table-border-bottom-0">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th class="text-truncate">Browser</th>
-                                    <th class="text-truncate">Device</th>
-                                    <th class="text-truncate">Location</th>
-                                    <th class="text-truncate">Recent Activities</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="text-truncate"><i class='ti ti-brand-windows ti-md text-info me-4'></i>
-                                        <span class="text-heading">Chrome on Windows</span>
-                                    </td>
-                                    <td class="text-truncate">HP Spectre 360</td>
-                                    <td class="text-truncate">Switzerland</td>
-                                    <td class="text-truncate">10, July 2021 20:07</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-truncate"><i class='ti ti-device-mobile ti-md text-danger me-4'></i>
-                                        <span class="text-heading">Chrome on iPhone</span>
-                                    </td>
-                                    <td class="text-truncate">iPhone 12x</td>
-                                    <td class="text-truncate">Australia</td>
-                                    <td class="text-truncate">13, July 2021 10:10</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-truncate"><i class='ti ti-brand-android ti-md text-success me-4'></i>
-                                        <span class="text-heading">Chrome on Android</span>
-                                    </td>
-                                    <td class="text-truncate">Oneplus 9 Pro</td>
-                                    <td class="text-truncate">Dubai</td>
-                                    <td class="text-truncate">14, July 2021 15:15</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-truncate"><i class='ti ti-brand-apple ti-md me-4'></i> <span
-                                            class="text-heading">Chrome on MacOS</span></td>
-                                    <td class="text-truncate">Apple iMac</td>
-                                    <td class="text-truncate">India</td>
-                                    <td class="text-truncate">16, July 2021 16:17</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                @if (false)
+                    <div class="card mb-6">
+                        <h5 class="card-header">Recent Devices</h5>
+                        <div class="table-responsive table-border-bottom-0">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th class="text-truncate">Browser</th>
+                                        <th class="text-truncate">Device</th>
+                                        <th class="text-truncate">Location</th>
+                                        <th class="text-truncate">Recent Activities</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="text-truncate"><i class='ti ti-brand-windows ti-md text-info me-4'></i>
+                                            <span class="text-heading">Chrome on Windows</span>
+                                        </td>
+                                        <td class="text-truncate">HP Spectre 360</td>
+                                        <td class="text-truncate">Switzerland</td>
+                                        <td class="text-truncate">10, July 2021 20:07</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-truncate"><i
+                                                class='ti ti-device-mobile ti-md text-danger me-4'></i>
+                                            <span class="text-heading">Chrome on iPhone</span>
+                                        </td>
+                                        <td class="text-truncate">iPhone 12x</td>
+                                        <td class="text-truncate">Australia</td>
+                                        <td class="text-truncate">13, July 2021 10:10</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-truncate"><i
+                                                class='ti ti-brand-android ti-md text-success me-4'></i>
+                                            <span class="text-heading">Chrome on Android</span>
+                                        </td>
+                                        <td class="text-truncate">Oneplus 9 Pro</td>
+                                        <td class="text-truncate">Dubai</td>
+                                        <td class="text-truncate">14, July 2021 15:15</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-truncate"><i class='ti ti-brand-apple ti-md me-4'></i> <span
+                                                class="text-heading">Chrome on MacOS</span></td>
+                                        <td class="text-truncate">Apple iMac</td>
+                                        <td class="text-truncate">India</td>
+                                        <td class="text-truncate">16, July 2021 16:17</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
                 @endif
             @endif
             @if ($type == 'billing')
@@ -496,10 +499,20 @@
                                 aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                         <small>{{ $package_data['remainingDays'] }} days remaining</small>
-                        @if(!empty($package_data['downgrade_payment']))
-                        <div class="alert alert-warning mt-3" role="alert">
-                            Your subscription plan downgrade has been scheduled. The change will take effect on {{ \Carbon\Carbon::parse($package_data['downgrade_payment']->PaymentDate)->format('m-d-Y') }}, after your current plan expires. You can continue to enjoy your current plan benefits until then
-                        </div>
+                        @if (!empty($package_data['downgrade_payment']))
+                            <div class="alert alert-warning mt-3" role="alert">
+                                Your subscription plan downgrade has been scheduled. The change will take effect on
+                                {{ \Carbon\Carbon::parse($package_data['downgrade_payment']->PaymentDate)->format('m-d-Y') }},
+                                after your current plan expires. You can continue to enjoy your current plan benefits until
+                                then
+                            </div>
+                        @endif
+                        @if (!empty($package_data['cancel_plan']))
+                            <div class="alert alert-danger mt-3" role="alert">
+                                Your subscription cancellation has been scheduled. The change will take effect after
+                                your current plan ends. You will continue to enjoy your current plan benefits until
+                                then.
+                            </div>
                         @endif
                         <div class="d-grid w-100 mt-6">
                             <a href="{{ route('admin.user_upgragde_plan', ['id' => $user->UserID]) }}"
@@ -508,88 +521,93 @@
                         </div>
                     </div>
                 </div>
-                @if(false)
-                <div class="card card-action mb-6">
-                    <div class="card-header align-items-center">
-                        <h5 class="card-action-title mb-0">Payment Methods</h5>
-                        <div class="card-action-element">
-                            <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="modal"
-                                data-bs-target="#addNewCCModal"><i class="ti ti-plus ti-14px me-1_5"></i>Add Card</button>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="added-cards">
-                            <div class="cardMaster border p-6 rounded mb-4">
-                                <div class="d-flex justify-content-between flex-sm-row flex-column">
-                                    <div class="card-information">
-                                        <img class="mb-2 img-fluid"
-                                            src="{{ asset('assets/img/icons/payments/mastercard.png') }}"
-                                            alt="Master Card">
-                                        <div class="d-flex align-items-center mb-2">
-                                            <h6 class="mb-0 me-2">Kaith Morrison</h6>
-                                            <span class="badge bg-label-primary me-1">Popular</span>
-                                        </div>
-                                        <span class="card-number">&#8727;&#8727;&#8727;&#8727; &#8727;&#8727;&#8727;&#8727;
-                                            &#8727;&#8727;&#8727;&#8727; 9856</span>
-                                    </div>
-                                    <div class="d-flex flex-column text-start text-lg-end">
-                                        <div class="d-flex order-sm-0 order-1">
-                                            <button class="btn btn-sm btn-label-primary me-4" data-bs-toggle="modal"
-                                                data-bs-target="#editCCModal">Edit</button>
-                                            <button class="btn btn-sm btn-label-danger">Delete</button>
-                                        </div>
-                                        <small class="mt-sm-4 mt-2 order-sm-1 order-0 text-sm-end mb-2">Card expires at
-                                            12/24</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="cardMaster border p-6 rounded mb-4">
-                                <div class="d-flex justify-content-between flex-sm-row flex-column">
-                                    <div class="card-information">
-                                        <img class="mb-2 img-fluid"
-                                            src="{{ asset('assets/img/icons/payments/visa.png') }}" alt="Master Card">
-                                        <h6 class="mb-2 me-2">Tom McBride</h6>
-                                        <span class="card-number">&#8727;&#8727;&#8727;&#8727; &#8727;&#8727;&#8727;&#8727;
-                                            &#8727;&#8727;&#8727;&#8727; 6542</span>
-                                    </div>
-                                    <div class="d-flex flex-column text-start text-lg-end">
-                                        <div class="d-flex order-sm-0 order-1">
-                                            <button class="btn btn-sm btn-label-primary me-4" data-bs-toggle="modal"
-                                                data-bs-target="#editCCModal">Edit</button>
-                                            <button class="btn btn-sm btn-label-danger">Delete</button>
-                                        </div>
-                                        <small class="mt-sm-4 mt-2 order-sm-1 order-0 text-sm-end mb-2">Card expires at
-                                            02/24</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="cardMaster border p-6 rounded">
-                                <div class="d-flex justify-content-between flex-sm-row flex-column">
-                                    <div class="card-information">
-                                        <img class="mb-2 img-fluid"
-                                            src="{{ asset('assets/img/icons/payments/american-express-logo.png') }}"
-                                            alt="Visa Card">
-                                        <div class="d-flex align-items-center mb-2">
-                                            <h6 class="mb-0 me-2">Mildred Wagner</h6>
-                                            <span class="badge bg-label-danger me-1">Expired</span>
-                                        </div>
-                                        <span class="card-number">&#8727;&#8727;&#8727;&#8727; &#8727;&#8727;&#8727;&#8727;
-                                            &#8727;&#8727;&#8727;&#8727; 5896</span>
-                                    </div>
-                                    <div class="d-flex flex-column text-start text-lg-end">
-                                        <div class="d-flex order-sm-0 order-1">
-                                            <button class="btn btn-sm btn-label-primary me-4" data-bs-toggle="modal"
-                                                data-bs-target="#editCCModal">Edit</button>
-                                            <button class="btn btn-sm btn-label-danger">Delete</button>
-                                        </div>
-                                        <small class="mt-sm-4 mt-2 order-sm-1 order-0 text-sm-end mb-2">Card expires at
-                                            08/20</small>
-                                    </div>
-                                </div>
+                @if (false)
+                    <div class="card card-action mb-6">
+                        <div class="card-header align-items-center">
+                            <h5 class="card-action-title mb-0">Payment Methods</h5>
+                            <div class="card-action-element">
+                                <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="modal"
+                                    data-bs-target="#addNewCCModal"><i class="ti ti-plus ti-14px me-1_5"></i>Add
+                                    Card</button>
                             </div>
                         </div>
+                        <div class="card-body">
+                            <div class="added-cards">
+                                <div class="cardMaster border p-6 rounded mb-4">
+                                    <div class="d-flex justify-content-between flex-sm-row flex-column">
+                                        <div class="card-information">
+                                            <img class="mb-2 img-fluid"
+                                                src="{{ asset('assets/img/icons/payments/mastercard.png') }}"
+                                                alt="Master Card">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <h6 class="mb-0 me-2">Kaith Morrison</h6>
+                                                <span class="badge bg-label-primary me-1">Popular</span>
+                                            </div>
+                                            <span class="card-number">&#8727;&#8727;&#8727;&#8727;
+                                                &#8727;&#8727;&#8727;&#8727;
+                                                &#8727;&#8727;&#8727;&#8727; 9856</span>
+                                        </div>
+                                        <div class="d-flex flex-column text-start text-lg-end">
+                                            <div class="d-flex order-sm-0 order-1">
+                                                <button class="btn btn-sm btn-label-primary me-4" data-bs-toggle="modal"
+                                                    data-bs-target="#editCCModal">Edit</button>
+                                                <button class="btn btn-sm btn-label-danger">Delete</button>
+                                            </div>
+                                            <small class="mt-sm-4 mt-2 order-sm-1 order-0 text-sm-end mb-2">Card expires at
+                                                12/24</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="cardMaster border p-6 rounded mb-4">
+                                    <div class="d-flex justify-content-between flex-sm-row flex-column">
+                                        <div class="card-information">
+                                            <img class="mb-2 img-fluid"
+                                                src="{{ asset('assets/img/icons/payments/visa.png') }}"
+                                                alt="Master Card">
+                                            <h6 class="mb-2 me-2">Tom McBride</h6>
+                                            <span class="card-number">&#8727;&#8727;&#8727;&#8727;
+                                                &#8727;&#8727;&#8727;&#8727;
+                                                &#8727;&#8727;&#8727;&#8727; 6542</span>
+                                        </div>
+                                        <div class="d-flex flex-column text-start text-lg-end">
+                                            <div class="d-flex order-sm-0 order-1">
+                                                <button class="btn btn-sm btn-label-primary me-4" data-bs-toggle="modal"
+                                                    data-bs-target="#editCCModal">Edit</button>
+                                                <button class="btn btn-sm btn-label-danger">Delete</button>
+                                            </div>
+                                            <small class="mt-sm-4 mt-2 order-sm-1 order-0 text-sm-end mb-2">Card expires at
+                                                02/24</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="cardMaster border p-6 rounded">
+                                    <div class="d-flex justify-content-between flex-sm-row flex-column">
+                                        <div class="card-information">
+                                            <img class="mb-2 img-fluid"
+                                                src="{{ asset('assets/img/icons/payments/american-express-logo.png') }}"
+                                                alt="Visa Card">
+                                            <div class="d-flex align-items-center mb-2">
+                                                <h6 class="mb-0 me-2">Mildred Wagner</h6>
+                                                <span class="badge bg-label-danger me-1">Expired</span>
+                                            </div>
+                                            <span class="card-number">&#8727;&#8727;&#8727;&#8727;
+                                                &#8727;&#8727;&#8727;&#8727;
+                                                &#8727;&#8727;&#8727;&#8727; 5896</span>
+                                        </div>
+                                        <div class="d-flex flex-column text-start text-lg-end">
+                                            <div class="d-flex order-sm-0 order-1">
+                                                <button class="btn btn-sm btn-label-primary me-4" data-bs-toggle="modal"
+                                                    data-bs-target="#editCCModal">Edit</button>
+                                                <button class="btn btn-sm btn-label-danger">Delete</button>
+                                            </div>
+                                            <small class="mt-sm-4 mt-2 order-sm-1 order-0 text-sm-end mb-2">Card expires at
+                                                08/20</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
                 @endif
                 <div class="card mb-4">
                     <div class="d-flex justify-content-between align-items-center">

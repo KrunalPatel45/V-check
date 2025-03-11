@@ -81,6 +81,23 @@
                                         aria-valuemax="100" style="width: {{ $progress }}%"></div>
                                 </div>
                                 <small>Your plan requires update</small>
+
+                                @if (!empty($package_data['downgrade_payment']))
+                                    <div class="alert alert-warning mt-3" role="alert">
+                                        Your subscription plan downgrade has been scheduled. The change will take effect on
+                                        {{ \Carbon\Carbon::parse($package_data['downgrade_payment']->PaymentDate)->format('m-d-Y') }},
+                                        after your current plan expires. You can continue to enjoy your current plan
+                                        benefits
+                                        until then
+                                    </div>
+                                @endif
+                                @if (!empty($package_data['cancel_plan']))
+                                    <div class="alert alert-danger mt-3" role="alert">
+                                        Your subscription cancellation has been scheduled. The change will take effect after
+                                        your current plan ends. You will continue to enjoy your current plan benefits until
+                                        then.
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>

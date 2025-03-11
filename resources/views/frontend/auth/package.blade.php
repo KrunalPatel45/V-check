@@ -129,7 +129,7 @@
                     @endif
                     <li>3 mos History Storage</li>
                 </ul>
-                <a href="{{ route('user.select-package', ['id' => $userId, 'plan' => $package->PackageID]) }}"
+                <a href="{{ route('user-select-package', ['id' => $userId, 'plan' => $package->PackageID]) }}"
                     class="plan-button">Select Plan</a>
             </div>
         @endforeach

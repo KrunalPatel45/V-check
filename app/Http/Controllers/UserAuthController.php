@@ -36,9 +36,9 @@ class UserAuthController extends Controller
 
     public function package(Request $request)
     {
-        if(Auth::check()) {
-            return redirect()->route('user.dashboard');
-        }
+        // if(Auth::check()) {
+        //     return redirect()->route('user.dashboard');
+        // }
         $userId = request()->query('user_id');
         $packages = Package::where('Status', 'Active')->get();
         return view('frontend.auth.package', compact('packages', 'userId'));
@@ -110,6 +110,8 @@ class UserAuthController extends Controller
         $user->Status = 'Active';
         $user->save();
 
+        $PaymentSubscription_plan = PaymentSubscription::where('UserID', $id)->whereIn('Status', ['Canceled', 'Pending'])->delete();
+
 
         $packages = Package::find($plan);
 
@@ -155,5 +157,10 @@ class UserAuthController extends Controller
     {
         Auth::logout();
         return redirect()->route('user.login'); // Redirect to the admin login page
+    }
+
+    public function expired_sub()
+    {
+        return view('frontend.auth.expired');
     }
 }

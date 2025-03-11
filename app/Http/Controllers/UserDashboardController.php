@@ -12,6 +12,7 @@ use App\Models\Package;
 use Carbon\Carbon;
 use App\Models\Company;
 use App\Models\Payors;
+use App\Models\PaymentHistory;
 
 class UserDashboardController extends Controller
 {
@@ -29,11 +30,15 @@ class UserDashboardController extends Controller
         $expiry = Carbon::createFromFormat('Y-m-d', $paymentSubscription->NextRenewalDate);
         $expiryDate = $expiry->format('M d, Y');
         $remainingDays = $expiry->diffInDays(Carbon::now(), false);
+        $downgrade_payment = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('Status', 'Pending')->first();
+        $cancel_plan = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('Status', 'Canceled')->first();
         $package_data = [
             'total_days' => $total_days,
             'package_name' => $package_name,
             'expiryDate' => $expiryDate,
             'remainingDays' => abs(round($remainingDays)),
+            'downgrade_payment' => $downgrade_payment,
+            'cancel_plan' => $cancel_plan,
         ];
         
         $total_vendor = Payors::where('UserID', Auth::user()->UserID)

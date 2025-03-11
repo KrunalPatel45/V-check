@@ -26,8 +26,8 @@ class AdminDashboardController extends Controller
         }
         $total_users = User::count();
         $total_checks = PaymentSubscription::sum('ChecksGiven');
-        $total_revanue = PaymentSubscription::sum('PaymentAmount');
-        $month_revanue = PaymentSubscription::where('Status', 'Active')
+        $total_revanue = PaymentHistory::where('PaymentStatus', 'Success')->sum('PaymentAmount');
+        $month_revanue = PaymentHistory::where('PaymentStatus', 'Success')
                         ->whereMonth('PaymentDate', Carbon::now()->month)
                         ->whereYear('PaymentDate', Carbon::now()->year)
                         ->sum('PaymentAmount');
@@ -192,12 +192,15 @@ class AdminDashboardController extends Controller
         $remainingDays = $expiry->diffInDays(Carbon::now(), false);
         $packages = Package::all();
         $downgrade_payment = PaymentSubscription::where('UserID', $id)->where('Status', 'Pending')->first();
+        $cancel_plan = PaymentSubscription::where('UserID', $id)->where('Status', 'Canceled')->first();
+        
         $package_data = [
             'total_days' => $total_days,
             'package_name' => $package_name,
             'expiryDate' => $expiryDate,
             'remainingDays' => abs(round($remainingDays)),
             'downgrade_payment' => $downgrade_payment,
+            'cancel_plan' => $cancel_plan,
         ];
         $check_used = $paymentSubscription->ChecksUsed;
         $remaining_checks = $paymentSubscription->RemainingChecks;
@@ -348,6 +351,22 @@ class AdminDashboardController extends Controller
        $user_current_package = Package::find($user->CurrentPackageID);
        $data_current_package = PaymentSubscription::where('UserId', $id)->where('PackageID', $user->CurrentPackageID)->first();
        if($package->PackageID > $user_current_package->PackageID) {
+        
+        $cancel_or_pending_query = PaymentSubscription::where('UserId', $id)
+        ->whereIn('Status', ['Canceled', 'Pending']);
+        
+        // Get subscription IDs
+        $subscriptionIds = $cancel_or_pending_query->pluck('PaymentSubscriptionID')->toArray();
+        
+        // Delete from PaymentHistory
+        if (!empty($subscriptionIds)) {
+            PaymentHistory::whereIn('PaymentSubscriptionID', $subscriptionIds)->delete();
+        }
+        
+        // Now delete the subscriptions
+        $cancel_or_pending_query->delete();
+
+        
         $price = $package->Price - $user_current_package->Price;
         $paymentSubscription = PaymentSubscription::create([
             'UserID' => $id,
@@ -379,6 +398,20 @@ class AdminDashboardController extends Controller
         $user->CurrentPackageID = $plan;
         $user->save();
        } else {
+
+        $cancel_or_pending_query = PaymentSubscription::where('UserId', $id)
+        ->whereIn('Status', ['Canceled']);
+        
+        // Get subscription IDs
+        $subscriptionIds = $cancel_or_pending_query->pluck('PaymentSubscriptionID')->toArray();
+        
+        // Delete from PaymentHistory
+        if (!empty($subscriptionIds)) {
+            PaymentHistory::whereIn('PaymentSubscriptionID', $subscriptionIds)->delete();
+        }
+        
+        // Now delete the subscriptions
+        $cancel_or_pending_query->delete();
 
         $paymentStartDate = Carbon::parse($data_current_package->NextRenewalDate);
 
