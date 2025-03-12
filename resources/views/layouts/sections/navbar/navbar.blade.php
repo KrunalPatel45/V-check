@@ -452,8 +452,7 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
                 <li>
-                    <a class="dropdown-item mt-0"
-                        href="{{ Route::has('profile.show') ? route('profile.show') : url('pages/profile-user') }}">
+                    <a class="dropdown-item mt-0" href="javascript:void(0);" style="cursor: default;">
                         <div class="d-flex align-items-center">
                             <div class="flex-shrink-0 me-2">
                                 <div class="avatar avatar-online">
