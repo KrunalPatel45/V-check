@@ -1,14 +1,14 @@
 {
   "menu": [
     {
-      "name": "Dashboards",
+      "name": "Dashboard",
       "icon": "menu-icon tf-icons ti ti-smart-home",
       "slug": "admin.dashboard",
       "url": "/admin",
       "access": "admin"
     },
     {
-      "name": "Dashboards",
+      "name": "Dashboard",
       "icon": "menu-icon tf-icons ti ti-smart-home",
       "slug": "user.dashboard",
       "url": "/dashboard",
