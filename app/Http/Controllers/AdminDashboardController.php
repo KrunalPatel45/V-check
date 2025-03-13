@@ -445,7 +445,7 @@ class AdminDashboardController extends Controller
             'TransactionID' => $paymentSubscription->TransactionID,
         ]);
        }
-       return redirect()->route('admin.user.edit', ['id' => $id])->with('success', 'User plan changed successfully');
+       return redirect()->route('admin.user.edit', ['id' => $id, 'type' => 'billing'])->with('success', 'User plan changed successfully');
     }
 
 
