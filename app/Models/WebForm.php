@@ -16,12 +16,6 @@ class WebForm extends Model
         'Id',
         'UserID',
         'CompanyID',
-        'Address',
-        'City',
-        'State',
-        'Zip',
-        'Email',
-        'Logo',
         'PhoneNumber',
     ];
 }

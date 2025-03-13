@@ -53,65 +53,6 @@
                             </div>
                         </div>
                         <div class="row mb-6">
-                            <label class="col-sm-2 col-form-label" for="name">LOGO</label>
-                            <div class="col-sm-10">
-                                <input type="file" name="logo" id="logo" class="form-control"
-                                    value="{{ old('logo') }}" />
-                                @if ($errors->has('logo'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('logo') }}
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="row mb-6">
-                            <label class="col-sm-2 col-form-label" for="address1">Address</label>
-                            <div class="col-sm-10">
-                                <textarea id="address" name="address" class="form-control">{{ old('address') }}</textarea>
-                                @if ($errors->has('address'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('address') }}
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="row mb-6">
-                            <label class="col-sm-2 col-form-label" for="city">City</label>
-                            <div class="col-sm-10">
-                                <input type="text" name="city" id="city" class="form-control"
-                                    value="{{ old('city') }}" />
-                                @if ($errors->has('city'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('city') }}
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="row mb-6">
-                            <label class="col-sm-2 col-form-label" for="state">State</label>
-                            <div class="col-sm-10">
-                                <input type="text" name="state" id="state" class="form-control"
-                                    value="{{ old('state') }}" />
-                                @if ($errors->has('state'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('state') }}
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="row mb-6">
-                            <label class="col-sm-2 col-form-label" for="zip">Zip</label>
-                            <div class="col-sm-10">
-                                <input type="text" name="zip" id="zip" class="form-control"
-                                    value="{{ old('zip') }}" />
-                                @if ($errors->has('zip'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('zip') }}
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="phone_number">Phone Number</label>
                             <div class="col-sm-10">
                                 <input type="text" name="phone_number" id="phone_number" class="form-control"

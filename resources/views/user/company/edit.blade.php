@@ -143,29 +143,6 @@
                             </div>
                         </div>
                         <div class="row mb-6">
-                            <label class="col-sm-2 col-form-label" for="page_url">Page URL</label>
-                            <div class="col-sm-10">
-                                <input type="text" name="page_url" id="page_url" class="form-control"
-                                    value="{{ $company->PageURL }}" />
-                                @if ($errors->has('page_url'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('page_url') }}
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="row mb-6">
-                            <label class="col-sm-2 col-form-label" for="page_description">Page Description</label>
-                            <div class="col-sm-10">
-                                <textarea id="page_description" name="page_description" class="form-control">{{ $company->PageDescription }}</textarea>
-                                @if ($errors->has('page_description'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('page_description') }}
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="bank_name">Bank Name</label>
                             <div class="col-sm-10">
                                 <input type="text" name="bank_name" id="bank_name" class="form-control"

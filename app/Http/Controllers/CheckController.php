@@ -609,8 +609,7 @@ class CheckController extends Controller
     {
         $data = WebForm::whereRaw("MD5(Id) = ?", [$id])->first();
         $company = Company::find($data->CompanyID);
-        $data->company_name = $company->Name;
-        return view('user.web_form.web', compact('data'));
+        return view('user.web_form.web', compact('data', 'company'));
     }
 
     public function get_web_forms(Request $request)
@@ -625,8 +624,9 @@ class CheckController extends Controller
             return datatables()->of($webforms)
                 ->addIndexColumn()
                 ->addColumn('logo', function ($row) {
-                    if(!empty($row->Logo)) {
-                        return '<img src="' . asset($row->Logo) . '" alt="Webform Logo" style="width: 50px;">';
+                    $company = Company::find($row->CompanyID);
+                    if(!empty($company->Logo)) {
+                        return '<img src="' . asset($company->Logo) . '" alt="Webform Logo" style="width: 50px;">';
                     } else {
                         return '<img src="' . asset('assets/img/empty.jpg') . '" alt="Webform Logo" style="width: 50px;">';
                     }
@@ -666,46 +666,20 @@ class CheckController extends Controller
     public function new_web_form_store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'address' => 'required',
-            'city' => 'required',
-            'state' => 'required',
-            'zip' => 'required',
             'company' => 'required',
-            'logo' => 'required',
             'phone_number' => 'required',
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
-
-        $logoPath = null;
-        if ($request->hasFile('logo')) {
-            $file = $request->file('logo');
-            $uniqueName = Str::uuid() . '.' . $file->getClientOriginalExtension(); // Generate a unique name with extension
-            $destinationPath = public_path('logos'); // Path to "public/logos"
-
-            // Ensure the directory exists
-            if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0755, true);
-            }
-
-            // Move the uploaded file to the public path
-            $file->move($destinationPath, $uniqueName);
-            
-            // Save the path relative to public
-            $logoPath = 'logos/' . $uniqueName;
-        }
         
         $webform = new WebForm();
 
+        $company = Company::find($request->company);
+
         $webform->UserID = Auth::id();
-        $webform->Address = $request->address;
-        $webform->City = $request->city;
-        $webform->State = $request->state;
-        $webform->Zip = $request->zip;
         $webform->PhoneNumber = $request->phone_number;
-        $webform->Logo = $logoPath; // Save the path of the logo
         $webform->CompanyID = $request->company;
 
         $webform->save();

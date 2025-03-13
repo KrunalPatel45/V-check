@@ -630,7 +630,7 @@
 
 <body>
     @php
-        $logo_img_path = asset($data->Logo);
+        $logo_img_path = asset($company->Logo);
     @endphp
     <div id="container">
         <div id="wb_Image1" style="position:absolute;left:27px;top:30px;width:220px;height:84px;z-index:25;">
@@ -638,9 +638,9 @@
         </div>
         <div id="wb_Text1"
             style="position:absolute;left:728px;top:29px;width:252px;height:87px;text-align:right;z-index:26;">
-            <span style="color:#000000;font-family:Arial;font-size:16px;"><strong>{{ $data->Address }}<br>
-                    {{ $data->City }}, {{ $data->State }}
-                    {{ $data->Zip }}<br>{{ $data->PhoneNumber }}<br></strong></span>
+            <span style="color:#000000;font-family:Arial;font-size:16px;"><strong>{{ $company->Address }}<br>
+                    {{ $company->City }}, {{ $company->State }}
+                    {{ $company->Zip }}<br>{{ $data->PhoneNumber }}<br></strong></span>
         </div>
         <div id="wb_Text8"
             style="position:absolute;left:176px;top:715px;width:120px;height:37px;z-index:27;text-align:left;">
@@ -659,7 +659,7 @@
             <form name="True_Source_Home" method="post" action="{{ route('store_web_form_data') }}"
                 enctype="multipart/form-data" id="Form2">
                 @csrf
-                <input type="hidden" name="comany_id" id="comany_id" value="{{ $data->CompanyID }}">
+                <input type="hidden" name="comany_id" id="comany_id" value="{{ $company->CompanyID }}">
                 <div id="wb_Text2"
                     style="position:absolute;left:198px;top:14px;width:90px;height:16px;z-index:0;text-align:left;">
                     <span style="color:#000000;font-family:Arial;font-size:13px;"><strong>Check Date</strong></span>
@@ -687,7 +687,7 @@
                 <div id="wb_Text6"
                     style="position:absolute;left:27px;top:161px;width:264px;height:16px;z-index:8;text-align:left;">
                     <span style="color:#000000;font-family:Arial;font-size:13px;"><strong>Pay To:&nbsp;&nbsp;
-                            {{ $data->company_name }}</strong></span>
+                            {{ $company->company_name }}</strong></span>
                 </div>
                 <hr id="Line2" style="position:absolute;left:16px;top:185px;width:277px;height:1px;z-index:9;">
                 <input type="text" id="name"
