@@ -675,7 +675,7 @@
                         </span>
                     @endif
                 </div>
-                <div class="fileds">
+                {{-- <div class="fileds">
                     <label class="switch switch-square" for="is_sign">
                         <input type="checkbox" class="switch-input" name="is_sign" id="is_sign"
                             {{ !empty($check->DigitalSignatureRequired) ? 'checked' : '' }} />
@@ -692,7 +692,7 @@
                         <button id="clear" class="btn btn-danger btn-sm">Clear Signature</button>
                         <textarea id="signature64" name="signed" style="display: none"></textarea>
                     </div>
-                </div>
+                </div> --}}
             </div>
 
             <div class="form-row j-center">

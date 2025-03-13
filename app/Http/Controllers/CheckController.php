@@ -338,28 +338,53 @@ class CheckController extends Controller
         }
         
         $check_date = Carbon::parse(str_replace('-', '/', $request->check_date));
+
+        if (!empty($request->id)) {
+            $checks = Checks::find($request->id);
+            if(empty($fileName)) {
+                $fileName = $checks->DigitalSignature;
+            }
+            if ($checks) {
+                $checks->update([
+                    'CompanyID'=> $request->payor,
+                    'CheckType' => 'Make Payment',
+                    'Amount' => $request->amount,
+                    'EntityID' => $request->payee,
+                    'CheckNumber' => $request->check_number,
+                    'IssueDate' => now(),
+                    'ExpiryDate' => $check_date,
+                    'Status' => 'draft',
+                    'Memo' => $request->memo, 
+                    'CheckPDF' => null,
+                    'DigitalSignatureRequired' => (!empty($request->is_sign) && $request->is_sign == 'on') ? 1 : 0,
+                    'DigitalSignature' => (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '',
+                ]);
+            }
+            $message = 'Check Updated successfully';
+        } else {
+            $checks = Checks::create([
+                'UserID' => Auth::id(),
+                'CompanyID'=> $request->payor,
+                'CheckType' => 'Make Payment',
+                'Amount' => $request->amount,
+                'EntityID' => $request->payee,
+                'CheckNumber' => $request->check_number,
+                'IssueDate' => now(),
+                'ExpiryDate' => $check_date,
+                'Status' => 'draft',
+                'Memo' => $request->memo, 
+                'CheckPDF' => null,
+                'DigitalSignatureRequired' => (!empty($request->is_sign) && $request->is_sign == 'on') ? 1 : 0,
+                'DigitalSignature' => (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '',
+            ]);
+    
+            $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->orderBy('PaymentSubscriptionID', 'desc')->first();
+            $paymentSubscription->ChecksUsed  = $paymentSubscription->ChecksUsed + 1;
+            $paymentSubscription->RemainingChecks  = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
+            $paymentSubscription->save();
+            $message = 'Check Crated successfully';
+        }
         
-        $checks = Checks::create([
-            'UserID' => Auth::id(),
-            'CompanyID'=> $request->payor,
-            'CheckType' => 'Make Payment',
-            'Amount' => $request->amount,
-            'EntityID' => $request->payee,
-            'CheckNumber' => $request->check_number,
-            'IssueDate' => now(),
-            'ExpiryDate' => $check_date,
-            'Status' => 'draft',
-            'Memo' => $request->memo, 
-            'CheckPDF' => null,
-            'DigitalSignatureRequired' => (!empty($request->is_sign) && $request->is_sign == 'on') ? 1 : 0,
-            'DigitalSignature' => (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '',
-        ]);
-
-        $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->orderBy('PaymentSubscriptionID', 'desc')->first();
-        $paymentSubscription->ChecksUsed  = $paymentSubscription->ChecksUsed + 1;
-        $paymentSubscription->RemainingChecks  = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
-        $paymentSubscription->save();
-
         return redirect()->route('check.send_payment')->with('success', 'Check Generated successfully');
     }
 

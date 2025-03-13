@@ -517,6 +517,7 @@
     <div class="form-container">
         <form action="{{ route('check.send_payment_check_generate') }}" method="POST" enctype="multipart/form-data">
             @csrf
+            <input type="hidden" id="id" name="id" value="{{ !empty($check->CheckID) ? $check->CheckID : '' }}">
             <div class="form-row">
                 <div class="fileds">
                     <label for="account-name">Account Holder's Name:</label>
