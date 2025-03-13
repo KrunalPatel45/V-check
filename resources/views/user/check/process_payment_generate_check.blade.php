@@ -15,7 +15,7 @@
         .form-container {
             /* border: 2px solid green; */
             /* max-width: 90%; */
-            margin: 20px auto;
+            /* margin: 20px auto; */
             padding: 20px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             border-radius: 10px;
@@ -655,7 +655,7 @@
                         </span>
                     @endif
                 </div>
-                <div class="fileds-row">
+                <div class="fileds-row" style="display: flex;">
                     <label for="amount" class="text-right" style="font-size: 17px;">Amount: $</label>
                     <input type="text" id="amount" name="amount" style="font-size: 17px;"
                         value="{{ !empty($check->Amount) && $check->Amount ? $check->Amount : old('amount') }}">
@@ -702,17 +702,17 @@
             <div class="form-row j-center">
                 <div class="fileds">
                     <label for="routing-number" class="text-center">Routing #:</label>
-                    <input type="text" id="routing_number" name="routing_number"
+                    <input type="number" id="routing_number" name="routing_number"
                         value="{{ !empty($old_payor->RoutingNumber) && $old_payor->RoutingNumber ? $old_payor->RoutingNumber : old('routing_number') }}">
                 </div>
                 <div class="fileds">
                     <label for="checking-number" class="text-center">Checking Account #:</label>
-                    <input type="text" id="account_number" name="account_number"
+                    <input type="number" id="account_number" name="account_number"
                         value="{{ !empty($old_payor->AccountNumber) && $old_payor->AccountNumber ? $old_payor->AccountNumber : old('account_number') }}">
                 </div>
                 <div class="fileds">
                     <label for="confirm_account_number" class="text-center">Confirm Account #:</label>
-                    <input type="text" id="confirm_account_number" name="confirm_account_number"
+                    <input type="number" id="confirm_account_number" name="confirm_account_number"
                         value="{{ !empty($old_payor->AccountNumber) && $old_payor->AccountNumber ? $old_payor->AccountNumber : old('confirm_account_number') }}">
                 </div>
             </div>

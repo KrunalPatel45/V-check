@@ -27,7 +27,7 @@
         @endif
         <div class="d-flex justify-content-between align-items-center">
             <h5 class="card-header">Receive Payment</h5>
-            <a href="{{ route('check.process_payment_check') }}" class="btn btn-primary mr-4"
+            <a href="{{ route('check.process_payment.check') }}" class="btn btn-primary mr-4"
                 style="height: 40px !important;margin-right: 25px !important;">
                 <i class="fa-solid fa-plus"></i> &nbsp; Create Check
             </a>
