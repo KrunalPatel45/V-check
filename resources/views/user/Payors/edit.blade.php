@@ -29,8 +29,8 @@
                         Back</a>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('user.payors.update', ['type' => 'Payors', 'id' => $payor->EntityID]) }}"
-                        method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('user.payors.update', ['id' => $payor->EntityID]) }}" method="POST"
+                        enctype="multipart/form-data">
                         @csrf
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="name">Name</label>

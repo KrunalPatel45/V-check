@@ -36,8 +36,8 @@ class PayorsController extends Controller
                     return Carbon::parse($row->UpdatedAt)->format('m/d/Y');
                 })
                 ->addColumn('actions', function ($row) {
-                    $editUrl = route('user.payors.edit', ['type' => 'Payee', 'id' => $row->EntityID]);
-                    $deleteUrl = route('user.payors.delete', ['type' => 'Payee', 'id' => $row->EntityID]);
+                    $editUrl = route('user.payee.edit', ['id' => $row->EntityID]);
+                    $deleteUrl = route('user.payee.delete', ['id' => $row->EntityID]);
                 
                     return '<div class="dropdown">
                                 <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
@@ -108,8 +108,8 @@ class PayorsController extends Controller
                     return Carbon::parse($row->UpdatedAt)->format('m/d/Y');
                 })
                 ->addColumn('actions', function ($row) {
-                    $editUrl = route('user.payors.edit', ['type' => 'Payors', 'id' => $row->EntityID]);
-                    $deleteUrl = route('user.payors.delete', ['type' => 'Payors', 'id' => $row->EntityID]);
+                    $editUrl = route('user.payors.edit', ['id' => $row->EntityID]);
+                    $deleteUrl = route('user.payors.delete', ['id' => $row->EntityID]);
                 
                     return '<div class="dropdown">
                                 <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
@@ -155,16 +155,18 @@ class PayorsController extends Controller
         return view('user.Payors.index');
     }
 
-    public function create($type) 
+    public function payor_create() 
     {
+        $type = 'payors';
         if(!Auth::check()) {
             return redirect()->route('user.login');
         }
         return view('user.'.$type.'.new');   
     }
 
-    public function store(Request $request, $type) 
+    public function payor_store(Request $request) 
     {  
+        $type = 'Payors';
         $validator = Validator::make($request->all(), [
             'name' => 'required' ,
             'email' => 'nullable|email',
@@ -209,8 +211,9 @@ class PayorsController extends Controller
         return redirect()->route('user.'. $type)->with('success', $type.' added successfully');
     }
 
-    public function edit($type, $id)
+    public function payor_edit($id)
     {
+        $type = 'payors';
         if(!Auth::check()) {
             return redirect()->route('user.login');
         }
@@ -218,8 +221,9 @@ class PayorsController extends Controller
         return view('user.'.$type.'.edit', compact('payor'));
     }
 
-    public function update(Request $request, $type, $id) 
+    public function payor_update(Request $request, $id) 
     {  
+        $type = 'Payors';
         $validator = Validator::make($request->all(), [
             'name' => 'required' ,
             'email' => 'nullable|email',
@@ -265,8 +269,132 @@ class PayorsController extends Controller
         return redirect()->route('user.'.$type)->with('success', $type . ' updated successfully');
     }
 
-    public function delete($type, $id)
+    public function payor_delete($id)
     {
+        $type = 'Payors';
+        $package = Payors::find($id);
+        $package->delete();
+
+        return redirect()->route('user.'.$type)->with('success', $type . ' deleted successfully');
+    }
+
+    public function payee_create() 
+    {
+        $type = 'payee';
+        if(!Auth::check()) {
+            return redirect()->route('user.login');
+        }
+        return view('user.'.$type.'.new');   
+    }
+
+    public function payee_store(Request $request) 
+    {  
+        $type = 'Payee';
+        $validator = Validator::make($request->all(), [
+            'name' => 'required' ,
+            'email' => 'nullable|email',
+            'address1' => 'required',
+            'city' => 'required',
+            'state' => 'required',
+            'zip' => 'required',
+            'bank_name' => 'required',
+            'routing_number' => 'required|digits:9',
+            'account_number' => 'required|numeric',
+            'status' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $payors_type = $request->type;
+        // if(!empty($request->same_as) && $request->same_as == 'on') {
+        //     $payors_type = 'Both';
+        // }
+       
+        $payor = new Payors();
+
+        $payor->Name = $request->name;
+        $payor->UserID = Auth::id();
+        $payor->Address1 = $request->address1;
+        $payor->Address2 = $request->address2;
+        $payor->City = $request->city;
+        $payor->State = $request->state;
+        $payor->Zip = $request->zip;
+        $payor->Email = $request->email;
+        $payor->BankName = $request->bank_name;
+        $payor->RoutingNumber = $request->routing_number;
+        $payor->AccountNumber = $request->account_number;
+        $payor->Status = $request->status;
+        $payor->Type = $payors_type;
+
+        $payor->save();
+
+
+        return redirect()->route('user.'. $type)->with('success', $type.' added successfully');
+    }
+
+    public function payee_edit($id)
+    {
+        $type = 'payee';
+        if(!Auth::check()) {
+            return redirect()->route('user.login');
+        }
+        $payor = Payors::find($id);
+        return view('user.'.$type.'.edit', compact('payor'));
+    }
+
+    public function payee_update(Request $request, $id) 
+    {  
+        $type = 'Payee';
+        $validator = Validator::make($request->all(), [
+            'name' => 'required' ,
+            'email' => 'nullable|email',
+            'address1' => 'required',
+            'address2' => 'required',
+            'city' => 'required',
+            'state' => 'required',
+            'zip' => 'required',
+            'bank_name' => 'required',
+            'routing_number' => 'required|digits:9',
+            'account_number' => 'required|numeric',
+            'status' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $payors_type = $request->type;
+        if(!empty($request->same_as) && $request->same_as == 'on') {
+            $payors_type = 'Both';
+        }
+        
+        $payor = Payors::find($id);
+
+        $payor->Name = $request->name;
+        $payor->UserID = Auth::id();
+        $payor->Address1 = $request->address1;
+        $payor->Address2 = $request->address2;
+        $payor->City = $request->city;
+        $payor->State = $request->state;
+        $payor->Zip = $request->zip;
+        $payor->Email = $request->email;
+        $payor->BankName = $request->bank_name;
+        $payor->RoutingNumber = $request->routing_number;
+        $payor->AccountNumber = $request->account_number;
+        $payor->Type = $payors_type;
+        $payor->Status = $request->status;
+
+        $payor->save();
+
+
+        return redirect()->route('user.'.$type)->with('success', $type . ' updated successfully');
+    }
+
+    public function payee_delete($id)
+    {
+        $type = 'Payee';
         $package = Payors::find($id);
         $package->delete();
 

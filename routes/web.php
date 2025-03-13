@@ -224,11 +224,17 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::delete('/user/company/delete/{id}', [CompanyController::class, 'delete'])->name('user.company.delete');
     Route::get('/user/client', [PayorsController::class, 'client_index'])->name('user.Payee');
     Route::get('/user/vendor', [PayorsController::class, 'vendor_index'])->name('user.Payors');
-    Route::get('/user/payors/{type}/add', [PayorsController::class, 'create'])->name('user.payors.add');
-    Route::post('/user/payors/{type}/add', [PayorsController::class, 'store'])->name('user.payors.store');
-    Route::get('/user/payors/{type}/edit/{id}', [PayorsController::class, 'edit'])->name('user.payors.edit');
-    Route::post('/user/payors/{type}/edit/{id}', [PayorsController::class, 'update'])->name('user.payors.update');
-    Route::delete('/user/payors/{type}/delete/{id}', [PayorsController::class, 'delete'])->name('user.payors.delete');
+    //
+    Route::get('/user/payors/Payors/add', [PayorsController::class, 'payor_create'])->name('user.payors.add');
+    Route::post('/user/payors/Payors/add', [PayorsController::class, 'payor_store'])->name('user.payors.store');
+    Route::get('/user/payors/Payors/edit/{id}', [PayorsController::class, 'payor_edit'])->name('user.payors.edit');
+    Route::post('/user/payors/Payors/edit/{id}', [PayorsController::class, 'payor_update'])->name('user.payors.update');
+    Route::delete('/user/payors/Payors/delete/{id}', [PayorsController::class, 'payor_delete'])->name('user.payors.delete');
+    Route::get('/user/payee/Payee/add', [PayorsController::class, 'payee_create'])->name('user.payee.add');
+    Route::post('/user/payee/Payee/add', [PayorsController::class, 'payee_store'])->name('user.payee.store');
+    Route::get('/user/payors/Payee/edit/{id}', [PayorsController::class, 'payee_edit'])->name('user.payee.edit');
+    Route::post('/user/payors/Payee/edit/{id}', [PayorsController::class, 'payee_update'])->name('user.payee.update');
+    Route::delete('/user/payors/Payee/delete/{id}', [PayorsController::class, 'payee_delete'])->name('user.payee.delete');
     Route::get('/check/process-payment', [CheckController::class, 'process_payment'])->name('check.process_payment');
     Route::get('/check/process-payment/generate', [CheckController::class, 'process_payment_check'])->name('check.process_payment_check');
     Route::post('/check/process-payment/generate', [CheckController::class, 'process_payment_check_generate'])->name('check.process_payment_check_generate');
