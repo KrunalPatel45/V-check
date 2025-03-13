@@ -659,7 +659,7 @@ class CheckController extends Controller
 
     public function new_web_form()
     {
-        $companies = Company::all();
+        $companies = Company::where('UserID', Auth::id())->get();
         return view('user.web_form.new', compact('companies'));
     }
 
