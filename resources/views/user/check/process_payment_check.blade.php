@@ -36,6 +36,7 @@
             <table id="receive_payment_checks" class="table">
                 <thead>
                     <tr>
+                        <th style="d-none">ID</th>
                         <th>#</th>
                         <th style="width: 50px;!important">Check Number</th>
                         <th>Payee</th>
@@ -58,7 +59,15 @@
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('check.process_payment') }}",
+                order: [
+                    [0, 'desc']
+                ],
                 columns: [{
+                        data: 'CheckID', // Hidden ID column for sorting
+                        name: 'CheckID',
+                        visible: false // Hides the ID column
+                    },
+                    {
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',
                         orderable: false,
