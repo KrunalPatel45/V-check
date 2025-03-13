@@ -545,15 +545,19 @@
 @endsection
 
 @section('content')
-    <div class="card-header d-flex align-items-center justify-content-between mb-5">
-        <h5 class="mb-0">Create Check</h5>
-        <a href="{{ route('check.process_payment') }}" class="btn btn-primary mr-4"><i class="fa-solid fa-arrow-left"></i>
-            &nbsp;
-            Back</a>
-    </div>
-    <div class="form-container">
-        <form action="{{ route('check.process_payment_check_generate') }}" method="POST" enctype="multipart/form-data">
-            @csrf
+    <form action="{{ route('check.process_payment_check_generate') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        <div class="card-header d-flex align-items-center justify-content-between mb-5">
+            <h5 class="mb-0">Create Check</h5>
+            <div class="d-flex align-items-center">
+                <button type="submit" class="btn btn-primary">Save</button>
+                &nbsp;&nbsp;
+                <a href="{{ route('check.process_payment') }}" class="btn btn-primary mr-4">
+                    {{-- &nbsp; --}}
+                    Back</a>
+            </div>
+        </div>
+        <div class="form-container">
             <input type="hidden" id="id" name="id"
                 value="{{ !empty($check->CheckID) ? $check->CheckID : '' }}">
             <div class="form-row">
@@ -712,254 +716,250 @@
                         value="{{ !empty($old_payor->AccountNumber) && $old_payor->AccountNumber ? $old_payor->AccountNumber : old('confirm_account_number') }}">
                 </div>
             </div>
-
-            <div class="form-row">
-                <button type="submit" class="btn btn-primary waves-effect waves-light">Save</button>
-            </div>
-        </form>
-
-        <div class="modal fade" id="payorModel" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel1"><span id="payor_h">Add</span> Payor</h5>
-                        <button type="button" class="btn-close" id="payor_close" data-bs-dismiss="modal"
-                            aria-label="Close"></button>
-                    </div>
-                    <input type="hidden" name="payor_id" id="payor_id"
-                        value={{ !empty($old_payor->EntityID) ? $old_payor->EntityID : '' }} />
-                    <div class="modal-body">
-                        <div class="row g-6" id="add-payor">
-                            <div class="col-md-6">
-                                <label class="form-label" for="name">Name</label>
-                                <input type="text" name="name" id="name" class="form-control"
-                                    value="{{ !empty($old_payor->Name) ? $old_payor->Name : old('name') }}" />
-                                @if ($errors->has('name'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('name') }}
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="email">Email</label>
-                                <input type="text" name="email" id="email" class="form-control"
-                                    value="{{ !empty($old_payor->Email) ? $old_payor->Email : old('email') }}" />
-                                @if ($errors->has('email'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('email') }}
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="address1">Address 1</label>
-                                <textarea id="address1" name="address1" class="form-control">{{ !empty($old_payor->Address1) ? $old_payor->Address1 : old('address1') }}</textarea>
-                                @if ($errors->has('address1'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('address1') }}
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="address2">Address 2</label>
-                                <textarea id="address2" name="address2" class="form-control">{{ !empty($old_payor->Address2) ? $old_payor->Address2 : old('address2') }}</textarea>
-                                @if ($errors->has('address2'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('address2') }}
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="city">City</label>
-                                <input type="text" name="city" id="city" class="form-control"
-                                    value="{{ !empty($old_payor->City) ? $old_payor->City : old('city') }}" />
-                                @if ($errors->has('city'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('city') }}
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="state">State</label>
-                                <input type="text" name="state" id="state" class="form-control"
-                                    value="{{ !empty($old_payor->State) ? $old_payor->State : old('state') }}" />
-                                @if ($errors->has('state'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('state') }}
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="zip">Zip</label>
-                                <input type="text" name="zip" id="zip" class="form-control"
-                                    value="{{ !empty($old_payor->Zip) ? $old_payor->Zip : old('zip') }}" />
-                                @if ($errors->has('zip'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('zip') }}
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="bank_name">Bank Name</label>
-                                <input type="text" name="bank_name" id="bank_name" class="form-control"
-                                    value="{{ !empty($old_payor->BankName) ? $old_payor->BankName : old('bank_name') }}" />
-                                @if ($errors->has('bank_name'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('bank_name') }}
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="account_number">Account Number</label>
-                                <input type="text" name="account_number" id="account_number" class="form-control"
-                                    value="{{ !empty($old_payor->AccountNumber) ? $old_payor->AccountNumber : old('account_number') }}" />
-                                @if ($errors->has('account_number'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('account_number') }}
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="routing_number">Routing Number</label>
-                                <input type="text" name="routing_number" id="routing_number" class="form-control"
-                                    value="{{ !empty($old_payor->RoutingNumber) ? $old_payor->RoutingNumber : old('routing_number') }}" />
-                                @if ($errors->has('routing_number'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('routing_number') }}
-                                    </span>
-                                @endif
-                            </div>
+            <div class="modal fade" id="payorModel" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel1"><span id="payor_h">Add</span> Payor</h5>
+                            <button type="button" class="btn-close" id="payor_close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
                         </div>
-                        <input type="hidden" name="type" id="type" value="Vendor" />
+                        <input type="hidden" name="payor_id" id="payor_id"
+                            value={{ !empty($old_payor->EntityID) ? $old_payor->EntityID : '' }} />
+                        <div class="modal-body">
+                            <div class="row g-6" id="add-payor">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="name">Name</label>
+                                    <input type="text" name="name" id="name" class="form-control"
+                                        value="{{ !empty($old_payor->Name) ? $old_payor->Name : old('name') }}" />
+                                    @if ($errors->has('name'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('name') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="email">Email</label>
+                                    <input type="text" name="email" id="email" class="form-control"
+                                        value="{{ !empty($old_payor->Email) ? $old_payor->Email : old('email') }}" />
+                                    @if ($errors->has('email'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('email') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="address1">Address 1</label>
+                                    <textarea id="address1" name="address1" class="form-control">{{ !empty($old_payor->Address1) ? $old_payor->Address1 : old('address1') }}</textarea>
+                                    @if ($errors->has('address1'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('address1') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="address2">Address 2</label>
+                                    <textarea id="address2" name="address2" class="form-control">{{ !empty($old_payor->Address2) ? $old_payor->Address2 : old('address2') }}</textarea>
+                                    @if ($errors->has('address2'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('address2') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="city">City</label>
+                                    <input type="text" name="city" id="city" class="form-control"
+                                        value="{{ !empty($old_payor->City) ? $old_payor->City : old('city') }}" />
+                                    @if ($errors->has('city'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('city') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="state">State</label>
+                                    <input type="text" name="state" id="state" class="form-control"
+                                        value="{{ !empty($old_payor->State) ? $old_payor->State : old('state') }}" />
+                                    @if ($errors->has('state'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('state') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="zip">Zip</label>
+                                    <input type="text" name="zip" id="zip" class="form-control"
+                                        value="{{ !empty($old_payor->Zip) ? $old_payor->Zip : old('zip') }}" />
+                                    @if ($errors->has('zip'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('zip') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="bank_name">Bank Name</label>
+                                    <input type="text" name="bank_name" id="bank_name" class="form-control"
+                                        value="{{ !empty($old_payor->BankName) ? $old_payor->BankName : old('bank_name') }}" />
+                                    @if ($errors->has('bank_name'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('bank_name') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="account_number">Account Number</label>
+                                    <input type="text" name="account_number" id="account_number" class="form-control"
+                                        value="{{ !empty($old_payor->AccountNumber) ? $old_payor->AccountNumber : old('account_number') }}" />
+                                    @if ($errors->has('account_number'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('account_number') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="routing_number">Routing Number</label>
+                                    <input type="text" name="routing_number" id="routing_number" class="form-control"
+                                        value="{{ !empty($old_payor->RoutingNumber) ? $old_payor->RoutingNumber : old('routing_number') }}" />
+                                    @if ($errors->has('routing_number'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('routing_number') }}
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                            <input type="hidden" name="type" id="type" value="Vendor" />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
+                            <button id="add-payor-btn" type="button" class="btn btn-primary">Save</button>
+                        </div>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
-                        <button id="add-payor-btn" type="button" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+            <div class="modal fade" id="payeeModel" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel1"><span class="payee_h">Add</span> Payee</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <input type="hidden" name="payee_id" id="payee_id"
+                            value="{{ !empty($old_payee->CompanyID) ? $old_payee->CompanyID : '' }}">
+                        <div class="modal-body">
+                            <div class="row g-6" id="add-payee">
+                                <div class="col-md-6">
+                                    <label class="form-label" for="payee-name">Name</label>
+                                    <input type="text" name="name" id="payee-name" class="form-control"
+                                        value="{{ !empty($old_payee->Name) ? $old_payee->Name : old('name') }}" />
+                                    @if ($errors->has('name'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('name') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="payee-email">Email</label>
+                                    <input type="text" name="email" id="payee-email" class="form-control"
+                                        value="{{ !empty($old_payee->Email) ? $old_payee->Email : old('email') }}" />
+                                    @if ($errors->has('email'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('email') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="payee-address1">Address 1</label>
+                                    <textarea id="payee-address1" name="address1" class="form-control">{{ !empty($old_payee->Address1) ? $old_payee->Address1 : old('address1') }}</textarea>
+                                    @if ($errors->has('address1'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('address1') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="payee-address2">Address 2</label>
+                                    <textarea id="payee-address2" name="address2" class="form-control">{{ !empty($old_payee->Address2) ? $old_payee->Address2 : old('address2') }}</textarea>
+                                    @if ($errors->has('address1'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('address2') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="payee-city">City</label>
+                                    <input type="text" name="city" id="payee-city" class="form-control"
+                                        value="{{ !empty($old_payee->City) ? $old_payee->City : old('city') }}" />
+                                    @if ($errors->has('city'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('city') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="payee-state">State</label>
+                                    <input type="text" name="state" id="payee-state" class="form-control"
+                                        value="{{ !empty($old_payee->State) ? $old_payee->State : old('state') }}" />
+                                    @if ($errors->has('state'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('state') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="payee-zip">Zip</label>
+                                    <input type="text" name="zip" id="payee-zip" class="form-control"
+                                        value="{{ !empty($old_payee->Zip) ? $old_payee->Zip : old('zip') }}" />
+                                    @if ($errors->has('zip'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('zip') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="payee-bank_name">Bank Name</label>
+                                    <input type="text" name="bank_name" id="payee-bank_name" class="form-control"
+                                        value="{{ !empty($old_payee->BankName) ? $old_payee->BankName : old('bank_name') }}" />
+                                    @if ($errors->has('bank_name'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('bank_name') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="payee-account_number">Account
+                                        Number</label>
+                                    <input type="text" name="account_number" id="payee-account_number"
+                                        class="form-control"
+                                        value="{{ !empty($old_payee->AccountNumber) ? $old_payee->AccountNumber : old('account_number') }}" />
+                                    @if ($errors->has('account_number'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('account_number') }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="payee-routing_number">Routing
+                                        Number</label>
+                                    <input type="text" name="routing_number" id="payee-routing_number"
+                                        class="form-control"
+                                        value="{{ !empty($old_payee->RoutingNumber) ? $old_payee->RoutingNumber : old('routing_number') }}" />
+                                    @if ($errors->has('routing_number'))
+                                        <span class="text-danger">
+                                            {{ $errors->first('routing_number') }}
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                            <input type="hidden" name="type" id="type" value="Vendor" />
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
+                            <button id="add-payee-btn" type="button" class="btn btn-primary">Save</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="modal fade" id="payeeModel" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel1"><span class="payee_h">Add</span> Payee</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <input type="hidden" name="payee_id" id="payee_id"
-                        value="{{ !empty($old_payee->CompanyID) ? $old_payee->CompanyID : '' }}">
-                    <div class="modal-body">
-                        <div class="row g-6" id="add-payee">
-                            <div class="col-md-6">
-                                <label class="form-label" for="payee-name">Name</label>
-                                <input type="text" name="name" id="payee-name" class="form-control"
-                                    value="{{ !empty($old_payee->Name) ? $old_payee->Name : old('name') }}" />
-                                @if ($errors->has('name'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('name') }}
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="payee-email">Email</label>
-                                <input type="text" name="email" id="payee-email" class="form-control"
-                                    value="{{ !empty($old_payee->Email) ? $old_payee->Email : old('email') }}" />
-                                @if ($errors->has('email'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('email') }}
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="payee-address1">Address 1</label>
-                                <textarea id="payee-address1" name="address1" class="form-control">{{ !empty($old_payee->Address1) ? $old_payee->Address1 : old('address1') }}</textarea>
-                                @if ($errors->has('address1'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('address1') }}
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="payee-address2">Address 2</label>
-                                <textarea id="payee-address2" name="address2" class="form-control">{{ !empty($old_payee->Address2) ? $old_payee->Address2 : old('address2') }}</textarea>
-                                @if ($errors->has('address1'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('address2') }}
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="payee-city">City</label>
-                                <input type="text" name="city" id="payee-city" class="form-control"
-                                    value="{{ !empty($old_payee->City) ? $old_payee->City : old('city') }}" />
-                                @if ($errors->has('city'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('city') }}
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="payee-state">State</label>
-                                <input type="text" name="state" id="payee-state" class="form-control"
-                                    value="{{ !empty($old_payee->State) ? $old_payee->State : old('state') }}" />
-                                @if ($errors->has('state'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('state') }}
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="payee-zip">Zip</label>
-                                <input type="text" name="zip" id="payee-zip" class="form-control"
-                                    value="{{ !empty($old_payee->Zip) ? $old_payee->Zip : old('zip') }}" />
-                                @if ($errors->has('zip'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('zip') }}
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="payee-bank_name">Bank Name</label>
-                                <input type="text" name="bank_name" id="payee-bank_name" class="form-control"
-                                    value="{{ !empty($old_payee->BankName) ? $old_payee->BankName : old('bank_name') }}" />
-                                @if ($errors->has('bank_name'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('bank_name') }}
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="payee-account_number">Account
-                                    Number</label>
-                                <input type="text" name="account_number" id="payee-account_number"
-                                    class="form-control"
-                                    value="{{ !empty($old_payee->AccountNumber) ? $old_payee->AccountNumber : old('account_number') }}" />
-                                @if ($errors->has('account_number'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('account_number') }}
-                                    </span>
-                                @endif
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="payee-routing_number">Routing
-                                    Number</label>
-                                <input type="text" name="routing_number" id="payee-routing_number"
-                                    class="form-control"
-                                    value="{{ !empty($old_payee->RoutingNumber) ? $old_payee->RoutingNumber : old('routing_number') }}" />
-                                @if ($errors->has('routing_number'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('routing_number') }}
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                        <input type="hidden" name="type" id="type" value="Vendor" />
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
-                        <button id="add-payee-btn" type="button" class="btn btn-primary">Save</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    </form>
 @endsection

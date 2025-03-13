@@ -19,18 +19,21 @@
 
 @section('content')
     <div class="row">
-        <!-- Basic Layout -->
-        <div class="col-xxl">
-            <div class="card mb-6">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <h5 class="mb-0">Add Package</h5>
-                    <a href="{{ route('admin.package') }}" class="btn btn-primary mr-4"><i class="fa-solid fa-arrow-left"></i>
-                        &nbsp;
-                        Back</a>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('admin.package.store') }}" method="POST">
-                        @csrf
+        <form action="{{ route('admin.package.store') }}" method="POST">
+            @csrf
+            <!-- Basic Layout -->
+            <div class="col-xxl">
+                <div class="card mb-6">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0">Add Package</h5>
+                        <div class="d-flex align-items-center">
+                            <button type="submit" class="btn btn-primary">Save</button>
+                            &nbsp;&nbsp;
+                            <a href="{{ route('admin.package') }}" class="btn btn-primary mr-4">
+                                Back</a>
+                        </div>
+                    </div>
+                    <div class="card-body">
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="name">Name</label>
                             <div class="col-sm-10">
@@ -144,14 +147,9 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="row justify-content-end">
-                            <div class="col-sm-10">
-                                <button type="submit" class="btn btn-primary">Save</button>
-                            </div>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 @endsection

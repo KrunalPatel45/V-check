@@ -19,18 +19,22 @@
 
 @section('content')
     <div class="row">
-        <!-- Basic Layout -->
-        <div class="col-xxl">
-            <div class="card mb-6">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <h5 class="mb-0">Add Company</h5>
-                    <a href="{{ route('user.company') }}" class="btn btn-primary mr-4"><i class="fa-solid fa-arrow-left"></i>
-                        &nbsp;
-                        Back</a>
-                </div>
-                <div class="card-body">
-                    <form action="{{ route('user.company.store') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
+        <form action="{{ route('user.company.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <!-- Basic Layout -->
+            <div class="col-xxl">
+                <div class="card mb-6">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0">Add Company</h5>
+                        <div class="d-flex align-items-center">
+                            <button type="submit" class="btn btn-primary">Save</button>
+                            &nbsp;&nbsp;
+                            <a href="{{ route('user.company') }}" class="btn btn-primary mr-4">
+                                {{-- &nbsp; --}}
+                                Back</a>
+                        </div>
+                    </div>
+                    <div class="card-body">
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="name">Name</label>
                             <div class="col-sm-10">
@@ -126,29 +130,6 @@
                             </div>
                         </div>
                         <div class="row mb-6">
-                            <label class="col-sm-2 col-form-label" for="page_url">Page URL</label>
-                            <div class="col-sm-10">
-                                <input type="text" name="page_url" id="page_url" class="form-control"
-                                    value="{{ old('page_url') }}" />
-                                @if ($errors->has('page_url'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('page_url') }}
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="row mb-6">
-                            <label class="col-sm-2 col-form-label" for="page_description">Page Description</label>
-                            <div class="col-sm-10">
-                                <textarea id="page_description" name="page_description" class="form-control">{{ old('page_description') }}</textarea>
-                                @if ($errors->has('page_description'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('page_description') }}
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="bank_name">Bank Name</label>
                             <div class="col-sm-10">
                                 <input type="text" name="bank_name" id="bank_name" class="form-control"
@@ -201,15 +182,9 @@
                                 @endif
                             </div>
                         </div>
-
-                        <div class="row justify-content-end">
-                            <div class="col-sm-10">
-                                <button type="submit" class="btn btn-primary">Save</button>
-                            </div>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 @endsection
