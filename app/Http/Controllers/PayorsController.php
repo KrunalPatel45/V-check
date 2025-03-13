@@ -157,7 +157,7 @@ class PayorsController extends Controller
 
     public function payor_create() 
     {
-        $type = 'payors';
+        $type = 'Payors';
         if(!Auth::check()) {
             return redirect()->route('user.login');
         }
@@ -213,7 +213,7 @@ class PayorsController extends Controller
 
     public function payor_edit($id)
     {
-        $type = 'payors';
+        $type = 'Payors';
         if(!Auth::check()) {
             return redirect()->route('user.login');
         }
@@ -280,7 +280,7 @@ class PayorsController extends Controller
 
     public function payee_create() 
     {
-        $type = 'payee';
+        $type = 'Payee';
         if(!Auth::check()) {
             return redirect()->route('user.login');
         }
@@ -336,7 +336,7 @@ class PayorsController extends Controller
 
     public function payee_edit($id)
     {
-        $type = 'payee';
+        $type = 'Payee';
         if(!Auth::check()) {
             return redirect()->route('user.login');
         }
