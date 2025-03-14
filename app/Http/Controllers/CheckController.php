@@ -599,9 +599,9 @@ class CheckController extends Controller
         return redirect()->back()->with('success', 'Check generated successfully.');
     }
 
-    public function web_form($id)
+    public function web_form($slug)
     {
-        $data = WebForm::whereRaw("MD5(Id) = ?", [$id])->first();
+        $data = WebForm::where('page_url', $slug)->first();
         $company = Company::find($data->CompanyID);
         return view('user.web_form.web', compact('data', 'company'));
     }
@@ -625,23 +625,49 @@ class CheckController extends Controller
                         return '<img src="' . asset('assets/img/empty.jpg') . '" alt="Webform Logo" style="width: 50px;">';
                     }
                 })
-                ->addColumn('CompanyID', function ($row) {
+                ->addColumn('logo', function ($row) {
                     $company = Company::find($row->CompanyID);
-                    return !empty($company->Name) ? $company->Name : '-'; 
+                    if(!empty($company->Logo)) {
+                        return '<img src="' . asset($company->Logo) . '" alt="Webform Logo" style="width: 50px;">';
+                    } else {
+                        return '<img src="' . asset('assets/img/empty.jpg') . '" alt="Webform Logo" style="width: 50px;">';
+                    }
+                })
+                ->editColumn('page_url', function ($row) {
+                    $Preview = route('web_form', ['slug' => $row->page_url]);
+                    return $Preview;
                 })
                 ->addColumn('actions', function ($row) {
-                    $Preview = route('web_form', ['id' => md5($row->Id)]);
-                    return '<div class="dropdown">
-                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                    <i class="ti ti-dots-vertical"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a href="'.$Preview.'" class="dropdown-item" target="_blank">
-                                        <i class="ti ti-files me-1"></i> Preview
-                                    </a>
-                                    <a href="'.$Preview.'" data-link="'.$Preview.'" class="dropdown-item copy-link">
-                                        <i class="ti ti-clipboard-copy me-1"></i> Copy Link
-                                    </a>
+                    $Preview = route('web_form', ['slug' => $row->page_url]);
+                    $deleteUrl = route('web_form.delete', ['id' => $row->Id]);
+                    return '<div class="d-flex">
+                                <a href="'.$Preview.'" data-link="'.$Preview.'" class="dropdown-item copy-link">
+                                        <i class="ti ti-clipboard-copy me-1"></i>
+                                </a>
+                                <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="modal" 
+                                data-bs-target="#delete' . $row->Id . '">
+                                    <i class="ti ti-trash me-1"></i>
+                                </a>
+                            </div>
+                            <div class="modal fade" id="delete' . $row->Id . '" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Delete Web Form</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to delete this  Web Form?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <form action="' . $deleteUrl . '" method="POST" style="display:inline;">
+                                                ' . csrf_field() . '
+                                                ' . method_field('DELETE') . '
+                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>';
                 })
@@ -662,6 +688,7 @@ class CheckController extends Controller
         $validator = Validator::make($request->all(), [
             'company' => 'required',
             'phone_number' => 'required',
+            'page_desc' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -671,10 +698,14 @@ class CheckController extends Controller
         $webform = new WebForm();
 
         $company = Company::find($request->company);
+        $slug = $this->generateUniqueSlug($company->Name);
 
         $webform->UserID = Auth::id();
         $webform->PhoneNumber = $request->phone_number;
         $webform->CompanyID = $request->company;
+        $webform->page_url = $slug;
+        $webform->page_desc = $request->page_desc;
+
 
         $webform->save();
 
@@ -702,7 +733,7 @@ class CheckController extends Controller
         }
 
         $company = Company::find($request->comany_id);
-        // dd($company->UserID);
+      
 
         $payor_data = [
             'Name' => $request->name,
@@ -737,11 +768,33 @@ class CheckController extends Controller
         ];
 
         $check = Checks::create($check_data);
-        return redirect()->route('thankyou');
+        return redirect()->back()->with('success', 'Details saved successfully. Thank you!');
     }
 
     public function thankyou()
     {
         return view('user.web_form.thank_you');
+    }
+
+    function generateUniqueSlug($name)
+    {
+        $slug = Str::slug($name);
+        $count = 0;
+
+        while (Company::where('slug', $slug)->exists()) {
+            $count++;
+            $slug = Str::slug($name) . '-' . $count;
+        }
+
+        return $slug;
+    }
+
+    public function web_form_delete($id)
+    {
+        $webForm = WebForm::find($id);
+        $webForm->delete();
+
+        return redirect()->route('get_web_forms')->with('success', 'Web Form deleted successfully');
+
     }
 }

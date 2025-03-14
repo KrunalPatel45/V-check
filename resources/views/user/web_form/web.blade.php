@@ -569,6 +569,13 @@
         #wb_Text18 div {
             text-align: left;
         }
+
+        #wb_Text16 {
+            max-height: 462px;
+            /* Set a max height */
+            overflow-y: auto;
+            /* Enable vertical scrolling */
+        }
     </style>
     <script type="text/javascript">
         function ValidateTrue_Source_Home(theForm) {
@@ -653,6 +660,12 @@
             <div class="alert alert-danger mt-3"
                 style="position:absolute;left:342px;left:21px;top:97px;width:650px;z-index:28;">
                 {{ session('error') }}
+            </div>
+        @endif
+        @if (session('success'))
+            <div class="alert alert-success mt-3"
+                style="position:absolute;left:342px;left:21px;top:97px;width:650px;z-index:28;">
+                {{ session('success') }}
             </div>
         @endif
         <div id="wb_Form2" style="position:absolute;left:20px;top:170px;width:311px;height:741px;z-index:29;">
@@ -762,21 +775,8 @@
         </div>
         <div id="wb_Text16"
             style="position:absolute;left:354px;top:194px;width:630px;height:262px;z-index:32;text-align:left;">
-            <span style="color:#000000;font-family:Arial;font-size:17px;"><strong>What is a Virtual
-                    Check?</strong></span><span style="color:#000000;font-family:Arial;font-size:13px;"><br><br>Using
-                special software and the information provided, you authorize us to produce a legal check for this
-                transaction only. Our software prints this check that we deposit into our account just as we would one
-                you mailed us.&nbsp; The difference is time. Instead of waiting days for the mail - we can process your
-                order in moments. You will then receive the check we produced with your other cancelled checks in your
-                normal bank statement.<br><br>The requested information is not confidential as it is located on the
-                front of your check.<br><br></span><span
-                style="color:#000000;font-family:Arial;font-size:16px;"><strong>How do I do this? Very simple.&nbsp;
-                    First, get out your check book.</strong></span><span
-                style="color:#000000;font-family:Arial;font-size:13px;"><br><br>Go to the next available check you
-                would normally write.&nbsp; For your records, fill it out to us in the amount due.&nbsp; Next, write
-                VOID across this check.&nbsp; You will provide us with the actual check number - but not the actual
-                check.&nbsp; Next, use the graphic below to locate the information we will need.&nbsp; You can place the
-                numbers in red on your voided check for reference when you complete the Secure Virtual Check </span>
+            <span style="color:#000000;font-family:Arial;font-size:17px;">
+                {!! $data->page_desc !!}
         </div>
         <input type="text" id="account_number"
             style="position:absolute;left:49px;top:669px;width:255px;height:22px;line-height:22px;z-index:33;"

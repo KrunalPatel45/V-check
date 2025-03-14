@@ -17,5 +17,7 @@ class WebForm extends Model
         'UserID',
         'CompanyID',
         'PhoneNumber',
+        'page_url',
+        'page_desc',
     ];
 }

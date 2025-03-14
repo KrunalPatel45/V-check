@@ -256,12 +256,14 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::get('webform', [CheckController::class, 'get_web_forms'])->name('get_web_forms');
     Route::get('webform/new', [CheckController::class, 'new_web_form'])->name('new_web_form');
     Route::post('webform/new', [CheckController::class, 'new_web_form_store'])->name('store_web_form');
+    Route::post('web-form-slug', [CheckController::class, 'web_form_slug'])->name('web_form_slug');
     Route::get('users/plan/upgrade/{id}', [BillingAndPlanController::class, 'upgragde_plan'])->name('user_upgragde_plan');
     Route::get('user/change-plan/{id}/{plan}', [BillingAndPlanController::class, 'change_plan'])->name('user.select-package');
     Route::get('user/cancel-plan/{id}', [BillingAndPlanController::class, 'cancel_plan'])->name('user_cancel_plan');
+    Route::delete('/web_form/delete/{id}', [CheckController::class, 'web_form_delete'])->name('web_form.delete');
 });
 
-Route::get('web-form/{id}', [CheckController::class, 'web_form'])->name('web_form');
+Route::get('web-form/{slug}', [CheckController::class, 'web_form'])->name('web_form');
 Route::post('store_web_form_data', [CheckController::class, 'store_web_form_data'])->name('store_web_form_data');
 Route::get('thank-you', [CheckController::class, 'thankyou'])->name('thankyou');
 Route::get('expired', [UserAuthController::class, 'expired_sub'])->name('expired_sub');

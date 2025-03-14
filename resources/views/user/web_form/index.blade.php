@@ -34,6 +34,7 @@
                     <tr>
                         <th>#</th>
                         <th>Company Name</th>
+                        <th>Page URL</th>
                         <th>Logo</th>
                         <th>Phone Number</th>
                         <th>Actions</th>
@@ -59,6 +60,10 @@
                     {
                         data: 'CompanyID',
                         name: 'CompanyID'
+                    },
+                    {
+                        data: 'page_url',
+                        name: 'page_url'
                     },
                     {
                         data: 'logo',
