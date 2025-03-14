@@ -258,8 +258,8 @@
                             $('#payee-state').val(response.payee.State);
                             $('#payee-zip').val(response.payee.Zip);
                             $('#payee-bank_name').val(response.payee.BankName);
-                            $('#payee-account_number').val(response.payee.RoutingNumber);
-                            $('#payee-routing_number').val(response.payee.AccountNumber);
+                            $('#payee-account_number').val(response.payee.AccountNumber);
+                            $('#payee-routing_number').val(response.payee.RoutingNumber);
 
                             $('#payee_h').text('Add');
                         }
@@ -336,8 +336,8 @@
                             $('#payee-state').val(response.payee.State);
                             $('#payee-zip').val(response.payee.Zip);
                             $('#payee-bank_name').val(response.payee.BankName);
-                            $('#payee-account_number').val(response.payee.RoutingNumber);
-                            $('#payee-routing_number').val(response.payee.AccountNumber);
+                            $('#payee-account_number').val(response.payee.AccountNumber);
+                            $('#payee-routing_number').val(response.payee.RoutingNumber);
 
                             $('#add-payee')[0].reset(); // Reset form // Reset form
                         }
@@ -386,8 +386,8 @@
                             $('#add-payor #state').val(response.payor.State);
                             $('#add-payor #zip').val(response.payor.Zip);
                             $('#add-payor #bank_name').val(response.payor.BankName);
-                            $('#add-payor #account_number').val(response.payor.RoutingNumber);
-                            $('#add-payor #routing_number').val(response.payor.AccountNumber);
+                            $('#add-payor #account_number').val(response.payor.AccountNumber);
+                            $('#add-payor #routing_number').val(response.payor.RoutingNumber);
                             $('#payee_h').text('Edit');
                         }
                     });
@@ -455,6 +455,11 @@
                         alert('An error occurred. Check the console for details.');
                     }
                 });
+            });
+
+            $("#check_number").on("input", function() {
+                const check_number = $(this).val();
+                $("#verify_check_number").val(check_number);
             });
 
             $('#payor-edit').on('click', function(e) {
@@ -531,7 +536,7 @@
                             <option value="" selected>Select Payors</option>
                             @foreach ($payors as $payor)
                                 <option value="{{ $payor->CompanyID }}" id="added_company"
-                                    {{ !empty($check->CompanyID) && $check->CompanyID == $payor->CompanyID ? 'selected' : '' }}>
+                                    {{ old('payor', $check->CompanyID ?? '') == $payor->CompanyID ? 'selected' : '' }}>
                                     {{ $payor->Name }}
                                 </option>
                             @endforeach
@@ -601,8 +606,8 @@
                     <select id="payee" name="payee" class="payor-filed">
                         <option value="" selected>Select Payee</option>
                         @foreach ($payees as $payee)
-                            <option value="{{ $payee->EntityID }}" id="added_company"
-                                {{ !empty($check->EntityID) && $check->EntityID == $payee->EntityID ? 'selected' : '' }}>
+                            <option value="{{ $payee->EntityID }}"
+                                {{ old('payee', $check->EntityID ?? '') == $payee->EntityID ? 'selected' : '' }}>
                                 {{ $payee->Name }}
                             </option>
                         @endforeach
@@ -674,9 +679,9 @@
                         value="{{ !empty($old_payor->AccountNumber) && $old_payor->AccountNumber ? $old_payor->AccountNumber : old('account_number') }}">
                 </div>
                 <div class="fileds">
-                    <label for="confirm_account_number" class="text-center">Confirm Account #:</label>
-                    <input type="number" id="confirm_account_number" name="confirm_account_number"
-                        value="{{ !empty($old_payor->AccountNumber) && $old_payor->AccountNumber ? $old_payor->AccountNumber : old('confirm_account_number') }}">
+                    <label for="verify_check_number" class="text-center">Check Number #:</label>
+                    <input type="number" id="verify_check_number" name="verify_check_number" disabled
+                        value="{{ !empty($check->CheckNumber) ? $check->CheckNumber : old('verify_check_number') }}">
                 </div>
             </div>
             <div class="modal fade" id="payorModel" tabindex="-1" aria-hidden="true">

@@ -236,7 +236,7 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::post('/user/payors/Payee/edit/{id}', [PayorsController::class, 'payee_update'])->name('user.payee.update');
     Route::delete('/user/payors/Payee/delete/{id}', [PayorsController::class, 'payee_delete'])->name('user.payee.delete');
     Route::get('/check/process-payment', [CheckController::class, 'process_payment'])->name('check.process_payment');
-    Route::get('/check/process-payment/generate', [CheckController::class, 'process_payment_check'])->name('check.process_payment_check');
+    Route::get('/check/process-payment/generate', [CheckController::class, 'process_payment_check'])->name('check.process_payment.check');
     Route::post('/check/process-payment/generate', [CheckController::class, 'process_payment_check_generate'])->name('check.process_payment_check_generate');
     Route::get('/check/process-payment/edit/{id}', [CheckController::class, 'process_payment_check_edit'])->name('check.process_payment_check_edit');
     Route::get('/check/send-payment', [CheckController::class, 'send_payment'])->name('check.send_payment');

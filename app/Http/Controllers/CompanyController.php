@@ -44,19 +44,14 @@ class CompanyController extends Controller
                     $editUrl = route('user.company.edit', ['id' => $row->CompanyID]);
                     $deleteUrl = route('user.company.delete', ['id' => $row->CompanyID]);
 
-                    return '<div class="dropdown">
-                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                    <i class="ti ti-dots-vertical"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a href="' . $editUrl . '" class="dropdown-item">
-                                        <i class="ti ti-pencil me-1"></i> Edit
-                                    </a>
-                                    <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="modal" 
-                                    data-bs-target="#delete' . $row->CompanyID . '">
-                                        <i class="ti ti-trash me-1"></i> Delete
-                                    </a>
-                                </div>
+                    return '<div class="d-flex">
+                                <a href="' . $editUrl . '" class="dropdown-item">
+                                        <i class="ti ti-pencil me-1"></i>
+                                </a>
+                                <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="modal" 
+                                data-bs-target="#delete' . $row->CompanyID . '">
+                                    <i class="ti ti-trash me-1"></i>
+                                </a>
                             </div>
                             <div class="modal fade" id="delete' . $row->CompanyID . '" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog" role="document">

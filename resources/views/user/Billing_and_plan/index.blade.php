@@ -42,12 +42,6 @@
                                 <h6 class="mb-1">Active until {{ $package_data['expiryDate'] }}</h6>
                                 <p>We will send you a notification upon Subscription expiration</p>
                             </div>
-                            <div>
-                                <h6 class="mb-1"><span class="me-1">${{ round($stander_Plan_price) }} Per Month</span>
-                                    <span class="badge bg-label-primary rounded-pill">Popular</span>
-                                </h6>
-                                <p class="mb-1">Standard plan for small to medium businesses</p>
-                            </div>
                         </div>
                         <div class="col-md-6">
                             @if ($package_data['remainingDays'] <= 15)

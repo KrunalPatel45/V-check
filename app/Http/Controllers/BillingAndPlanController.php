@@ -86,7 +86,8 @@ class BillingAndPlanController extends Controller
             $cancel_or_pending_query->delete();
 
             $price = $package->Price - $user_current_package->Price;
-            $paymentSubscription = PaymentSubscription::create([
+            $paymentSubscription = PaymentSubscription::find($data_current_package->PaymentSubscriptionID);
+            $paymentSubscription->update([
                 'UserID' => $id,
                 'PackageID' => $plan,
                 'PaymentMethodID' => 1,
@@ -94,8 +95,9 @@ class BillingAndPlanController extends Controller
                 'PaymentStartDate' => $data_current_package->PaymentStartDate,
                 'PaymentEndDate' => $data_current_package->PaymentEndDate,
                 'NextRenewalDate' => $data_current_package->NextRenewalDate,
-                'ChecksGiven' => $package->CheckLimitPerMonth,
-                'RemainingChecks' => $package->CheckLimitPerMonth,
+                'ChecksGiven' => $package->CheckLimitPerMonth + $data_current_package->ChecksGiven,
+                'RemainingChecks' => $package->CheckLimitPerMonth + $data_current_package->RemainingChecks,
+                'ChecksUsed' => $data_current_package->ChecksUsed,
                 'PaymentDate' => $data_current_package->PaymentDate,
                 'PaymentAttempts' => 0 ,
                 'TransactionID' => Str::random(10),

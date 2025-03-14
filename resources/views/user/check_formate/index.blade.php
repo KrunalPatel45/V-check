@@ -102,7 +102,7 @@
         style="border-collapse: collapse; font-family: 'MICRCheckPrixa';">
         <tr style="height: 50px;font-size: 15px;">
             <td style="font-size: 30px;padding: 10px;text-align: center;  font-family: 'MICRCheckPrixa';">
-                "{{ $data['routing_number'] }} :{{ $data['account_number'] }}: {{ $data['account_number'] }}"
+                "{{ $data['routing_number'] }} :{{ $data['account_number'] }}: {{ $data['check_number'] }}"
             </td>
         </tr>
     </table>

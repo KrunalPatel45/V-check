@@ -249,8 +249,8 @@
                             $('#payee-state').val(response.payee.State);
                             $('#payee-zip').val(response.payee.Zip);
                             $('#payee-bank_name').val(response.payee.BankName);
-                            $('#payee-account_number').val(response.payee.RoutingNumber);
-                            $('#payee-routing_number').val(response.payee.AccountNumber);
+                            $('#payee-account_number').val(response.payee.AccountNumber);
+                            $('#payee-routing_number').val(response.payee.RoutingNumber);
                         }
                     });
                 }
@@ -362,8 +362,8 @@
                             $('#add-payor #state').val(response.payor.State);
                             $('#add-payor #zip').val(response.payor.Zip);
                             $('#add-payor #bank_name').val(response.payor.BankName);
-                            $('#add-payor #account_number').val(response.payor.RoutingNumber);
-                            $('#add-payor #routing_number').val(response.payor.AccountNumber);
+                            $('#add-payor #account_number').val(response.payor.AccountNumber);
+                            $('#add-payor #routing_number').val(response.payor.RoutingNumber);
                         }
                     });
                 }
@@ -438,8 +438,8 @@
                             $('#add-payor #state').val(response.payor.State);
                             $('#add-payor #zip').val(response.payor.Zip);
                             $('#add-payor #bank_name').val(response.payor.BankName);
-                            $('#add-payor #account_number').val(response.payor.RoutingNumber);
-                            $('#add-payor #routing_number').val(response.payor.AccountNumber);
+                            $('#add-payor #account_number').val(response.payor.AccountNumber);
+                            $('#add-payor #routing_number').val(response.payor.RoutingNumber);
                             $('#add-payor')[0].reset(); // Reset form
                         }
                     },
@@ -461,8 +461,7 @@
 
             $("#check_number").on("input", function() {
                 const check_number = $(this).val();
-                $("#c_check_number").text(check_number || "XXXX");
-                $("#c_check_number_1").text(check_number || "XXXX");
+                $("#verify_check_number").val(check_number);
             });
 
             $("#amount").on("input", function() {
@@ -567,8 +566,8 @@
                         <select id="payor" name="payor" class="payor-filed">
                             <option value="" selected>Select Payors</option>
                             @foreach ($payors as $payor)
-                                <option value="{{ $payor->EntityID }}" id="added_company"
-                                    {{ !empty($check->EntityID) && $check->EntityID == $payor->EntityID ? 'selected' : '' }}>
+                                <option value="{{ $payor->EntityID }}"
+                                    {{ old('payor', $check->EntityID ?? '') == $payor->EntityID ? 'selected' : '' }}>
                                     {{ $payor->Name }}
                                 </option>
                             @endforeach
@@ -599,7 +598,7 @@
             <div class="form-row">
                 <div class="fileds">
                     <label for="street-address">Your Street Address:</label>
-                    <input type="text" id="address" name="address" class="payor-filed"
+                    <input type="text" id="address" name="address" class="payor-filed" disabled
                         value="{{ !empty($old_payor->Address1) && $old_payor->Address1 ? $old_payor->Address1 : old('address') }}">
                 </div>
                 <div class="fileds">
@@ -617,17 +616,17 @@
             <div class="form-row address">
                 <div class="fileds">
                     <label for="city">Your City:</label>
-                    <input type="text" id="city" name="city"
+                    <input type="text" id="city" name="city" disabled
                         value="{{ !empty($old_payor->City) && $old_payor->City ? $old_payor->City : old('city') }}">
                 </div>
                 <div class="fileds">
                     <label for="state">Your State:</label>
-                    <input type="text" id="state" name="state"
+                    <input type="text" id="state" name="state" disabled
                         value="{{ !empty($old_payor->State) && $old_payor->State ? $old_payor->State : old('state') }}">
                 </div>
                 <div class="fileds">
                     <label for="zip">Your Zip:</label>
-                    <input type="text" id="zip" name="zip"
+                    <input type="text" id="zip" name="zip" disabled
                         value="{{ !empty($old_payor->Zip) && $old_payor->Zip ? $old_payor->Zip : old('zip') }}">
                 </div>
             </div>
@@ -638,8 +637,8 @@
                     <select id="payee" name="payee" class="payor-filed" style="font-size: 17px;">
                         <option value="" selected>Select Payee</option>
                         @foreach ($payees as $payee)
-                            <option value="{{ $payee->CompanyID }}" id="added_company"
-                                {{ !empty($check->CompanyID) && $check->CompanyID == $payee->CompanyID ? 'selected' : '' }}>
+                            <option value="{{ $payee->CompanyID }}"
+                                {{ old('payee', $check->CompanyID ?? '') == $payee->CompanyID ? 'selected' : '' }}>
                                 {{ $payee->Name }}
                             </option>
                         @endforeach
@@ -702,18 +701,18 @@
             <div class="form-row j-center">
                 <div class="fileds">
                     <label for="routing-number" class="text-center">Routing #:</label>
-                    <input type="number" id="routing_number" name="routing_number"
+                    <input type="number" id="routing_number" name="routing_number" disabled
                         value="{{ !empty($old_payor->RoutingNumber) && $old_payor->RoutingNumber ? $old_payor->RoutingNumber : old('routing_number') }}">
                 </div>
                 <div class="fileds">
                     <label for="checking-number" class="text-center">Checking Account #:</label>
-                    <input type="number" id="account_number" name="account_number"
+                    <input type="number" id="account_number" name="account_number" disabled
                         value="{{ !empty($old_payor->AccountNumber) && $old_payor->AccountNumber ? $old_payor->AccountNumber : old('account_number') }}">
                 </div>
                 <div class="fileds">
-                    <label for="confirm_account_number" class="text-center">Confirm Account #:</label>
-                    <input type="number" id="confirm_account_number" name="confirm_account_number"
-                        value="{{ !empty($old_payor->AccountNumber) && $old_payor->AccountNumber ? $old_payor->AccountNumber : old('confirm_account_number') }}">
+                    <label for="verify_check_number" class="text-center">Check Number #:</label>
+                    <input type="number" id="verify_check_number" name="verify_check_number" disabled
+                        value="{{ !empty($check->CheckNumber) ? $check->CheckNumber : old('verify_check_number') }}">
                 </div>
             </div>
             <div class="modal fade" id="payorModel" tabindex="-1" aria-hidden="true">

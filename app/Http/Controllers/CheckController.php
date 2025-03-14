@@ -48,19 +48,14 @@ class CheckController extends Controller
                     $check_generate = route('check_generate', ['id' => $row->CheckID]);
 
                     if($row->Status == 'draft') {
-                        return '<div class="dropdown">
-                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                    <i class="ti ti-dots-vertical"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a href="' . $editUrl . '" class="dropdown-item">
+                        return '<div class="d-flex">
+                                <a href="' . $editUrl . '" class="dropdown-item">
                                         <i class="ti ti-pencil me-1"></i> Draft
-                                    </a>
-                                   <a href="javascript:void(0);" class="dropdown-item" data-bs-toggle="modal" 
+                                </a>
+                                <a href="javascript:void(0);" class="dropdown-item" data-bs-toggle="modal" 
                                     data-bs-target="#check-generate' . $row->CheckID . '">
                                         <i class="ti ti-bookmark-plus me-1"></i> generate
-                                    </a>
-                                </div>
+                                </a>
                             </div>
                             <div class="modal fade" id="check-generate' . $row->CheckID . '" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
@@ -241,19 +236,14 @@ class CheckController extends Controller
                     $check_generate = route('check_generate', ['id' => $row->CheckID]);
 
                     if($row->Status == 'draft') {
-                        return '<div class="dropdown">
-                                <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                    <i class="ti ti-dots-vertical"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a href="' . $editUrl . '" class="dropdown-item">
+                        return '<div class="d-flex">
+                                <a href="' . $editUrl . '" class="dropdown-item">
                                         <i class="ti ti-pencil me-1"></i> Draft
-                                    </a>
-                                   <a href="javascript:void(0);" class="dropdown-item" data-bs-toggle="modal" 
+                                </a>
+                                <a href="javascript:void(0);" class="dropdown-item" data-bs-toggle="modal" 
                                     data-bs-target="#check-generate' . $row->CheckID . '">
                                         <i class="ti ti-bookmark-plus me-1"></i> generate
-                                    </a>
-                                </div>
+                                </a>
                             </div>
                             <div class="modal fade" id="check-generate' . $row->CheckID . '" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
@@ -330,11 +320,15 @@ class CheckController extends Controller
             $image_parts = explode(";base64,", $request->signed);
             $image_type_aux = explode("image/", $image_parts[0]);
 
-            $image_type = $image_type_aux[1];
-            $image_base64 = base64_decode($image_parts[1]);
-            $fileName = uniqid() . '.'.$image_type;
-            $file = $folderPath . $fileName;
-            file_put_contents($file, $image_base64);
+            $fileName = '';
+            if(!empty($image_type_aux[1])) {
+                $image_type = $image_type_aux[1];
+                $image_base64 = base64_decode($image_parts[1]);
+                $fileName = uniqid() . '.'.$image_type;
+                $file = $folderPath . $fileName;
+
+                file_put_contents($file, $image_base64);
+            }
         }
         
         $check_date = Carbon::parse(str_replace('-', '/', $request->check_date));
@@ -385,7 +379,7 @@ class CheckController extends Controller
             $message = 'Check Crated successfully';
         }
         
-        return redirect()->route('check.send_payment')->with('success', 'Check Generated successfully');
+        return redirect()->route('check.send_payment')->with('success', $message);
     }
 
     public function process_send_check_edit(Request $request, $id)

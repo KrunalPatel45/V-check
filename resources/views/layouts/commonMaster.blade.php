@@ -66,11 +66,11 @@
 
     {{-- <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script> --}}
 
-    <script type="text/javascript" src="http://keith-wood.name/js/jquery.signature.js"></script>
+    <script type="text/javascript" src="{{ asset('assets/js/signature.js') }}"></script>
 
 
 
-    <link rel="stylesheet" type="text/css" href="http://keith-wood.name/css/jquery.signature.css">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/signature.css') }}">
     <style>
         table thead th {
             text-transform: none !important;
