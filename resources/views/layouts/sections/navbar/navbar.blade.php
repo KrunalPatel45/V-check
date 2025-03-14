@@ -451,7 +451,7 @@
                         $firstLetter =
                             isset(Auth::user()->FirstName) && !empty(Auth::user()->FirstName)
                                 ? strtoupper(substr(Auth::user()->FirstName, 0, 1))
-                                : strtoupper(substr(Auth::user()->UserName, 0, 1));
+                                : strtoupper(substr(Auth::user()->Username, 0, 1));
                     @endphp
 
                     <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
@@ -470,7 +470,7 @@
                                         $firstLetter =
                                             isset(Auth::user()->FirstName) && !empty(Auth::user()->FirstName)
                                                 ? strtoupper(substr(Auth::user()->FirstName, 0, 1))
-                                                : strtoupper(substr(Auth::user()->UserName, 0, 1));
+                                                : strtoupper(substr(Auth::user()->Username, 0, 1));
                                     @endphp
 
                                     <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
