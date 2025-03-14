@@ -448,7 +448,10 @@
             <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
                 <div class="avatar avatar-online">
                     @php
-                        $firstLetter = strtoupper(substr(Auth::user()->FirstName, 0, 1));
+                        $firstLetter =
+                            isset(Auth::user()->FirstName) && !empty(Auth::user()->FirstName)
+                                ? strtoupper(substr(Auth::user()->FirstName, 0, 1))
+                                : strtoupper(substr(Auth::user()->UserName, 0, 1));
                     @endphp
 
                     <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
@@ -464,7 +467,10 @@
                             <div class="flex-shrink-0 me-2">
                                 <div class="avatar avatar-online">
                                     @php
-                                        $firstLetter = strtoupper(substr(Auth::user()->FirstName, 0, 1));
+                                        $firstLetter =
+                                            isset(Auth::user()->FirstName) && !empty(Auth::user()->FirstName)
+                                                ? strtoupper(substr(Auth::user()->FirstName, 0, 1))
+                                                : strtoupper(substr(Auth::user()->UserName, 0, 1));
                                     @endphp
 
                                     <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
