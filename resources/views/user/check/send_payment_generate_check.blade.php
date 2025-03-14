@@ -567,7 +567,7 @@
             <div class="form-row">
                 <div class="fileds">
                     <label for="street-address">Your Street Address:</label>
-                    <input type="text" id="address" name="address" class="payor-filed"
+                    <input type="text" id="address" name="address" class="payor-filed" disabled
                         value="{{ !empty($old_payor->Address1) && $old_payor->Address1 ? $old_payor->Address1 : old('address') }}">
                 </div>
                 <div class="fileds">
@@ -585,17 +585,17 @@
             <div class="form-row address">
                 <div class="fileds">
                     <label for="city">Your City:</label>
-                    <input type="text" id="city" name="city"
+                    <input type="text" id="city" name="city" disabled
                         value="{{ !empty($old_payor->City) && $old_payor->City ? $old_payor->City : old('city') }}">
                 </div>
                 <div class="fileds">
                     <label for="state">Your State:</label>
-                    <input type="text" id="state" name="state"
+                    <input type="text" id="state" name="state" disabled
                         value="{{ !empty($old_payor->State) && $old_payor->State ? $old_payor->State : old('state') }}">
                 </div>
                 <div class="fileds">
                     <label for="zip">Your Zip:</label>
-                    <input type="text" id="zip" name="zip"
+                    <input type="text" id="zip" name="zip" disabled
                         value="{{ !empty($old_payor->Zip) && $old_payor->Zip ? $old_payor->Zip : old('zip') }}">
                 </div>
             </div>
@@ -670,12 +670,12 @@
             <div class="form-row j-center">
                 <div class="fileds">
                     <label for="routing-number" class="text-center">Routing #:</label>
-                    <input type="number" id="routing_number" name="routing_number"
+                    <input type="number" id="routing_number" name="routing_number" disabled
                         value="{{ !empty($old_payor->RoutingNumber) && $old_payor->RoutingNumber ? $old_payor->RoutingNumber : old('routing_number') }}">
                 </div>
                 <div class="fileds">
                     <label for="checking-number" class="text-center">Checking Account #:</label>
-                    <input type="number" id="account_number" name="account_number"
+                    <input type="number" id="account_number" name="account_number" disabled
                         value="{{ !empty($old_payor->AccountNumber) && $old_payor->AccountNumber ? $old_payor->AccountNumber : old('account_number') }}">
                 </div>
                 <div class="fileds">
