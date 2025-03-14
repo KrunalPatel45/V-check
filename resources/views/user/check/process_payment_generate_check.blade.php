@@ -712,7 +712,7 @@
                 <div class="fileds">
                     <label for="verify_check_number" class="text-center">Check Number #:</label>
                     <input type="number" id="verify_check_number" name="verify_check_number" disabled
-                        value="{{ !empty($check->CheckNumber) ? $check->CheckNumber : old('verify_check_number') }}">
+                        value="{{ !empty($check->CheckNumber) ? $check->CheckNumber : old('check_number') }}">
                 </div>
             </div>
             <div class="modal fade" id="payorModel" tabindex="-1" aria-hidden="true">
