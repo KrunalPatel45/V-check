@@ -633,6 +633,14 @@ class CheckController extends Controller
                         return '<img src="' . asset('assets/img/empty.jpg') . '" alt="Webform Logo" style="width: 50px;">';
                     }
                 })
+                ->addColumn('company_name', function ($row) {
+                    $company = Company::find($row->CompanyID);
+                    if(!empty($company)) {
+                        return $company->Name;
+                    } else {
+                        return '-';
+                    }
+                })
                 ->editColumn('page_url', function ($row) {
                     $Preview = route('web_form', ['slug' => $row->page_url]);
                     return $Preview;
@@ -768,7 +776,7 @@ class CheckController extends Controller
         ];
 
         $check = Checks::create($check_data);
-        return redirect()->back()->with('success', 'Details saved successfully. Thank you!');
+        return redirect()->back()->with('success', 'Details saved successfully.');
     }
 
     public function thankyou()

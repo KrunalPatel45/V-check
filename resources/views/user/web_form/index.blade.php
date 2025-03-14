@@ -58,8 +58,8 @@
                         searchable: false
                     },
                     {
-                        data: 'CompanyID',
-                        name: 'CompanyID'
+                        data: 'company_name',
+                        name: 'company_name'
                     },
                     {
                         data: 'page_url',
