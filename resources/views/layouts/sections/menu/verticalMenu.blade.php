@@ -61,7 +61,8 @@
                             } else {
                                 if (
                                     str_contains($currentRouteName, $menu->slug) and
-                                    strpos($currentRouteName, $menu->slug) === 0
+                                    strpos($currentRouteName, $menu->slug) === 0 and
+                                    $currentRouteName != 'check_history'
                                 ) {
                                     $activeClass = 'active open';
                                 }
