@@ -316,7 +316,8 @@ class AdminDashboardController extends Controller
         }
 
         $user = User::where('userID', $id)->first();
-        return view('admin.user.edit', compact('user'));
+        $packages = Package::all();
+        return view('admin.user.edit', compact('user', 'packages'));
     }
 
     public function upgragde_plan($id)

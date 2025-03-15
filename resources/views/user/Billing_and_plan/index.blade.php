@@ -14,7 +14,7 @@
 
 <!-- Page Scripts -->
 @section('page-script')
-    @vite(['resources/assets/js/pages-pricing.js', 'resources/assets/js/pages-account-settings-billing.js', 'resources/assets/js/app-invoice-list.js', 'resources/assets/js/modal-edit-cc.js'])
+    @vite(['resources/assets/js/pages-pricing.js', 'resources/assets/js/pages-account-settings-billing.js', 'resources/assets/js/app-invoice-list.js', 'resources/assets/js/modal-edit-cc.js', 'resources/assets/js/ui-modals.js'])
 @endsection
 
 @section('content')
@@ -84,12 +84,13 @@
                             @endif
                         </div>
                         <div class="col-12 d-flex gap-2 flex-wrap">
-                            <a href="{{ route('user_upgragde_plan', ['id' => $user->UserID]) }}"
-                                class="btn btn-primary">Change
-                                Plan</a>
+                            <button class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#onboardingHorizontalSlideModal">Change
+                                Plan</button>
                             @if (empty($package_data['cancel_plan']))
                                 <a class="btn btn-label-danger "
-                                    href="{{ route('user_cancel_plan', ['id' => $user->UserID]) }}">Cancel Subscription</a>
+                                    href="{{ route('user_cancel_plan', ['id' => $user->UserID]) }}">Cancel
+                                    Subscription</a>
                             @endif
                         </div>
                     </div>
@@ -285,34 +286,45 @@
                     <!-- /Billing Address -->
                 </div>
             @endif
-            {{-- <div class="card">
-                <!-- Billing History -->
-                <h5 class="card-header">Billing History</h5>
-                <div class="card-datatable table-responsive border-top">
-                    <table class="invoice-list-table table border-top">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th>#</th>
-                                <th><i class='ti ti-trending-up'></i></th>
-                                <th>Client</th>
-                                <th>Total</th>
-                                <th class="text-truncate">Issued Date</th>
-                                <th>Balance</th>
-                                <th>Invoice Status</th>
-                                <th class="cell-fit">Actions</th>
-                            </tr>
-                        </thead>
-                    </table>
+        </div>
+        <div class="modal-onboarding modal fade animate__animated" id="onboardingHorizontalSlideModal" tabindex="-1"
+            aria-hidden="true">
+            <div class="modal-dialog modal-xl" role="document">
+                <div class="modal-content text-center">
+                    <div class="modal-header border-0">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                        </button>
+                    </div>
+                    <div class="pricing-table">
+                        @foreach ($packages as $package)
+                            <div
+                                class="pricing-card {{ $package->Name == 'PRO' || $package->Name == 'ENTERPRISE' ? 'popular' : '' }}{{ $user->CurrentPackageID == $package->PackageID ? ' selected-plan' : '' }}">
+                                <h3>{{ $package->Name }}</h3>
+                                <p class="price">${{ $package->Price }} <span>monthly</span></p>
+                                <ul class="features">
+                                    <li>Up to
+                                        {{ $package->Name != 'UNLIMITED' ? $package->CheckLimitPerMonth : 'Unlimited ' }}
+                                        checks
+                                        / month</li>
+                                    <li>Email Support</li>
+                                    <li>Unlimited Users</li>
+                                    @if ($package->Name != 'BASIC')
+                                        <li>Custom Webform*</li>
+                                    @endif
+                                    <li>3 mos History Storage</li>
+                                </ul>
+                                @if ($user->CurrentPackageID == $package->PackageID)
+                                    <p class="current-plan">Current Plan</p>
+                                @else
+                                    <a href="{{ route('user.select-package', ['id' => $user->UserID, 'plan' => $package->PackageID]) }}"
+                                        class="plan-button">Select Plan</a>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+
                 </div>
-                <!--/ Billing History -->
-            </div> --}}
+            </div>
         </div>
     </div>
-
-    <!-- Modal -->
-    @include('_partials/_modals/modal-pricing')
-    <!-- /Modal -->
-
 @endsection

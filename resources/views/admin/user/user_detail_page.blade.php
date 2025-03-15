@@ -11,7 +11,7 @@
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js', 'resources/assets/vendor/libs/cleavejs/cleave.js', 'resources/assets/vendor/libs/cleavejs/cleave-phone.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
+    @vite(['resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js', 'resources/assets/vendor/libs/cleavejs/cleave.js', 'resources/assets/vendor/libs/cleavejs/cleave-phone.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/js/ui-modals.js'])
 @endsection
 
 @section('page-script')
@@ -515,9 +515,9 @@
                             </div>
                         @endif
                         <div class="d-grid w-100 mt-6">
-                            <a href="{{ route('admin.user_upgragde_plan', ['id' => $user->UserID]) }}"
-                                class="btn btn-primary">Change
-                                Plan</a>
+                            <button class="btn btn-primary" data-bs-toggle="modal"
+                                data-bs-target="#onboardingHorizontalSlideModal">Change
+                                Plan</button>
                         </div>
                     </div>
                 </div>
@@ -661,6 +661,45 @@
                     </div>
                 </div>
             @endif
+        </div>
+    </div>
+
+    <div class="modal-onboarding modal fade animate__animated" id="onboardingHorizontalSlideModal" tabindex="-1"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content text-center">
+                <div class="modal-header border-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    </button>
+                </div>
+                <div class="pricing-table">
+                    @foreach ($packages as $package)
+                        <div
+                            class="pricing-card {{ $package->Name == 'PRO' || $package->Name == 'ENTERPRISE' ? 'popular' : '' }}{{ $user->CurrentPackageID == $package->PackageID ? ' selected-plan' : '' }}">
+                            <h3>{{ $package->Name }}</h3>
+                            <p class="price">${{ $package->Price }} <span>monthly</span></p>
+                            <ul class="features">
+                                <li>Up to {{ $package->Name != 'UNLIMITED' ? $package->CheckLimitPerMonth : 'Unlimited ' }}
+                                    checks
+                                    / month</li>
+                                <li>Email Support</li>
+                                <li>Unlimited Users</li>
+                                @if ($package->Name != 'BASIC')
+                                    <li>Custom Webform*</li>
+                                @endif
+                                <li>3 mos History Storage</li>
+                            </ul>
+                            @if ($user->CurrentPackageID == $package->PackageID)
+                                <p class="current-plan">Current Plan</p>
+                            @else
+                                <a href="{{ route('admin.user.select-package', ['id' => $user->UserID, 'plan' => $package->PackageID]) }}"
+                                    class="plan-button">Select Plan</a>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+
+            </div>
         </div>
     </div>
 

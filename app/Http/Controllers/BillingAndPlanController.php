@@ -36,7 +36,8 @@ class BillingAndPlanController extends Controller
         ];
         $maxPricePackage = Package::orderBy('price', 'desc')->first();
         $stander_Plan_price = $maxPricePackage->Price;
-        return view('user.billing_and_plan.index', compact('package_data', 'stander_Plan_price', 'user'));
+        $packages = Package::all();
+        return view('user.billing_and_plan.index', compact('package_data', 'stander_Plan_price', 'user', 'packages'));
       }
 
       public function upgragde_plan($id)
@@ -95,8 +96,8 @@ class BillingAndPlanController extends Controller
                 'PaymentStartDate' => $data_current_package->PaymentStartDate,
                 'PaymentEndDate' => $data_current_package->PaymentEndDate,
                 'NextRenewalDate' => $data_current_package->NextRenewalDate,
-                'ChecksGiven' => $package->CheckLimitPerMonth + $data_current_package->ChecksGiven,
-                'RemainingChecks' => $package->CheckLimitPerMonth + $data_current_package->RemainingChecks,
+                'ChecksGiven' => $package->CheckLimitPerMonth,
+                'RemainingChecks' => $package->CheckLimitPerMonth,
                 'ChecksUsed' => $data_current_package->ChecksUsed,
                 'PaymentDate' => $data_current_package->PaymentDate,
                 'PaymentAttempts' => 0 ,

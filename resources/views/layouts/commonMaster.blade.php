@@ -75,6 +75,114 @@
         table thead th {
             text-transform: none !important;
         }
+
+        .pricing-table {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 50px 20px;
+        }
+
+        .pricing-card {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            padding: 20px;
+            width: 320px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .pricing-card.popular::before {
+            content: "POPULAR";
+            background-color: #000000;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 5px 10px;
+            position: absolute;
+            top: 13px;
+            right: -25px;
+            border-radius: 3px;
+            transform: rotate(45deg);
+            width: 100px;
+        }
+
+        .pricing-card h3 {
+            background-color: #00a7cf;
+            color: #ffffff;
+            padding: 10px;
+            border-radius: 8px 8px 0 0;
+            margin: -20px -20px 20px -20px;
+        }
+
+        .price {
+            font-size: 40px;
+            color: #7e57c2;
+            margin: 10px 0;
+            font-weight: 600;
+        }
+
+        .price span {
+            font-size: 16px;
+            color: #555;
+        }
+
+        .features {
+            list-style: none;
+            padding: 0;
+            margin: 30px 0;
+            text-align: left;
+        }
+
+        .features li {
+            margin: 15px 0;
+            color: #555;
+        }
+
+        .features li::before {
+            content: "\2713";
+            color: #4caf50;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .pricing-card:hover {
+            transform: scale(1.05);
+            transition: 0.3s ease-in-out;
+        }
+
+        .pricing-card .plan-button {
+            background-color: #7367f0 !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 5px !important;
+            padding: 10px 15px !important;
+            font-size: 1em !important;
+            cursor: pointer !important;
+            transition: 0.3s !important;
+            text-decoration: none !important;
+            margin-top: 20px !important;
+        }
+
+        .pricing-card .plan-button:hover {
+            background-color: #7367f0 !important;
+        }
+
+        .selected-plan {
+            border: 5px solid green !important;
+            border-radius: 20px !important;
+        }
+
+        .current-plan {
+            font-weight: bold;
+            color: green;
+            font-size: 16px;
+            border: 1px solid green;
+            padding: 10px;
+        }
     </style>
 </head>
 
