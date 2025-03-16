@@ -699,7 +699,7 @@
                 <div id="wb_Text6"
                     style="position:absolute;left:27px;top:161px;width:264px;height:16px;z-index:8;text-align:left;">
                     <span style="color:#000000;font-family:Arial;font-size:13px;"><strong>Pay To:&nbsp;&nbsp;
-                            {{ $company->company_name }}</strong></span>
+                            {{ $company->Name }}</strong></span>
                 </div>
                 <hr id="Line2" style="position:absolute;left:16px;top:185px;width:277px;height:1px;z-index:9;">
                 <input type="text" id="name"
@@ -775,7 +775,7 @@
         <div id="wb_Text16"
             style="position:absolute;left:354px;top:575px;width:630px;height:262px;z-index:32;text-align:left;">
             <span style="color:#000000;font-family:Arial;font-size:17px;">
-                @if (!empty($data->page_desc))
+                @if (!empty($data->page_desc) && $data->page_desc != '<p><br></p>')
                     {!! $data->page_desc !!}
                 @else
                     <strong> What is a Virtual Check? </strong><br><br>

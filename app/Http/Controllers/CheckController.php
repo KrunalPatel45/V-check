@@ -798,7 +798,7 @@ class CheckController extends Controller
         $slug = Str::slug($name);
         $count = 0;
 
-        while (Company::where('slug', $slug)->exists()) {
+        while (WebForm::where('page_url', $slug)->exists()) {
             $count++;
             $slug = Str::slug($name) . '-' . $count;
         }
