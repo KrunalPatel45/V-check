@@ -118,7 +118,8 @@
                         data: 'PaymentHistoryID', // Hidden ID column for sorting
                         name: 'PaymentHistoryID',
                         visible: false // Hides the ID column
-                    } {
+                    },
+                    {
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',
                         orderable: false,
@@ -634,6 +635,7 @@
                         <table class="table" id="invoice_data">
                             <thead>
                                 <tr>
+                                    <th style="d-none">ID</th>
                                     <th>#</th>
                                     <th>Status</th>
                                     <th>Amount</th>
