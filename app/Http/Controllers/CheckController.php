@@ -695,7 +695,6 @@ class CheckController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'company' => 'required',
-            'phone_number' => 'required',
             'page_desc' => 'required',
         ]);
 
@@ -709,7 +708,7 @@ class CheckController extends Controller
         $slug = $this->generateUniqueSlug($company->Name);
 
         $webform->UserID = Auth::id();
-        $webform->PhoneNumber = $request->phone_number;
+        // $webform->PhoneNumber = $request->phone_number;
         $webform->CompanyID = $request->company;
         $webform->page_url = $slug;
         $webform->page_desc = $request->page_desc;

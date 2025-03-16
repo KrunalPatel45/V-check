@@ -646,14 +646,13 @@
         <div id="wb_Text1"
             style="position:absolute;left:728px;top:29px;width:252px;height:87px;text-align:right;z-index:26;">
             <span style="color:#000000;font-family:Arial;font-size:16px;"><strong>{{ $company->Address }}<br>
-                    {{ $company->City }}, {{ $company->State }}
-                    {{ $company->Zip }}<br>{{ $data->PhoneNumber }}<br></strong></span>
+                    {{ $company->City }}, {{ $company->State }}<br></strong></span>
         </div>
         <div id="wb_Text8"
             style="position:absolute;left:176px;top:715px;width:120px;height:37px;z-index:27;text-align:left;">
             <span style="color:#3D1559;font-family:Arial;font-size:32px;"><strong>Step 1.</strong></span>
         </div>
-        <div id="wb_Image2" style="position:absolute;left:342px;top:485px;width:650px;height:365px;z-index:28;">
+        <div id="wb_Image2" style="position:absolute;left:342px;top:194px;width:650px;height:365px;z-index:28;">
             <img src="{{ asset('assets/img/check-sample.png') }}" id="Image2" alt="">
         </div>
         @if (session('error'))
@@ -774,9 +773,38 @@
             <span style="color:#000000;font-family:Arial;font-size:13px;"><strong>Pay From:&nbsp; </strong></span>
         </div>
         <div id="wb_Text16"
-            style="position:absolute;left:354px;top:194px;width:630px;height:262px;z-index:32;text-align:left;">
+            style="position:absolute;left:354px;top:575px;width:630px;height:262px;z-index:32;text-align:left;">
             <span style="color:#000000;font-family:Arial;font-size:17px;">
-                {!! $data->page_desc !!}
+                @if (!empty($data->page_desc))
+                    {!! $data->page_desc !!}
+                @else
+                    <strong> What is a Virtual Check? </strong><br><br>
+                    <p>
+                        Using special software and the information provided, you authorize us to produce a legal check
+                        for
+                        this transaction only. Our software prints this check that we deposit into our account just as
+                        we
+                        would one you mailed us. The difference is time. Instead of waiting days for the mail - we can
+                        process your order in moments. You will then receive the check we produced with your other
+                        cancelled
+                        checks in your normal bank statement.
+
+                        The requested information is not confidential as it is located on the front of your check.
+                    </p>
+                    <br>
+                    <strong>How do I do this? Very simple. First, get out your check book.</strong><br><br>
+                    <p>
+                        Go to the next available check you would normally write. For your records, fill it out to us in
+                        the
+                        amount due. Next, write VOID across this check. You will provide us with the actual check number
+                        -
+                        but not the actual check. Next, use the graphic below to locate the information we will need.
+                        You
+                        can place the numbers in red on your voided check for reference when you complete the Secure
+                        Virtual
+                        Check
+                    </p>
+                @endif
         </div>
         <input type="text" id="account_number"
             style="position:absolute;left:49px;top:669px;width:255px;height:22px;line-height:22px;z-index:33;"

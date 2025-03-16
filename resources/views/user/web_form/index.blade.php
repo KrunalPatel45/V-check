@@ -36,7 +36,6 @@
                         <th>Company Name</th>
                         <th>Page URL</th>
                         <th>Logo</th>
-                        <th>Phone Number</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -70,10 +69,6 @@
                         name: 'logo',
                         orderable: false,
                         searchable: false
-                    },
-                    {
-                        data: 'PhoneNumber',
-                        name: 'PhoneNumber'
                     },
                     {
                         data: 'actions',
