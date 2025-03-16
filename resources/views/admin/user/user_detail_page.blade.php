@@ -156,11 +156,21 @@
         <div class="col-xl-4 col-lg-5 order-1 order-md-0">
             <!-- User Card -->
             <div class="card mb-6">
+                @php
+                    $firstLetter =
+                        isset($user->FirstName) && !empty($user->FirstName)
+                            ? strtoupper(substr($user->FirstName, 0, 1))
+                            : 'A';
+                @endphp
                 <div class="card-body pt-12">
                     <div class="user-avatar-section">
                         <div class=" d-flex align-items-center flex-column">
-                            <img class="img-fluid rounded mb-4" src="{{ asset('assets/img/avatars/1.png') }}" height="120"
-                                width="120" alt="User avatar" />
+                            <div class="bg-primary text-white d-flex align-items-center justify-content-center"
+                                style="width:120px; height: 120px; font-size: 50px;margin-bottom: 10px;    border-radius: 6px;">
+                                {{ $firstLetter }}
+                            </div>
+                            {{-- <img class="img-fluid rounded mb-4" src="{{ asset('assets/img/avatars/1.png') }}" height="120"
+                                width="120" alt="User avatar" /> --}}
                             <div class="user-info text-center">
                                 <h5>{{ $user->FirstName }} {{ $user->LastName }}</h5>
                                 {{-- <span class="badge bg-label-secondary">Author</span> --}}
