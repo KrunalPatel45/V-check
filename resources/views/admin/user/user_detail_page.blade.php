@@ -111,7 +111,14 @@
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('admin.user.invoice', ['id' => $user->UserID]) }}",
+                order: [
+                    [0, 'desc']
+                ],
                 columns: [{
+                        data: 'PaymentHistoryID', // Hidden ID column for sorting
+                        name: 'PaymentHistoryID',
+                        visible: false // Hides the ID column
+                    } {
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',
                         orderable: false,
