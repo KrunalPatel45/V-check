@@ -389,7 +389,7 @@ class AdminDashboardController extends Controller
 
         $paymentSubscription = PaymentHistory::create([
             'PaymentSubscriptionID' => $paymentSubscriptionId,
-            'PaymentAmount' => $package->Price,
+            'PaymentAmount' => $price,
             'PaymentDate' => $data_current_package->PaymentDate,
             'PaymentStatus' => 'Success',
             'PaymentAttempts' => 0,
