@@ -481,7 +481,7 @@
                             <span class="badge bg-label-primary">{{ $package->Name }}</span>
                             <div class="d-flex justify-content-center">
                                 <sub class="h5 pricing-currency mb-auto mt-1 text-primary">$</sub>
-                                <h1 class="mb-0 text-primary">{{ round($package->Price) }}</h1>
+                                <h1 class="mb-0 text-primary">{{ $package->Price }}</h1>
                                 <sub class="h6 pricing-duration mt-auto mb-3 fw-normal">month</sub>
                             </div>
                         </div>
