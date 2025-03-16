@@ -843,7 +843,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label" for="account_number">Account Number</label>
-                                        <input type="text" name="account_number" id="account_number"
+                                        <input type="number" name="account_number" id="account_number"
                                             class="form-control"
                                             value="{{ !empty($old_payor->AccountNumber) ? $old_payor->AccountNumber : old('account_number') }}" />
                                         @if ($errors->has('account_number'))
@@ -856,7 +856,9 @@
                                         <label class="form-label" for="routing_number">Routing Number</label>
                                         <input type="text" name="routing_number" id="routing_number"
                                             class="form-control"
-                                            value="{{ !empty($old_payor->RoutingNumber) ? $old_payor->RoutingNumber : old('routing_number') }}" />
+                                            value="{{ !empty($old_payor->RoutingNumber) ? $old_payor->RoutingNumber : old('routing_number') }}"
+                                            maxlength="9"
+                                            oninput="this.value = this.value.replace(/\D/g, '').slice(0,9);" />
                                         @if ($errors->has('routing_number'))
                                             <span class="text-danger">
                                                 {{ $errors->first('routing_number') }}
@@ -969,7 +971,7 @@
                                     <div class="col-md-6">
                                         <label class="form-label" for="payee-account_number">Account
                                             Number</label>
-                                        <input type="text" name="account_number" id="payee-account_number"
+                                        <input type="number" name="account_number" id="payee-account_number"
                                             class="form-control"
                                             value="{{ !empty($old_payee->AccountNumber) ? $old_payee->AccountNumber : old('account_number') }}" />
                                         @if ($errors->has('account_number'))
@@ -983,7 +985,9 @@
                                             Number</label>
                                         <input type="text" name="routing_number" id="payee-routing_number"
                                             class="form-control"
-                                            value="{{ !empty($old_payee->RoutingNumber) ? $old_payee->RoutingNumber : old('routing_number') }}" />
+                                            value="{{ !empty($old_payee->RoutingNumber) ? $old_payee->RoutingNumber : old('routing_number') }}"
+                                            maxlength="9"
+                                            oninput="this.value = this.value.replace(/\D/g, '').slice(0,9);" />
                                         @if ($errors->has('routing_number'))
                                             <span class="text-danger">
                                                 {{ $errors->first('routing_number') }}

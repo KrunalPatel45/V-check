@@ -132,7 +132,7 @@
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="account_number">Account Number</label>
                             <div class="col-sm-10">
-                                <input type="text" name="account_number" id="account_number" class="form-control"
+                                <input type="number" name="account_number" id="account_number" class="form-control"
                                     value="{{ old('account_number') }}" />
                                 @if ($errors->has('account_number'))
                                     <span class="text-danger">
@@ -146,7 +146,8 @@
                             <label class="col-sm-2 col-form-label" for="routing_number">Routing Number</label>
                             <div class="col-sm-10">
                                 <input type="text" name="routing_number" id="routing_number" class="form-control"
-                                    value="{{ old('routing_number') }}" />
+                                    value="{{ old('routing_number') }}" maxlength="9"
+                                    oninput="this.value = this.value.replace(/\D/g, '').slice(0,9);" />
                                 @if ($errors->has('routing_number'))
                                     <span class="text-danger">
                                         {{ $errors->first('routing_number') }}
