@@ -378,7 +378,7 @@ class AdminDashboardController extends Controller
             'PaymentEndDate' => $data_current_package->PaymentEndDate,
             'NextRenewalDate' => $data_current_package->NextRenewalDate,
             'ChecksGiven' => $package->CheckLimitPerMonth,
-            'RemainingChecks' => $package->CheckLimitPerMonth,
+            'RemainingChecks' => $package->CheckLimitPerMonth - $data_current_package->ChecksUsed,
             'PaymentDate' => $data_current_package->PaymentDate,
             'PaymentAttempts' => 0 ,
             'TransactionID' => Str::random(10),

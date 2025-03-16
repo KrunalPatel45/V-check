@@ -72,12 +72,12 @@
                         name: 'CheckNumber'
                     },
                     {
-                        data: 'CompanyID',
-                        name: 'CompanyID'
-                    },
-                    {
                         data: 'EntityID',
                         name: 'EntityID'
+                    },
+                    {
+                        data: 'CompanyID',
+                        name: 'CompanyID'
                     },
                     {
                         data: 'Amount',

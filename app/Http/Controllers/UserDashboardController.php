@@ -40,6 +40,10 @@ class UserDashboardController extends Controller
             'downgrade_payment' => $downgrade_payment,
             'cancel_plan' => $cancel_plan,
         ];
+
+        $given_checks = ($paymentSubscription->ChecksGiven == 0) ? 'Unlimited' : $paymentSubscription->ChecksGiven;
+        $used_checks = ($paymentSubscription->ChecksGiven == 0) ? '-' :$paymentSubscription->ChecksUsed;
+        $remaining_checks =($paymentSubscription->ChecksGiven == 0) ? '-'  : $paymentSubscription->RemainingChecks;
         
         $total_vendor = Payors::where('UserID', Auth::user()->UserID)
                         ->whereIn('Type', ['Vendor', 'Both'])
@@ -52,7 +56,7 @@ class UserDashboardController extends Controller
         //
         $total_companies = Company::where('UserID', Auth::user()->UserID)->count();
 
-        return view('content.dashboard.user-dashboards-analytics', compact('package_data', 'total_vendor', 'total_client', 'total_companies'));
+        return view('content.dashboard.user-dashboards-analytics', compact('package_data', 'total_vendor', 'total_client', 'total_companies', 'given_checks', 'used_checks', 'remaining_checks'));
     }
 
     public function profile()

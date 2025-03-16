@@ -101,7 +101,7 @@ class CheckController extends Controller
         $total_used_check = Checks::where('UserID', Auth::id())->count();
         // dd($package->CheckLimitPerMonth, $total_used_check);
 
-        if($package->CheckLimitPerMonth <= $total_used_check) {
+        if($package->CheckLimitPerMonth != 0 && $package->CheckLimitPerMonth <= $total_used_check) {
             return redirect()->route('check.process_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
 
@@ -288,7 +288,7 @@ class CheckController extends Controller
         $package = Package::find(Auth::user()->CurrentPackageID);
         $total_used_check = Checks::where('UserID', Auth::id())->count();
 
-        if($package->CheckLimitPerMonth <= $total_used_check) {
+        if($package->CheckLimitPerMonth != 0 && $package->CheckLimitPerMonth <= $total_used_check) {
             return redirect()->route('check.process_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
 
