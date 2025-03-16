@@ -369,7 +369,8 @@ class AdminDashboardController extends Controller
 
         
         $price = $package->Price - $user_current_package->Price;
-        $paymentSubscription = PaymentSubscription::create([
+        $paymentSubscription = PaymentSubscription::find($data_current_package->PaymentSubscriptionID);
+        $paymentSubscription->update([
             'UserID' => $id,
             'PackageID' => $plan,
             'PaymentMethodID' => 1,
