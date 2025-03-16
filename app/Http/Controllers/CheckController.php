@@ -488,12 +488,22 @@ class CheckController extends Controller
             return datatables()->of($checks)
                 ->addIndexColumn()
                 ->addColumn('CompanyID', function ($row) {
-                    $company = Company::find($row->CompanyID);
-                    return $company->Name;
+                    if($row->CheckType == 'Process Payment') {
+                        $company = Company::find($row->CompanyID);
+                        return $company->Name;
+                    } else {
+                        $payor = Payors::find($row->EntityID);
+                        return $payor->Name;
+                    }
                 })
                 ->addColumn('EntityID', function ($row) {
-                    $payor = Payors::find($row->EntityID);
-                    return $payor->Name;
+                    if($row->CheckType == 'Process Payment') {
+                        $payor = Payors::find($row->EntityID);
+                        return $payor->Name;
+                    } else {
+                        $company = Company::find($row->CompanyID);
+                        return $company->Name;
+                    }
                 })
                 ->addColumn('IssueDate', function ($row) {
                     return Carbon::parse($row->IssueDate)->format('m/d/Y');
