@@ -400,8 +400,16 @@
                         <div class="row">
                             {{-- <label class="col-sm-12 col-form-label" for="street-address">Your Street Address:</label> --}}
                             <div class="col-sm-8">
+                                @php
+                                    $address = '';
+                                    if (!empty($old_payor->Address1)) {
+                                        $address = $old_payor->Address1 . "\n" . $old_payor->Address2;
+                                    } else {
+                                        $address = old('address');
+                                    }
+                                @endphp
                                 <textarea id="address" name="address" class="form-control" placeholder="Your Street Address" disabled>
-                                    {{ !empty($old_payor->Address1) && $old_payor->Address1 ? $old_payor->Address1 . '\n' . $old_payor->Address2 : old('address') }}
+                                    {!! $address !!}
                                 </textarea>
                                 {{-- <input type="text" id="address" name="address" class="form-control"
                                     placeholder="Your Street Address" disabled

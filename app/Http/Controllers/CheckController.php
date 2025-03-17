@@ -821,7 +821,7 @@ class CheckController extends Controller
             'IssueDate' => now(),
             'ExpiryDate' => $check_date,
             'Status' => 'draft',
-            'Memo' => $request->memo, 
+            'Memo' => $request->Memo, 
             'CheckPDF' => null,
             'DigitalSignatureRequired' => 0,
         ];
