@@ -354,7 +354,7 @@ class AdminDashboardController extends Controller
        if($package->PackageID > $user_current_package->PackageID) {
         
         $cancel_or_pending_query = PaymentSubscription::where('UserId', $id)
-        ->whereIn('Status', ['Canceled', 'Pending']);
+        ->whereIn('Status', ['Pending']);
         
         // Get subscription IDs
         $subscriptionIds = $cancel_or_pending_query->pluck('PaymentSubscriptionID')->toArray();
@@ -400,17 +400,6 @@ class AdminDashboardController extends Controller
         $user->CurrentPackageID = $plan;
         $user->save();
        } else {
-
-        $cancel_or_pending_query = PaymentSubscription::where('UserId', $id)
-        ->whereIn('Status', ['Canceled']);
-        
-        // Get subscription IDs
-        $subscriptionIds = $cancel_or_pending_query->pluck('PaymentSubscriptionID')->toArray();
-        
-        // Delete from PaymentHistory
-        if (!empty($subscriptionIds)) {
-            PaymentHistory::whereIn('PaymentSubscriptionID', $subscriptionIds)->delete();
-        }
         
         // Now delete the subscriptions
         $cancel_or_pending_query->delete();

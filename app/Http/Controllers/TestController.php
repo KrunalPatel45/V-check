@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\File;
 use App\Models\Package;
 use App\Models\PaymentSubscription;
 use Carbon\Carbon;
+use App\Models\User;
+use App\Models\PaymentHistory;
 
 class TestController extends Controller
 {
@@ -73,5 +75,27 @@ class TestController extends Controller
         // Save the PDF to the specified path
         $pdf->save($filePath);
         return $file_name;
+    }
+
+    public function subscription_update()
+    {
+        $today = Carbon::today()->subDay()->toDateString();
+        $subscriptions = PaymentSubscription::whereDate('PaymentStartDate', $today)->where('Status', '!=', 'Canceled')->get();
+        foreach($subscriptions as $subscription){
+            $user = User::find($subscription->UserID);
+            $user->CurrentPackageID = $subscription->PackageID;
+            $subscription->Status = 'Active';
+            $subscription->save();
+
+            PaymentSubscription::where('UserID', $user->UserID)->where('PaymentSubscriptionID', '!=', $subscription->PaymentSubscriptionID)->delete();
+
+
+            $paymentSubscription = PaymentHistory::where('PaymentSubscriptionID', $subscription->PaymentSubscriptionID)->where('PaymentStatus','Pending')->first();
+            $paymentSubscription->PaymentStatus = 'Success';
+            $paymentSubscription->save();
+        }
+
+        echo "<pre>";
+        echo "Subscription updated";
     }
 }

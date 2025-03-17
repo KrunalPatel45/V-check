@@ -268,6 +268,7 @@ Route::post('store_web_form_data', [CheckController::class, 'store_web_form_data
 Route::get('thank-you', [CheckController::class, 'thankyou'])->name('thankyou');
 Route::get('expired', [UserAuthController::class, 'expired_sub'])->name('expired_sub');
 Route::get('test', [TestController::class, 'test'])->name('test');
+Route::get('subscription-update', [TestController::class, 'subscription_update'])->name('subscription_update');
 
 // Main Page Route
 Route::get('/', [HomeController::class, 'index'])->name('index');

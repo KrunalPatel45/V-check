@@ -73,9 +73,8 @@ class BillingAndPlanController extends Controller
          $data_current_package = PaymentSubscription::where('UserId', $id)->where('PackageID', $user->CurrentPackageID)->first();
          if($package->PackageID > $user_current_package->PackageID) {
             $cancel_or_pending_query = PaymentSubscription::where('UserId', $id)
-            ->whereIn('Status', ['Canceled', 'Pending']);
-            
-            // Get subscription IDs
+            ->whereIn('Status', ['Pending']);
+
             $subscriptionIds = $cancel_or_pending_query->pluck('PaymentSubscriptionID')->toArray();
             
             // Delete from PaymentHistory
@@ -118,22 +117,9 @@ class BillingAndPlanController extends Controller
   
           $user->CurrentPackageID = $plan;
           $user->save();
+
          } else {
   
-        $cancel_or_pending_query = PaymentSubscription::where('UserId', $id)
-        ->whereIn('Status', ['Canceled']);
-        
-        // Get subscription IDs
-        $subscriptionIds = $cancel_or_pending_query->pluck('PaymentSubscriptionID')->toArray();
-        
-        // Delete from PaymentHistory
-        if (!empty($subscriptionIds)) {
-            PaymentHistory::whereIn('PaymentSubscriptionID', $subscriptionIds)->delete();
-        }
-        
-        // Now delete the subscriptions
-        $cancel_or_pending_query->delete();
-
           $paymentStartDate = Carbon::parse($data_current_package->NextRenewalDate);
   
           $paymentEndDate = $paymentStartDate->copy()->addHours(24);
@@ -165,6 +151,7 @@ class BillingAndPlanController extends Controller
               'PaymentAttempts' => 0,
               'TransactionID' => $paymentSubscription->TransactionID,
           ]);
+
          }
          return redirect()->route('billing_and_plan')->with('success', 'Your changed successfully');
       }
