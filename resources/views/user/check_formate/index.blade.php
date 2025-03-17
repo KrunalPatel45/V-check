@@ -28,9 +28,9 @@
         style="border-collapse: collapse; font-family: Arial, sans-serif; font-size: 12px; line-height: 1.5;">
         <tr>
             <td style="text-align: left;" colspan="3"> {{ $data['payor_name'] }}<br>
-                {{ $data['address1'] }}<br>
                 @if (!empty($data['address1']))
                     {{ $data['address1'] }}<br>
+                    {{ $data['address2'] }}<br>
                 @endif
                 {{ $data['city'] }}, {{ $data['state'] }} {{ $data['zip'] }}
             </td>

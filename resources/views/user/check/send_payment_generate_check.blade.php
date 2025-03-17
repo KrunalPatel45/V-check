@@ -59,8 +59,11 @@
 
                             $('#payor-edit').removeClass('d-none');
 
+                            var address = response.payee.Address1 + '\n';
+                            address += response.payee.Address2;
+
                             $('#payee_id').val(response.payee.CompanyID);
-                            $('#address').val(response.payee.Address1);
+                            $('#address').val(address);
                             $('#city').val(response.payee.City);
                             $('#state').val(response.payee.State);
                             $('#zip').val(response.payee.Zip);
@@ -137,8 +140,11 @@
                                 $('#payor').append(newOption).val(response.payee.CompanyID);
                             }
 
+                            var address = response.payee.Address1 + '\n';
+                            address += response.payee.Address2;
+
                             $('#payee_id').val(response.payee.CompanyID);
-                            $('#address').val(response.payee.Address1);
+                            $('#address').val(address);
                             $('#city').val(response.payee.City);
                             $('#state').val(response.payee.State);
                             $('#zip').val(response.payee.Zip);
@@ -394,9 +400,12 @@
                         <div class="row">
                             {{-- <label class="col-sm-12 col-form-label" for="street-address">Your Street Address:</label> --}}
                             <div class="col-sm-8">
-                                <input type="text" id="address" name="address" class="form-control"
+                                <textarea id="address" name="address" class="form-control" placeholder="Your Street Address" disabled>
+                                    {{ !empty($old_payor->Address1) && $old_payor->Address1 ? $old_payor->Address1 . '\n' . $old_payor->Address2 : old('address') }}
+                                </textarea>
+                                {{-- <input type="text" id="address" name="address" class="form-control"
                                     placeholder="Your Street Address" disabled
-                                    value="{{ !empty($old_payor->Address1) && $old_payor->Address1 ? $old_payor->Address1 : old('address') }}">
+                                    value="{{ !empty($old_payor->Address1) && $old_payor->Address1 ? $old_payor->Address1 : old('address') }}"> --}}
                             </div>
                         </div>
                     </div>
