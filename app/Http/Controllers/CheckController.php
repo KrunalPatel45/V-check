@@ -233,7 +233,7 @@ class CheckController extends Controller
                 ->addColumn('actions', function ($row) {
                     
                     $editUrl = route('check.process_send_check_edit', ['id' => $row->CheckID]);
-                    $check_generate = route('check_generate', ['id' => $row->CheckID]);
+                    $check_generate = route('send_check_generate', ['id' => $row->CheckID]);
 
                     if($row->Status == 'draft') {
                         return '<div class="d-flex">
@@ -580,6 +580,44 @@ class CheckController extends Controller
         $data = [];
         $payor = Payors::find($check->EntityID);
         $payee = Company::find($check->CompanyID);
+        $data['payor_name'] = $payor->Name;
+        $data['address1'] = $payor->Address1;
+        $data['address2'] = $payor->Address2;
+        $data['city'] = $payor->City;
+        $data['state'] = $payor->State;
+        $data['zip'] = $payor->Zip;
+        $data['check_number'] = $check->CheckNumber;
+        $data['check_date'] = $check_date;
+        $data['payee_name'] = $payee->Name;
+        $data['amount'] = $check->Amount;
+        $data['amount_word'] = $this->numberToWords($check->Amount);
+        $data['memo'] = $check->Memo;
+        $data['routing_number'] = $payor->RoutingNumber;
+        $data['account_number'] = $payor->AccountNumber;
+        $data['bank_name'] = $payor->BankName; 
+        $data['signature'] = (!empty($check->DigitalSignatureRequired)) ? $check->DigitalSignature : '';
+
+        // return view('user.check_formate.index', compact('data'));
+        
+        $check_file = $this->generateAndSavePDF($data);
+
+        $check->Status = 'generated';
+        $check->CheckPDF = $check_file;
+
+        $check->save();
+
+        return redirect()->back()->with('success', 'Check generated successfully.');
+    }
+
+    public function send_check_generate($id)
+    {
+        $check = Checks::find($id);
+
+        $check_date = Carbon::parse(str_replace('/', '-', $check->ExpiryDate))->format('m/d/Y');
+
+        $data = [];
+        $payor = Company::find($check->CompanyID);
+        $payee = Payors::find($check->EntityID);
         $data['payor_name'] = $payor->Name;
         $data['address1'] = $payor->Address1;
         $data['address2'] = $payor->Address2;

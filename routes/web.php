@@ -253,6 +253,7 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::get('get-payee/{id}', [CheckController::class, 'get_payee'])->name('get_payee');
     Route::get('get-payor/{id}', [CheckController::class, 'get_payor'])->name('get_payor');
     Route::get('check-generate/{id}', [CheckController::class, 'check_generate'])->name('check_generate');
+    Route::get('send-payment-check-generate/{id}', [CheckController::class, 'send_check_generate'])->name('send_check_generate');
     Route::get('webform', [CheckController::class, 'get_web_forms'])->name('get_web_forms');
     Route::get('webform/new', [CheckController::class, 'new_web_form'])->name('new_web_form');
     Route::post('webform/new', [CheckController::class, 'new_web_form_store'])->name('store_web_form');
