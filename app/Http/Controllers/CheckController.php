@@ -530,15 +530,19 @@ class CheckController extends Controller
                 ->make(true);
         }
 
-        $clients = Payors::where('UserID', Auth::id())->count();
-        $checks = Checks::where('UserID', Auth::id())->count();
-        $paidAmount = Checks::where('UserID', Auth::id())->where('Status', 'generated')->sum('Amount');
-        $unPaidAmount = Checks::where('UserID', Auth::id())->where('Status','draft')->sum('Amount');
+        // $clients = Payors::where('UserID', Auth::id())->count();
+        // $checks = Checks::where('UserID', Auth::id())->count();
+        // $paidAmount = Checks::where('UserID', Auth::id())->where('Status', 'generated')->sum('Amount');
+        // $unPaidAmount = Checks::where('UserID', Auth::id())->where('Status','draft')->sum('Amount');
 
+        $total_receive_check = Checks::where('UserID', Auth::id())->where('CheckType', 'Process Payment')->count();
+        $total_receive_check_amount = Checks::where('UserID', Auth::id())->where('CheckType', 'Process Payment')->sum('Amount');
+        $total_send_check = Checks::where('UserID', Auth::id())->where('CheckType', 'Make Payment')->count();
+        $total_send_check_amount = Checks::where('UserID', Auth::id())->where('CheckType', 'Make Payment')->sum('Amount');
         
-        $paidAmount = $this->formatToK($paidAmount);
-        $unPaidAmount = $this->formatToK($unPaidAmount);
-        return view('user.check.history', compact('clients', 'checks', 'paidAmount', 'unPaidAmount'));
+        $total_receive_check_amount = $this->formatToK($total_receive_check_amount);
+        $total_send_check_amount = $this->formatToK($total_send_check_amount);
+        return view('user.check.history', compact('total_receive_check', 'total_send_check', 'total_receive_check_amount', 'total_send_check_amount'));
     }
 
     function formatToK($number)

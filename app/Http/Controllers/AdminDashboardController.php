@@ -262,6 +262,10 @@ class AdminDashboardController extends Controller
         }
 
         $user = User::find($id);
+        $paymentSubscription = PaymentSubscription::where('UserID', $id);
+        $paymentSubscriptionIds = $paymentSubscription->pluck('PaymentSubscriptionID')->toArray();
+        PaymentHistory::whereIn('PaymentSubscriptionID', $paymentSubscriptionIds)->delete();
+        $paymentSubscription->delete();
         $user->delete();
 
         return redirect()->route('admin.users')->with('success', 'User deleted successfully');

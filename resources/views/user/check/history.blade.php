@@ -21,12 +21,12 @@
                     <div class="col-sm-6 col-lg-3">
                         <div class="d-flex justify-content-between align-items-center card-widget-1 border-end pb-4 pb-sm-0">
                             <div>
-                                <h4 class="mb-0">{{ $clients }}</h4>
-                                <p class="mb-0">Clients</p>
+                                <h4 class="mb-0">{{ $total_receive_check }}</h4>
+                                <p class="mb-0">Receive Payment Check.</p>
                             </div>
                             <div class="avatar me-sm-6">
                                 <span class="avatar-initial rounded bg-label-secondary text-heading">
-                                    <i class="ti ti-user ti-26px"></i>
+                                    <i class="ti ti-file-invoice ti-26px"></i>
                                 </span>
                             </div>
                         </div>
@@ -36,8 +36,8 @@
                         <div
                             class="d-flex justify-content-between align-items-center card-widget-2 border-end pb-4 pb-sm-0">
                             <div>
-                                <h4 class="mb-0">{{ $checks }}</h4>
-                                <p class="mb-0">Checks</p>
+                                <h4 class="mb-0">{{ $total_send_check }}</h4>
+                                <p class="mb-0">Send Payment Check.</p>
                             </div>
                             <div class="avatar me-lg-6">
                                 <span class="avatar-initial rounded bg-label-secondary text-heading">
@@ -51,8 +51,8 @@
                         <div
                             class="d-flex justify-content-between align-items-center border-end pb-4 pb-sm-0 card-widget-3">
                             <div>
-                                <h4 class="mb-0">${{ $paidAmount }}</h4>
-                                <p class="mb-0">Paid</p>
+                                <h4 class="mb-0">${{ $total_receive_check_amount }}</h4>
+                                <p class="mb-0">Total Amount of Receive Checks.</p>
                             </div>
                             <div class="avatar me-sm-6">
                                 <span class="avatar-initial rounded bg-label-secondary text-heading">
@@ -64,12 +64,12 @@
                     <div class="col-sm-6 col-lg-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h4 class="mb-0">${{ $unPaidAmount }}</h4>
-                                <p class="mb-0">Unpaid</p>
+                                <h4 class="mb-0">${{ $total_send_check_amount }}</h4>
+                                <p class="mb-0">Total Amount of Send Checks.</p>
                             </div>
                             <div class="avatar">
                                 <span class="avatar-initial rounded bg-label-secondary text-heading">
-                                    <i class="ti ti-circle-off ti-26px"></i>
+                                    <i class="ti ti-checks ti-26px"></i>
                                 </span>
                             </div>
                         </div>

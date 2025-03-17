@@ -645,8 +645,12 @@
         </div>
         <div id="wb_Text1"
             style="position:absolute;left:728px;top:29px;width:252px;height:87px;text-align:right;z-index:26;">
-            <span style="color:#000000;font-family:Arial;font-size:16px;"><strong>{{ $company->Address }}<br>
-                    {{ $company->City }}, {{ $company->State }}<br></strong></span>
+            <span style="color:#000000;font-family:Arial;font-size:16px;"><strong>{{ $company->Address1 }}<br>
+                    @if (!empty($company->Address2))
+                        {{ $company->Address2 }}<br>
+                    @endif
+                    {{ $company->City }}, {{ $company->State }} {{ $company->Zip }}<br>
+                </strong></span>
         </div>
         <div id="wb_Text8"
             style="position:absolute;left:176px;top:715px;width:120px;height:37px;z-index:27;text-align:left;">
