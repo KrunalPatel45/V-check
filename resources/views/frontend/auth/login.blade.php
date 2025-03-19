@@ -58,8 +58,8 @@
                             method="POST">
                             @csrf
                             <div class="mb-6">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="text" class="form-control" id="email" name="email"
+                                <label for="email_username" class="form-label">Email</label>
+                                <input type="text" class="form-control" id="email_username" name="email_username"
                                     placeholder="Enter your email or username" autofocus>
                             </div>
                             <div class="mb-6 form-password-toggle">

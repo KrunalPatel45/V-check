@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
               }
             }
           },
-          'email-username': {
+          'email_username': {
             validators: {
               notEmpty: {
                 message: 'Please enter email / username'
