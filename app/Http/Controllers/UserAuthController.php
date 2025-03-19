@@ -47,7 +47,7 @@ class UserAuthController extends Controller
     public function login_action(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
+            'email_username'    => 'required',    // Accept either email or username
             'password' => 'required|min:6',
         ]);
 
@@ -55,24 +55,28 @@ class UserAuthController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // Check credentials manually without using guards
-        $user = User::where('Email', $request->email)->first();
+        // Check if login is an email or username
+        $field = filter_var($request->email_username, FILTER_VALIDATE_EMAIL) ? 'Email' : 'Username';
+        
+        $user = User::where($field, $request->email_username)->first();
 
-        if(!empty($user) && empty($user->CurrentPackageID)) {
-            return redirect()->route('user.package', ['user_id' => $user->UserID]); 
-        } 
- 
-        if(!empty($user) && $user->Status == 'Inactive') {
-            return redirect()->back()->withErrors(['email' => 'User Status is not Active'])->withInput();
-        } 
+        if (!empty($user) && empty($user->CurrentPackageID)) {
+            return redirect()->route('user.package', ['user_id' => $user->UserID]);
+        }
+
+        if (!empty($user) && $user->Status == 'Inactive') {
+            return redirect()->back()->withErrors(['login' => 'User status is not Active'])->withInput();
+        }
 
         if ($user && Hash::check($request->password, $user->PasswordHash)) {
             Auth::login($user);
             return redirect()->route('user.dashboard');
         }
-        // Authentication failed, redirect back with an error message
+
+        // Authentication failed
         return redirect()->back()->withErrors(['email' => 'Invalid login credentials'])->withInput();
     }
+
 
     public function store(Request $request)
     {
