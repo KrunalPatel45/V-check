@@ -245,9 +245,9 @@
             <!-- User Pills -->
             <div class="nav-align-top">
                 <ul class="nav nav-pills flex-column flex-md-row flex-wrap mb-6 row-gap-2">
-                    <li class="nav-item"><a class="nav-link {{ $type == 'default' ? 'active' : '' }}"
+                    {{-- <li class="nav-item"><a class="nav-link {{ $type == 'default' ? 'active' : '' }}"
                             href="{{ route('admin.user.edit', ['id' => $user->UserID]) }}"><i
-                                class="ti ti-user-check ti-sm me-1_5"></i>Companies</a></li>
+                                class="ti ti-user-check ti-sm me-1_5"></i>Companies</a></li> --}}
                     <li class="nav-item"><a class="nav-link {{ $type == 'security' ? 'active' : '' }}"
                             href="{{ route('admin.user.edit', ['id' => $user->UserID, 'type' => 'security']) }}"><i
                                 class="ti ti-lock ti-sm me-1_5"></i>Security</a></li>

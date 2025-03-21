@@ -140,10 +140,6 @@ class AdminDashboardController extends Controller
                                 <a href="' . $editUrl . '" class="dropdown-item">
                                     <i class="ti ti-pencil me-1"></i> Edit
                                 </a>
-                                <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="modal" 
-                                data-bs-target="#delete' . $user->UserID . '">
-                                    <i class="ti ti-trash me-1"></i> Delete
-                                </a>
                             </div>
                         </div>
 
