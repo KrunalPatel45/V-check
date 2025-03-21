@@ -54,7 +54,7 @@
                         {{-- <h4 class="mb-1">Welcome to {{ config('variables.templateName') }}! 👋</h4> --}}
                         <p class="mb-6">Please sign-in to your account</p>
 
-                        <form id="formAuthentication" class="mb-4" action="{{ route('user.login-action') }}"
+                        <form id="formAuthentication" class="mb-4 mt-4" action="{{ route('user.login-action') }}"
                             method="POST">
                             @csrf
                             <div class="mb-6">

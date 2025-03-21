@@ -193,6 +193,10 @@ class AdminDashboardController extends Controller
         $downgrade_payment = PaymentSubscription::where('UserID', $id)->where('Status', 'Pending')->first();
         $cancel_plan = PaymentSubscription::where('UserID', $id)->where('Status', 'Canceled')->first();
         
+        $check_used = ($paymentSubscription->ChecksGiven == 0) ? '-' :$paymentSubscription->ChecksUsed;
+        $remaining_checks =($paymentSubscription->ChecksGiven == 0) ? '-'  : $paymentSubscription->RemainingChecks;
+        
+
         $package_data = [
             'total_days' => $total_days,
             'package_name' => $package_name,
@@ -201,9 +205,7 @@ class AdminDashboardController extends Controller
             'downgrade_payment' => $downgrade_payment,
             'cancel_plan' => $cancel_plan,
         ];
-        $check_used = $paymentSubscription->ChecksUsed;
-        $remaining_checks = $paymentSubscription->RemainingChecks;
-        $type = 'default';
+       $type = 'default';
         if(!empty($request->type)) {
             $type = $request->type;
         }

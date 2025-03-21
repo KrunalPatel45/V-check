@@ -185,7 +185,18 @@
                             </div>
                         </div>
                     </div>
-                    <div class="d-flex justify-content-around flex-wrap my-6 gap-0 gap-md-3 gap-lg-4">
+                    <div class="d-flex flex-wrap my-6 gap-0 gap-md-3 gap-lg-4">
+                        <div class="d-flex align-items-center me-5 gap-4">
+                            <div class="avatar">
+                                <div class="avatar-initial bg-label-primary rounded">
+                                    <i class='ti ti-layout-sidebar ti-lg'></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h5 class="mb-0">{{ !empty($package->Name) ? $package->Name : '-' }}</h5>
+                                <span>Package</span>
+                            </div>
+                        </div>
                         <div class="d-flex align-items-center me-5 gap-4">
                             <div class="avatar">
                                 <div class="avatar-initial bg-label-primary rounded">
