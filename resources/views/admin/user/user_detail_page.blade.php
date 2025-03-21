@@ -248,8 +248,8 @@
                     {{-- <li class="nav-item"><a class="nav-link {{ $type == 'default' ? 'active' : '' }}"
                             href="{{ route('admin.user.edit', ['id' => $user->UserID]) }}"><i
                                 class="ti ti-user-check ti-sm me-1_5"></i>Companies</a></li> --}}
-                    <li class="nav-item"><a class="nav-link {{ $type == 'security' ? 'active' : '' }}"
-                            href="{{ route('admin.user.edit', ['id' => $user->UserID, 'type' => 'security']) }}"><i
+                    <li class="nav-item"><a class="nav-link {{ $type == 'default' ? 'active' : '' }}"
+                            href="{{ route('admin.user.edit', ['id' => $user->UserID, 'type' => 'default']) }}"><i
                                 class="ti ti-lock ti-sm me-1_5"></i>Security</a></li>
                     <li class="nav-item"><a class="nav-link {{ $type == 'billing' ? 'active' : '' }}"
                             href="{{ route('admin.user.edit', ['id' => $user->UserID, 'type' => 'billing']) }}"><i
@@ -264,7 +264,7 @@
                     </li> --}}
                 </ul>
             </div>
-            @if ($type == 'default')
+            {{-- @if ($type == 'default')
                 <div class="card mb-6">
                     <div class="card-datatable table-responsive">
                         <table class="table border-top" id="companyTable">
@@ -380,8 +380,8 @@
                         </div>
                     </div>
                 @endif
-            @endif
-            @if ($type == 'security')
+            @endif --}}
+            @if ($type == 'default')
                 <form id="change-password" action="{{ route('admin.user.change-password') }}" method="POST">
                     @csrf
                     <input type="hidden" id="user_id" name="user_id" value="{{ $user->UserID }}">
