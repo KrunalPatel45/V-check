@@ -36,7 +36,6 @@
                         <th>#</th>
                         <th style="width:5%">First Name</th>
                         <th style="width:20%">Last Name</th>
-                        <th style="width:10%">Email</th>
                         <th style="width:20%">Phone Number</th>
                         <th style="width:25%">Subscription Plan</th>
                         <th style="width:20%">Plan Price</th>
@@ -69,10 +68,6 @@
                     {
                         data: 'LastName',
                         name: 'LastName'
-                    },
-                    {
-                        data: 'Email',
-                        name: 'Email'
                     },
                     {
                         data: 'PhoneNumber',

@@ -111,6 +111,9 @@ class AdminDashboardController extends Controller
 
             return datatables()->of($users)
                 ->addIndexColumn()
+                ->editColumn('PhoneNumber', function ($user) {
+                    return $this->formatPhoneNumber($user->PhoneNumber);
+                })
                 ->addColumn('status', function ($user) {
                     return $user->Status == 'Active' 
                         ? '<span class="badge bg-label-primary">' . $user->Status . '</span>' 
@@ -533,4 +536,16 @@ class AdminDashboardController extends Controller
                 ->make(true);
         }
     }
+
+    public function formatPhoneNumber($number) {
+        // Remove all non-digit characters
+        $number = preg_replace('/\D/', '', $number);
+
+        // Get the last 10 digits
+        $number = substr($number, -10);
+
+        // Format as 3-3-4
+        return preg_replace('/(\d{3})(\d{3})(\d{4})/', '$1-$2-$3', $number);
+    }
+        
 }
