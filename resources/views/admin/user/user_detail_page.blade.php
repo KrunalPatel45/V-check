@@ -212,10 +212,10 @@
                     <h5 class="pb-4 border-bottom mb-4">Details</h5>
                     <div class="info-container">
                         <ul class="list-unstyled mb-6">
-                            <li class="mb-2">
+                            {{-- <li class="mb-2">
                                 <span class="h6">Username:</span>
                                 <span>{{ $user->Username }}</span>
-                            </li>
+                            </li> --}}
                             <li class="mb-2">
                                 <span class="h6">Email:</span>
                                 <span>{{ $user->Email }}</span>

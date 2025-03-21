@@ -47,18 +47,15 @@ class UserAuthController extends Controller
     public function login_action(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email_username'    => 'required',    // Accept either email or username
+            'email'    => 'required',  
             'password' => 'required|min:6',
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
-
-        // Check if login is an email or username
-        $field = filter_var($request->email_username, FILTER_VALIDATE_EMAIL) ? 'Email' : 'Username';
-        
-        $user = User::where($field, $request->email_username)->first();
+    
+        $user = User::where('Email', $request->email)->first();
 
         if (!empty($user) && empty($user->CurrentPackageID)) {
             return redirect()->route('user.package', ['user_id' => $user->UserID]);
@@ -83,7 +80,7 @@ class UserAuthController extends Controller
         $validator = Validator::make($request->all(), [
             'firstname' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
-            'username' => 'required|string|unique:User,Username|max:255',
+            // 'username' => 'required|string|unique:User,Username|max:255',
             'email' => 'required|string|email|unique:User,Email|max:255',
             'phone_number' => 'required|string|max:20',
         ]);
@@ -95,7 +92,7 @@ class UserAuthController extends Controller
         $user = User::create([
             'FirstName' => $request->firstname,
             'LastName' => $request->lastname,
-            'Username' => $request->username,
+            // 'Username' => $request->username,
             'Email' => $request->email,
             'PhoneNumber' => $request->phone_number,
             'PasswordHash' => Hash::make($request->password),

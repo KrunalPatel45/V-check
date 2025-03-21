@@ -218,7 +218,7 @@ class AdminDashboardController extends Controller
         $validator = Validator::make($request->all(), [
             'firstname' => 'required',
             'lastname' => 'required',
-            'username' => 'required',
+            // 'username' => 'required',
             'email' => 'required|email',
             'phone_number' => 'required|numeric',
         ]);
@@ -228,7 +228,7 @@ class AdminDashboardController extends Controller
         }
 
         $admin = User::where('UserID', $request->user_id)->first();
-        $admin->Username = $request->username;
+        // $admin->Username = $request->username;
         $admin->Email = $request->email;
         $admin->FirstName = $request->firstname;
         $admin->LastName = $request->lastname;
@@ -405,9 +405,6 @@ class AdminDashboardController extends Controller
         $user->save();
        } else {
         
-        // Now delete the subscriptions
-        $cancel_or_pending_query->delete();
-
         $paymentStartDate = Carbon::parse($data_current_package->NextRenewalDate);
 
         $paymentEndDate = $paymentStartDate->copy()->addHours(24);

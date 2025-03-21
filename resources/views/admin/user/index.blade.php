@@ -34,8 +34,8 @@
                 <thead>
                     <tr>
                         <th>#</th>
-                        <th style="width:5%">Name</th>
-                        <th style="width:20%">User Name</th>
+                        <th style="width:5%">First Name</th>
+                        <th style="width:20%">Last Name</th>
                         <th style="width:10%">Email</th>
                         <th style="width:20%">Phone Number</th>
                         <th style="width:25%">Subscription Plan</th>
@@ -67,8 +67,8 @@
                         name: 'FirstName'
                     },
                     {
-                        data: 'Username',
-                        name: 'Username'
+                        data: 'LastName',
+                        name: 'LastName'
                     },
                     {
                         data: 'Email',

@@ -64,7 +64,7 @@
                                     @endif
                                 </div>
                             </div>
-                            <div class="mb-6">
+                            {{-- <div class="mb-6">
                                 <label for="username" class="form-label">Username</label>
                                 <input type="text" class="form-control" id="username" name="username"
                                     placeholder="Enter your username" value="{{ old('username') }}">
@@ -73,7 +73,7 @@
                                         {{ $errors->first('username') }}
                                     </span>
                                 @endif
-                            </div>
+                            </div> --}}
                             <div class="mb-6">
                                 <label for="email" class="form-label">Email</label>
                                 <input type="text" class="form-control" id="email" name="email"

@@ -88,7 +88,7 @@ class UserDashboardController extends Controller
         $validator = Validator::make($request->all(), [
             'firstname' => 'required',
             'lastname' => 'required',
-            'username' => 'required',
+            // 'username' => 'required',
             'email' => 'required|email',
             'phone_number' => 'required|numeric',
         ]);
@@ -98,7 +98,7 @@ class UserDashboardController extends Controller
         }
 
         $admin = User::where('UserID', $request->user_id)->first();
-        $admin->Username = $request->username;
+        // $admin->Username = $request->username;
         $admin->Email = $request->email;
         $admin->FirstName = $request->firstname;
         $admin->LastName = $request->lastname;

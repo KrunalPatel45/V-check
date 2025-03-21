@@ -69,7 +69,7 @@
                             @endif
                         </div>
                     </div>
-                    <div class="row mb-6">
+                    {{-- <div class="row mb-6">
                         <label class="col-sm-2 col-form-label" for="basic-icon-default-fullname">User name</label>
                         <div class="col-sm-10">
                             <div class="input-group input-group-merge">
@@ -85,7 +85,7 @@
                                 </span>
                             @endif
                         </div>
-                    </div>
+                    </div> --}}
                     <div class="row mb-6">
                         <label class="col-sm-2 col-form-label" for="basic-icon-default-email">Email</label>
                         <div class="col-sm-10">
