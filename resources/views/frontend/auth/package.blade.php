@@ -16,6 +16,7 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            flex-direction: column;
         }
 
         .pricing-table {
@@ -110,10 +111,15 @@
         .pricing-card .plan-button:hover {
             background-color: #7367f0 !important;
         }
+
+        .heading {
+            margin-bottom: 50px;
+        }
     </style>
 </head>
 
 <body>
+    <h1 class="heading">Please Select Package</h1>
     <div class="pricing-table">
         @foreach ($packages as $package)
             <div class="pricing-card {{ $package->Name == 'PRO' || $package->Name == 'ENTERPRISE' ? 'popular' : '' }}">

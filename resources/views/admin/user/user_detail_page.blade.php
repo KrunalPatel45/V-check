@@ -144,6 +144,19 @@
 @endsection
 
 @section('content')
+    @php
+        function formatPhoneNumber($number)
+        {
+            // Remove all non-digit characters
+            $number = preg_replace('/\D/', '', $number);
+
+            // Get the last 10 digits
+            $number = substr($number, -10);
+
+            // Format as 3-3-4
+            return preg_replace('/(\d{3})(\d{3})(\d{4})/', '$1-$2-$3', $number);
+        }
+    @endphp
     <div class="row">
         <!-- User Sidebar -->
         @if (session('success'))
@@ -237,7 +250,7 @@
                             </li>
                             <li class="mb-2">
                                 <span class="h6">Phone Number:</span>
-                                <span>{{ $user->PhoneNumber }}</span>
+                                <span>{{ formatPhoneNumber($user->PhoneNumber) }}</span>
                             </li>
                         </ul>
                         <div class="d-flex justify-content-center">
