@@ -170,6 +170,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\PayorsController;
 use App\Http\Controllers\CheckController;
 use App\Http\Controllers\BillingAndPlanController;
+use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\TestController;
 
 
@@ -201,6 +202,9 @@ Route::middleware([AdminMiddleware::class])->group(function () {
     Route::get('/client/{id}', [AdminDashboardController::class, 'client'])->name('admin.user.client');
     Route::get('/vendor/{id}', [AdminDashboardController::class, 'vendor'])->name('admin.user.vendor');
     Route::get('change-plan/{id}/{plan}', [AdminDashboardController::class, 'change_plan'])->name('admin.user.select-package');
+    Route::get('/admin/email-template', [EmailTemplateController::class, 'index'])->name('admin.email-template');
+    Route::get('/admin/email-template/edit/{id}', [EmailTemplateController::class, 'edit'])->name('admin.email-template-edit');
+    Route::post('/admin/email-template/update/{id}', [EmailTemplateController::class, 'update'])->name('admin.email-template-update');
 });
 
 Route::get('/login', [UserAuthController::class, 'login'])->name('user.login');
@@ -210,7 +214,11 @@ Route::post('/register', [UserAuthController::class, 'store'])->name('register.s
 Route::get('/package', [UserAuthController::class, 'package'])->name('user.package');
 Route::get('/select-package/{id}/{plan}', [UserAuthController::class, 'select_package'])->name('user-select-package');
 Route::get('/user/logout', [UserAuthController::class, 'logout'])->name('user.logout');
-
+Route::get('/email', [UserAuthController::class, 'email'])->name('user.email');
+Route::get('forgot-password', [UserAuthController::class, 'showForgotPasswordForm'])->name('user.forgot-password');
+Route::post('forgot-password', [UserAuthController::class, 'sendResetLink']);
+Route::get('reset-password/{token}', [UserAuthController::class, 'showResetForm']);
+Route::post('reset-password', [UserAuthController::class, 'resetPassword']);
 Route::middleware([UserMiddleware::class])->group(function () {
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('user.dashboard');
     Route::get('/user/profile', [UserDashboardController::class, 'profile'])->name('user.profile');

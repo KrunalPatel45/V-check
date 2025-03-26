@@ -12,6 +12,9 @@ use App\Models\PaymentSubscription;
 use App\Models\PaymentHistory;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use App\Models\EmailTemplate;
+use App\Mail\SendEmail;
+use Illuminate\Support\Facades\Mail;
 
 class UserAuthController extends Controller
 {
@@ -67,6 +70,8 @@ class UserAuthController extends Controller
 
         if ($user && Hash::check($request->password, $user->PasswordHash)) {
             Auth::login($user);
+            $name = $user->FirstName . ' ' .$user->LastName;
+            Mail::to($user->Email)->send(new SendEmail(2, $name));
             return redirect()->route('user.dashboard');
         }
 
@@ -92,7 +97,6 @@ class UserAuthController extends Controller
         $user = User::create([
             'FirstName' => $request->firstname,
             'LastName' => $request->lastname,
-            // 'Username' => $request->username,
             'Email' => $request->email,
             'PhoneNumber' => $request->phone_number,
             'PasswordHash' => Hash::make($request->password),
@@ -100,6 +104,9 @@ class UserAuthController extends Controller
             'CreatedAt' => now(),
             'UpdatedAt' => now(),
         ]);
+
+        $name = $user->FirstName . ' ' .$user->LastName;
+        Mail::to($user->Email)->send(new SendEmail(1, $name));
 
         return redirect()->route('user.package', ['user_id' => $user->UserID]);
     }
@@ -164,4 +171,55 @@ class UserAuthController extends Controller
     {
         return view('frontend.auth.expired');
     }
+
+    public function email()
+    {
+        $emailContent = EmailTemplate::find(1);
+        return view('user.emails.mail', compact('emailContent'));
+    }
+
+    // public function showForgotPasswordForm()
+    // {
+    //     return view('frontend.auth.forgot-password');
+    // }
+
+    // public function sendResetLink(Request $request)
+    // {
+    //     $request->validate([
+    //         'email' => 'required|email|exists:User,email',
+    //     ]);
+
+    //     $user = User::where('Email', $request->email)->first();
+
+    //     // Generate token and expiry
+    //     $token = Str::random(60);
+    //     $user->reset_token = $token;
+    //     $user->reset_token_expiry = Carbon::now()->addMinutes(30);
+    //     $user->save();
+
+    //     $name = $user->FirstName . ' ' .$user->LastName;
+    //     Mail::to($user->Email)->send(new SendEmail(2, $name));
+
+    //     // Send email
+    //     Mail::send('emails.reset-password', ['token' => $token], function ($message) use ($user) {
+    //         $message->to($user->email);
+    //         $message->subject('Reset Password Link');
+    //     });
+
+    //     return back()->with('success', 'We have emailed your password reset link!');
+    // }
+
+    // public function showResetForm($token)
+    // {
+    //     $user = User::where('reset_token', $token)
+    //                 ->where('reset_token_expiry', '>', Carbon::now())
+    //                 ->first();
+
+    //     if (!$user) {
+    //         returnreturn redirect()->route('user.login')->with('error', 'Invalid or expired token!');
+    //     }
+
+    //     return view('auth.reset-password', compact('token'));
+    // }
+
 }
