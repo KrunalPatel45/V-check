@@ -217,8 +217,8 @@ Route::get('/user/logout', [UserAuthController::class, 'logout'])->name('user.lo
 Route::get('/email', [UserAuthController::class, 'email'])->name('user.email');
 Route::get('forgot-password', [UserAuthController::class, 'showForgotPasswordForm'])->name('user.forgot-password');
 Route::post('forgot-password', [UserAuthController::class, 'sendResetLink']);
-Route::get('reset-password/{token}', [UserAuthController::class, 'showResetForm']);
-Route::post('reset-password', [UserAuthController::class, 'resetPassword']);
+Route::get('reset-password/{token}', [UserAuthController::class, 'showResetForm'])->name('user.showResetForm');
+Route::post('reset-password', [UserAuthController::class, 'resetPassword'])->name('user.resetPassword');
 Route::middleware([UserMiddleware::class])->group(function () {
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('user.dashboard');
     Route::get('/user/profile', [UserDashboardController::class, 'profile'])->name('user.profile');

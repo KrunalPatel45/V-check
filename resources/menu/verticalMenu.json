@@ -91,6 +91,13 @@
       "access": "web"
     },
     {
+      "url": "/admin/email-template",
+      "name": "Email Templates",
+      "icon": "menu-icon tf-icons ti ti-mail",
+      "slug": "admin.email-template",
+      "access": "admin"
+    },
+    {
       "url": "/user/logout",
       "name": "Logout",
       "icon": "menu-icon tf-icons ti ti-logout",

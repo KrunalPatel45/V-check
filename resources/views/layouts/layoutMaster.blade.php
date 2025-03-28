@@ -4,7 +4,12 @@
 @php
     use Illuminate\Support\Facades\Route;
     $configData = Helper::appClasses();
-    if (Route::is('user.register') || Route::is('user.login')) {
+    if (
+        Route::is('user.register') ||
+        Route::is('user.login') ||
+        Route::is('user.forgot-password') ||
+        Route::is('user.showResetForm')
+    ) {
         $configData['layout'] = 'blank';
     }
 @endphp

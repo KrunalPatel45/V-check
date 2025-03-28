@@ -395,7 +395,8 @@
                                                                                     width="100%" border="0"
                                                                                     cellpadding="0" cellspacing="0"
                                                                                     role="presentation"
-                                                                                    style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin-bottom: 20px;">
+                                                                                    style="mso-ta
+                                                                                    ble-lspace: 0pt; mso-table-rspace: 0pt; margin-bottom: 20px;">
                                                                                     <tbody>
                                                                                         <tr>
                                                                                             <td class="pad"

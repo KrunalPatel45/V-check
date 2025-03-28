@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Models\EmailTemplate;
 use App\Mail\SendEmail;
+use App\Mail\ResetPasswordMail;
 use Illuminate\Support\Facades\Mail;
 
 class UserAuthController extends Controller
@@ -178,48 +179,68 @@ class UserAuthController extends Controller
         return view('user.emails.mail', compact('emailContent'));
     }
 
-    // public function showForgotPasswordForm()
-    // {
-    //     return view('frontend.auth.forgot-password');
-    // }
+    public function showForgotPasswordForm()
+    {
+        return view('frontend.auth.forgot-password');
+    }
 
-    // public function sendResetLink(Request $request)
-    // {
-    //     $request->validate([
-    //         'email' => 'required|email|exists:User,email',
-    //     ]);
+    public function sendResetLink(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:User,email',
+        ]);
 
-    //     $user = User::where('Email', $request->email)->first();
+        $user = User::where('Email', $request->email)->first();
 
-    //     // Generate token and expiry
-    //     $token = Str::random(60);
-    //     $user->reset_token = $token;
-    //     $user->reset_token_expiry = Carbon::now()->addMinutes(30);
-    //     $user->save();
+        if(!empty($user)) {
+            $token = Str::random(60);
+            $user->reset_token = $token;
+            $user->reset_token_expiry = Carbon::now()->addMinutes(30);
+            $user->save();
+    
+            $name = $user->FirstName . ' ' .$user->LastName;
+    
+            Mail::to($user->Email)->send(new SendEmail(3, $name, $token));    
+            return back()->with('success', 'We have emailed your password reset link!');
+        }
+        return back()->with('error', 'The email address you entered does not exist');
+    }
 
-    //     $name = $user->FirstName . ' ' .$user->LastName;
-    //     Mail::to($user->Email)->send(new SendEmail(2, $name));
+    public function showResetForm($token)
+    {
+        $user = User::where('reset_token', $token)
+                    ->where('reset_token_expiry', '>', Carbon::now())
+                    ->first();
 
-    //     // Send email
-    //     Mail::send('emails.reset-password', ['token' => $token], function ($message) use ($user) {
-    //         $message->to($user->email);
-    //         $message->subject('Reset Password Link');
-    //     });
+        if (!$user) {
+            return redirect()->route('user.login')->with('error', 'Invalid or expired token!');
+        }
 
-    //     return back()->with('success', 'We have emailed your password reset link!');
-    // }
+        return view('frontend.auth.reset-password', compact('token'));
+    }
 
-    // public function showResetForm($token)
-    // {
-    //     $user = User::where('reset_token', $token)
-    //                 ->where('reset_token_expiry', '>', Carbon::now())
-    //                 ->first();
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'password' => 'required|min:6',
+            'confirm-password' => 'required|min:6' ,
+        ]);
 
-    //     if (!$user) {
-    //         returnreturn redirect()->route('user.login')->with('error', 'Invalid or expired token!');
-    //     }
+        $user = User::where('reset_token', $request->token)
+                    ->where('reset_token_expiry', '>', Carbon::now())
+                    ->first();
 
-    //     return view('auth.reset-password', compact('token'));
-    // }
+        if (!$user) {
+            return redirect()->route('user.login')->with('error', 'Invalid or expired token!');
+        }
 
+        // Update password and clear reset token
+        $user->PasswordHash = Hash::make($request->password);
+        $user->reset_token = null;
+        $user->reset_token_expiry = null;
+        $user->save();
+
+        return redirect()->route('user.login')->with('success', 'Your password has been reset successfully!');
+    }
 }

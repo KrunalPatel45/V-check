@@ -33,6 +33,8 @@ class User extends Authenticatable
     'Status',
     'CreatedAt',
     'UpdatedAt',
+    'reset_token',
+    'reset_token_expiry',
   ];
 
   /**
