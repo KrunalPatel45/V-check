@@ -222,35 +222,17 @@
                     $('#payee-edit').addClass('d-none');
                     $('#payee_id').val('');
                     $('#payee-name').val('');
-                    $('#payee-email').val('');
-                    $('#payee-address1').val('');
-                    $('#payee-address2').val('');
-                    $('#payee-city').val('');
-                    $('#payee-state').val('');
-                    $('#payee-zip').val('');
-                    $('#payee-bank_name').val('');
-                    $('#payee-account_number').val('');
-                    $('#payee-routing_number').val('');
                     $('#payee_h').text('Add');
                     $('#payeeModel').modal('show');
                 } else {
                     $.ajax({
-                        url: "{{ route('get_payee', ':id') }}".replace(':id', id),
+                        url: "{{ route('get_payee', ':id') }}".replace(':id', id) + '?type=RP',
                         method: 'GET',
                         success: function(response) {
                             $('#payee-edit').removeClass('d-none');
 
-                            $('#payee_id').val(response.payee.CompanyID);
+                            $('#payee_id').val(response.payee.EntityID);
                             $('#payee-name').val(response.payee.Name);
-                            $('#payee-email').val(response.payee.Email);
-                            $('#payee-address1').val(response.payee.Address1);
-                            $('#payee-address2').val(response.payee.Address2);
-                            $('#payee-city').val(response.payee.City);
-                            $('#payee-state').val(response.payee.State);
-                            $('#payee-zip').val(response.payee.Zip);
-                            $('#payee-bank_name').val(response.payee.BankName);
-                            $('#payee-account_number').val(response.payee.AccountNumber);
-                            $('#payee-routing_number').val(response.payee.RoutingNumber);
                         }
                     });
                 }
@@ -264,15 +246,8 @@
                 let formData = {
                     _token: "{{ csrf_token() }}", // Include CSRF token manually
                     name: $('#payee-name').val(),
-                    email: $('#payee-email').val(),
-                    address1: $('#payee-address1').val(),
-                    address2: $('#payee-address2').val(),
-                    city: $('#payee-city').val(),
-                    state: $('#payee-state').val(),
-                    zip: $('#payee-zip').val(),
-                    bank_name: $('#payee-bank_name').val(),
-                    account_number: $('#payee-account_number').val(),
-                    routing_number: $('#payee-routing_number').val(),
+                    type: 'Payee',
+                    category: 'RP',
                     id: id
                 };
 
@@ -304,8 +279,8 @@
                                 $('#payee option:selected').text(response.payee.Name);
                             } else {
                                 let newOption =
-                                    `<option value="${response.payee.CompanyID}" selected>${response.payee.Name}</option>`;
-                                $('#payee').append(newOption).val(response.payee.CompanyID);
+                                    `<option value="${response.payee.EntityID}" selected>${response.payee.Name}</option>`;
+                                $('#payee').append(newOption).val(response.payee.EntityID);
                             }
                         }
                     },
@@ -330,7 +305,6 @@
                     $('#add-payor #name').val('');
                     $('#add-payor #email').val('');
                     $('#add-payor #address1').val('');
-                    $('#add-payor #address2').val('');
                     $('#add-payor #city').val('');
                     $('#add-payor #state').val('');
                     $('#add-payor #zip').val('');
@@ -340,13 +314,12 @@
                     ('#payor_h').text('Add');
                 } else {
                     $.ajax({
-                        url: "{{ route('get_payor', ':id') }}".replace(':id', id),
+                        url: "{{ route('get_payor', ':id') }}".replace(':id', id) + '?type=RP',
                         method: 'GET',
                         success: function(response) {
                             $('#payor-edit').removeClass('d-none');
 
-                            var address = response.payor.Address1 + '\n';
-                            address += response.payor.Address2;
+                            var address = response.payor.Address1;
 
                             $('#payor_id').val(response.payor.EntityID);
                             $('#address').val(address);
@@ -360,7 +333,6 @@
                             $('#add-payor #name').val(response.payor.Name);
                             $('#add-payor #email').val(response.payor.Email);
                             $('#add-payor #address1').val(response.payor.Address1);
-                            $('#add-payor #address2').val(response.payor.Address2);
                             $('#add-payor #city').val(response.payor.City);
                             $('#add-payor #state').val(response.payor.State);
                             $('#add-payor #zip').val(response.payor.Zip);
@@ -382,14 +354,14 @@
                     name: $('#add-payor #name').val(),
                     email: $('#add-payor #email').val(),
                     address1: $('#add-payor #address1').val(),
-                    address2: $('#add-payor #address2').val(),
                     city: $('#add-payor #city').val(),
                     state: $('#add-payor #state').val(),
                     zip: $('#add-payor #zip').val(),
                     bank_name: $('#add-payor #bank_name').val(),
                     account_number: $('#add-payor #account_number').val(),
                     routing_number: $('#add-payor #routing_number').val(),
-                    type: 'Vendor',
+                    type: 'Payor',
+                    category: 'RP',
                     id: id
                 };
 
@@ -423,8 +395,7 @@
                                 $('#payor').append(newOption).val(response.payor.EntityID);
                             }
 
-                            var address = response.payor.Address1 + '\n';
-                            address += response.payor.Address2;
+                            var address = response.payor.Address1;
 
                             $('#address').val(address);
                             $('#city').val(response.payor.City);
@@ -438,7 +409,6 @@
                             $('#add-payor #name').val(response.payor.Name);
                             $('#add-payor #email').val(response.payor.Email);
                             $('#add-payor #address1').val(response.payor.Address1);
-                            $('#add-payor #address2').val(response.payor.Address2);
                             $('#add-payor #city').val(response.payor.City);
                             $('#add-payor #state').val(response.payor.State);
                             $('#add-payor #zip').val(response.payor.Zip);
@@ -553,7 +523,7 @@
         <form action="{{ route('check.process_payment_check_generate') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="card-header d-flex align-items-center justify-content-between mb-5">
-                <h5 class="mb-0">Create Check</h5>
+                <h5 class="mb-0">Create Receive Payment Check</h5>
                 <div class="d-flex align-items-center">
                     <button type="submit" class="btn btn-primary">Save</button>
                     &nbsp;&nbsp;
@@ -574,14 +544,14 @@
                                     <option value="" selected>Select Payors</option>
                                     @foreach ($payors as $payor)
                                         <option value="{{ $payor->EntityID }}"
-                                            {{ old('payor', $check->EntityID ?? '') == $payor->EntityID ? 'selected' : '' }}>
+                                            {{ old('payor', $check->PayorID ?? '') == $payor->EntityID ? 'selected' : '' }}>
                                             {{ $payor->Name }}
                                         </option>
                                     @endforeach
                                     <option value="" id="add_other_payor" style="font-weight: bold;">Add New Payors
                                     </option>
                                 </select>
-                                <span id="payor-edit" class="{{ !empty($check->EntityID) ? '' : 'd-none' }}"><i
+                                <span id="payor-edit" class="{{ !empty($check->PayorID) ? '' : 'd-none' }}"><i
                                         class="ti ti-pencil me-1"></i></span>
                             </div>
                             @if ($errors->has('payor'))
@@ -636,7 +606,7 @@
                             <div class="col-sm-4 p-0">
                                 <input type="text" id="check_date" name="check_date" class="dob-picker form-control"
                                     placeholder="MM-DD-YYYY"
-                                    value="{{ !empty($check->ExpiryDate) && $check->ExpiryDate ? $check->ExpiryDate : old('check_date') }}" />
+                                    value="{{ old('check_date', !empty($check->ExpiryDate) ? $check->ExpiryDate : now()->format('m-d-Y')) }}" />
                                 @if ($errors->has('check_date'))
                                     <span class="text-danger">
                                         {{ $errors->first('check_date') }}
@@ -692,8 +662,8 @@
                                 <select id="payee" name="payee" class="form-control" style="font-size: 16px;">
                                     <option value="" selected>Select Payee</option>
                                     @foreach ($payees as $payee)
-                                        <option value="{{ $payee->CompanyID }}"
-                                            {{ old('payee', $check->CompanyID ?? '') == $payee->CompanyID ? 'selected' : '' }}>
+                                        <option value="{{ $payee->EntityID }}"
+                                            {{ old('payee', (string) $check->PayeeID ?? '') === (string) $payee->EntityID ? 'selected' : '' }}>
                                             {{ $payee->Name }}
                                         </option>
                                     @endforeach
@@ -701,7 +671,7 @@
                                         Payee
                                     </option>
                                 </select>
-                                <span id="payee-edit" class="{{ !empty($check->CompanyID) ? '' : 'd-none' }}"><i
+                                <span id="payee-edit" class="{{ !empty($check->PayeeID) ? '' : 'd-none' }}"><i
                                         class="ti ti-pencil me-1"></i></span>
                                 @if ($errors->has('payee'))
                                     <br>
@@ -800,20 +770,11 @@
                                         @endif
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label" for="address1">Address 1</label>
+                                        <label class="form-label" for="address1">Address</label>
                                         <textarea id="address1" name="address1" class="form-control">{{ !empty($old_payor->Address1) ? $old_payor->Address1 : old('address1') }}</textarea>
                                         @if ($errors->has('address1'))
                                             <span class="text-danger">
                                                 {{ $errors->first('address1') }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label" for="address2">Address 2</label>
-                                        <textarea id="address2" name="address2" class="form-control">{{ !empty($old_payor->Address2) ? $old_payor->Address2 : old('address2') }}</textarea>
-                                        @if ($errors->has('address2'))
-                                            <span class="text-danger">
-                                                {{ $errors->first('address2') }}
                                             </span>
                                         @endif
                                     </div>
@@ -882,7 +843,7 @@
                                         @endif
                                     </div>
                                 </div>
-                                <input type="hidden" name="type" id="type" value="Vendor" />
+                                <input type="hidden" name="type" id="type" value="Payor" />
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-label-secondary"
@@ -903,10 +864,10 @@
                                     aria-label="Close"></button>
                             </div>
                             <input type="hidden" name="payee_id" id="payee_id"
-                                value="{{ !empty($old_payee->CompanyID) ? $old_payee->CompanyID : '' }}">
+                                value="{{ !empty($old_payee->EntityID) ? $old_payee->EntityID : '' }}">
                             <div class="modal-body">
                                 <div class="row g-6" id="add-payee">
-                                    <div class="col-md-6">
+                                    <div class="col-md-12">
                                         <label class="form-label" for="payee-name">Name</label>
                                         <input type="text" name="name" id="payee-name" class="form-control"
                                             value="{{ !empty($old_payee->Name) ? $old_payee->Name : old('name') }}" />
@@ -916,102 +877,8 @@
                                             </span>
                                         @endif
                                     </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label" for="payee-email">Email</label>
-                                        <input type="text" name="email" id="payee-email" class="form-control"
-                                            value="{{ !empty($old_payee->Email) ? $old_payee->Email : old('email') }}" />
-                                        @if ($errors->has('email'))
-                                            <span class="text-danger">
-                                                {{ $errors->first('email') }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label" for="payee-address1">Address 1</label>
-                                        <textarea id="payee-address1" name="address1" class="form-control">{{ !empty($old_payee->Address1) ? $old_payee->Address1 : old('address1') }}</textarea>
-                                        @if ($errors->has('address1'))
-                                            <span class="text-danger">
-                                                {{ $errors->first('address1') }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label" for="payee-address2">Address 2</label>
-                                        <textarea id="payee-address2" name="address2" class="form-control">{{ !empty($old_payee->Address2) ? $old_payee->Address2 : old('address2') }}</textarea>
-                                        @if ($errors->has('address1'))
-                                            <span class="text-danger">
-                                                {{ $errors->first('address2') }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label" for="payee-city">City</label>
-                                        <input type="text" name="city" id="payee-city" class="form-control"
-                                            value="{{ !empty($old_payee->City) ? $old_payee->City : old('city') }}" />
-                                        @if ($errors->has('city'))
-                                            <span class="text-danger">
-                                                {{ $errors->first('city') }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label" for="payee-state">State</label>
-                                        <input type="text" name="state" id="payee-state" class="form-control"
-                                            value="{{ !empty($old_payee->State) ? $old_payee->State : old('state') }}" />
-                                        @if ($errors->has('state'))
-                                            <span class="text-danger">
-                                                {{ $errors->first('state') }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label" for="payee-zip">Zip</label>
-                                        <input type="text" name="zip" id="payee-zip" class="form-control"
-                                            value="{{ !empty($old_payee->Zip) ? $old_payee->Zip : old('zip') }}" />
-                                        @if ($errors->has('zip'))
-                                            <span class="text-danger">
-                                                {{ $errors->first('zip') }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label" for="payee-bank_name">Bank Name</label>
-                                        <input type="text" name="bank_name" id="payee-bank_name" class="form-control"
-                                            value="{{ !empty($old_payee->BankName) ? $old_payee->BankName : old('bank_name') }}" />
-                                        @if ($errors->has('bank_name'))
-                                            <span class="text-danger">
-                                                {{ $errors->first('bank_name') }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label" for="payee-account_number">Account
-                                            Number</label>
-                                        <input type="number" name="account_number" id="payee-account_number"
-                                            class="form-control"
-                                            value="{{ !empty($old_payee->AccountNumber) ? $old_payee->AccountNumber : old('account_number') }}" />
-                                        @if ($errors->has('account_number'))
-                                            <span class="text-danger">
-                                                {{ $errors->first('account_number') }}
-                                            </span>
-                                        @endif
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label" for="payee-routing_number">Routing
-                                            Number</label>
-                                        <input type="text" name="routing_number" id="payee-routing_number"
-                                            class="form-control"
-                                            value="{{ !empty($old_payee->RoutingNumber) ? $old_payee->RoutingNumber : old('routing_number') }}"
-                                            maxlength="9"
-                                            oninput="this.value = this.value.replace(/\D/g, '').slice(0,9);" />
-                                        @if ($errors->has('routing_number'))
-                                            <span class="text-danger">
-                                                {{ $errors->first('routing_number') }}
-                                            </span>
-                                        @endif
-                                    </div>
                                 </div>
-                                <input type="hidden" name="type" id="type" value="Vendor" />
+                                <input type="hidden" name="type" id="type" value="Payee" />
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-label-secondary"

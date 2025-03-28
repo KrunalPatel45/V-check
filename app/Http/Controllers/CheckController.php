@@ -31,11 +31,11 @@ class CheckController extends Controller
             return datatables()->of($checks)
                 ->addIndexColumn()
                 ->addColumn('CompanyID', function ($row) {
-                    $company = Company::find($row->CompanyID);
-                    return $company->Name;
+                    $payee = Payors::find($row->PayeeID);
+                    return $payee->Name;
                 })
                 ->addColumn('EntityID', function ($row) {
-                    $payor = Payors::find($row->EntityID);
+                    $payor = Payors::find($row->PayorID);
                     return $payor->Name;
                 })
                 ->addColumn('IssueDate', function ($row) {
@@ -105,8 +105,8 @@ class CheckController extends Controller
             return redirect()->route('check.process_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
 
-        $payees = Company::where('UserID', Auth::id())->get();
-        $payors = Payors::where('UserID', Auth::id())->where('Type', 'Vendor')->get();
+        $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'RP')->get();
+        $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'RP')->get();
         return view('user.check.process_payment_generate_check', compact('payees', 'payors'));
     }
     public function process_payment_check_generate(Request $request)
@@ -119,7 +119,7 @@ class CheckController extends Controller
             'check_date' => 'required',
             'check_number' => 'required|numeric',
             'amount' => 'required|numeric|min:0.01',
-            'payee' => 'required|exists:Company,CompanyID',
+            'payee' => 'required|exists:Entities,EntityID',
             'payor' => 'required|exists:Entities,EntityID',
         ]);
 
@@ -154,10 +154,10 @@ class CheckController extends Controller
             }
             if ($checks) {
                 $checks->update([
-                    'CompanyID' => $request->payee,
+                    'PayeeID' => $request->payee,
                     'CheckType' => 'Process Payment',
                     'Amount' => $request->amount,
-                    'EntityID' => $request->payor,
+                    'PayorID' => $request->payor,
                     'CheckNumber' => $request->check_number,
                     'IssueDate' => now(),
                     'ExpiryDate' => $check_date,
@@ -173,10 +173,10 @@ class CheckController extends Controller
             // Create new record
             $checks = Checks::create([
                 'UserID' => Auth::id(),
-                'CompanyID'=> $request->payee,
+                'PayeeID'=> $request->payee,
                 'CheckType' => 'Process Payment',
                 'Amount' => $request->amount,
-                'EntityID' => $request->payor,
+                'PayorID' => $request->payor,
                 'CheckNumber' => $request->check_number,
                 'IssueDate' => now(),
                 'ExpiryDate' => $check_date,
@@ -201,10 +201,10 @@ class CheckController extends Controller
     {
         $check = Checks::find($id);
         $check->ExpiryDate = Carbon::parse($check->ExpiryDate)->format('m-d-Y');
-        $payees = Company::where('UserID', Auth::id())->get();
-        $payors = Payors::where('UserID', Auth::id())->where('Type', 'Vendor')->get();
-        $old_payee = Company::find($check->CompanyID);
-        $old_payor = Payors::find($check->EntityID);
+        $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'RP')->get();
+        $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'RP')->get();
+        $old_payee = Payors::find($check->PayeeID);
+        $old_payor = Payors::find($check->PayorID);
         return view('user.check.process_payment_generate_check', compact('payees', 'payors','check', 'old_payee', 'old_payor'));
     }
 
@@ -220,11 +220,11 @@ class CheckController extends Controller
             return datatables()->of($checks)
                 ->addIndexColumn()
                 ->addColumn('CompanyID', function ($row) {
-                    $company = Company::find($row->CompanyID);
-                    return $company->Name;
+                    $payee = Payors::find($row->PayorID);
+                    return $payee->Name;
                 })
                 ->addColumn('EntityID', function ($row) {
-                    $payor = Payors::find($row->EntityID);
+                    $payor = Payors::find($row->PayeeID);
                     return $payor->Name;
                 })
                 ->addColumn('IssueDate', function ($row) {
@@ -292,8 +292,8 @@ class CheckController extends Controller
             return redirect()->route('check.process_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
 
-        $payees = Payors::where('UserID', Auth::id())->where('Type', 'Client')->get();
-        $payors = Company::where('UserID', Auth::id())->get();
+        $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'SP')->get();
+        $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'SP')->get();
         return view('user.check.send_payment_generate_check', compact('payees', 'payors'));
     }
     public function send_payment_check_generate(Request $request)
@@ -306,8 +306,9 @@ class CheckController extends Controller
             'check_date' => 'required',
             'check_number' => 'required|numeric',
             'amount' => 'required|numeric|min:0.01',
-            'payor' => 'required|exists:Company,CompanyID',
+            'payor' => 'required|exists:Entities,EntityID',
             'payee' => 'required|exists:Entities,EntityID',
+            'signed' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -350,18 +351,18 @@ class CheckController extends Controller
                     'Status' => 'draft',
                     'Memo' => $request->memo, 
                     'CheckPDF' => null,
-                    'DigitalSignatureRequired' => (!empty($request->is_sign) && $request->is_sign == 'on') ? 1 : 0,
-                    'DigitalSignature' => (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '',
+                    'DigitalSignatureRequired' => 1,
+                    'DigitalSignature' => (!empty($fileName)) ? $fileName : '',
                 ]);
             }
             $message = 'Check Updated successfully';
         } else {
             $checks = Checks::create([
                 'UserID' => Auth::id(),
-                'CompanyID'=> $request->payor,
+                'PayorID'=> $request->payor,
                 'CheckType' => 'Make Payment',
                 'Amount' => $request->amount,
-                'EntityID' => $request->payee,
+                'PayeeID' => $request->payee,
                 'CheckNumber' => $request->check_number,
                 'IssueDate' => now(),
                 'ExpiryDate' => $check_date,
@@ -386,10 +387,10 @@ class CheckController extends Controller
     {
         $check = Checks::find($id);
         $check->ExpiryDate = Carbon::parse($check->ExpiryDate)->format('m-d-Y');
-        $payors = Company::where('UserID', Auth::id())->get();
-        $payees = Payors::where('UserID', Auth::id())->where('Type', 'Client')->get();
-        $old_payor = Company::find($check->CompanyID);
-        $old_payee = Payors::find($check->EntityID);
+        $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'SP')->get();
+        $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'SP')->get();
+        $old_payee = Payors::find($check->PayeeID);
+        $old_payor = Payors::find($check->PayorID);
         return view('user.check.send_payment_generate_check', compact('payees', 'payors','check', 'old_payee', 'old_payor'));
     }
     
@@ -488,22 +489,12 @@ class CheckController extends Controller
             return datatables()->of($checks)
                 ->addIndexColumn()
                 ->addColumn('CompanyID', function ($row) {
-                    if($row->CheckType == 'Process Payment') {
-                        $company = Company::find($row->CompanyID);
-                        return $company->Name;
-                    } else {
-                        $payor = Payors::find($row->EntityID);
-                        return $payor->Name;
-                    }
+                    $payee = Payors::find($row->PayeeID);
+                    return $payee->Name;
                 })
                 ->addColumn('EntityID', function ($row) {
-                    if($row->CheckType == 'Process Payment') {
-                        $payor = Payors::find($row->EntityID);
-                        return $payor->Name;
-                    } else {
-                        $company = Company::find($row->CompanyID);
-                        return $company->Name;
-                    }
+                    $payor = Payors::find($row->PayorID);
+                    return $payor->Name;
                 })
                 ->addColumn('IssueDate', function ($row) {
                     return Carbon::parse($row->IssueDate)->format('m/d/Y');
@@ -565,13 +556,15 @@ class CheckController extends Controller
 
     public function get_payee($id) 
     {
-        $payee = Company::find($id);
+        $type = request()->query('type'); 
+        $payee = Payors::where('EntityID', $id)->where('Category', $type)->first();
         return response()->json(['success' => true,'payee' => $payee]);
     }
 
     public function get_payor($id) 
     {
-        $payor = Payors::find($id);
+        $type = request()->query('type'); 
+        $payor = Payors::where('EntityID', $id)->where('Category', $type)->first();
         return response()->json(['success' => true,'payor' => $payor]);
     }
 
@@ -582,8 +575,8 @@ class CheckController extends Controller
         $check_date = Carbon::parse(str_replace('/', '-', $check->ExpiryDate))->format('m/d/Y');
 
         $data = [];
-        $payor = Payors::find($check->EntityID);
-        $payee = Company::find($check->CompanyID);
+        $payor = Payors::find($check->PayorID);
+        $payee = Payors::find($check->PayeeID);
         $data['payor_name'] = $payor->Name;
         $data['address1'] = $payor->Address1;
         $data['address2'] = $payor->Address2;
@@ -620,8 +613,8 @@ class CheckController extends Controller
         $check_date = Carbon::parse(str_replace('/', '-', $check->ExpiryDate))->format('m/d/Y');
 
         $data = [];
-        $payor = Company::find($check->CompanyID);
-        $payee = Payors::find($check->EntityID);
+        $payor = Payors::find($check->PayorID);
+        $payee = Payors::find($check->PayeeID);
         $data['payor_name'] = $payor->Name;
         $data['address1'] = $payor->Address1;
         $data['address2'] = $payor->Address2;

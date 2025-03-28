@@ -25,7 +25,7 @@
             <div class="col-xxl">
                 <div class="card mb-6">
                     <div class="card-header d-flex align-items-center justify-content-between">
-                        <h5 class="mb-0">Add Payee</h5>
+                        <h5 class="mb-0">Add Pay To</h5>
                         <div class="d-flex align-items-center">
                             <button type="submit" class="btn btn-primary">Save</button>
                             &nbsp;&nbsp;
@@ -70,7 +70,7 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="row mb-6">
+                        {{-- <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="address1">Address 2</label>
                             <div class="col-sm-10">
                                 <textarea id="address1" name="address2" class="form-control">{{ old('address2') }}</textarea>
@@ -80,7 +80,7 @@
                                     </span>
                                 @endif
                             </div>
-                        </div>
+                        </div> --}}
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="city">City</label>
                             <div class="col-sm-10">
@@ -155,7 +155,7 @@
                                 @endif
                             </div>
                         </div>
-                        <input type="hidden" name="type" id="type" value="Client" />
+                        <input type="hidden" name="type" id="type" value="Payee" />
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="status">Status</label>
                             <div class="col-sm-10">

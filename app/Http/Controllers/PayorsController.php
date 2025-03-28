@@ -19,7 +19,7 @@ class PayorsController extends Controller
 
         if ($request->ajax()) {
             $payors = Payors::where('UserID', Auth::id())
-                ->whereIn('Type', ['Client', 'Both'])
+                ->whereIn('Type', ['Payee'])
                 ->get();
 
             return datatables()->of($payors)
@@ -86,7 +86,7 @@ class PayorsController extends Controller
 
         if ($request->ajax()) {
             $payors = Payors::where('UserID', Auth::id())
-                ->whereIn('Type', ['Vendor', 'Both'])
+                ->whereIn('Type', ['Payor', 'Both'])
                 ->get();
 
             return datatables()->of($payors)
@@ -282,14 +282,6 @@ class PayorsController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required' ,
             'email' => 'nullable|email',
-            'address1' => 'required',
-            'city' => 'required',
-            'state' => 'required',
-            'zip' => 'required',
-            'bank_name' => 'required',
-            'routing_number' => 'required|digits:9',
-            'account_number' => 'required|numeric',
-            'status' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -339,14 +331,6 @@ class PayorsController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required' ,
             'email' => 'nullable|email',
-            'address1' => 'required',
-            'city' => 'required',
-            'state' => 'required',
-            'zip' => 'required',
-            'bank_name' => 'required',
-            'routing_number' => 'required|digits:9',
-            'account_number' => 'required|numeric',
-            'status' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -426,11 +410,42 @@ class PayorsController extends Controller
         $payor->AccountNumber = $request->account_number;
         $payor->Status = 'Active';
         $payor->Type = $request->type;
+        $payor->Category = $request->category;
 
         $payor->save();
 
         // Return success message
         return response()->json(['success' => true,'payor' => $payor]);
+    }
+
+    public function add_payee(Request $request)
+    {
+         $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'email' => 'nullable|email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()]);
+        }
+
+        // Create a new Payee entry (optional)
+        if(!empty($request->id)) {
+            $payor = Payors::find($request->id);
+        } else {
+            $payor = new Payors();
+        }
+        $payor->Name = $request->name;
+        $payor->UserID = Auth::id();
+        $payor->Email = $request->email;
+        $payor->Status = 'Active';
+        $payor->Type = $request->type;
+        $payor->Category = $request->category;
+
+        $payor->save();
+
+        // Return success message
+        return response()->json(['success' => true,'payee' => $payor]);
     }
 
 }

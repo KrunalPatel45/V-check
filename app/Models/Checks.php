@@ -15,10 +15,10 @@ class Checks extends Model
     protected $fillable = [
         'CheckID',
         'UserID',
-        'CompanyID',
+        'PayeeID',
         'CheckType',
         'Amount',
-        'EntityID',
+        'PayorID',
         'CheckNumber',
         'IssueDate',
         'ExpiryDate',

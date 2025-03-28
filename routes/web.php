@@ -255,7 +255,7 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::post('change-status', [CheckController::class, 'change_status'])->name('change_status');
     Route::get('check-history', [CheckController::class, 'history'])->name('check_history');
     Route::get('billing-and-plan', [BillingAndPlanController::class, 'index'])->name('billing_and_plan');
-    Route::post('add-payee', [CompanyController::class, 'add_payee'])->name('user.add-payee');
+    Route::post('add-payee', [PayorsController::class, 'add_payee'])->name('user.add-payee');
     Route::post('add-payor', [PayorsController::class, 'add_payor'])->name('user.add-payor');
     Route::post('amount-word', [CheckController::class, 'amount_word'])->name('amount_word');
     Route::get('get-payee/{id}', [CheckController::class, 'get_payee'])->name('get_payee');

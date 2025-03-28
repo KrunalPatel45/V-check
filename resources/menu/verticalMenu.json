@@ -29,27 +29,6 @@
       "access": "admin"
     },
     {
-      "url": "/user/company",
-      "name": "Companies",
-      "icon": "menu-icon tf-icons ti ti-color-swatch",
-      "slug": "user.company",
-      "access": "web"
-    },
-    {
-      "url": "/user/vendor",
-      "name": "Payors",
-      "icon": "menu-icon tf-icons ti ti-users",
-      "slug": "user.payors",
-      "access": "web"
-    },
-    {
-      "url": "/user/client",
-      "name": "Payees",
-      "icon": "menu-icon tf-icons ti ti-users",
-      "slug": "user.payee",
-      "access": "web"
-    },
-    {
       "name": "Checks",
       "icon": "menu-icon tf-icons ti ti-files",
       "slug": "check",
@@ -68,6 +47,20 @@
           "access": "web"
         }
       ]
+    },
+    {
+      "url": "/user/vendor",
+      "name": "Pay From",
+      "icon": "menu-icon tf-icons ti ti-id",
+      "slug": "user.payors",
+      "access": "web"
+    },
+    {
+      "url": "/user/client",
+      "name": "Pay To",
+      "icon": "menu-icon tf-icons ti ti-users",
+      "slug": "user.payee",
+      "access": "web"
     },
     {
       "url": "/check-history",

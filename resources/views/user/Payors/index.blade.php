@@ -20,10 +20,10 @@
             </div>
         @endif
         <div class="d-flex justify-content-between align-items-center">
-            <h5 class="card-header">Payors</h5>
+            <h5 class="card-header">Pay From</h5>
             <a href="{{ route('user.payors.add') }}" class="btn btn-primary mr-4"
                 style="height: 40px !important;margin-right: 25px !important;"><i class="fa-solid fa-plus"></i> &nbsp; Add
-                Payors</a>
+                Pay From</a>
         </div>
         <div class="card-datatable table-responsive pt-0">
             <table id="vendorTable" class="table">

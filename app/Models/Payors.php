@@ -30,5 +30,6 @@ class Payors extends Model
         'Status',
         'CreatedAt',
         'UpdatedAt',
+        'Category',
     ];
 }
