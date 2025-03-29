@@ -647,7 +647,7 @@ class CheckController extends Controller
     public function web_form($slug)
     {
         $data = WebForm::where('page_url', $slug)->first();
-        $company = Payors::find($data->PayeeID);
+        $company = Payors::withTrashed()->find($data->PayeeID);
         return view('user.web_form.web', compact('data', 'company'));
     }
 
@@ -670,7 +670,7 @@ class CheckController extends Controller
                     }
                 })
                 ->addColumn('company_name', function ($row) {
-                    $company = Payors::find($row->PayeeID);
+                    $company = Payors::withTrashed()->find($row->PayeeID);
                     if(!empty($company)) {
                         return $company->Name;
                     } else {
@@ -810,7 +810,7 @@ class CheckController extends Controller
             return redirect()->back()->with('error', 'Please fill all required details.');
         }
 
-        $payee = Payors::find($request->company_id);
+        $payee = Payors::withTrashed()->find($request->company_id);
 
         $payor_data = [
             'Name' => $request->name,
