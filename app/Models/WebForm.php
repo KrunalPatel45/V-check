@@ -15,8 +15,8 @@ class WebForm extends Model
     protected $fillable = [
         'Id',
         'UserID',
-        'CompanyID',
-        'PhoneNumber',
+        'PayeeID',
+        'Logo',
         'page_url',
         'page_desc',
     ];

@@ -632,12 +632,17 @@
             }
             return true;
         }
+
+        window.onload = () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('check_date').value = today;
+        };
     </script>
 </head>
 
 <body>
     @php
-        $logo_img_path = asset($company->Logo);
+        $logo_img_path = asset($data->Logo);
     @endphp
     <div id="container">
         <div id="wb_Image1" style="position:absolute;left:27px;top:30px;width:220px;height:84px;z-index:25;">
@@ -675,7 +680,7 @@
             <form name="True_Source_Home" method="post" action="{{ route('store_web_form_data') }}"
                 enctype="multipart/form-data" id="Form2">
                 @csrf
-                <input type="hidden" name="comany_id" id="comany_id" value="{{ $company->CompanyID }}">
+                <input type="hidden" name="company_id" id="company_id" value="{{ $company->EntityID }}">
                 <div id="wb_Text2"
                     style="position:absolute;left:198px;top:14px;width:90px;height:16px;z-index:0;text-align:left;">
                     <span style="color:#000000;font-family:Arial;font-size:13px;"><strong>Check Date</strong></span>

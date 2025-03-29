@@ -78,8 +78,8 @@
     },
     {
       "url": "/webform",
-      "name": "Web Form",
-      "icon": "menu-icon tf-icons ti ti-files",
+      "name": "Settings",
+      "icon": "menu-icon tf-icons ti ti-settings",
       "slug": "get_web_forms",
       "access": "web"
     },

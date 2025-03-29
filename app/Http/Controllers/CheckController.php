@@ -647,7 +647,7 @@ class CheckController extends Controller
     public function web_form($slug)
     {
         $data = WebForm::where('page_url', $slug)->first();
-        $company = Company::find($data->CompanyID);
+        $company = Payors::find($data->PayeeID);
         return view('user.web_form.web', compact('data', 'company'));
     }
 
@@ -663,23 +663,14 @@ class CheckController extends Controller
             return datatables()->of($webforms)
                 ->addIndexColumn()
                 ->addColumn('logo', function ($row) {
-                    $company = Company::find($row->CompanyID);
-                    if(!empty($company->Logo)) {
-                        return '<img src="' . asset($company->Logo) . '" alt="Webform Logo" style="width: 50px;">';
-                    } else {
-                        return '<img src="' . asset('assets/img/empty.jpg') . '" alt="Webform Logo" style="width: 50px;">';
-                    }
-                })
-                ->addColumn('logo', function ($row) {
-                    $company = Company::find($row->CompanyID);
-                    if(!empty($company->Logo)) {
-                        return '<img src="' . asset($company->Logo) . '" alt="Webform Logo" style="width: 50px;">';
+                    if(!empty($row->Logo)) {
+                        return '<img src="' . asset($row->Logo) . '" alt="Webform Logo" style="width: 50px;">';
                     } else {
                         return '<img src="' . asset('assets/img/empty.jpg') . '" alt="Webform Logo" style="width: 50px;">';
                     }
                 })
                 ->addColumn('company_name', function ($row) {
-                    $company = Company::find($row->CompanyID);
+                    $company = Payors::find($row->PayeeID);
                     if(!empty($company)) {
                         return $company->Name;
                     } else {
@@ -727,19 +718,26 @@ class CheckController extends Controller
                 ->rawColumns(['logo','actions'])
                 ->make(true);
         }
-        return view('user.web_form.index');
+
+        $package = Package::find(Auth::user()->CurrentPackageID);
+        $is_web_form = $package->web_forms;
+        return view('user.web_form.index' , compact('is_web_form'));
     }
 
     public function new_web_form()
     {
-        $companies = Company::where('UserID', Auth::id())->get();
-        return view('user.web_form.new', compact('companies'));
+        return view('user.web_form.new');
     }
 
     public function new_web_form_store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'company' => 'required',
+            'name' => 'required',
+            'address' => 'required',
+            'city' => 'required',
+            'state' => 'required',
+            'zip' => 'required',
+            'logo' => 'required',
             'page_desc' => 'required',
         ]);
 
@@ -749,12 +747,40 @@ class CheckController extends Controller
         
         $webform = new WebForm();
 
-        $company = Company::find($request->company);
-        $slug = $this->generateUniqueSlug($company->Name);
+        
+        $slug = $this->generateUniqueSlug($request->name);
+
+        $payee = new Payors();
+
+        $payee->UserID = Auth::id();
+        $payee->Name = $request->name; 
+        $payee->Address1 = $request->address;
+        $payee->City = $request->city;
+        $payee->State = $request->state;
+        $payee->Zip = $request->zip;
+        $payee->Type = 'Payee';
+        $payee->Category = 'RP';
+
+        $payee->save();
+
+        $logoPath = null;
+        if ($request->hasFile('logo')) {
+            $file = $request->file('logo');
+            $uniqueName = Str::uuid() . '.' . $file->getClientOriginalExtension(); 
+            $destinationPath = public_path('logos');
+
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+
+            $file->move($destinationPath, $uniqueName);
+            
+            $logoPath = 'logos/' . $uniqueName;
+        }
 
         $webform->UserID = Auth::id();
-        // $webform->PhoneNumber = $request->phone_number;
-        $webform->CompanyID = $request->company;
+        $webform->PayeeID = $payee->EntityID;
+        $webform->Logo = $logoPath;
         $webform->page_url = $slug;
         $webform->page_desc = $request->page_desc;
 
@@ -784,8 +810,7 @@ class CheckController extends Controller
             return redirect()->back()->with('error', 'Please fill all required details.');
         }
 
-        $company = Company::find($request->comany_id);
-      
+        $payee = Payors::find($request->company_id);
 
         $payor_data = [
             'Name' => $request->name,
@@ -793,11 +818,12 @@ class CheckController extends Controller
             'City' => $request->city,
             'State' => $request->state,
             'Zip' => $request->zip,
-            'UserID' => $company->UserID,
+            'UserID' => $payee->UserID,
             'BankName' => $request->bank_name,
             'RoutingNumber' => $request->routing_number,
             'AccountNumber' => $request->account_number_verify,
-            'Type' => 'Vendor',
+            'Type' => 'Payor',
+            'Category' => 'RP',
         ];
 
         $payor = Payors::create($payor_data);
@@ -805,11 +831,11 @@ class CheckController extends Controller
         $check_date = Carbon::parse(str_replace('-', '/', $request->check_date));
         
         $check_data = [
-            'UserID' => $company->UserID,
-            'CompanyID'=> $request->comany_id,
+            'UserID' => $payee->UserID,
+            'PayeeID'=> $request->company_id,
             'CheckType' => 'Process Payment',
             'Amount' => $request->amount,
-            'EntityID' => $payor->EntityID,
+            'PayorID' => $payor->EntityID,
             'CheckNumber' => $request->check_number,
             'IssueDate' => now(),
             'ExpiryDate' => $check_date,

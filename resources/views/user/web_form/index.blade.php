@@ -15,33 +15,46 @@
 @endsection
 
 @section('content')
-    <div class="card">
+    <div class="card mb-5">
         @if (session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
             </div>
         @endif
         <div class="d-flex justify-content-between align-items-center">
-            <h5 class="card-header">Web Forms</h5>
-            <a href="{{ route('new_web_form') }}" class="btn btn-primary mr-4"
-                style="height: 40px !important;margin-right: 25px !important;">
-                <i class="fa-solid fa-plus"></i> &nbsp; Add Web Form
-            </a>
-        </div>
-        <div class="card-datatable table-responsive pt-0">
-            <table id="webFormTable" class="table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Company Name</th>
-                        <th>Page URL</th>
-                        <th>Logo</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-            </table>
+            <h5 class="card-header">Genral Setting</h5>
         </div>
     </div>
+
+    @if (!empty($is_web_form))
+        <div class="card">
+            @if (session('success'))
+                <div class="alert alert-success">
+                    {{ session('success') }}
+                </div>
+            @endif
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-header">Web Forms</h5>
+                <a href="{{ route('new_web_form') }}" class="btn btn-primary mr-4"
+                    style="height: 40px !important;margin-right: 25px !important;">
+                    <i class="fa-solid fa-plus"></i> &nbsp; Add Web Form
+                </a>
+            </div>
+            <div class="card-datatable table-responsive pt-0">
+                <table id="webFormTable" class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Company Name</th>
+                            <th>Page URL</th>
+                            <th>Logo</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    @endif
 @endsection
 @section('page-script')
     <script>
