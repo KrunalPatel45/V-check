@@ -27,5 +27,7 @@ class Checks extends Model
         'DigitalSignature',
         'Memo',
         'CheckPDF',
+        'signed',
     ];
+
 }
