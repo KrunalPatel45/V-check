@@ -26,7 +26,7 @@
     @endphp
     <div class="row g-6">
         <!-- Average Daily Sales -->
-        <div class="col-xl-4 col-sm-6">
+        {{-- <div class="col-xl-4 col-sm-6">
             <div class="card">
                 <div class="card-header pb-0">
                     <h5 class="mb-3 card-title">Companies</h5>
@@ -34,8 +34,8 @@
                     <h4 class="mb-0">{{ $total_companies }}</h4>
                 </div>
             </div>
-        </div>
-        <div class="col-xl-4 col-sm-6">
+        </div> --}}
+        <div class="col-xl-6 col-sm-6">
             <div class="card">
                 <div class="card-header pb-0">
                     <h5 class="mb-3 card-title">Payors</h5>
@@ -44,7 +44,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-4 col-sm-6">
+        <div class="col-xl-6 col-sm-6">
             <div class="card">
                 <div class="card-header pb-0">
                     <h5 class="mb-3 card-title">Payees</h5>

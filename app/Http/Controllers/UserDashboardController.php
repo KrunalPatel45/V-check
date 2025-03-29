@@ -46,12 +46,12 @@ class UserDashboardController extends Controller
         $remaining_checks =($paymentSubscription->ChecksGiven == 0) ? '-'  : $paymentSubscription->RemainingChecks;
         
         $total_vendor = Payors::where('UserID', Auth::user()->UserID)
-                        ->whereIn('Type', ['Vendor', 'Both'])
+                        ->whereIn('Type', ['Payor'])
                         ->count();
 
         //
         $total_client = Payors::where('UserID', Auth::user()->UserID)
-                        ->whereIn('Type', ['Client', 'Both'])
+                        ->whereIn('Type', ['Payee'])
                         ->count();                
         //
         $total_companies = Company::where('UserID', Auth::user()->UserID)->count();

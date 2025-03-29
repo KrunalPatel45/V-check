@@ -106,9 +106,6 @@ class UserAuthController extends Controller
             'UpdatedAt' => now(),
         ]);
 
-        $name = $user->FirstName . ' ' .$user->LastName;
-        Mail::to($user->Email)->send(new SendEmail(1, $name));
-
         return redirect()->route('user.package', ['user_id' => $user->UserID]);
     }
 
@@ -159,6 +156,8 @@ class UserAuthController extends Controller
             'TransactionID' => $paymentSubscription->TransactionID,
         ]);
 
+        $name = $user->FirstName . ' ' .$user->LastName;
+        Mail::to($user->Email)->send(new SendEmail(1, $name));
         return redirect()->route('user.login')->with('success', 'Account created successful!');
     }
 

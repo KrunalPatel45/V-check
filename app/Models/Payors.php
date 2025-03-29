@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Payors extends Model
 {
+    use SoftDeletes;
+    
     protected $table = 'Entities';
 
     protected $primaryKey = 'EntityID';
@@ -32,4 +35,6 @@ class Payors extends Model
         'UpdatedAt',
         'Category',
     ];
+
+    protected $dates = ['deleted_at'];
 }

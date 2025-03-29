@@ -116,8 +116,9 @@
         .selected-plan {
             border: 5px solid green !important;
             border-radius: 20px !important;
-        } 
-        .current-plan{
+        }
+
+        .current-plan {
             font-weight: bold;
             color: green;
             font-size: 16px;
@@ -130,7 +131,8 @@
 <body>
     <div class="pricing-table">
         @foreach ($packages as $package)
-            <div class="pricing-card {{ $package->Name == 'PRO' || $package->Name == 'ENTERPRISE' ? 'popular' : '' }}{{ $user->CurrentPackageID == $package->PackageID ? ' selected-plan' : '' }}">
+            <div
+                class="pricing-card {{ $package->Name == 'PRO' || $package->Name == 'ENTERPRISE' ? 'popular' : '' }}{{ $user->CurrentPackageID == $package->PackageID ? ' selected-plan' : '' }}">
                 <h3>{{ $package->Name }}</h3>
                 <p class="price">${{ $package->Price }} <span>monthly</span></p>
                 <ul class="features">
@@ -139,15 +141,15 @@
                     <li>Email Support</li>
                     <li>Unlimited Users</li>
                     @if ($package->Name != 'BASIC')
-                        <li>Custom Webform*</li>
+                        <li>Clients Webform*</li>
                     @endif
                     <li>3 mos History Storage</li>
                 </ul>
-                @if($user->CurrentPackageID == $package->PackageID) 
+                @if ($user->CurrentPackageID == $package->PackageID)
                     <p class="current-plan">Current Plan</p>
-                @else 
-                <a href="{{ route('admin.user.select-package', ['id' => $user->UserID, 'plan' => $package->PackageID]) }}"
-                    class="plan-button">Select Plan</a>
+                @else
+                    <a href="{{ route('admin.user.select-package', ['id' => $user->UserID, 'plan' => $package->PackageID]) }}"
+                        class="plan-button">Select Plan</a>
                 @endif
             </div>
         @endforeach

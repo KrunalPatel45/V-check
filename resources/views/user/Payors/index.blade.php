@@ -20,7 +20,7 @@
             </div>
         @endif
         <div class="d-flex justify-content-between align-items-center">
-            <h5 class="card-header">Pay From</h5>
+            <h5 class="card-header">Payor</h5>
             <a href="{{ route('user.payors.add') }}" class="btn btn-primary mr-4"
                 style="height: 40px !important;margin-right: 25px !important;"><i class="fa-solid fa-plus"></i> &nbsp; Add
                 Pay From</a>
@@ -32,7 +32,6 @@
                         <th>#</th>
                         <th>Name</th>
                         <th>Email</th>
-                        <th>Routing Number</th>
                         <th>Status</th>
                         <th>CreatedAt</th>
                         <th>UpdatedAt</th>
@@ -66,10 +65,6 @@
                     {
                         data: 'Email',
                         name: 'Email'
-                    },
-                    {
-                        data: 'RoutingNumber',
-                        name: 'RoutingNumber'
                     },
                     {
                         data: 'status',

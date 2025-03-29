@@ -168,6 +168,7 @@ class PayorsController extends Controller
             'routing_number' => 'required|digits:9',
             'account_number' => 'required|numeric',
             'status' => 'required',
+            'category' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -193,6 +194,7 @@ class PayorsController extends Controller
         $payor->RoutingNumber = $request->routing_number;
         $payor->AccountNumber = $request->account_number;
         $payor->Status = $request->status;
+        $payor->Category = $request->category;
         $payor->Type = $payors_type;
 
         $payor->save();
@@ -225,6 +227,7 @@ class PayorsController extends Controller
             'routing_number' => 'required|digits:9',
             'account_number' => 'required|numeric',
             'status' => 'required',
+            'category' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -251,6 +254,7 @@ class PayorsController extends Controller
         $payor->AccountNumber = $request->account_number;
         $payor->Type = $payors_type;
         $payor->Status = $request->status;
+        $payor->Category = $request->category;
 
         $payor->save();
 
@@ -261,8 +265,8 @@ class PayorsController extends Controller
     public function payor_delete($id)
     {
         $type = 'Payors';
-        $package = Payors::find($id);
-        $package->delete();
+        $payor = Payors::find($id);
+        $payor->delete();
 
         return redirect()->route('user.'.$type)->with('success', $type . ' deleted successfully');
     }
@@ -308,6 +312,7 @@ class PayorsController extends Controller
         $payor->AccountNumber = $request->account_number;
         $payor->Status = $request->status;
         $payor->Type = $payors_type;
+        $payor->Category = $request->category;
 
         $payor->save();
 
@@ -357,6 +362,7 @@ class PayorsController extends Controller
         $payor->AccountNumber = $request->account_number;
         $payor->Type = $payors_type;
         $payor->Status = $request->status;
+        $payor->Category = $request->category;
 
         $payor->save();
 

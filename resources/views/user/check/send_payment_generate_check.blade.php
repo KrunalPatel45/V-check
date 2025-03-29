@@ -514,43 +514,24 @@
 
         if (existingSignature) {
             var img = new Image();
+            img.crossOrigin = "Anonymous"; // Prevent CORS issues when converting to Base64
             img.src = existingSignature;
+
             img.onload = function() {
-                var canvas = $('#sig canvas')[0]; // Get the canvas element
+                var canvas = $('#sig canvas')[0];
                 var ctx = canvas.getContext("2d");
+
+                // Draw existing signature on canvas
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                $("#signature64").val(existingSignature); // Ensure the saved signature stays
+
+                // Convert canvas content to Base64
+                var base64Signature = canvas.toDataURL("image/png");
+
+                // Save Base64 signature to hidden field
+                $("#signature64").val(base64Signature);
             };
         }
 
-        $('#clear').click(function(e) {
-
-            e.preventDefault();
-
-            sig.signature('clear');
-
-            $("#signature64").val('');
-
-        });
-    </script>
-    <script type="text/javascript">
-        var sig = $('#sig').signature({
-            syncField: '#signature64',
-            syncFormat: 'PNG'
-        });
-
-        var existingSignature = {!! json_encode(!empty($check->DigitalSignature) ? asset('sign/' . $check->DigitalSignature) : '') !!};
-
-        if (existingSignature) {
-            var img = new Image();
-            img.src = existingSignature;
-            img.onload = function() {
-                var canvas = $('#sig canvas')[0]; // Get the canvas element
-                var ctx = canvas.getContext("2d");
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                $("#signature64").val(existingSignature); // Ensure the saved signature stays
-            };
-        }
 
         $('#clear').click(function(e) {
 
@@ -573,7 +554,7 @@
                 <div class="d-flex align-items-center">
                     <button type="submit" class="btn btn-primary">Save</button>
                     &nbsp;&nbsp;
-                    <a href="{{ route('check.send_payment_check') }}" class="btn btn-primary mr-4">
+                    <a href="{{ route('check.send_payment') }}" class="btn btn-primary mr-4">
                         {{-- &nbsp; --}}
                         Back</a>
                 </div>

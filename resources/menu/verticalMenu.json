@@ -23,7 +23,7 @@
     },
     {
       "url": "/admin/users",
-      "name": "Customers",
+      "name": "Clients",
       "icon": "menu-icon tf-icons ti ti-users",
       "slug": "admin.users",
       "access": "admin"
@@ -49,17 +49,17 @@
       ]
     },
     {
-      "url": "/user/vendor",
-      "name": "Pay From",
-      "icon": "menu-icon tf-icons ti ti-id",
-      "slug": "user.payors",
+      "url": "/user/client",
+      "name": "Payee (Pay To)",
+      "icon": "menu-icon tf-icons ti ti-users",
+      "slug": "user.payee",
       "access": "web"
     },
     {
-      "url": "/user/client",
-      "name": "Pay To",
-      "icon": "menu-icon tf-icons ti ti-users",
-      "slug": "user.payee",
+      "url": "/user/vendor",
+      "name": "Payor (Pay From)",
+      "icon": "menu-icon tf-icons ti ti-id",
+      "slug": "user.payors",
       "access": "web"
     },
     {

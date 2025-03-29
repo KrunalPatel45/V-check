@@ -26,7 +26,7 @@
             <div class="col-xxl">
                 <div class="card mb-6">
                     <div class="card-header d-flex align-items-center justify-content-between">
-                        <h5 class="mb-0">Edit Pay TO</h5>
+                        <h5 class="mb-0">Edit Payee</h5>
                         <div class="d-flex align-items-center">
                             <button type="submit" class="btn btn-primary">Save</button>
                             &nbsp;&nbsp;
@@ -152,6 +152,24 @@
                                 @if ($errors->has('routing_number'))
                                     <span class="text-danger">
                                         {{ $errors->first('routing_number') }}
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="row mb-6">
+                            <label class="col-sm-2 col-form-label" for="category">Category</label>
+                            <div class="col-sm-10">
+                                <select id="category" name="category" class="form-control form-select">
+                                    <option value="RP" {{ $payor->Category == 'RP' ? 'selected' : '' }}>Payment recive
+                                        check genration
+                                    </option>
+                                    <option value="SP" {{ $payor->Category == 'SP' ? 'selected' : '' }}>Payment send
+                                        check genration
+                                    </option>
+                                </select>
+                                @if ($errors->has('category'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('category') }}
                                     </span>
                                 @endif
                             </div>

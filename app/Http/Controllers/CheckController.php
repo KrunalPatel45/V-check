@@ -31,11 +31,11 @@ class CheckController extends Controller
             return datatables()->of($checks)
                 ->addIndexColumn()
                 ->addColumn('CompanyID', function ($row) {
-                    $payee = Payors::find($row->PayeeID);
+                    $payee = Payors::withTrashed()->find($row->PayeeID);
                     return $payee->Name;
                 })
                 ->addColumn('EntityID', function ($row) {
-                    $payor = Payors::find($row->PayorID);
+                    $payor = Payors::withTrashed()->find($row->PayorID);
                     return $payor->Name;
                 })
                 ->addColumn('IssueDate', function ($row) {
@@ -220,11 +220,11 @@ class CheckController extends Controller
             return datatables()->of($checks)
                 ->addIndexColumn()
                 ->addColumn('CompanyID', function ($row) {
-                    $payee = Payors::find($row->PayorID);
+                    $payee = Payors::withTrashed()->find($row->PayorID);
                     return $payee->Name;
                 })
                 ->addColumn('EntityID', function ($row) {
-                    $payor = Payors::find($row->PayeeID);
+                    $payor = Payors::withTrashed()->find($row->PayeeID);
                     return $payor->Name;
                 })
                 ->addColumn('IssueDate', function ($row) {
@@ -369,8 +369,8 @@ class CheckController extends Controller
                 'Status' => 'draft',
                 'Memo' => $request->memo, 
                 'CheckPDF' => null,
-                'DigitalSignatureRequired' => (!empty($request->is_sign) && $request->is_sign == 'on') ? 1 : 0,
-                'DigitalSignature' => (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '',
+                'DigitalSignatureRequired' => 1,
+                'DigitalSignature' => (!empty($fileName)) ? $fileName : '',
             ]);
     
             $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->orderBy('PaymentSubscriptionID', 'desc')->first();
@@ -489,11 +489,11 @@ class CheckController extends Controller
             return datatables()->of($checks)
                 ->addIndexColumn()
                 ->addColumn('CompanyID', function ($row) {
-                    $payee = Payors::find($row->PayeeID);
+                    $payee = Payors::withTrashed()->find($row->PayeeID);
                     return $payee->Name;
                 })
                 ->addColumn('EntityID', function ($row) {
-                    $payor = Payors::find($row->PayorID);
+                    $payor = Payors::withTrashed()->find($row->PayorID);
                     return $payor->Name;
                 })
                 ->addColumn('IssueDate', function ($row) {
@@ -575,8 +575,8 @@ class CheckController extends Controller
         $check_date = Carbon::parse(str_replace('/', '-', $check->ExpiryDate))->format('m/d/Y');
 
         $data = [];
-        $payor = Payors::find($check->PayorID);
-        $payee = Payors::find($check->PayeeID);
+        $payor = Payors::withTrashed()->find($check->PayorID);
+        $payee = Payors::withTrashed()->find($check->PayeeID);
         $data['payor_name'] = $payor->Name;
         $data['address1'] = $payor->Address1;
         $data['address2'] = $payor->Address2;
@@ -613,8 +613,8 @@ class CheckController extends Controller
         $check_date = Carbon::parse(str_replace('/', '-', $check->ExpiryDate))->format('m/d/Y');
 
         $data = [];
-        $payor = Payors::find($check->PayorID);
-        $payee = Payors::find($check->PayeeID);
+        $payor = Payors::withTrashed()->find($check->PayorID);
+        $payee = Payors::withTrashed()->find($check->PayeeID);
         $data['payor_name'] = $payor->Name;
         $data['address1'] = $payor->Address1;
         $data['address2'] = $payor->Address2;
@@ -630,7 +630,7 @@ class CheckController extends Controller
         $data['routing_number'] = $payor->RoutingNumber;
         $data['account_number'] = $payor->AccountNumber;
         $data['bank_name'] = $payor->BankName; 
-        $data['signature'] = (!empty($check->DigitalSignatureRequired)) ? $check->DigitalSignature : '';
+        $data['signature'] = (!empty($check->DigitalSignature)) ? $check->DigitalSignature : '';
 
         // return view('user.check_formate.index', compact('data'));
         

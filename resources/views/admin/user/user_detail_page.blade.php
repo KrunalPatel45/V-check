@@ -728,7 +728,7 @@
                                 <li>Email Support</li>
                                 <li>Unlimited Users</li>
                                 @if ($package->Name != 'BASIC')
-                                    <li>Custom Webform*</li>
+                                    <li>Clients Webform*</li>
                                 @endif
                                 <li>3 mos History Storage</li>
                             </ul>
