@@ -663,7 +663,7 @@
                                     <option value="" selected>Select Payee</option>
                                     @foreach ($payees as $payee)
                                         <option value="{{ $payee->EntityID }}"
-                                            {{ old('payee', (string) !empty($check->PayeeID) ?? '') === (string) $payee->EntityID ? 'selected' : '' }}>
+                                            {{ old('payee', $check->PayeeID ?? '') == $payee->EntityID ? 'selected' : '' }}>
                                             {{ $payee->Name }}
                                         </option>
                                     @endforeach
