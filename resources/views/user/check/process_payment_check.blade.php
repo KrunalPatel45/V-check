@@ -58,6 +58,8 @@
             $('#receive_payment_checks').DataTable({
                 processing: true,
                 serverSide: true,
+                pageLength: "{{ config('app.rp_per_page') }}",
+                lengthChange: false,
                 ajax: "{{ route('check.process_payment') }}",
                 order: [
                     [0, 'desc']

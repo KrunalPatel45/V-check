@@ -115,6 +115,8 @@
             $('#check_history').DataTable({
                 processing: true,
                 serverSide: true,
+                pageLength: "{{ config('app.history_per_page') }}",
+                lengthChange: false,
                 ajax: "{{ route('check_history') }}",
                 columns: [{
                         data: 'DT_RowIndex',

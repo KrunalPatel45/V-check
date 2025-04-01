@@ -51,6 +51,8 @@
             $('#vendorTable').DataTable({
                 processing: true,
                 serverSide: true,
+                pageLength: "{{ config('app.payor_per_page') }}",
+                lengthChange: false,
                 ajax: "{{ route('user.Payors') }}",
                 columns: [{
                         data: 'DT_RowIndex',

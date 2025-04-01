@@ -16,6 +16,7 @@ use App\Models\PaymentSubscription;
 use Carbon\Carbon;
 use App\Models\WebForm;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Artisan;
 
 class CheckController extends Controller
 {
@@ -874,5 +875,53 @@ class CheckController extends Controller
 
         return redirect()->route('get_web_forms')->with('success', 'Web Form deleted successfully');
 
+    }
+
+
+    public function updateRecordsPerPage(Request $request)
+    {
+        $rpPerPage = $request->input('rp_page', 10);
+        $spPerPage = $request->input('sp_page', 10);
+        $payeePerPage = $request->input('payee_page', 10);
+        $payorPerPage = $request->input('payor_page', 10);
+        $historyPerPage = $request->input('history_page', 10);
+
+        // Validate the value
+        $validated = $request->validate([
+            'rp_page' => 'required|integer|in:10,20,30,40,50,100',
+            'sp_page' => 'required|integer|in:10,20,30,40,50,100',
+            'payee_page' => 'required|integer|in:10,20,30,40,50,100',
+            'payor_page' => 'required|integer|in:10,20,30,40,50,100',
+            'history_page' => 'required|integer|in:10,20,30,40,50,100',
+        ]);
+
+        // Store in config file
+        $this->updateConfigValue('rp_per_page', $rpPerPage);
+        $this->updateConfigValue('sp_per_page', $spPerPage);
+        $this->updateConfigValue('payee_per_page', $payeePerPage);
+        $this->updateConfigValue('payor_per_page', $payorPerPage);
+        $this->updateConfigValue('history_per_page', $historyPerPage);
+
+        return redirect()->back()->with('success', 'Records per page updated successfully!');
+    }
+
+    private function updateConfigValue($key, $value)
+    {
+        $path = config_path('app.php');
+
+        if (File::exists($path)) {
+            $config = File::getRequire($path);
+            
+            // Update value
+            data_set($config, $key, $value);
+
+            // Save back to the file
+            $content = '<?php return ' . var_export($config, true) . ';';
+            File::put($path, $content);
+
+            // Clear and cache config
+            Artisan::call('config:clear');
+            Artisan::call('config:cache');
+        }
     }
 }
