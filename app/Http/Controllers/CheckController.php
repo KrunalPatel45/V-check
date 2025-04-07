@@ -51,7 +51,7 @@ class CheckController extends Controller
                     if($row->Status == 'draft') {
                         return '<div class="d-flex">
                                 <a href="' . $editUrl . '" class="dropdown-item">
-                                        <i class="ti ti-pencil me-1"></i> Draft
+                                        <i class="ti ti-pencil me-1"></i> Edit
                                 </a>
                                 <a href="javascript:void(0);" class="dropdown-item" data-bs-toggle="modal" 
                                     data-bs-target="#check-generate' . $row->CheckID . '">
@@ -239,7 +239,7 @@ class CheckController extends Controller
                     if($row->Status == 'draft') {
                         return '<div class="d-flex">
                                 <a href="' . $editUrl . '" class="dropdown-item">
-                                        <i class="ti ti-pencil me-1"></i> Draft
+                                        <i class="ti ti-pencil me-1"></i> Edit
                                 </a>
                                 <a href="javascript:void(0);" class="dropdown-item" data-bs-toggle="modal" 
                                     data-bs-target="#check-generate' . $row->CheckID . '">
@@ -434,7 +434,7 @@ class CheckController extends Controller
         }
         // Generate PDF from a view
         $pdf = PDF::loadView('user.check_formate.index', compact('data'))->setPaper('a4', 'portrait')
-        ->setPaper([0, 0, 800, 800])
+        ->setPaper([0, 0, 800, 1200])
         ->set_option('isHtml5ParserEnabled', true)
         ->set_option('isRemoteEnabled', true);
     
@@ -594,7 +594,7 @@ class CheckController extends Controller
         $data['account_number'] = $payor->AccountNumber;
         $data['bank_name'] = $payor->BankName; 
         $data['signature'] = (!empty($check->DigitalSignatureRequired)) ? $check->DigitalSignature : '';
-
+        $data['email'] =  !empty($payee->Email) ? $payee->Email : '';
         // return view('user.check_formate.index', compact('data'));
         
         $check_file = $this->generateAndSavePDF($data);
@@ -632,6 +632,7 @@ class CheckController extends Controller
         $data['account_number'] = $payor->AccountNumber;
         $data['bank_name'] = $payor->BankName; 
         $data['signature'] = (!empty($check->DigitalSignature)) ? $check->DigitalSignature : '';
+        $data['email'] =  !empty($payee->Email) ? $payee->Email : '';
 
         // return view('user.check_formate.index', compact('data'));
         

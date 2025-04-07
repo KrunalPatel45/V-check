@@ -583,20 +583,9 @@
                         <div class="row">
                             {{-- <label class="col-sm-12 col-form-label" for="street-address">Your Street Address:</label> --}}
                             <div class="col-sm-8">
-                                @php
-                                    $address = '';
-                                    if (!empty($old_payor->Address1)) {
-                                        $address = $old_payor->Address1 . "\n" . $old_payor->Address2;
-                                    } else {
-                                        $address = old('address');
-                                    }
-                                @endphp
-                                <textarea id="address" name="address" class="form-control" placeholder="Your Street Address" disabled>
-                                    {!! $address !!}
-                                </textarea>
-                                {{-- <input type="text" id="address" name="address" class="form-control"
+                                <input type="text" id="address" name="address" class="form-control"
                                     placeholder="Your Street Address" disabled
-                                    value="{{ !empty($old_payor->Address1) && $old_payor->Address1 ? $old_payor->Address1 : old('address') }}"> --}}
+                                    value="{{ !empty($old_payor->Address1) && $old_payor->Address1 ? $old_payor->Address1 : old('address') }}">
                             </div>
                         </div>
                     </div>
