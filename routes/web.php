@@ -172,7 +172,7 @@ use App\Http\Controllers\CheckController;
 use App\Http\Controllers\BillingAndPlanController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\TestController;
-
+use App\Http\Controllers\SubscriptionController;
 
 Route::get('/admin/login', [AdminAuthController::class, 'adminLogin'])->name('admin.login');
 Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login-action');
@@ -212,7 +212,8 @@ Route::post('/login', [UserAuthController::class, 'login_action'])->name('user.l
 Route::get('/register', [UserAuthController::class, 'register'])->name('user.register');
 Route::post('/register', [UserAuthController::class, 'store'])->name('register.store');
 Route::get('/package', [UserAuthController::class, 'package'])->name('user.package');
-Route::get('/select-package/{id}/{plan}', [UserAuthController::class, 'select_package'])->name('user-select-package');
+// Route::get('/select-package/{id}/{plan}', [UserAuthController::class, 'select_package'])->name('user-select-package');
+Route::get('/select-package/{id}/{plan}', [SubscriptionController::class, 'checkout'])->name('user-select-package');
 Route::get('/user/logout', [UserAuthController::class, 'logout'])->name('user.logout');
 Route::get('/email', [UserAuthController::class, 'email'])->name('user.email');
 Route::get('forgot-password', [UserAuthController::class, 'showForgotPasswordForm'])->name('user.forgot-password');
@@ -279,7 +280,11 @@ Route::post('store_web_form_data', [CheckController::class, 'store_web_form_data
 Route::get('thank-you', [CheckController::class, 'thankyou'])->name('thankyou');
 Route::get('expired', [UserAuthController::class, 'expired_sub'])->name('expired_sub');
 Route::get('test', [TestController::class, 'test'])->name('test');
+Route::get('checkout-test', [TestController::class, 'checkout'])->name('checkout-test');
 Route::get('subscription-update', [TestController::class, 'subscription_update'])->name('subscription_update');
+
+Route::get('/subscribe/success', [SubscriptionController::class, 'success'])->name('stripe.success');
+Route::get('/subscribe/cancel', [SubscriptionController::class, 'cancel'])->name('stripe.cancel');
 
 // Main Page Route
 Route::get('/', [HomeController::class, 'index'])->name('index');
