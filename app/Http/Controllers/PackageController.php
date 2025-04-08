@@ -7,9 +7,16 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Package;
 use Carbon\Carbon;
+use App\Helpers\SubscriptionHelper;
 
 class PackageController extends Controller
 {
+    protected $SubscriptionHelper;
+    public function __construct(SubscriptionHelper $subscriptionHelper)
+    {
+        $this->subscriptionHelper = $subscriptionHelper;
+    }
+
     public function index(Request $request)
     {
         if (!Auth::guard('admin')->check()) {
@@ -130,6 +137,21 @@ class PackageController extends Controller
         $package->web_forms = $request->web_form;
         $package->Status = $request->status;
 
+        $plan_data = [
+            'name' => $request->name,
+            'interval' => 'month',
+            'price' => $request->price
+        ];
+
+        $res = $this->subscriptionHelper->addPlan($plan_data);
+
+        if(!empty($res['id'])) {
+            $price_obj = $this->subscriptionHelper->addPrice($res['product'], $request->price);
+            $package->PlanID = $res['id'];
+            $package->ProductID = $res['product'];
+            $package->PriceID = $price_obj['id'];
+        }
+
         $package->save();
 
         return redirect()->route('admin.package')->with('success', 'Package added successfully');
@@ -170,6 +192,30 @@ class PackageController extends Controller
         $package = Package::find($id);
         $package->Name = $request->name;
         $package->Description = $request->description;
+
+        if($request->price != $package->Price) {
+            if(!empty($package->ProductID) && !empty($plan_data)) {
+                $this->subscriptionHelper->deleteProduct($package->ProductID);
+                $this->subscriptionHelper->deletePlan($package->PlanID);
+            }
+
+            $plan_data = [
+                'name' => $request->name,
+                'interval' => 'month',
+                'price' => $request->price
+            ];
+
+            $res = $this->subscriptionHelper->addPlan($plan_data);
+
+            if(!empty($res['id'])) {
+                $price_obj = $this->subscriptionHelper->addPrice($res['product'], $request->price);
+                $package->PlanID = $res['id'];
+                $package->ProductID = $res['product'];
+                $package->PriceID = $price_obj['id'];
+            }
+        }
+
+
         $package->Price = $request->price;
         $package->Duration = $request->duration;
         $package->CheckLimitPerMonth = $request->check_limit;
@@ -187,6 +233,8 @@ class PackageController extends Controller
     public function delete($id)
     {
         $package = Package::find($id);
+        $this->subscriptionHelper->deleteProduct($package->ProductID);
+        $this->subscriptionHelper->deletePlan($package->PlanID);
         $package->delete();
 
         return redirect()->route('admin.package')->with('success', 'Package deleted successfully');

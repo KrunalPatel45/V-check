@@ -10,9 +10,15 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\PaymentHistory;
 use Illuminate\Support\Str;
+use App\Helpers\SubscriptionHelper;
 
 class BillingAndPlanController extends Controller
 {
+      protected $SubscriptionHelper;
+      public function __construct(SubscriptionHelper $subscriptionHelper)
+      {
+         $this->subscriptionHelper = $subscriptionHelper;
+      }     
       public function index()
       {
         $user = User::where('userID', Auth::user()->UserID)->first();
@@ -71,52 +77,63 @@ class BillingAndPlanController extends Controller
          $package = Package::find($plan);
          $user_current_package = Package::find($user->CurrentPackageID);
          $data_current_package = PaymentSubscription::where('UserId', $id)->where('PackageID', $user->CurrentPackageID)->first();
+         
          if($package->PackageID > $user_current_package->PackageID) {
-            $cancel_or_pending_query = PaymentSubscription::where('UserId', $id)
-            ->whereIn('Status', ['Pending']);
 
-            $subscriptionIds = $cancel_or_pending_query->pluck('PaymentSubscriptionID')->toArray();
-            
-            // Delete from PaymentHistory
-            if (!empty($subscriptionIds)) {
-                PaymentHistory::whereIn('PaymentSubscriptionID', $subscriptionIds)->delete();
+            $data = [
+                'subscription_id' => $data_current_package->TransactionID,
+                'new_price_id' => $package->PriceID,
+             ];
+             $res = $this->subscriptionHelper->updateSubscription($data);
+
+            if(!empty($res)) {
+                
+                $cancel_or_pending_query = PaymentSubscription::where('UserId', $id)
+                ->whereIn('Status', ['Pending']);
+
+                $subscriptionIds = $cancel_or_pending_query->pluck('PaymentSubscriptionID')->toArray();
+                
+                // Delete from PaymentHistory
+                if (!empty($subscriptionIds)) {
+                    PaymentHistory::whereIn('PaymentSubscriptionID', $subscriptionIds)->delete();
+                }
+                
+                // Now delete the subscriptions
+                $cancel_or_pending_query->delete();
+
+                $price = $package->Price - $user_current_package->Price;
+                $paymentSubscription = PaymentSubscription::find($data_current_package->PaymentSubscriptionID);
+                $paymentSubscription->update([
+                    'UserID' => $id,
+                    'PackageID' => $plan,
+                    'PaymentMethodID' => 1,
+                    'PaymentAmount' => $price,
+                    'PaymentStartDate' => $data_current_package->PaymentStartDate,
+                    'PaymentEndDate' => $data_current_package->PaymentEndDate,
+                    'NextRenewalDate' => $data_current_package->NextRenewalDate,
+                    'ChecksGiven' => $package->CheckLimitPerMonth,
+                    'RemainingChecks' => $package->CheckLimitPerMonth - $data_current_package->ChecksUsed,
+                    'ChecksUsed' => $data_current_package->ChecksUsed,
+                    'PaymentDate' => $data_current_package->PaymentDate,
+                    'PaymentAttempts' => 0 ,
+                    'TransactionID' => $res['subscription'],
+                    'Status' => 'Active', 
+                ]);
+    
+                $paymentSubscriptionId = $paymentSubscription->PaymentSubscriptionID;
+        
+                $paymentSubscription = PaymentHistory::create([
+                    'PaymentSubscriptionID' => $paymentSubscriptionId,
+                    'PaymentAmount' => $price,
+                    'PaymentDate' => $data_current_package->PaymentDate,
+                    'PaymentStatus' => 'Success',
+                    'PaymentAttempts' => 0,
+                    'TransactionID' => $paymentSubscription->TransactionID,
+                ]);
+  
+                $user->CurrentPackageID = $plan;
+                $user->save();
             }
-            
-            // Now delete the subscriptions
-            $cancel_or_pending_query->delete();
-
-            $price = $package->Price - $user_current_package->Price;
-            $paymentSubscription = PaymentSubscription::find($data_current_package->PaymentSubscriptionID);
-            $paymentSubscription->update([
-                'UserID' => $id,
-                'PackageID' => $plan,
-                'PaymentMethodID' => 1,
-                'PaymentAmount' => $price,
-                'PaymentStartDate' => $data_current_package->PaymentStartDate,
-                'PaymentEndDate' => $data_current_package->PaymentEndDate,
-                'NextRenewalDate' => $data_current_package->NextRenewalDate,
-                'ChecksGiven' => $package->CheckLimitPerMonth,
-                'RemainingChecks' => $package->CheckLimitPerMonth - $data_current_package->ChecksUsed,
-                'ChecksUsed' => $data_current_package->ChecksUsed,
-                'PaymentDate' => $data_current_package->PaymentDate,
-                'PaymentAttempts' => 0 ,
-                'TransactionID' => Str::random(10),
-                'Status' => 'Active', 
-            ]);
-  
-          $paymentSubscriptionId = $paymentSubscription->PaymentSubscriptionID;
-  
-          $paymentSubscription = PaymentHistory::create([
-              'PaymentSubscriptionID' => $paymentSubscriptionId,
-              'PaymentAmount' => $price,
-              'PaymentDate' => $data_current_package->PaymentDate,
-              'PaymentStatus' => 'Success',
-              'PaymentAttempts' => 0,
-              'TransactionID' => $paymentSubscription->TransactionID,
-          ]);
-  
-          $user->CurrentPackageID = $plan;
-          $user->save();
 
          } else {
   

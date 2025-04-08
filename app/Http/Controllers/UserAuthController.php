@@ -16,9 +16,16 @@ use App\Models\EmailTemplate;
 use App\Mail\SendEmail;
 use App\Mail\ResetPasswordMail;
 use Illuminate\Support\Facades\Mail;
+use App\Helpers\SubscriptionHelper;
 
 class UserAuthController extends Controller
 {
+    protected $SubscriptionHelper;
+    public function __construct(SubscriptionHelper $subscriptionHelper)
+    {
+        $this->subscriptionHelper = $subscriptionHelper;
+    }
+
     public function register()
     {
         if(Auth::check()) {
@@ -40,9 +47,6 @@ class UserAuthController extends Controller
 
     public function package(Request $request)
     {
-        // if(Auth::check()) {
-        //     return redirect()->route('user.dashboard');
-        // }
         $userId = request()->query('user_id');
         $packages = Package::where('Status', 'Active')->get();
         return view('frontend.auth.package', compact('packages', 'userId'));
@@ -95,6 +99,13 @@ class UserAuthController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
+        $data = [
+            'name' => $request->firstname . ' ' . $request->lastname,
+            'email' => $request->email,
+        ];
+
+        $cus = $this->subscriptionHelper->addCustomer($data);
+
         $user = User::create([
             'FirstName' => $request->firstname,
             'LastName' => $request->lastname,
@@ -104,6 +115,7 @@ class UserAuthController extends Controller
             'Status' => 'Inactive',
             'CreatedAt' => now(),
             'UpdatedAt' => now(),
+            'CusID' => !empty($cus['id']) ? $cus['id'] : NULL,
         ]);
 
         return redirect()->route('user.package', ['user_id' => $user->UserID]);
@@ -121,45 +133,60 @@ class UserAuthController extends Controller
 
         $packages = Package::find($plan);
 
-        $paymentStartDate = Carbon::now();
-
-        $paymentEndDate = $paymentStartDate->copy()->addHours(24);
-
-        $nextRenewalDate = $paymentStartDate->copy()->addDays($packages->Duration);
-
-
-        $paymentSubscription = PaymentSubscription::create([
-            'UserID' => $id,
-            'PackageID' => $plan,
-            'PaymentMethodID' => 1,
-            'PaymentAmount' => $packages->Price,
-            'PaymentStartDate' => $paymentStartDate,
-            'PaymentEndDate' => $paymentEndDate,
-            'NextRenewalDate' => $nextRenewalDate,
-            'ChecksGiven' => $packages->CheckLimitPerMonth,
-            'ChecksUsed'=> 0,
-            'RemainingChecks' => 0,
-            'PaymentDate' => $paymentStartDate,
-            'PaymentAttempts' => 0 ,
-            'TransactionID' => Str::random(10),
-            'Status' => 'Active', 
-        ]);
-
-        $paymentSubscriptionId = $paymentSubscription->PaymentSubscriptionID;
-
-        $paymentSubscription = PaymentHistory::create([
-            'PaymentSubscriptionID' => $paymentSubscriptionId,
-            'PaymentAmount' => $packages->Price,
-            'PaymentDate' => $paymentStartDate,
-            'PaymentStatus' => 'Success',
-            'PaymentAttempts' => 0,
-            'TransactionID' => $paymentSubscription->TransactionID,
-        ]);
-
-        $name = $user->FirstName . ' ' .$user->LastName;
-        Mail::to($user->Email)->send(new SendEmail(1, $name));
-        return redirect()->route('user.login')->with('success', 'Account created successful!');
+       return redirect()->route('user.login')->with('success', 'Account created successful!');
     }
+
+    // public function select_package(Request $request, $id, $plan) 
+    // {
+    //     $user = User::find($id);
+    //     $user->CurrentPackageID = $plan;
+    //     $user->Status = 'Active';
+    //     $user->save();
+
+    //     $PaymentSubscription_plan = PaymentSubscription::where('UserID', $id)->whereIn('Status', ['Canceled', 'Pending'])->delete();
+
+
+    //     $packages = Package::find($plan);
+
+    //     $paymentStartDate = Carbon::now();
+
+    //     $paymentEndDate = $paymentStartDate->copy()->addHours(24);
+
+    //     $nextRenewalDate = $paymentStartDate->copy()->addDays($packages->Duration);
+
+
+    //     $paymentSubscription = PaymentSubscription::create([
+    //         'UserID' => $id,
+    //         'PackageID' => $plan,
+    //         'PaymentMethodID' => 1,
+    //         'PaymentAmount' => $packages->Price,
+    //         'PaymentStartDate' => $paymentStartDate,
+    //         'PaymentEndDate' => $paymentEndDate,
+    //         'NextRenewalDate' => $nextRenewalDate,
+    //         'ChecksGiven' => $packages->CheckLimitPerMonth,
+    //         'ChecksUsed'=> 0,
+    //         'RemainingChecks' => 0,
+    //         'PaymentDate' => $paymentStartDate,
+    //         'PaymentAttempts' => 0 ,
+    //         'TransactionID' => Str::random(10),
+    //         'Status' => 'Active', 
+    //     ]);
+
+    //     $paymentSubscriptionId = $paymentSubscription->PaymentSubscriptionID;
+
+    //     $paymentSubscription = PaymentHistory::create([
+    //         'PaymentSubscriptionID' => $paymentSubscriptionId,
+    //         'PaymentAmount' => $packages->Price,
+    //         'PaymentDate' => $paymentStartDate,
+    //         'PaymentStatus' => 'Success',
+    //         'PaymentAttempts' => 0,
+    //         'TransactionID' => $paymentSubscription->TransactionID,
+    //     ]);
+
+    //     $name = $user->FirstName . ' ' .$user->LastName;
+    //     Mail::to($user->Email)->send(new SendEmail(1, $name));
+    //     return redirect()->route('user.login')->with('success', 'Account created successful!');
+    // }
 
     public function logout()
     {

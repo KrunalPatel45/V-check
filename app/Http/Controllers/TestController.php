@@ -100,4 +100,9 @@ class TestController extends Controller
         echo "<pre>";
         echo "Subscription updated";
     }
+
+    public function checkout()
+    {
+        return view('frontend.checkout');
+    }
 }
