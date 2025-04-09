@@ -6,7 +6,6 @@
 @section('vendor-style')
     @vite(['resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/animate-css/animate.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', 'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss'])
 @endsection
-
 <!-- Vendor Scripts -->
 @section('vendor-script')
     @vite(['resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/cleavejs/cleave.js', 'resources/assets/vendor/libs/cleavejs/cleave-phone.js', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.js', 'resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js'])
@@ -15,6 +14,42 @@
 <!-- Page Scripts -->
 @section('page-script')
     @vite(['resources/assets/js/pages-pricing.js', 'resources/assets/js/pages-account-settings-billing.js', 'resources/assets/js/app-invoice-list.js', 'resources/assets/js/modal-edit-cc.js', 'resources/assets/js/ui-modals.js'])
+    <script>
+        $(document).ready(function() {
+            $('#invoice_data').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('user_invoice') }}",
+                order: [
+                    [0, 'desc']
+                ],
+                columns: [{
+                        data: 'PaymentHistoryID', // Hidden ID column for sorting
+                        name: 'PaymentHistoryID',
+                        visible: false // Hides the ID column
+                    },
+                    {
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'PaymentStatus',
+                        name: 'PaymentStatus',
+                    },
+                    {
+                        data: 'PaymentAmount',
+                        name: 'PaymentAmount',
+                    },
+                    {
+                        data: 'PaymentDate',
+                        name: 'PaymentDate'
+                    },
+                ]
+            });
+        });
+    </script>
 @endsection
 
 @section('content')
@@ -286,6 +321,26 @@
                     <!-- /Billing Address -->
                 </div>
             @endif
+        </div>
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-header">Invoice paid</h5>
+                </div>
+                <div class="card-datatable table-responsive">
+                    <table class="table" id="invoice_data">
+                        <thead>
+                            <tr>
+                                <th class="d-none">ID</th>
+                                <th>#</th>
+                                <th>Status</th>
+                                <th>Amount</th>
+                                <th>Issued Date</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
         </div>
         <div class="modal-onboarding modal fade animate__animated" id="onboardingHorizontalSlideModal" tabindex="-1"
             aria-hidden="true">

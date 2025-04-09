@@ -270,6 +270,7 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::get('users/plan/upgrade/{id}', [BillingAndPlanController::class, 'upgragde_plan'])->name('user_upgragde_plan');
     Route::get('user/change-plan/{id}/{plan}', [BillingAndPlanController::class, 'change_plan'])->name('user.select-package');
     Route::get('user/cancel-plan/{id}', [BillingAndPlanController::class, 'cancel_plan'])->name('user_cancel_plan');
+    Route::get('/invoice', [BillingAndPlanController::class, 'invoice'])->name('user_invoice');
     Route::delete('/web_form/delete/{id}', [CheckController::class, 'web_form_delete'])->name('web_form.delete');
     Route::post('webform/new', [CheckController::class, 'new_web_form_store'])->name('store_web_form');
     Route::post('/update-records-per-page', [CheckController::class, 'updateRecordsPerPage'])->name('update_records_per_page');

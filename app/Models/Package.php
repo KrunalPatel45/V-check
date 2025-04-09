@@ -12,5 +12,5 @@ class Package extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['Name', 'Description', 'Price', 'Duration', 'CheckLimitPerMonth', 'web_forms','RecurringPaymentFrequency', 'Status', 'CreatedAt', 'UpdatedAt'];
+    protected $fillable = ['Name', 'Description', 'Price', 'Duration', 'CheckLimitPerMonth', 'web_forms','RecurringPaymentFrequency', 'Status', 'CreatedAt', 'UpdatedAt', 'ProductID', 'PlanID', 'PriceID'];
 }

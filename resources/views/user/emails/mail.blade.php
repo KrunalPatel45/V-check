@@ -174,7 +174,7 @@
                                                                                                 style="line-height: 10px">
                                                                                                 <div
                                                                                                     style="max-width: 200px">
-                                                                                                    <a href="https://vcheckdirect.com/"
+                                                                                                    <a href="https://echecksystems.com/"
                                                                                                         target="_blank"><img
                                                                                                             src="{{ asset('assets/vcheck-direct-checks-by-phone.png') }}"
                                                                                                             style="display: block; height: auto; border: 0; width: 100%"
@@ -220,7 +220,7 @@
                                                                                                             <tr>
                                                                                                                 <td class="header_icon"
                                                                                                                     style="vertical-align: middle; text-align: center; padding-top: 0px; padding-bottom: 0px; padding-left: 0px; padding-right: 10px">
-                                                                                                                    <a href="https://vcheckdirect.com/contact/"
+                                                                                                                    <a href="https://echecksystems.com/contact/"
                                                                                                                         target="_self"
                                                                                                                         style="text-decoration: none"><img
                                                                                                                             class="icon"
@@ -233,7 +233,7 @@
                                                                                                                 </td>
                                                                                                                 <td
                                                                                                                     style="font-family: 'Montserrat', 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif; font-size: 14px; font-weight: 500; color: #fff; vertical-align: middle; letter-spacing: undefined; text-align: left">
-                                                                                                                    <a href="https://vcheckdirect.com/contact/"
+                                                                                                                    <a href="https://echecksystems.com/contact/"
                                                                                                                         target="_self"
                                                                                                                         style="color: #fff; text-decoration: none">Contact
                                                                                                                         us</a>
@@ -409,7 +409,7 @@
 <v:textbox inset="0px,0px,0px,0px">
 <center style="color:#ffffff; font-family:'Trebuchet MS', Tahoma, sans-serif; font-size:15px">
 <!
-                                    [endif]--><a href="https://vcheckdirect.com/contact/" target="_blank"
+                                    [endif]--><a href="https://echecksystems.com/contact/" target="_blank"
                                                                                                         style="
                                         text-decoration: none;
                                         display: inline-block;
@@ -685,7 +685,7 @@
                                       mso-line-height-alt: 16.8px;
                                     ">
                                                                                     <p style="margin: 0"><a
-                                                                                            href="mailto:support@vcheckdirect.com"
+                                                                                            href="mailto:support@echecksystems.com"
                                                                                             style="text-decoration: underline; color: #fff">support@vcheckdirect.com</a>
                                                                                     </p>
                                                                                 </div>
@@ -760,9 +760,9 @@
                                       mso-line-height-alt: 16.8px;
                                     ">
                                                                                     <p style="margin: 0"><a
-                                                                                            href="https://vcheckdirect.com/"
+                                                                                            href="https://echecksystems.com/"
                                                                                             style="text-decoration: underline; color: #fff"
-                                                                                            target="_blank">www.vcheckdirect.com</a>
+                                                                                            target="_blank">www.echecksystems.com</a>
                                                                                     </p>
                                                                                 </div>
                                                                             </td>
@@ -898,7 +898,7 @@
                                       mso-line-height-alt: 19.2px;
                                     ">
                                                                                     <p style="margin: 0">
-                                                                                        VCheckDirect does not guarantee
+                                                                                        Echecksystems does not guarantee
                                                                                         the accuracy, completeness, or
                                                                                         timeliness of the information
                                                                                         provided. The content is for
@@ -912,7 +912,7 @@
                                                                                         not be available in certain
                                                                                         jurisdictions. for more details
                                                                                         read our
-                                                                                        <a href="https://vcheckdirect.com/"
+                                                                                        <a href="https://echecksystems.com/"
                                                                                             target="_blank"
                                                                                             style="text-decoration: underline; color: #fff">Risk
                                                                                             Disclosure.</a>
@@ -941,7 +941,8 @@
                                       mso-line-height-alt: 19.2px;
                                     ">
                                                                                     <p style="margin: 0">Copyright ©
-                                                                                        2025 vcheckdirect.com | All
+                                                                                        2025 echecksystems.com/.com |
+                                                                                        All
                                                                                         Rights Reserved.</p>
                                                                                 </div>
                                                                             </td>

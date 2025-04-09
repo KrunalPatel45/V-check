@@ -184,4 +184,25 @@ class BillingAndPlanController extends Controller
 
          return redirect()->route('billing_and_plan')->with('success', 'Your plan has been canceled');
       }
+
+      public function invoice(Request $request)
+    {
+        if ($request->ajax()) {
+            $paymentSubscriptionIds = PaymentSubscription::where('UserID', Auth::id())->pluck('PaymentSubscriptionID')->toArray();
+            $invoice = PaymentHistory::whereIn('PaymentSubscriptionID', $paymentSubscriptionIds);
+
+            return datatables()->of($invoice)
+                ->addIndexColumn()
+                ->addColumn('PaymentDate', function ($row) {
+                    return Carbon::parse($row->PaymentDate)->format('m/d/Y'); 
+                })
+                ->addColumn('PaymentStatus', function ($row) {
+                    return '<span class="badge ' .
+                        ($row->PaymentStatus == 'Success' ? 'bg-label-primary' : 'bg-label-warning') .
+                        '">'. ($row->PaymentStatus == 'Success' ? 'paid' : 'unpaid'). '</span>';
+                })
+                ->rawColumns(['PaymentStatus'])
+                ->make(true);
+        }
+    }
 }
