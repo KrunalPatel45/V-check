@@ -809,7 +809,7 @@ class CheckController extends Controller
         ]);
         
         if ($validator->fails()) {
-            return redirect()->back()->with('error', 'Please fill all required details.');
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
         $payee = Payors::withTrashed()->find($request->company_id);

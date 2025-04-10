@@ -168,6 +168,10 @@
             background-color: #685dd8 !important;
         }
 
+        .error {
+            color: red;
+        }
+
         @media (max-width: 1024px) {
             .content_left {
                 width: 50%;
@@ -258,79 +262,131 @@
                 <form method="POST" action="{{ route('store_web_form_data') }}">
                     @csrf
                     <input type="hidden" id="company_id" name="company_id" value="{{ $company->EntityID }}">
+
                     <div class="check_num_date input_row">
                         <div class="check_num w-50">
                             <label for="check_number">Check Number</label>
                             <input type="number" id="check_number" name="check_number"
                                 value="{{ old('check_number') }}" tabindex="1" />
+                            @error('check_number')
+                                <div class="error">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="check_date w-50">
                             <label for="check_date">Check Date</label>
                             <input type="date" id="check_date" name="check_date" value="{{ old('check_date') }}"
                                 tabindex="2" />
+                            @error('check_date')
+                                <div class="error">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
+
                     <div class="check_amt input_row">
                         <label for="amount">Amount $</label>
                         <input type="text" id="amount" name="amount" value="{{ old('amount') }}"
                             tabindex="3" />
+                        @error('amount')
+                            <div class="error">{{ $message }}</div>
+                        @enderror
                     </div>
+
                     <div class="pay_to">Pay To: {{ $company->Name }}</div>
+
                     <div class="pay_from">Pay From:</div>
+
                     <div class="company_name input_row">
                         <label for="name">Name: (First and last or Company Name)</label>
                         <input type="text" id="name" name="name" value="{{ old('name') }}"
                             tabindex="4" />
+                        @error('name')
+                            <div class="error">{{ $message }}</div>
+                        @enderror
                     </div>
+
                     <div class="address input_row">
                         <label for="address">Address</label>
                         <input type="text" id="address" name="address" value="{{ old('address') }}"
                             tabindex="5" />
+                        @error('address')
+                            <div class="error">{{ $message }}</div>
+                        @enderror
                     </div>
+
                     <div class="city_state_zip input_row">
                         <div class="city w-33">
                             <label for="city">City</label>
                             <input type="text" id="city" name="city" value="{{ old('city') }}"
                                 tabindex="6" />
+                            @error('city')
+                                <div class="error">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="state w-33">
                             <label for="state">State</label>
                             <input type="text" id="state" name="state" value="{{ old('state') }}"
-                                tabindex="6" />
+                                tabindex="7" />
+                            @error('state')
+                                <div class="error">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="zip w-33">
                             <label for="zip">Zip</label>
                             <input type="text" id="zip" name="zip" value="{{ old('zip') }}"
-                                tabindex="6" />
+                                tabindex="8" />
+                            @error('zip')
+                                <div class="error">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
+
                     <div class="bank_name input_row">
                         <label for="bank_name">Bank Name</label>
                         <input type="text" id="bank_name" name="bank_name" value="{{ old('bank_name') }}"
-                            tabindex="7" />
+                            tabindex="9" />
+                        @error('bank_name')
+                            <div class="error">{{ $message }}</div>
+                        @enderror
                     </div>
+
                     <div class="routing_num input_row">
                         <label for="routing_number">Routing Number</label>
                         <input type="number" id="routing_number" name="routing_number"
-                            value="{{ old('routing_number') }}" tabindex="8" />
+                            value="{{ old('routing_number') }}" tabindex="10" />
+                        @error('routing_number')
+                            <div class="error">{{ $message }}</div>
+                        @enderror
                     </div>
+
                     <div class="account_num input_row">
                         <label for="account_number">Account Number</label>
                         <input type="text" id="account_number" name="account_number"
-                            value="{{ old('account_number') }}" tabindex="10" />
+                            value="{{ old('account_number') }}" tabindex="11" />
+                        @error('account_number')
+                            <div class="error">{{ $message }}</div>
+                        @enderror
                     </div>
+
                     <div class="account_num_verify input_row">
                         <label for="account_number_verify">Account Number (re-verify)</label>
                         <input type="text" id="account_number_verify" name="account_number_verify"
-                            value="{{ old('account_number_verify') }}" tabindex="10" />
+                            value="{{ old('account_number_verify') }}" tabindex="12" />
+                        @error('account_number_verify')
+                            <div class="error">{{ $message }}</div>
+                        @enderror
                     </div>
+
                     <div class="memo input_row">
                         <label for="Memo">Memo (optional)</label>
-                        <input type="text" id="Editbox10" name="Memo" value="{{ old('Memo') }}"
-                            tabindex="11" />
+                        <input type="text" id="Memo" name="Memo" value="{{ old('Memo') }}"
+                            tabindex="13" />
+                        @error('Memo')
+                            <div class="error">{{ $message }}</div>
+                        @enderror
                     </div>
+
                     <div class="submit_btn">
-                        <input type="submit" id="Button2" name="Submit" value="Submit" tabindex="12" />
+                        <input type="submit" id="Button2" name="Submit" value="Submit" tabindex="14" />
                     </div>
                 </form>
             </div>
