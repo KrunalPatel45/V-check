@@ -176,7 +176,7 @@
                                                                                                     style="max-width: 200px">
                                                                                                     <a href="https://echecksystems.com/"
                                                                                                         target="_blank"><img
-                                                                                                            src="{{ asset('assets/vcheck-direct-checks-by-phone.png') }}"
+                                                                                                            src="{{ asset('assets/img/favicon/logo.png') }}"
                                                                                                             style="display: block; height: auto; border: 0; width: 100%"
                                                                                                             width="340"
                                                                                                             height="auto" /></a>
@@ -686,7 +686,7 @@
                                     ">
                                                                                     <p style="margin: 0"><a
                                                                                             href="mailto:support@echecksystems.com"
-                                                                                            style="text-decoration: underline; color: #fff">support@vcheckdirect.com</a>
+                                                                                            style="text-decoration: underline; color: #fff">support@echecksystems.com</a>
                                                                                     </p>
                                                                                 </div>
                                                                             </td>
@@ -941,7 +941,7 @@
                                       mso-line-height-alt: 19.2px;
                                     ">
                                                                                     <p style="margin: 0">Copyright ©
-                                                                                        2025 echecksystems.com/.com |
+                                                                                        2025 echecksystems.com |
                                                                                         All
                                                                                         Rights Reserved.</p>
                                                                                 </div>
