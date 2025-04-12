@@ -611,8 +611,8 @@
                             {{-- <label class="col-sm-12 col-form-label" for="street-address">Your Street Address:</label> --}}
                             <div class="col-sm-8">
                                 <input type="text" id="address" name="address" class="form-control"
-                                    placeholder="Your Street Address" disabled
-                                    value="{{ !empty($old_payor->Address1) && $old_payor->Address1 ? $old_payor->Address1 : old('address') }}">
+                                    placeholder="Your Street Address" readonly
+                                    value="{{ old('address', $old_payor->Address1 ?? '') }}">
                             </div>
                         </div>
                     </div>
@@ -912,7 +912,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label" for="payee-email">Email</label>
-                                        <input type="text" name="payee-email" id="payee-email" class="form-control"
+                                        <input type="text" name="email" id="payee-email" class="form-control"
                                             value="{{ !empty($old_payee->Email) ? $old_payee->Email : old('email') }}" />
                                         @if ($errors->has('payee-email'))
                                             <span class="text-danger">

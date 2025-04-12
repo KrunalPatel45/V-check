@@ -616,6 +616,7 @@ class CheckController extends Controller
         $data = [];
         $payor = Payors::withTrashed()->find($check->PayorID);
         $payee = Payors::withTrashed()->find($check->PayeeID);
+        dd($payee);
         $data['payor_name'] = $payor->Name;
         $data['address1'] = $payor->Address1;
         $data['address2'] = $payor->Address2;
@@ -633,6 +634,7 @@ class CheckController extends Controller
         $data['bank_name'] = $payor->BankName; 
         $data['signature'] = (!empty($check->DigitalSignature)) ? $check->DigitalSignature : '';
         $data['email'] =  !empty($payee->Email) ? $payee->Email : '';
+        dd($data);
 
         // return view('user.check_formate.index', compact('data'));
         

@@ -304,7 +304,7 @@
                     $('#payor_id').val('');
                     $('#add-payor #name').val('');
                     $('#add-payor #email').val('');
-                    $('#add-payor #address1').val('');
+                    $('#add-payor #address').val('');
                     $('#add-payor #city').val('');
                     $('#add-payor #state').val('');
                     $('#add-payor #zip').val('');
@@ -332,7 +332,7 @@
 
                             $('#add-payor #name').val(response.payor.Name);
                             $('#add-payor #email').val(response.payor.Email);
-                            $('#add-payor #address1').val(response.payor.Address1);
+                            $('#add-payor #address').val(response.payor.Address1);
                             $('#add-payor #city').val(response.payor.City);
                             $('#add-payor #state').val(response.payor.State);
                             $('#add-payor #zip').val(response.payor.Zip);
@@ -353,7 +353,7 @@
                     _token: "{{ csrf_token() }}", // Include CSRF token manually
                     name: $('#add-payor #name').val(),
                     email: $('#add-payor #email').val(),
-                    address1: $('#add-payor #address1').val(),
+                    address1: $('#add-payor #address').val(),
                     city: $('#add-payor #city').val(),
                     state: $('#add-payor #state').val(),
                     zip: $('#add-payor #zip').val(),
@@ -408,7 +408,7 @@
                             $('#payor_id').val(response.payor.EntityID);
                             $('#add-payor #name').val(response.payor.Name);
                             $('#add-payor #email').val(response.payor.Email);
-                            $('#add-payor #address1').val(response.payor.Address1);
+                            $('#add-payor #address').val(response.payor.Address1);
                             $('#add-payor #city').val(response.payor.City);
                             $('#add-payor #state').val(response.payor.State);
                             $('#add-payor #zip').val(response.payor.Zip);
@@ -584,8 +584,8 @@
                             {{-- <label class="col-sm-12 col-form-label" for="street-address">Your Street Address:</label> --}}
                             <div class="col-sm-8">
                                 <input type="text" id="address" name="address" class="form-control"
-                                    placeholder="Your Street Address" disabled
-                                    value="{{ !empty($old_payor->Address1) && $old_payor->Address1 ? $old_payor->Address1 : old('address') }}">
+                                    placeholder="Your Street Address" readonly
+                                    value="{{ old('address', $old_payor->Address1 ?? '') }}">
                             </div>
                         </div>
                     </div>
@@ -760,7 +760,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label" for="address1">Address</label>
-                                        <textarea id="address1" name="address1" class="form-control">{{ !empty($old_payor->Address1) ? $old_payor->Address1 : old('address1') }}</textarea>
+                                        <textarea id="address1" name="address1" class="form-control">{{ old('address1', $old_payor->Address1 ?? '') }}</textarea>
                                         @if ($errors->has('address1'))
                                             <span class="text-danger">
                                                 {{ $errors->first('address1') }}

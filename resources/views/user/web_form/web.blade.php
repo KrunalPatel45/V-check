@@ -11,7 +11,7 @@
     <style>
         @font-face {
             font-family: "Public Sans";
-            src: url("./font/PublicSans-Regular.woff2") format("woff2"), url("./font/PublicSans-Regular.woff") format("woff"), url("./font/PublicSans-Regular.ttf") format("truetype");
+            src: url(../../font/PublicSans-Regular.woff2) format("woff2"), url(../../font/PublicSans-Regular.woff) format("woff"), url(../../font/PublicSans-Regular.ttf) format("truetype");
             font-weight: normal;
             font-style: normal;
             font-display: swap;
