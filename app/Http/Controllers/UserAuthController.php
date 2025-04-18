@@ -13,6 +13,7 @@ use App\Models\PaymentHistory;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Models\EmailTemplate;
+use App\Models\UserHistory;
 use App\Mail\SendEmail;
 use App\Mail\ResetPasswordMail;
 use Illuminate\Support\Facades\Mail;
@@ -77,6 +78,18 @@ class UserAuthController extends Controller
             Auth::login($user);
             $name = $user->FirstName . ' ' .$user->LastName;
             Mail::to($user->Email)->send(new SendEmail(2, $name));
+            $user_history = UserHistory::where('UserID', $user->UserID)->first();
+            if(!empty($user_history)){
+                $user_history->last_login = now();
+                $user_history->ip = $request->ip();
+                $user_history->save();
+            } else {
+                UserHistory::create([
+                    'UserID' => $user->UserID,
+                    'last_login' => now(),
+                    'ip' => $request->ip(),
+                ]);
+            }
             return redirect()->route('user.dashboard');
         }
 

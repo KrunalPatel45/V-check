@@ -16,6 +16,7 @@ use App\Models\Checks;
 use App\Models\Company;
 use App\Models\Payors;
 use App\Models\PaymentHistory;
+use App\Models\UserHistory;
 
 class AdminDashboardController extends Controller
 {
@@ -182,6 +183,10 @@ class AdminDashboardController extends Controller
 
         
         $user = User::where('userID', $id)->first();
+        $user_history = UserHistory::where('UserID', $id)->first();
+        if(!empty($user_history)) {
+            $user_history->last_login = !empty($user_history->last_login)? Carbon::parse($user_history->last_login)->format('M, d Y h:i A'): '';
+        }
         $paymentSubscription = PaymentSubscription::where('UserID', $id)->where('PackageID', $user->CurrentPackageID)->first();
         $package = Package::find($user->CurrentPackageID);
         $total_days = !empty($package->Duration) ? $package->Duration : '';
@@ -214,7 +219,8 @@ class AdminDashboardController extends Controller
         }
         $maxPricePackage = Package::orderBy('price', 'desc')->first();
         $stander_Plan_price = $maxPricePackage->Price;
-        return view('admin.user.user_detail_page', compact('user', 'package_data', 'packages', 'check_used', 'remaining_checks', 'package', 'type', 'stander_Plan_price'));
+        $currentPackage = $user->CurrentPackageID;
+        return view('admin.user.user_detail_page', compact('user', 'package_data', 'packages', 'check_used', 'remaining_checks', 'package', 'type', 'stander_Plan_price', 'currentPackage', 'user_history'));
     }
 
     public function updateUserProfile(Request $request)

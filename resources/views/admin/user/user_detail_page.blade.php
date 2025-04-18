@@ -174,16 +174,18 @@
 
 @section('content')
     @php
-        function formatPhoneNumber($number)
-        {
-            // Remove all non-digit characters
-            $number = preg_replace('/\D/', '', $number);
+        if (!function_exists('formatPhoneNumber')) {
+            function formatPhoneNumber($number)
+            {
+                // Remove all non-digit characters
+                $number = preg_replace('/\D/', '', $number);
 
-            // Get the last 10 digits
-            $number = substr($number, -10);
+                // Get the last 10 digits
+                $number = substr($number, -10);
 
-            // Format as 3-3-4
-            return preg_replace('/(\d{3})(\d{3})(\d{4})/', '$1-$2-$3', $number);
+                // Format as 3-3-4
+                return preg_replace('/(\d{3})(\d{3})(\d{4})/', '$1-$2-$3', $number);
+            }
         }
     @endphp
     <div class="row">
@@ -320,132 +322,41 @@
                             href="{{ route('admin.user.edit', ['id' => $user->UserID, 'type' => 'billing']) }}"><i
                                 class="ti ti-bookmark ti-sm me-1_5"></i>Billing &
                             Plans</a></li>
-                    {{-- <li class="nav-item"><a class="nav-link {{ $type == 'client' ? 'active' : '' }}"
-                            href="{{ route('admin.user.edit', ['id' => $user->UserID, 'type' => 'client']) }}"><i
-                                class="ti ti-bell ti-sm me-1_5"></i>Payees</a></li>
-                    <li class="nav-item"><a class="nav-link {{ $type == 'vendor' ? 'active' : '' }}"
+                    <li class="nav-item"><a class="nav-link {{ $type == 'history' ? 'active' : '' }}"
+                            href="{{ route('admin.user.edit', ['id' => $user->UserID, 'type' => 'history']) }}"><i
+                                class="ti ti-user-check ti-sm me-1_5"></i>History</a></li>
+                    {{-- <li class="nav-item"><a class="nav-link {{ $type == 'vendor' ? 'active' : '' }}"
                             href="{{ route('admin.user.edit', ['id' => $user->UserID, 'type' => 'vendor']) }}"><i
-                                class="ti ti-link ti-sm me-1_5"></i>Payors</a>
-                    </li> --}}
+                                class="ti ti-link ti-sm me-1_5"></i>Payors</a> --}}
+                    </li>
                 </ul>
             </div>
-            {{-- @if ($type == 'default')
+            @if ($type == 'history')
                 <div class="card mb-6">
-                    <div class="card-datatable table-responsive">
-                        <table class="table border-top" id="companyTable">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                        </table>
-                    </div>
-                </div>
-                @if (false)
-                    <div class="card mb-6">
-                        <h5 class="card-header">User Activity Timeline</h5>
+                    <h5 class="card-header">User Activity Timeline</h5>
+
+                    @if (!empty($user_history))
                         <div class="card-body pt-1">
                             <ul class="timeline mb-0">
                                 <li class="timeline-item timeline-item-transparent">
                                     <span class="timeline-point timeline-point-primary"></span>
                                     <div class="timeline-event">
                                         <div class="timeline-header mb-3">
-                                            <h6 class="mb-0">12 Invoices have been paid</h6>
-                                            <small class="text-muted">12 min ago</small>
+                                            <h6 class="mb-0">User Last Login</h6>
+                                            <small class="text-muted">{{ $user_history->last_login }}</small>
                                         </div>
                                         <p class="mb-2">
-                                            Invoices have been paid to the company
+                                            <strong>IP : {{ $user_history->ip }}</strong>
                                         </p>
-                                        <div class="d-flex align-items-center mb-2">
-                                            <div class="badge bg-lighter rounded d-flex align-items-center">
-                                                <img src="{{ asset('assets/img/icons/misc/pdf.png') }}" alt="img"
-                                                    width="15" class="me-2">
-                                                <span class="h6 mb-0 text-body">invoices.pdf</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="timeline-item timeline-item-transparent">
-                                    <span class="timeline-point timeline-point-success"></span>
-                                    <div class="timeline-event">
-                                        <div class="timeline-header mb-3">
-                                            <h6 class="mb-0">Client Meeting</h6>
-                                            <small class="text-muted">45 min ago</small>
-                                        </div>
-                                        <p class="mb-2">
-                                            Project meeting with john @10:15am
-                                        </p>
-                                        <div class="d-flex justify-content-between flex-wrap gap-2 mb-2">
-                                            <div class="d-flex flex-wrap align-items-center mb-50">
-                                                <div class="avatar avatar-sm me-2">
-                                                    <img src="{{ asset('assets/img/avatars/1.png') }}" alt="Avatar"
-                                                        class="rounded-circle" />
-                                                </div>
-                                                <div>
-                                                    <p class="mb-0 small fw-medium">Lester McCarthy (Client)</p>
-                                                    <small>CEO of {{ config('variables.creatorName') }}</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="timeline-item timeline-item-transparent">
-                                    <span class="timeline-point timeline-point-info"></span>
-                                    <div class="timeline-event">
-                                        <div class="timeline-header mb-3">
-                                            <h6 class="mb-0">Create a new project for client</h6>
-                                            <small class="text-muted">2 Day Ago</small>
-                                        </div>
-                                        <p class="mb-2">
-                                            6 team members in a project
-                                        </p>
-                                        <ul class="list-group list-group-flush">
-                                            <li
-                                                class="list-group-item d-flex justify-content-between align-items-center flex-wrap border-top-0 p-0">
-                                                <div class="d-flex flex-wrap align-items-center">
-                                                    <ul
-                                                        class="list-unstyled users-list d-flex align-items-center avatar-group m-0 me-2">
-                                                        <li data-bs-toggle="tooltip" data-popup="tooltip-custom"
-                                                            data-bs-placement="top" title="Vinnie Mostowy"
-                                                            class="avatar pull-up">
-                                                            <img class="rounded-circle"
-                                                                src="{{ asset('assets/img/avatars/5.png') }}"
-                                                                alt="Avatar" />
-                                                        </li>
-                                                        <li data-bs-toggle="tooltip" data-popup="tooltip-custom"
-                                                            data-bs-placement="top" title="Allen Rieske"
-                                                            class="avatar pull-up">
-                                                            <img class="rounded-circle"
-                                                                src="{{ asset('assets/img/avatars/12.png') }}"
-                                                                alt="Avatar" />
-                                                        </li>
-                                                        <li data-bs-toggle="tooltip" data-popup="tooltip-custom"
-                                                            data-bs-placement="top" title="Julee Rossignol"
-                                                            class="avatar pull-up">
-                                                            <img class="rounded-circle"
-                                                                src="{{ asset('assets/img/avatars/6.png') }}"
-                                                                alt="Avatar" />
-                                                        </li>
-                                                        <li class="avatar">
-                                                            <span
-                                                                class="avatar-initial rounded-circle pull-up text-heading"
-                                                                data-bs-toggle="tooltip" data-bs-placement="bottom"
-                                                                title="3 more">+3</span>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </li>
-                                        </ul>
                                     </div>
                                 </li>
                             </ul>
                         </div>
-                    </div>
-                @endif
-            @endif --}}
+                    @else
+                        <p class="text-center" style="margin-bottom:40px">User Activity Not Found</p>
+                    @endif
+                </div>
+            @endif
             @if ($type == 'default')
                 <form id="change-password" action="{{ route('admin.user.change-password') }}" method="POST">
                     @csrf
@@ -557,51 +468,60 @@
             @if ($type == 'billing')
                 <div class="card mb-6 border border-2 border-primary rounded primary-shadow">
                     @php
-                        $progress = ($package_data['remainingDays'] * 100) / $package_data['total_days'];
+                        $progress =
+                            $currentPackage != -1
+                                ? ($package_data['remainingDays'] * 100) / $package_data['total_days']
+                                : 0;
                     @endphp
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start">
-                            <span class="badge bg-label-primary">{{ $package->Name }}</span>
-                            <div class="d-flex justify-content-center">
-                                <sub class="h5 pricing-currency mb-auto mt-1 text-primary">$</sub>
-                                <h1 class="mb-0 text-primary">{{ $package->Price }}</h1>
-                                <sub class="h6 pricing-duration mt-auto mb-3 fw-normal">month</sub>
+                            <span
+                                class="badge bg-label-primary">{{ $currentPackage != '-1' ? $package->Name : 'Trial' }}</span>
+                            @if ($currentPackage != '-1')
+                                <div class="d-flex justify-content-center">
+                                    <sub class="h5 pricing-currency mb-auto mt-1 text-primary">$</sub>
+                                    <h1 class="mb-0 text-primary">{{ $package->Price }}</h1>
+                                    <sub class="h6 pricing-duration mt-auto mb-3 fw-normal">month</sub>
+                                </div>
+                            @endif
+                        </div>
+                        @if ($currentPackage != '-1')
+                            <p>
+                                {{ $package->Description }}
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="h6 mb-0">Days</span>
+                                <span class="h6 mb-0">{{ $package_data['remainingDays'] }} of
+                                    {{ $package_data['total_days'] }}
+                                    Days</span>
                             </div>
-                        </div>
-                        <p>
-                            {{ $package->Description }}
-                        </p>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="h6 mb-0">Days</span>
-                            <span class="h6 mb-0">{{ $package_data['remainingDays'] }} of
-                                {{ $package_data['total_days'] }}
-                                Days</span>
-                        </div>
-                        <div class="progress mb-1 bg-label-primary" style="height: 6px;">
-                            <div class="progress-bar" role="progressbar" style="width: {{ $progress }}%;"
-                                aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
-                        <small>{{ $package_data['remainingDays'] }} days remaining</small>
-                        @if (!empty($package_data['downgrade_payment']))
-                            <div class="alert alert-warning mt-3" role="alert">
-                                Your subscription plan downgrade has been scheduled. The change will take effect on
-                                {{ \Carbon\Carbon::parse($package_data['downgrade_payment']->PaymentDate)->format('m-d-Y') }},
-                                after your current plan expires. You can continue to enjoy your current plan benefits until
-                                then
+                            <div class="progress mb-1 bg-label-primary" style="height: 6px;">
+                                <div class="progress-bar" role="progressbar" style="width: {{ $progress }}%;"
+                                    aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <small>{{ $package_data['remainingDays'] }} days remaining</small>
+                            @if (!empty($package_data['downgrade_payment']))
+                                <div class="alert alert-warning mt-3" role="alert">
+                                    Your subscription plan downgrade has been scheduled. The change will take effect on
+                                    {{ \Carbon\Carbon::parse($package_data['downgrade_payment']->PaymentDate)->format('m-d-Y') }},
+                                    after your current plan expires. You can continue to enjoy your current plan benefits
+                                    until
+                                    then
+                                </div>
+                            @endif
+                            @if (!empty($package_data['cancel_plan']))
+                                <div class="alert alert-danger mt-3" role="alert">
+                                    Your subscription cancellation has been scheduled. The change will take effect after
+                                    your current plan ends. You will continue to enjoy your current plan benefits until
+                                    then.
+                                </div>
+                            @endif
+                            <div class="d-grid w-100 mt-6">
+                                <button class="btn btn-primary" data-bs-toggle="modal"
+                                    data-bs-target="#onboardingHorizontalSlideModal">Change
+                                    Plan</button>
                             </div>
                         @endif
-                        @if (!empty($package_data['cancel_plan']))
-                            <div class="alert alert-danger mt-3" role="alert">
-                                Your subscription cancellation has been scheduled. The change will take effect after
-                                your current plan ends. You will continue to enjoy your current plan benefits until
-                                then.
-                            </div>
-                        @endif
-                        <div class="d-grid w-100 mt-6">
-                            <button class="btn btn-primary" data-bs-toggle="modal"
-                                data-bs-target="#onboardingHorizontalSlideModal">Change
-                                Plan</button>
-                        </div>
                     </div>
                 </div>
                 @if (false)
