@@ -4,6 +4,11 @@
 <head>
     <title>Cheque Format</title>
     <style>
+        html {
+            margin: 0 auto;
+            padding: 0;
+        }
+
         @font-face {
             font-family: "MICRCheckPrixa";
             src: url("./font/MICRCheckPrixa.eot");
@@ -11,29 +16,36 @@
         }
 
         body {
-            margin: 20px;
+            margin: 0 auto;
             font-family: Arial, sans-serif;
         }
 
         td {
             padding: 0;
         }
+
+        .micr-line {
+            font-family: 'MICRCheckPrixa', monospace;
+            font-size: 30px;
+            letter-spacing: 2px;
+            text-align: center;
+        }
     </style>
 </head>
 
-<body style="margin: 0; font-family: Arial, sans-serif">
-    <table style="background-color: #ecedf6; padding: 20px 30px" width="100%">
+<body style="padding: 20px; font-family: Arial, sans-serif">
+    <table style="background-color: #ecedf6; padding: 10px 30px" width="100%">
         <tr>
             <td>
                 <table border="0" width="100%" cellspacing="0" cellpadding="5"
                     style="border-collapse: collapse; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5">
                     <tr>
                         <td style="text-align: left" colspan="2">
-                            <span
+                            {{-- <span
                                 style="background-color: #fff; width: 100px; display: inline-block; vertical-align: top; padding: 10px; margin-right: 10px">
                                 <img src="{{ asset('assets/img/favicon/logo.png') }}" alt="company logo"
                                     style="width: 100px" />
-                            </span>
+                            </span> --}}
                             <span style="display: inline-block">
                                 <span class="company name"
                                     style="font-size: 20px; font-weight: bold">{{ $data['payor_name'] }}</span>
@@ -126,14 +138,24 @@
     <table width="100%">
         <tr>
             <td>
-                <table border="0" width="100%" cellspacing="0" cellpadding="5"
-                    style="border-collapse: collapse; font-family: 'MICRCheckPrixa'">
-                    <tr style="height: 50px; font-size: 15px">
-                        <td style="font-size: 30px; padding: 10px; text-align: center; font-family: 'MICRCheckPrixa'">
-                            "{{ $data['routing_number'] }} :{{ $data['account_number'] }}:
-                            {{ $data['check_number'] }}"</td>
+                <table border="0" width="100%" cellspacing="0" cellpadding="5" style="border-collapse: collapse;">
+                    <tr style="height: 50px;">
+                        @if ($data['package'] == -1)
+                            <td class="micr-line">
+                                ;VOID;
+                                :VOID:
+                                VOID;
+                            </td>
+                        @else
+                            <td class="micr-line">
+                                ;{{ str_pad($data['check_number'], 6, '0', STR_PAD_LEFT) }}";
+                                :{{ $data['routing_number'] }}:
+                                {{ $data['account_number'] }};
+                            </td>
+                        @endif
                     </tr>
                 </table>
+
             </td>
         </tr>
     </table>
@@ -164,8 +186,8 @@
                 <table border="0" width="100%" cellspacing="0" cellpadding="5">
                     <tr>
                         <td style="font-size: 22px; color: #000; text-align: left">How to use this check</td>
-                        <td style="font-size: 18px; color: #000; text-align: right"><span
-                                style="font-weight: bold">Need help? </span>Visit eChecks.com or call 1-000-000-0000
+                        <td style="font-size: 18px; color: #000; text-align: right"><span style="font-weight: bold">Need
+                                help? </span>Visit eChecks.com or call 1-000-000-0000
                         </td>
                     </tr>
                 </table>

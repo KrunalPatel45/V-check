@@ -353,7 +353,7 @@
                     _token: "{{ csrf_token() }}", // Include CSRF token manually
                     name: $('#add-payor #name').val(),
                     email: $('#add-payor #email').val(),
-                    address1: $('#add-payor #address').val(),
+                    address1: $('#add-payor #address1').val(),
                     city: $('#add-payor #city').val(),
                     state: $('#add-payor #state').val(),
                     zip: $('#add-payor #zip').val(),

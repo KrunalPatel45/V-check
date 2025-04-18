@@ -115,6 +115,16 @@
         .heading {
             margin-bottom: 50px;
         }
+
+        .trial_btn {
+            background-color: #000000;
+            color: #ffffff;
+            padding: 12px 63px;
+            text-decoration: none;
+            margin: 25px 30px;
+            font-weight: 500;
+            border-radius: 5px;
+        }
     </style>
 </head>
 
@@ -140,6 +150,9 @@
             </div>
         @endforeach
     </div>
+
+    <a href="{{ route('user-select-free-package', ['id' => $userId]) }}" class="trial_btn">Free Trial <span
+            style="font-size:22px">→</span></a>
 </body>
 
 </html>

@@ -94,6 +94,17 @@
                                     </span>
                                 @endif
                             </div>
+                            <div class="mb-6">
+                                <label for="address" class="form-label">Address</label>
+                                <textarea class="form-control" id="address" name="address">
+                                    {{ old('address') }}
+                                </textarea>
+                                @if ($errors->has('address'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('address') }}
+                                    </span>
+                                @endif
+                            </div>
                             <div class="mb-6 form-password-toggle">
                                 <label class="form-label" for="password">Password</label>
                                 <div class="input-group input-group-merge">

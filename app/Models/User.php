@@ -36,6 +36,7 @@ class User extends Authenticatable
     'reset_token',
     'reset_token_expiry',
     'CusID',
+    'Address'
   ];
 
   /**

@@ -3,7 +3,7 @@
 return [
   "creatorName" => "Pixinvent",
   "creatorUrl" => "https://pixinvent.com",
-  "templateName" => "V Check Direct",
+  "templateName" => "Echeck System",
   "templateSuffix" => "Bootstrap Admin Template",
   "templateVersion" => "2.0.0",
   "templateFree" => false,

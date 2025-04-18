@@ -120,6 +120,19 @@
                             @endif
                         </div>
                     </div>
+                    <div class="row mb-6">
+                        <label class="col-sm-2 col-form-label" for="address">Address</label>
+                        <div class="col-sm-10">
+                            <div class="input-group input-group-merge">
+                                <textarea type="text" class="form-control" id="address" name="address">{{ $user->Address }}</textarea>
+                            </div>
+                            @if ($errors->has('address'))
+                                <span class="text-danger">
+                                    {{ $errors->first('address') }}
+                                </span>
+                            @endif
+                        </div>
+                    </div>
                     <div class="row justify-content-end">
                         <div class="col-sm-10">
                             <button type="submit" class="btn btn-primary">Save</button>

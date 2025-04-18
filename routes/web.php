@@ -205,6 +205,7 @@ Route::middleware([AdminMiddleware::class])->group(function () {
     Route::get('/admin/email-template', [EmailTemplateController::class, 'index'])->name('admin.email-template');
     Route::get('/admin/email-template/edit/{id}', [EmailTemplateController::class, 'edit'])->name('admin.email-template-edit');
     Route::post('/admin/email-template/update/{id}', [EmailTemplateController::class, 'update'])->name('admin.email-template-update');
+    Route::post('/users/change-status', [AdminDashboardController::class, 'changeStatus'])->name('changeStatus');
 });
 
 Route::get('/login', [UserAuthController::class, 'login'])->name('user.login');
@@ -213,6 +214,7 @@ Route::get('/register', [UserAuthController::class, 'register'])->name('user.reg
 Route::post('/register', [UserAuthController::class, 'store'])->name('register.store');
 Route::get('/package', [UserAuthController::class, 'package'])->name('user.package');
 // Route::get('/select-package/{id}/{plan}', [UserAuthController::class, 'select_package'])->name('user-select-package');
+Route::get('/select-free-package/{id}/', [UserAuthController::class, 'select_free_package'])->name('user-select-free-package');
 Route::get('/select-package/{id}/{plan}', [SubscriptionController::class, 'checkout'])->name('user-select-package');
 Route::get('/user/logout', [UserAuthController::class, 'logout'])->name('user.logout');
 Route::get('/email', [UserAuthController::class, 'email'])->name('user.email');

@@ -102,7 +102,7 @@ class CheckController extends Controller
         $total_used_check = Checks::where('UserID', Auth::id())->count();
         // dd($package->CheckLimitPerMonth, $total_used_check);
 
-        if($package->CheckLimitPerMonth != 0 && $package->CheckLimitPerMonth <= $total_used_check) {
+        if(Auth::user()->CurrentPackageID !=-1 && $package->CheckLimitPerMonth != 0 && $package->CheckLimitPerMonth <= $total_used_check && Auth::user()->CurrentPackageID) {
             return redirect()->route('check.process_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
 
@@ -188,10 +188,12 @@ class CheckController extends Controller
                 'DigitalSignature' => (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '',
             ]);
 
-            $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->orderBy('PaymentSubscriptionID', 'desc')->first();
-            $paymentSubscription->ChecksUsed  = $paymentSubscription->ChecksUsed + 1;
-            $paymentSubscription->RemainingChecks  = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
-            $paymentSubscription->save();
+            if(Auth::user()->CurrentPackageID != -1) {
+                $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->orderBy('PaymentSubscriptionID', 'desc')->first();
+                $paymentSubscription->ChecksUsed  = $paymentSubscription->ChecksUsed + 1;
+                $paymentSubscription->RemainingChecks  = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
+                $paymentSubscription->save();
+            }
             $message = 'Check Crated successfully';
         }
         
@@ -289,7 +291,7 @@ class CheckController extends Controller
         $package = Package::find(Auth::user()->CurrentPackageID);
         $total_used_check = Checks::where('UserID', Auth::id())->count();
 
-        if($package->CheckLimitPerMonth != 0 && $package->CheckLimitPerMonth <= $total_used_check) {
+        if(Auth::user()->CurrentPackageID != -1 && $package->CheckLimitPerMonth != 0 && $package->CheckLimitPerMonth <= $total_used_check) {
             return redirect()->route('check.process_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
 
@@ -374,10 +376,13 @@ class CheckController extends Controller
                 'DigitalSignature' => (!empty($fileName)) ? $fileName : '',
             ]);
     
-            $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->orderBy('PaymentSubscriptionID', 'desc')->first();
-            $paymentSubscription->ChecksUsed  = $paymentSubscription->ChecksUsed + 1;
-            $paymentSubscription->RemainingChecks  = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
-            $paymentSubscription->save();
+            if(Auth::user()->CurrentPackageID != -1) {
+                $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->orderBy('PaymentSubscriptionID', 'desc')->first();
+                $paymentSubscription->ChecksUsed  = $paymentSubscription->ChecksUsed + 1;
+                $paymentSubscription->RemainingChecks  = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
+                $paymentSubscription->save();
+            }
+            
             $message = 'Check Crated successfully';
         }
         
@@ -447,12 +452,18 @@ class CheckController extends Controller
         return $file_name;
     }
 
-    function numberToWords($number) {
+    function numberToWords($number)
+    {
+        $parts = explode('.', number_format($number, 2, '.', ''));
+    
+        $whole = (int)$parts[0];
+        $decimal = $parts[1];
+    
         $numberToWords = new NumberToWords();
         $transformer = $numberToWords->getNumberTransformer('en');
-
-        $words = $transformer->toWords($number);
-        return $words;
+    
+        $words = ucfirst($transformer->toWords($whole));
+        return "{$words} and {$decimal}/100";
     }
 
     public function check()
@@ -595,6 +606,7 @@ class CheckController extends Controller
         $data['bank_name'] = $payor->BankName; 
         $data['signature'] = (!empty($check->DigitalSignatureRequired)) ? $check->DigitalSignature : '';
         $data['email'] =  !empty($payee->Email) ? $payee->Email : '';
+        $data['package'] = Auth::user()->CurrentPackageID;
         // return view('user.check_formate.index', compact('data'));
         
         $check_file = $this->generateAndSavePDF($data);
@@ -633,6 +645,7 @@ class CheckController extends Controller
         $data['bank_name'] = $payor->BankName; 
         $data['signature'] = (!empty($check->DigitalSignature)) ? $check->DigitalSignature : '';
         $data['email'] =  !empty($payee->Email) ? $payee->Email : '';
+        $data['package'] = Auth::user()->CurrentPackageID;
 
         // return view('user.check_formate.index', compact('data'));
         
@@ -722,7 +735,7 @@ class CheckController extends Controller
         }
 
         $package = Package::find(Auth::user()->CurrentPackageID);
-        $is_web_form = $package->web_forms;
+        $is_web_form = (Auth::user()->CurrentPackageID != -1) ? $package->web_forms : 1;
         return view('user.web_form.index' , compact('is_web_form'));
     }
 

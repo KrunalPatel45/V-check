@@ -19,7 +19,7 @@
 
 @section('content')
     @php
-        $progress = ($package_data['remainingDays'] * 100) / $package_data['total_days'];
+        $progress = $package != '-1' ? ($package_data['remainingDays'] * 100) / $package_data['total_days'] : 0;
     @endphp
     <div class="col-xxl">
         <div class="card mb-6">
@@ -119,6 +119,19 @@
                             @endif
                         </div>
                     </div>
+                    <div class="row mb-6">
+                        <label class="col-sm-2 col-form-label" for="address">Address</label>
+                        <div class="col-sm-10">
+                            <div class="input-group input-group-merge">
+                                <textarea type="text" class="form-control" id="address" name="address">{{ $user->Address }}</textarea>
+                            </div>
+                            @if ($errors->has('address'))
+                                <span class="text-danger">
+                                    {{ $errors->first('address') }}
+                                </span>
+                            @endif
+                        </div>
+                    </div>
                     <div class="row justify-content-end">
                         <div class="col-sm-10">
                             <button type="submit" class="btn btn-primary">Save</button>
@@ -212,28 +225,33 @@
                 <div class="row row-gap-4 row-gap-xl-0">
                     <div class="col-xl-6 order-1 order-xl-0">
                         <div class="mb-4">
-                            <h6 class="mb-1">Your Current Plan is {{ $package_data['package_name'] }}</h6>
+                            <h6 class="mb-1">Your Current Plan is
+                                {{ $package != '-1' ? $package_data['package_name'] : 'Trial' }}</h6>
                             <p>A simple start for everyone</p>
                         </div>
-                        <div class="mb-4">
-                            <h6 class="mb-1">Active until {{ $package_data['expiryDate'] }}</h6>
-                            <p>We will send you a notification upon Subscription expiration</p>
-                        </div>
-                    </div>
-                    <div class="col-xl-6 order-0 order-xl-0">
-                        <div class="plan-statistics">
-                            <div class="d-flex justify-content-between">
-                                <h6 class="mb-1">Days</h6>
-                                <h6 class="mb-1">{{ $package_data['remainingDays'] }} of
-                                    {{ $package_data['total_days'] }} Days</h6>
+                        @if ($package != '-1')
+                            <div class="mb-4">
+                                <h6 class="mb-1">Active until {{ $package_data['expiryDate'] }}</h6>
+                                <p>We will send you a notification upon Subscription expiration</p>
                             </div>
-                            <div class="progress mb-1 bg-label-primary" style="height: 10px;">
-                                <div class="progress-bar" role="progressbar" aria-valuenow="75" aria-valuemin="0"
-                                    aria-valuemax="100" style="width: {{ $progress }}%"></div>
-                            </div>
-                            <small>Your plan requires update</small>
-                        </div>
+                        @endif
                     </div>
+                    @if ($package != '-1')
+                        <div class="col-xl-6 order-0 order-xl-0">
+                            <div class="plan-statistics">
+                                <div class="d-flex justify-content-between">
+                                    <h6 class="mb-1">Days</h6>
+                                    <h6 class="mb-1">{{ $package_data['remainingDays'] }} of
+                                        {{ $package_data['total_days'] }} Days</h6>
+                                </div>
+                                <div class="progress mb-1 bg-label-primary" style="height: 10px;">
+                                    <div class="progress-bar" role="progressbar" aria-valuenow="75" aria-valuemin="0"
+                                        aria-valuemax="100" style="width: {{ $progress }}%"></div>
+                                </div>
+                                <small>Your plan requires update</small>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

@@ -91,6 +91,7 @@ class UserAuthController extends Controller
             'firstname' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
             // 'username' => 'required|string|unique:User,Username|max:255',
+            'address' => 'required',
             'email' => 'required|string|email|unique:User,Email|max:255',
             'phone_number' => 'required|string|max:20',
         ]);
@@ -110,6 +111,7 @@ class UserAuthController extends Controller
             'FirstName' => $request->firstname,
             'LastName' => $request->lastname,
             'Email' => $request->email,
+            'Address' => $request->address,
             'PhoneNumber' => $request->phone_number,
             'PasswordHash' => Hash::make($request->password),
             'Status' => 'Inactive',
@@ -268,5 +270,15 @@ class UserAuthController extends Controller
         $user->save();
 
         return redirect()->route('user.login')->with('success', 'Your password has been reset successfully!');
+    }
+
+    public function select_free_package(Request $request, $id)
+    {
+        $user = User::find($id);
+        $user->CurrentPackageID = -1;
+        $user->Status = 'Active';
+        $user->save();
+
+        return redirect()->route('user.login')->with('success', 'Account created successful!');
     }
 }

@@ -139,6 +139,35 @@
                     },
                 ]
             });
+
+            $('#change_status').on('change', function() {
+                var status = $(this).val();
+                var userId = $(this).data('user-id');
+
+                $.ajax({
+                    url: "{{ route('changeStatus') }}",
+                    type: 'POST',
+                    data: {
+                        status: status,
+                        id: userId,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        const message = response.message || 'Status updated successfully!';
+                        const alertHtml = `
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                ${message}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        `;
+
+                        $('#status-alert-container').html(alertHtml);
+                    },
+                    error: function(xhr) {
+                        alert('Something went wrong. Please try again.');
+                    }
+                });
+            });
         });
     </script>
 @endsection
@@ -158,6 +187,7 @@
         }
     @endphp
     <div class="row">
+        <div id="status-alert-container"></div>
         <!-- User Sidebar -->
         @if (session('success'))
             <div class="alert alert-success">
@@ -218,7 +248,7 @@
                             </div>
                             <div>
                                 <h5 class="mb-0">{{ $check_used }}</h5>
-                                <span>Check Used</span>
+                                <span>Checks Used</span>
                             </div>
                         </div>
                         <div class="d-flex align-items-center gap-4">
@@ -229,7 +259,7 @@
                             </div>
                             <div>
                                 <h5 class="mb-0">{{ $remaining_checks }}</h5>
-                                <span>Check Unused</span>
+                                <span>Checks Unused</span>
                             </div>
                         </div>
                     </div>
@@ -245,8 +275,19 @@
                                 <span>{{ $user->Email }}</span>
                             </li>
                             <li class="mb-2">
-                                <span class="h6">Status:</span>
-                                <span>{{ $user->Status }}</span>
+                                <div class="row mb-6">
+                                    <label class="col-sm-3 col-form-label h6" for="status">Status:</label>
+                                    <div class="col-sm-9">
+                                        <select id="change_status" name="status" class="form-control form-select"
+                                            data-user-id="{{ $user->UserID }}">
+                                            <option value="active" {{ $user->Status == 'Active' ? 'selected' : '' }}>Active
+                                            </option>
+                                            <option value="inactive" {{ $user->Status == 'Inactive' ? 'selected' : '' }}>
+                                                Inactive
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
                             </li>
                             <li class="mb-2">
                                 <span class="h6">Phone Number:</span>

@@ -22,7 +22,9 @@
 
 @section('content')
     @php
-        $progress = ($package_data['remainingDays'] * 100) / $package_data['total_days'];
+        $progress = !empty($package_data['remainingDays'])
+            ? ($package_data['remainingDays'] * 100) / $package_data['total_days']
+            : 0;
     @endphp
     <div class="row g-6">
         <!-- Average Daily Sales -->
@@ -89,45 +91,53 @@
                     <div class="row row-gap-4 row-gap-xl-0">
                         <div class="col-xl-6 order-1 order-xl-0">
                             <div class="mb-4">
-                                <h6 class="mb-1">Your Current Plan is {{ $package_data['package_name'] }}</h6>
+                                <h6 class="mb-1">Your Current Plan is
+                                    {{ $package == '-1' ? 'Trial' : $package_data['package_name'] }}</h6>
                                 <p>A simple start for everyone</p>
                             </div>
-                            <div class="mb-4">
-                                <h6 class="mb-1">Active until {{ $package_data['expiryDate'] }}</h6>
-                                <p>We will send you a notification upon Subscription expiration</p>
-                            </div>
+                            @if ($package != '-1')
+                                <div class="mb-4">
+                                    <h6 class="mb-1">Active until {{ $package_data['expiryDate'] }}</h6>
+                                    <p>We will send you a notification upon Subscription expiration</p>
+                                </div>
+                            @endif
                         </div>
-                        <div class="col-xl-6 order-0 order-xl-0">
-                            <div class="plan-statistics">
-                                <div class="d-flex justify-content-between">
-                                    <h6 class="mb-1">Days</h6>
-                                    <h6 class="mb-1">{{ $package_data['remainingDays'] }} of
-                                        {{ $package_data['total_days'] }} Days</h6>
-                                </div>
-                                <div class="progress mb-1 bg-label-primary" style="height: 10px;">
-                                    <div class="progress-bar" role="progressbar" aria-valuenow="75" aria-valuemin="0"
-                                        aria-valuemax="100" style="width: {{ $progress }}%"></div>
-                                </div>
-                                <small>Your plan requires update</small>
+                        @if ($package != '-1')
+                            <div class="col-xl-6 order-0 order-xl-0">
+                                <div class="plan-statistics">
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="mb-1">Days</h6>
+                                        <h6 class="mb-1">{{ $package_data['remainingDays'] }} of
+                                            {{ $package_data['total_days'] }} Days</h6>
+                                    </div>
+                                    <div class="progress mb-1 bg-label-primary" style="height: 10px;">
+                                        <div class="progress-bar" role="progressbar" aria-valuenow="75" aria-valuemin="0"
+                                            aria-valuemax="100" style="width: {{ $progress }}%"></div>
+                                    </div>
+                                    <small>Your plan requires update</small>
 
-                                @if (!empty($package_data['downgrade_payment']))
-                                    <div class="alert alert-warning mt-3" role="alert">
-                                        Your subscription plan downgrade has been scheduled. The change will take effect on
-                                        {{ \Carbon\Carbon::parse($package_data['downgrade_payment']->PaymentDate)->format('m-d-Y') }},
-                                        after your current plan expires. You can continue to enjoy your current plan
-                                        benefits
-                                        until then
-                                    </div>
-                                @endif
-                                @if (!empty($package_data['cancel_plan']))
-                                    <div class="alert alert-danger mt-3" role="alert">
-                                        Your subscription cancellation has been scheduled. The change will take effect after
-                                        your current plan ends. You will continue to enjoy your current plan benefits until
-                                        then.
-                                    </div>
-                                @endif
+                                    @if (!empty($package_data['downgrade_payment']))
+                                        <div class="alert alert-warning mt-3" role="alert">
+                                            Your subscription plan downgrade has been scheduled. The change will take effect
+                                            on
+                                            {{ \Carbon\Carbon::parse($package_data['downgrade_payment']->PaymentDate)->format('m-d-Y') }},
+                                            after your current plan expires. You can continue to enjoy your current plan
+                                            benefits
+                                            until then
+                                        </div>
+                                    @endif
+                                    @if (!empty($package_data['cancel_plan']))
+                                        <div class="alert alert-danger mt-3" role="alert">
+                                            Your subscription cancellation has been scheduled. The change will take effect
+                                            after
+                                            your current plan ends. You will continue to enjoy your current plan benefits
+                                            until
+                                            then.
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
-                        </div>
+                        @endif
                     </div>
                 </div>
             </div>

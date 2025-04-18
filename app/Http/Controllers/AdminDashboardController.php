@@ -184,24 +184,27 @@ class AdminDashboardController extends Controller
         $user = User::where('userID', $id)->first();
         $paymentSubscription = PaymentSubscription::where('UserID', $id)->where('PackageID', $user->CurrentPackageID)->first();
         $package = Package::find($user->CurrentPackageID);
-        $total_days = $package->Duration;
-        $package_name = $package->Name;
-        $expiry = Carbon::createFromFormat('Y-m-d', $paymentSubscription->NextRenewalDate);
-        $expiryDate = $expiry->format('M d, Y');
-        $remainingDays = $expiry->diffInDays(Carbon::now(), false);
+        $total_days = !empty($package->Duration) ? $package->Duration : '';
+        $package_name = !empty($package->Name) ? $package->Name : '';
+        $expiry = !empty($paymentSubscription->NextRenewalDate) ? Carbon::createFromFormat('Y-m-d', $paymentSubscription->NextRenewalDate) : '';
+        $expiryDate = !empty($expiry) ? $expiry->format('M d, Y') : '';
+        $remainingDays = !empty($expiry) ? $expiry->diffInDays(Carbon::now(), false) : '';
         $packages = Package::all();
         $downgrade_payment = PaymentSubscription::where('UserID', $id)->where('Status', 'Pending')->first();
         $cancel_plan = PaymentSubscription::where('UserID', $id)->where('Status', 'Canceled')->first();
         
-        $check_used = ($paymentSubscription->ChecksGiven == 0) ? '-' :$paymentSubscription->ChecksUsed;
-        $remaining_checks =($paymentSubscription->ChecksGiven == 0) ? '-'  : $paymentSubscription->RemainingChecks;
-        
+        $check_used = '-';
+        $remaining_checks = '-';
+        if(!empty($paymentSubscription)) {
+            $check_used = ($paymentSubscription->ChecksGiven == 0) ? '-' :$paymentSubscription->ChecksUsed;
+            $remaining_checks =($paymentSubscription->ChecksGiven == 0) ? '-'  : $paymentSubscription->RemainingChecks;    
+        }
 
         $package_data = [
             'total_days' => $total_days,
             'package_name' => $package_name,
             'expiryDate' => $expiryDate,
-            'remainingDays' => abs(round($remainingDays)),
+            'remainingDays' => !empty($remainingDays) ? abs(round($remainingDays)) : '',
             'downgrade_payment' => $downgrade_payment,
             'cancel_plan' => $cancel_plan,
         ];
@@ -219,7 +222,7 @@ class AdminDashboardController extends Controller
         $validator = Validator::make($request->all(), [
             'firstname' => 'required',
             'lastname' => 'required',
-            // 'username' => 'required',
+            'address' => 'required',
             'email' => 'required|email',
             'phone_number' => 'required|numeric',
         ]);
@@ -229,7 +232,7 @@ class AdminDashboardController extends Controller
         }
 
         $admin = User::where('UserID', $request->user_id)->first();
-        // $admin->Username = $request->username;
+        $admin->Address = $request->address;
         $admin->Email = $request->email;
         $admin->FirstName = $request->firstname;
         $admin->LastName = $request->lastname;
@@ -544,6 +547,14 @@ class AdminDashboardController extends Controller
 
         // Format as 3-3-4
         return preg_replace('/(\d{3})(\d{3})(\d{4})/', '$1-$2-$3', $number);
+    }
+
+    public function changeStatus(Request $request)
+    {
+        $user = User::findOrFail($request->id);
+        $user->Status = $request->status == 'active' ? 'Active' : 'Inactive';
+        $user->save();
+        return response()->json(['message' => 'Status updated successfully.']);
     }
         
 }

@@ -22,28 +22,40 @@ class BillingAndPlanController extends Controller
       public function index()
       {
         $user = User::where('userID', Auth::user()->UserID)->first();
-        $paymentSubscription = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('PackageID', $user->CurrentPackageID)->first();
-        $package = Package::find($user->CurrentPackageID);
-        $total_days = $package->Duration;
-        $package_name = $package->Name;
-        $expiry = Carbon::createFromFormat('Y-m-d', $paymentSubscription->NextRenewalDate);
-        $expiryDate = $expiry->format('M d, Y');
-        $remainingDays = $expiry->diffInDays(Carbon::now(), false);
-        $downgrade_payment = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('Status', 'Pending')->first();
-        $cancel_plan = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('Status', 'Canceled')->first();
-        
-        $package_data = [
-            'total_days' => $total_days,
-            'package_name' => $package_name,
-            'expiryDate' => $expiryDate,
-            'remainingDays' => abs(round($remainingDays)),
-            'downgrade_payment' => $downgrade_payment,
-            'cancel_plan' => $cancel_plan,
-        ];
+        $package_id = $user->CurrentPackageID;
+        if($user->CurrentPackageID == -1) {
+            $package_data = [
+                'total_days' => 0,
+                'package_name' => 0,
+                'expiryDate' => 0,
+                'remainingDays' => 0,
+                'downgrade_payment' => 0,
+                'cancel_plan' => 0,
+            ];
+        } else {
+            $paymentSubscription = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('PackageID', $user->CurrentPackageID)->first();
+            $package = Package::find($user->CurrentPackageID);
+            $total_days = $package->Duration;
+            $package_name = $package->Name;
+            $expiry = Carbon::createFromFormat('Y-m-d', $paymentSubscription->NextRenewalDate);
+            $expiryDate = $expiry->format('M d, Y');
+            $remainingDays = $expiry->diffInDays(Carbon::now(), false);
+            $downgrade_payment = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('Status', 'Pending')->first();
+            $cancel_plan = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('Status', 'Canceled')->first();
+            
+            $package_data = [
+                'total_days' => $total_days,
+                'package_name' => $package_name,
+                'expiryDate' => $expiryDate,
+                'remainingDays' => abs(round($remainingDays)),
+                'downgrade_payment' => $downgrade_payment,
+                'cancel_plan' => $cancel_plan,
+            ];
+        }
         $maxPricePackage = Package::orderBy('price', 'desc')->first();
         $stander_Plan_price = $maxPricePackage->Price;
         $packages = Package::all();
-        return view('user.billing_and_plan.index', compact('package_data', 'stander_Plan_price', 'user', 'packages'));
+        return view('user.billing_and_plan.index', compact('package_data', 'stander_Plan_price', 'user', 'packages', 'package_id'));
       }
 
       public function upgragde_plan($id)
