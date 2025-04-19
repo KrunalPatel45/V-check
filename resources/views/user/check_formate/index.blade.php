@@ -95,7 +95,7 @@
                     <tr style="height: 50px">
                         <td
                             style="border-bottom: 1px solid black; padding: 0 0 5px 0; font-size: 22px; vertical-align: bottom">
-                            {{ $data['amount_word'] }} + 0.00***</td>
+                            {{ $data['amount_word'] }}</td>
                         <td style="padding: 0; font-size: 17px; width: 65px; text-align: right; vertical-align: bottom">
                             Dollars</td>
                     </tr>

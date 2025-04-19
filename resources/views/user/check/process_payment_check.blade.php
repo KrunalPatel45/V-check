@@ -25,17 +25,29 @@
                 {{ session('info') }}
             </div>
         @endif
+        <div id="alert-message">
+
+        </div>
         <div class="d-flex justify-content-between align-items-center">
             <h5 class="card-header">Receive Payment</h5>
-            <a href="{{ route('check.process_payment.check') }}" class="btn btn-primary mr-4"
-                style="height: 40px !important;margin-right: 25px !important;">
-                <i class="fa-solid fa-plus"></i> &nbsp; Create Check
-            </a>
+            <div>
+                <a href="{{ route('check.process_payment.check') }}" class="btn btn-primary mr-4"
+                    style="height: 40px !important;margin-right: 25px !important;">
+                    <i class="fa-solid fa-plus"></i> &nbsp; Create Check
+                </a>
+                <button id="bulk-generate-checks" class="btn btn-primary mr-4"
+                    style="height: 40px !important;margin-right: 25px !important;">
+                    <i class="menu-icon tf-icons ti ti-files"></i>Batch Generate
+                </button>
+            </div>
         </div>
         <div class="card-datatable table-responsive pt-0">
             <table id="receive_payment_checks" class="table">
                 <thead>
                     <tr>
+                        <th>
+                            <input type="checkbox" id="select-all">
+                        </th>
                         <th style="d-none">ID</th>
                         <th>#</th>
                         <th style="width: 50px;!important">Check Number</th>
@@ -55,7 +67,7 @@
 @section('page-script')
     <script>
         $(document).ready(function() {
-            $('#receive_payment_checks').DataTable({
+            receive_payment_table = $('#receive_payment_checks').DataTable({
                 processing: true,
                 serverSide: true,
                 pageLength: "{{ config('app.rp_per_page') }}",
@@ -65,6 +77,21 @@
                     [0, 'desc']
                 ],
                 columns: [{
+                        data: 'CheckID', // Checkbox column uses CheckID for value
+                        name: 'CheckID',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data, type, row, meta) {
+                            // Check if the check is generated
+                            if (row.Status === 'generated') {
+                                return '-'; // Don't show checkbox
+                            } else {
+                                return `<input type="checkbox" class="row-checkbox" value="${data}">`;
+                            }
+                        }
+
+                    },
+                    {
                         data: 'CheckID', // Hidden ID column for sorting
                         name: 'CheckID',
                         visible: false // Hides the ID column
@@ -132,18 +159,88 @@
                 });
             });
 
-            window.onload = function() {
-                if (sessionStorage.getItem('success')) {
-                    let successMessage = sessionStorage.getItem('success');
-                    sessionStorage.removeItem('success'); // Clear the sessionStorage after use
-                    // Display the success message in the alert section (you can also append it manually)
-                    let alertDiv = document.createElement('div');
-                    alertDiv.className = 'alert alert-success';
-                    alertDiv.innerText = successMessage;
-                    document.body.insertBefore(alertDiv, document.body
-                        .firstChild); // Display the alert at the top of the page
-                }
+            $('#select-all').on('click', function() {
+                let checked = this.checked;
+                $('.row-checkbox').prop('checked', checked);
+            });
+
+            // Handle single checkbox change to update "Select All" status
+            $(document).on('change', '.row-checkbox', function() {
+                let total = $('.row-checkbox').length;
+                let checked = $('.row-checkbox:checked').length;
+                $('#select-all').prop('checked', total === checked);
+            });
+
+            // Optional: Function to get all selected CheckIDs
+            window.getSelectedCheckIDs = function() {
+                let selected = [];
+                $('.row-checkbox:checked').each(function() {
+                    selected.push($(this).val());
+                });
+                return selected;
+            };
+
+            // Check for success message
+            if (sessionStorage.getItem('success')) {
+                showAlert('success', sessionStorage.getItem('success'));
+                sessionStorage.removeItem('success');
+            }
+
+            // Check for error message
+            if (sessionStorage.getItem('error')) {
+                showAlert('danger', sessionStorage.getItem('error'));
+                sessionStorage.removeItem('error');
             }
         });
+
+        $('#bulk-generate-checks').on('click', function() {
+            let selected = $('.row-checkbox:checked').map(function() {
+                return $(this).val();
+            }).get();
+
+            if (selected.length === 0) {
+                showAlert('danger', 'Please select at least one check.');
+                return;
+            }
+
+            // Send AJAX POST to Laravel route
+            $.ajax({
+                url: "{{ route('bulk_generate') }}",
+                method: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    check_ids: selected
+                },
+                success: function(response) {
+                    if (response.status == true) {
+
+                        showAlert('success', 'Checks generated successfully!');
+                    } else {
+                        showAlert('danger', 'Something went wrong. Please try again.');
+                    }
+                    receive_payment_table.ajax.reload() // Reload table after processing
+                    $('#select-all').prop('checked', false); // Reset "select all"
+                },
+                error: function(xhr) {
+                    showAlert('danger', 'Something went wrong. Please try again.');
+                }
+            });
+        });
+
+        function showAlert(type, message) {
+            let alertDiv = $(`
+            <div class="alert alert-${type}" style="margin: 10px;">
+                ${message}
+            </div>
+        `);
+            $('#alert-message').prepend(alertDiv);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                alertDiv.fadeOut(500, function() {
+                    $(this).remove();
+                });
+            }, 1000);
+        }
     </script>
 @endsection

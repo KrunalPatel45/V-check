@@ -938,4 +938,49 @@ class CheckController extends Controller
             Artisan::call('config:cache');
         }
     }
+
+    public function bulk_generate(Request $request) 
+    {
+        $checks_ids = $request->check_ids;
+        foreach($checks_ids as $id) {
+            $check = Checks::find($id);
+
+            $check_date = Carbon::parse(str_replace('/', '-', $check->ExpiryDate))->format('m/d/Y');
+
+            $data = [];
+            $payor = Payors::withTrashed()->find($check->PayorID);
+            $payee = Payors::withTrashed()->find($check->PayeeID);
+            $data['payor_name'] = $payor->Name;
+            $data['address1'] = $payor->Address1;
+            $data['address2'] = $payor->Address2;
+            $data['city'] = $payor->City;
+            $data['state'] = $payor->State;
+            $data['zip'] = $payor->Zip;
+            $data['check_number'] = $check->CheckNumber;
+            $data['check_date'] = $check_date;
+            $data['payee_name'] = $payee->Name;
+            $data['amount'] = $check->Amount;
+            $data['amount_word'] = $this->numberToWords($check->Amount);
+            $data['memo'] = $check->Memo;
+            $data['routing_number'] = $payor->RoutingNumber;
+            $data['account_number'] = $payor->AccountNumber;
+            $data['bank_name'] = $payor->BankName; 
+            $data['signature'] = (!empty($check->DigitalSignature)) ? $check->DigitalSignature : '';
+            $data['email'] =  !empty($payee->Email) ? $payee->Email : '';
+            $data['package'] = Auth::user()->CurrentPackageID;
+
+            // return view('user.check_formate.index', compact('data'));
+            
+            $check_file = $this->generateAndSavePDF($data);
+
+            $check->Status = 'generated';
+            $check->CheckPDF = $check_file;
+
+            $check->save();
+        }
+
+        return response()->json([
+            'status' => true,
+        ]);
+    }
 }
