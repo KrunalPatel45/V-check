@@ -4,202 +4,12 @@
 
 <!-- Vendor Styles -->
 @section('vendor-style')
-    {{-- <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-
-        .form-container {
-            /* border: 2px solid green; */
-            /* max-width: 90%; */
-            /* margin: 20px auto; */
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .form-title {
-            text-align: center;
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            color: green;
-            font-weight: bold;
-        }
-
-        .form-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        label {
-            font-weight: bold;
-            flex: 1;
-            min-width: 120px;
-            font-size: 12px;
-        }
-
+    <style>
         input,
         select {
-            /* flex: 2; */
-            /* padding: 8px; */
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            min-width: 200px;
-            font-size: 12px;
+            border: 1px solid !important;
         }
-
-        .pay-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 10px;
-            /* border: 1px solid #ccc; */
-            /* border-radius: 4px; */
-            font-size: 1.2rem;
-            margin: 15px 0;
-        }
-
-        .pay-amount {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        button {
-            background-color: green;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-
-        button:hover {
-            background-color: darkgreen;
-        }
-
-        .fileds {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .fileds-row {
-            gap: 10px;
-        }
-
-        .payor-filed {
-            min-width: 350px !important;
-        }
-
-        .address {
-            justify-content: normal !important;
-            gap: 6px !important;
-        }
-
-        .address .fileds input {
-            min-width: 100px;
-            width: 100px;
-        }
-
-        .dob-picker {
-            background: #ffffff !important;
-            min-width: 200px !important;
-        }
-
-        .f-basic {
-            flex-basis: 60% !important;
-        }
-
-        .text-right {
-            text-align: right !important;
-        }
-
-        .text-center {
-            text-align: center !important;
-        }
-
-        .j-center {
-            justify-content: center !important;
-            margin: 20px 0 !important;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .form-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            label {
-                text-align: left;
-            }
-
-            input,
-            select {
-                flex: 1;
-            }
-
-            .pay-section {
-                flex-direction: column;
-            }
-        }
-
-        #payor-edit,
-        #payee-edit {
-            cursor: pointer;
-            color: blue;
-        }
-
-        .kbw-signature {
-            width: 250px;
-            height: 100px;
-            border: none !important;
-        }
-
-        #sig canvas {
-            width: 250px;
-            height: 100px;
-        }
-
-        .m-60 {
-            margin-top: -60px !important;
-        }
-
-        .btn-primary.btn[class*=btn-]:not([class*=btn-label-]):not([class*=btn-outline-]):not([class*=btn-text-]):not(.btn-icon):not(:disabled):not(.disabled) {
-            box-shadow: 0 .125rem .375rem #7367f04d;
-        }
-
-        .btn:not(.dropdown-toggle):not([class*=btn-text-]) {
-            transition: all .135s ease-in-out;
-            transform: scale(1.001);
-        }
-
-        .btn-primary {
-            color: #fff;
-            background-color: #7367f0;
-            border-color: #7367f0;
-        }
-
-        .btn {
-            cursor: pointer;
-            display: inline-flex !important;
-            align-items: center;
-            justify-content: center;
-        }
-    </style> --}}
+    </style>
     @vite(['resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
 
@@ -519,7 +329,7 @@
 @endsection
 
 @section('content')
-    <div class="card mb-6">
+    <div class="card mb-6" style="background: #bfe1bf;">
         <form action="{{ route('check.process_payment_check_generate') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="card-header d-flex align-items-center justify-content-between mb-5">
@@ -613,7 +423,7 @@
                                 <div class="row">
                                     <div class="col-sm-12" style="padding-right: 0">
                                         <input type="text" id="city" name="city" class="form-control"
-                                            placeholder="City" disabled
+                                            placeholder="City" readonly
                                             value="{{ !empty($old_payor->City) && $old_payor->City ? $old_payor->City : old('city') }}">
                                     </div>
                                 </div>
@@ -622,7 +432,7 @@
                                 <div class="row">
                                     <div class="col-sm-12" style="padding-right: 0">
                                         <input type="text" id="state" name="state" class="form-control"
-                                            placeholder="State" disabled
+                                            placeholder="State" readonly
                                             value="{{ !empty($old_payor->State) && $old_payor->State ? $old_payor->State : old('state') }}">
                                     </div>
                                 </div>
@@ -631,7 +441,7 @@
                                 <div class="row">
                                     <div class="col-sm-12" style="padding-right: 0">
                                         <input type="text" id="zip" name="zip" class="form-control"
-                                            placeholder="Zip" disabled
+                                            placeholder="Zip" readonly
                                             value="{{ !empty($old_payor->Zip) && $old_payor->Zip ? $old_payor->Zip : old('zip') }}">
                                     </div>
                                 </div>
@@ -709,19 +519,19 @@
 
                 <div class="row justify-content-center" style="margin-top: 30px">
                     <div class="col-sm-3">
+                        <input type="number" id="verify_check_number" name="verify_check_number"
+                            placeholder="Check Number" class="form-control" readonly
+                            value="{{ !empty($check->CheckNumber) ? $check->CheckNumber : old('check_number') }}">
+                    </div>
+                    <div class="col-sm-3">
                         <input type="number" id="routing_number" name="routing_number" class="form-control"
-                            placeholder="Routing Number" disabled
+                            placeholder="Routing Number" readonly
                             value="{{ !empty($old_payor->RoutingNumber) && $old_payor->RoutingNumber ? $old_payor->RoutingNumber : old('routing_number') }}">
                     </div>
                     <div class="col-sm-3">
                         <input type="number" id="account_number" name="account_number" class="form-control"
-                            placeholder="Account Number" disabled
+                            placeholder="Account Number" readonly
                             value="{{ !empty($old_payor->AccountNumber) && $old_payor->AccountNumber ? $old_payor->AccountNumber : old('account_number') }}">
-                    </div>
-                    <div class="col-sm-3">
-                        <input type="number" id="verify_check_number" name="verify_check_number"
-                            placeholder="Check Number" class="form-control" disabled
-                            value="{{ !empty($check->CheckNumber) ? $check->CheckNumber : old('check_number') }}">
                     </div>
                 </div>
                 <div class="modal fade" id="payorModel" tabindex="-1" aria-hidden="true">
@@ -779,8 +589,71 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label" for="state">State</label>
-                                        <input type="text" name="state" id="state" class="form-control"
-                                            value="{{ !empty($old_payor->State) ? $old_payor->State : old('state') }}" />
+                                        <select name="state" id="state" class="form-control">
+                                            <option value="">-- Select State --</option>
+                                            @php
+                                                $states = [
+                                                    'Alabama',
+                                                    'Alaska',
+                                                    'Arizona',
+                                                    'Arkansas',
+                                                    'California',
+                                                    'Colorado',
+                                                    'Connecticut',
+                                                    'Delaware',
+                                                    'Florida',
+                                                    'Georgia',
+                                                    'Hawaii',
+                                                    'Idaho',
+                                                    'Illinois',
+                                                    'Indiana',
+                                                    'Iowa',
+                                                    'Kansas',
+                                                    'Kentucky',
+                                                    'Louisiana',
+                                                    'Maine',
+                                                    'Maryland',
+                                                    'Massachusetts',
+                                                    'Michigan',
+                                                    'Minnesota',
+                                                    'Mississippi',
+                                                    'Missouri',
+                                                    'Montana',
+                                                    'Nebraska',
+                                                    'Nevada',
+                                                    'New Hampshire',
+                                                    'New Jersey',
+                                                    'New Mexico',
+                                                    'New York',
+                                                    'North Carolina',
+                                                    'North Dakota',
+                                                    'Ohio',
+                                                    'Oklahoma',
+                                                    'Oregon',
+                                                    'Pennsylvania',
+                                                    'Rhode Island',
+                                                    'South Carolina',
+                                                    'South Dakota',
+                                                    'Tennessee',
+                                                    'Texas',
+                                                    'Utah',
+                                                    'Vermont',
+                                                    'Virginia',
+                                                    'Washington',
+                                                    'West Virginia',
+                                                    'Wisconsin',
+                                                    'Wyoming',
+                                                ];
+                                            @endphp
+
+                                            @foreach ($states as $state)
+                                                <option value="{{ $state }}"
+                                                    {{ !empty($old_payor->state) && $old_payor->state ? 'selected' : '' }}>
+                                                    {{ $state }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+
                                         @if ($errors->has('state'))
                                             <span class="text-danger">
                                                 {{ $errors->first('state') }}
@@ -809,8 +682,8 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label" for="account_number">Account Number</label>
-                                        <input type="number" name="account_number" id="account_number"
-                                            class="form-control"
+                                        <input type="text" inputmode="numeric" pattern="[0-9]*" name="account_number"
+                                            id="account_number" class="form-control"
                                             value="{{ !empty($old_payor->AccountNumber) ? $old_payor->AccountNumber : old('account_number') }}" />
                                         @if ($errors->has('account_number'))
                                             <span class="text-danger">
