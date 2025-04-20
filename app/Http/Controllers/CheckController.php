@@ -697,15 +697,15 @@ class CheckController extends Controller
                     return $Preview;
                 })
                 ->addColumn('actions', function ($row) {
-                    $Preview = route('web_form', ['slug' => $row->page_url]);
+                    $editUrl = route('web_form.edit', ['id' => $row->Id]);
                     $deleteUrl = route('web_form.delete', ['id' => $row->Id]);
                     return '<div class="d-flex">
-                                <a href="'.$Preview.'" data-link="'.$Preview.'" class="dropdown-item copy-link">
-                                        <i class="ti ti-clipboard-copy me-1"></i>
+                                <a href="' . $editUrl . '" class="dropdown-item">
+                                        <i class="ti ti-pencil me-1"></i> Edit
                                 </a>
                                 <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="modal" 
                                 data-bs-target="#delete' . $row->Id . '">
-                                    <i class="ti ti-trash me-1"></i>
+                                    <i class="ti ti-trash me-1"></i> Delete
                                 </a>
                             </div>
                             <div class="modal fade" id="delete' . $row->Id . '" tabindex="-1" aria-hidden="true">
@@ -746,21 +746,31 @@ class CheckController extends Controller
 
     public function new_web_form_store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $rules = [
             'name' => 'required',
             'address' => 'required',
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
-            'logo' => 'required',
             'page_desc' => 'required',
-        ]);
+        ];
+        if(empty($request->web_form_id)) {
+            $rules['logo'] = 'required';
+        }
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
+
+        if(!empty($request->web_form_id)) {
+            $webform = WebForm::find($request->web_form_id);
+            $payee = Payors::find($webform->PayeeID);
+        } else {
+            $webform = new WebForm();
+            $payee = new Payors();
+        }
         
-        $webform = new WebForm();
 
         
         $slug = $this->generateUniqueSlug($request->name);
@@ -778,19 +788,20 @@ class CheckController extends Controller
 
         $payee->save();
 
-        $logoPath = null;
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
-            $uniqueName = Str::uuid() . '.' . $file->getClientOriginalExtension(); 
+            $uniqueName = Str::uuid() . '.' . $file->getClientOriginalExtension();
             $destinationPath = public_path('logos');
-
+    
             if (!file_exists($destinationPath)) {
                 mkdir($destinationPath, 0755, true);
             }
-
+    
             $file->move($destinationPath, $uniqueName);
-            
             $logoPath = 'logos/' . $uniqueName;
+        } else {
+            // Keep existing logo if no new file uploaded
+            $logoPath = $webform->Logo ?? null;
         }
 
         $webform->UserID = Auth::id();
@@ -982,5 +993,13 @@ class CheckController extends Controller
         return response()->json([
             'status' => true,
         ]);
+    }
+
+    public function web_form_edit(Request $request, $id)
+    {
+        $webform = WebForm::find($id);
+        $payee = Payors::find($webform->PayeeID);
+
+        return view('user.web_form.edit', compact('webform', 'payee'));
     }
 }
