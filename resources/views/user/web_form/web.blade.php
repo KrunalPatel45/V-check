@@ -391,7 +391,7 @@
                 </form>
             </div>
             <div class="content_right">
-                <img src="{{ asset('assets/img/check-sample.png') }}" alt="check format img" />
+                <img src="{{ asset('assets/img/check-sample.jpg') }}" alt="check format img" />
                 <div class="company_desc">
                     @if (!empty($data->page_desc) && $data->page_desc != '<p><br></p>')
                         {!! $data->page_desc !!}

@@ -179,16 +179,7 @@
             <td>
                 <table border="0" width="100%" cellspacing="0" cellpadding="5">
                     <tr>
-                        <td style="color: #229973; font-size: 24px; font-weight: bold">Check appears upside down
-                            intentionally</td>
-                    </tr>
-                </table>
-                <table border="0" width="100%" cellspacing="0" cellpadding="5">
-                    <tr>
-                        <td style="font-size: 22px; color: #000; text-align: left">How to use this check</td>
-                        <td style="font-size: 18px; color: #000; text-align: right"><span style="font-weight: bold">Need
-                                help? </span>Visit eChecks.com or call 1-000-000-0000
-                        </td>
+                        <td style="font-size: 30px; color: #000; text-align: left">How to use this check</td>
                     </tr>
                 </table>
                 <table border="0" width="100%" cellspacing="0" cellpadding="5">
@@ -199,122 +190,80 @@
                 <table width="100%" style="border-collapse: collapse; border: 2px solid #b2c6cd">
                     <thead style="font-size: 20px; background: #e1eef3">
                         <tr>
-                            <th style="border: 2px solid #b2c6cd; padding: 10px 20px; width: 30%; text-align: left">
-                                <span style="font-size: 17px">Step 1</span> <br />
-                                Print the check
+                            <th
+                                style="border: 2px solid #b2c6cd; padding: 20px 20px 0 20px; vertical-align: middle; width: 30%; text-align: left; height: 100px">
+                                <span
+                                    style="font-size: 60px; line-height: 0.8; font-weight: bold; display: inline-block; height: 50px">1</span>
+                                <span
+                                    style="width: 130px; display: inline-block; font-size: 22px; line-height: 1; height: 50px">Printing
+                                    the check</span>
                             </th>
-                            <th style="border: 2px solid #b2c6cd; padding: 10px 20px; width: 40%; text-align: left">
-                                <span style="font-size: 17px">Step 2</span> <br />
-                                Validate it printed correctly
+                            <th
+                                style="border: 2px solid #b2c6cd; padding: 20px 20px 0 20px; vertical-align: middle; width: 40%; text-align: left; height: 100px">
+                                <span
+                                    style="font-size: 60px; line-height: 0.8; font-weight: bold; display: inline-block; height: 50px">2</span>
+                                <span
+                                    style="width: 240px; display: inline-block; font-size: 22px; line-height: 1; height: 50px">Make
+                                    sure everything printed properly</span>
                             </th>
-                            <th style="border: 2px solid #b2c6cd; padding: 10px 20px; width: 30%; text-align: left">
-                                <span style="font-size: 17px">Step 3</span> <br />
-                                Deposit like normal
+                            <th
+                                style="border: 2px solid #b2c6cd; padding: 20px 20px 0 20px; vertical-align: middle; width: 30%; text-align: left; height: 100px">
+                                <span
+                                    style="font-size: 60px; line-height: 0.8; font-weight: bold; display: inline-block; height: 50px">3</span>
+                                <span
+                                    style="width: 250px; display: inline-block; font-size: 22px; line-height: 1; height: 50px">Deposit
+                                    like you would your regular checks</span>
                             </th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
                             <td
-                                style="border: 2px solid #b2c6cd; padding: 20px; width: 30%; vertical-align: top; font-size: 18px">
-                                <div style="margin-bottom: 5px">
-                                    <span style="width: 20px; height: 15px; display: inline-block">
-                                        <img src="https://media-hosting.imagekit.io/6c238744c9f24e07/checkmark-xxl.png?Expires=1838370373&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=vOWw-4qEm2LxtfLTdzubSoj5cU5nH8-FC0ygCUajKVsuMfs3kqz3QddWRUFcHIjSDFqkb9GpdI7W-ZLtM-FICWrR0niYIK0Cwj4vbsOCEPXFZ6f7g1WKWCL0CdOMBn5apICbSOyqSgrOsdeDHDd5ghvWcnyJsVT7g7Ue7vSEhll5TZAcu3hNF-nHVQhZ38E8CzflWOvZ~PzdIdbSXjAp8CBibnhZ-u6zRgcL0bjNfNauj1QeYcP4Va30T~XUzAXCpo12aB~pz0pa8hLIEIIwBxsHapWzXcm3lr~FxaEJGchenlYiueKAHedN~v~icJgk63FrnYt0XVTJix7qVTknLw__"
-                                            alt="check icon" style="width: 15px" />
-                                    </span>
-                                    <strong>Any printer works</strong>
-                                </div>
-                                <div style="margin-bottom: 5px">
-                                    <span style="width: 20px; height: 15px; display: inline-block">
-                                        <img src="https://media-hosting.imagekit.io/6c238744c9f24e07/checkmark-xxl.png?Expires=1838370373&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=vOWw-4qEm2LxtfLTdzubSoj5cU5nH8-FC0ygCUajKVsuMfs3kqz3QddWRUFcHIjSDFqkb9GpdI7W-ZLtM-FICWrR0niYIK0Cwj4vbsOCEPXFZ6f7g1WKWCL0CdOMBn5apICbSOyqSgrOsdeDHDd5ghvWcnyJsVT7g7Ue7vSEhll5TZAcu3hNF-nHVQhZ38E8CzflWOvZ~PzdIdbSXjAp8CBibnhZ-u6zRgcL0bjNfNauj1QeYcP4Va30T~XUzAXCpo12aB~pz0pa8hLIEIIwBxsHapWzXcm3lr~FxaEJGchenlYiueKAHedN~v~icJgk63FrnYt0XVTJix7qVTknLw__"
-                                            alt="check icon" style="width: 15px" />
-                                    </span>
-                                    <strong> Black or color ink </strong>
-                                </div>
-                                <div>
-                                    <span style="width: 20px; height: 15px; display: inline-block">
-                                        <img src="https://media-hosting.imagekit.io/6c238744c9f24e07/checkmark-xxl.png?Expires=1838370373&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=vOWw-4qEm2LxtfLTdzubSoj5cU5nH8-FC0ygCUajKVsuMfs3kqz3QddWRUFcHIjSDFqkb9GpdI7W-ZLtM-FICWrR0niYIK0Cwj4vbsOCEPXFZ6f7g1WKWCL0CdOMBn5apICbSOyqSgrOsdeDHDd5ghvWcnyJsVT7g7Ue7vSEhll5TZAcu3hNF-nHVQhZ38E8CzflWOvZ~PzdIdbSXjAp8CBibnhZ-u6zRgcL0bjNfNauj1QeYcP4Va30T~XUzAXCpo12aB~pz0pa8hLIEIIwBxsHapWzXcm3lr~FxaEJGchenlYiueKAHedN~v~icJgk63FrnYt0XVTJix7qVTknLw__"
-                                            alt="check icon" style="width: 15px" />
-                                    </span>
-                                    <strong> Basic white paper </strong>
-                                </div>
-                            </td>
-                            <td style="border: 2px solid #b2c6cd; padding: 20px; width: 40%; font-size: 16px">
-                                <div>
-                                    <span>
-                                        <span style="width: 20px; height: 15px; display: inline-block">
-                                            <img src="https://media-hosting.imagekit.io/6c238744c9f24e07/checkmark-xxl.png?Expires=1838370373&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=vOWw-4qEm2LxtfLTdzubSoj5cU5nH8-FC0ygCUajKVsuMfs3kqz3QddWRUFcHIjSDFqkb9GpdI7W-ZLtM-FICWrR0niYIK0Cwj4vbsOCEPXFZ6f7g1WKWCL0CdOMBn5apICbSOyqSgrOsdeDHDd5ghvWcnyJsVT7g7Ue7vSEhll5TZAcu3hNF-nHVQhZ38E8CzflWOvZ~PzdIdbSXjAp8CBibnhZ-u6zRgcL0bjNfNauj1QeYcP4Va30T~XUzAXCpo12aB~pz0pa8hLIEIIwBxsHapWzXcm3lr~FxaEJGchenlYiueKAHedN~v~icJgk63FrnYt0XVTJix7qVTknLw__"
-                                                alt="check icon" style="width: 15px" />
-                                        </span>
-                                        <strong style="font-size: 18px">Correct if bank numbers are :</strong> <br />
-                                        <span style="width: 20px; display: inline-block"> </span>
-                                        Centered in white space <br />
-                                        <span style="width: 20px; display: inline-block"> </span>
-                                        Parallel to edge of the page <br />
-                                        <span style="width: 20px; display: inline-block"> </span>
-                                        Clearly printed in dark blank ink
-                                    </span>
-                                </div>
-                                <br />
-                                <div>
-                                    <span>
-                                        <span style="width: 20px; height: 15px; display: inline-block">
-                                            <img src="https://media-hosting.imagekit.io/881669345e5a4e3a/x-mark-xxl.png?Expires=1838370373&Key-Pair-Id=K2ZIVPTIP2VGHC&Signature=g8f8YRDBZ3t-vJ38fcSbkK6tKMZ0ipYAKsta7Q~VU9ChBK7c2PSsBSwKbYR1GzIskfAgFa0TGvFjvpML9exf5VdilPxzqLC331yGO6-h9par6qpIlfudRF8UHIPJrzL7dt2mnPVp~3Xn4jXBQYEb3HnDDtwOCjsMPCeJGiTY9FUz-Rd54P-B-CIG1vfPO0mYVMgAHBRtwrfvRUW6Hw3b~fzeMNgrcgWjDmMn31LzsMddvQVkwV7d4MmGEzGvtaJ2lNcAL3svNbJp1pf4KuBCCVobQ-s7knrQ9qaBaa-kqSnbeScTvS0jPzbEScm312aPm5OEbKWBLR5Gf2b5EjIAhA__"
-                                                alt="x icon" style="width: 15px" />
-                                        </span>
-                                        <strong style="font-size: 18px">Reprint if bank numbers are :</strong> <br />
-                                        <span style="width: 20px; display: inline-block"> </span>
-                                        Cut off, skewed , or off-center <br />
-                                        <span style="width: 20px; display: inline-block"> </span>
-                                        Smudged or wrinkled<br />
-                                        <span style="width: 20px; display: inline-block"> </span>
-                                        Too light to read
-                                    </span>
-                                </div>
+                                style="border: 2px solid #b2c6cd; padding: 20px; width: 30%; vertical-align: top; font-size: 20px">
+                                <ul style="margin: 0">
+                                    <li>
+                                        <strong>Use any printer</strong>
+                                    </li>
+                                    <li>
+                                        <strong>Use color or black ink</strong>
+                                    </li>
+                                    <li>
+                                        <strong>Use white printer paper</strong>
+                                    </li>
+                                </ul>
                             </td>
                             <td
-                                style="font-size: 18px; border: 2px solid #b2c6cd; padding: 20px; width: 30%; vertical-align: top">
-                                <div>
-                                    <ol style="margin: 0">
-                                        <li style="margin-bottom: 5px">
-                                            <strong> Cut on the dotted line above </strong>
-                                        </li>
-                                        <li style="margin-bottom: 5px">
-                                            <strong>Endorse the back</strong>
-                                        </li>
-                                        <li>
-                                            <strong>Deposit like normal </strong><br />
-                                            <span style="font-size: 16px">
-                                                In-person at a bank or credit union Using an ATM <br />
-                                                Via smartphone mobile deposit <br />
-                                                With an office check scanner <br />
-                                            </span>
-                                        </li>
-                                    </ol>
-                                </div>
+                                style="border: 2px solid #b2c6cd; vertical-align: top; padding: 20px; width: 40%; font-size: 20px">
+                                <ul style="margin: 0">
+                                    <li>
+                                        <strong>Make sure all bank numbers are centered and easy to read</strong>
+                                    </li>
+                                    <li>
+                                        <strong>Reprint any checks that are misaligned, too light or cut off</strong>
+                                    </li>
+                                </ul>
+                            </td>
+                            <td
+                                style="font-size: 20px; border: 2px solid #b2c6cd; padding: 20px; width: 30%; vertical-align: top">
+                                <ul style="margin: 0">
+                                    <li>
+                                        <strong>Cut, endorse, and deposit! </strong>
+                                    </li>
+                                    <li>
+                                        <strong>Deposit like you normally would with any check: In-person at your bank,
+                                            mobile deposit or check scanner</strong>
+                                    </li>
+                                </ul>
                             </td>
                         </tr>
                     </tbody>
                     <tfoot>
                         <tr>
                             <td style="padding: 20px" colspan="3">
-                                <strong style="font-size: 20px"> Does your financial institution have questions about
-                                    this check? </strong>
-                                <br />
-                                <ul style="font-size: 18px">
-                                    <li>This check was printed from an authorized check record. It is not a Check 21
-                                        Image Replacement Document.</li>
-                                    <li>
-                                        To confirm this check was issued by the account holder and details (pay to,
-                                        amount, routing/account number) remail unmodified, the item's authenticity can
-                                        be verified using the Deluxe Inc. Check Verification service at
-                                        <a href="https://echecks.com/verify"
-                                            style="color: #4f7edb; text-decoration: none"
-                                            target="_blank">https://echecks.com/verify.</a>
-                                    </li>
-                                </ul>
-                                <strong style="font-size: 24px; font-weight: bold"> Questions? Visit
-                                    <span>eChecks.com</span> or call 1-000-000-0000 </strong>
+                                <span style="color: #000; font-size: 18px">Need help? For any questions visit us at
+                                    <strong style="color: #000; font-size: 20px"><a
+                                            href="https://www.echecksystems.com" target="_blank"
+                                            style="color: #000; font-size: 20px; text-decoration: none">www.echecksystems.com</a></strong></span>
                             </td>
                         </tr>
                     </tfoot>
@@ -327,7 +276,7 @@
                 <table border="0" width="100%" cellspacing="0" cellpadding="5">
                     <tr>
                         <td style="width: 50%">
-                            <span style="font-size: 30px">For your records</span>
+                            <span style="font-size: 30px">Your Receipt - Save for your records</span>
                             <br />
                             <br />
                             <div style="margin-bottom: 5px; font-size: 20px">
@@ -360,14 +309,16 @@
                             </div>
                         </td>
                         <td style="width: 50%; vertical-align: top; padding-left: 20px">
-                            <span style="font-size: 20px; line-height: 1.3; width: 85%; display: inline-block"> Are you
-                                a business? To save time, money, and resources, make payments using Deluxe Payment
-                                Exchange. Call 1-000-000-0000 to get started today! </span>
+                            <span style="font-size: 20px; line-height: 1.3; width: 100%; display: inline-block"> Are
+                                Looking to save money and time? Get paid quicker and make payments with Echeck Systems.
+                                Visit us at <a href="https://www.echecksystems.com"
+                                    target="_blank">www.echecksystems.com</a> for more info.
+                            </span>
                             <br />
                             <br />
-                            <div style="text-align: right">
-                                <img src="{{ asset('assets/img/favicon/logo.png') }}" alt="company logo"
-                                    style="width: 200px" />
+                            <div style="text-align: left">
+                                <img src="https://echecksystems.com/wp-content/uploads/elementor/thumbs/echeck-systems-logo-r3qzixzultt1pr9mur1kl8ksvlbpbynxzcx5fso11c.png"
+                                    alt="company logo" style="width: 200px" />
                             </div>
                         </td>
                     </tr>

@@ -355,7 +355,7 @@
 @endsection
 
 @section('content')
-    <div class="card mb-6" style="background: #ADD8E6">
+    <div class="card mb-6" style="background: #d0dfff">
         <form action="{{ route('check.send_payment_check_generate') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="card-header d-flex align-items-center justify-content-between mb-5">

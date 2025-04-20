@@ -106,7 +106,10 @@ class AdminDashboardController extends Controller
 
             foreach ($users as $user) {
                 $package = Package::find($user->CurrentPackageID);
-                $user->package = $package ? $package->Name : 'N/A'; 
+                $user->package = $package ? $package->Name : 'N/A';
+                if($user->CurrentPackageID == '-1') {
+                    $user->package = 'TRIAL';
+                } 
                 $user->package_price = $package ? $package->Price : 0;
             }
 
