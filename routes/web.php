@@ -278,6 +278,7 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::post('/update-records-per-page', [CheckController::class, 'updateRecordsPerPage'])->name('update_records_per_page');
     Route::post('bulk-generate', [CheckController::class, 'bulk_generate'])->name('bulk_generate');
     Route::get('/web_form/edit/{id}', [CheckController::class, 'web_form_edit'])->name('web_form.edit');
+    Route::post('bulk-download', [CheckController::class, 'bulk_download'])->name('bulk_download');
 });
 
 Route::get('web-form/{slug}', [CheckController::class, 'web_form'])->name('web_form');
