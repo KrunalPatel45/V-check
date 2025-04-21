@@ -224,6 +224,18 @@
                 font-size: 14px;
             }
         }
+
+        /* For Chrome, Safari, Edge, Opera */
+        .no-spinner::-webkit-inner-spin-button,
+        .no-spinner::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* For Firefox */
+        .no-spinner {
+            -moz-appearance: textfield;
+        }
     </style>
 </head>
 
@@ -238,8 +250,8 @@
             </div>
             <div class="address">
                 <address style="font-style: normal; text-align: right; font-weight: bold">
-                    @if (!empty($company->Address2))
-                        {{ $company->Address2 }}<br>
+                    @if (!empty($company->Address1))
+                        {{ $company->Address1 }}<br>
                     @endif
                     {{ $company->City }}, {{ $company->State }} {{ $company->Zip }}<br>
                 </address>
@@ -267,7 +279,7 @@
                         <div class="check_num w-50">
                             <label for="check_number">Check Number</label>
                             <input type="number" id="check_number" name="check_number"
-                                value="{{ old('check_number') }}" tabindex="1" />
+                                value="{{ old('check_number') }}" tabindex="1" class="no-spinner" />
                             @error('check_number')
                                 <div class="error">{{ $message }}</div>
                             @enderror
@@ -324,8 +336,70 @@
                         </div>
                         <div class="state w-33">
                             <label for="state">State</label>
-                            <input type="text" id="state" name="state" value="{{ old('state') }}"
-                                tabindex="7" />
+                            <select name="state" id="state" class="form-control">
+                                <option value="">-- Select State --</option>
+                                @php
+                                    $states = [
+                                        'Alabama',
+                                        'Alaska',
+                                        'Arizona',
+                                        'Arkansas',
+                                        'California',
+                                        'Colorado',
+                                        'Connecticut',
+                                        'Delaware',
+                                        'Florida',
+                                        'Georgia',
+                                        'Hawaii',
+                                        'Idaho',
+                                        'Illinois',
+                                        'Indiana',
+                                        'Iowa',
+                                        'Kansas',
+                                        'Kentucky',
+                                        'Louisiana',
+                                        'Maine',
+                                        'Maryland',
+                                        'Massachusetts',
+                                        'Michigan',
+                                        'Minnesota',
+                                        'Mississippi',
+                                        'Missouri',
+                                        'Montana',
+                                        'Nebraska',
+                                        'Nevada',
+                                        'New Hampshire',
+                                        'New Jersey',
+                                        'New Mexico',
+                                        'New York',
+                                        'North Carolina',
+                                        'North Dakota',
+                                        'Ohio',
+                                        'Oklahoma',
+                                        'Oregon',
+                                        'Pennsylvania',
+                                        'Rhode Island',
+                                        'South Carolina',
+                                        'South Dakota',
+                                        'Tennessee',
+                                        'Texas',
+                                        'Utah',
+                                        'Vermont',
+                                        'Virginia',
+                                        'Washington',
+                                        'West Virginia',
+                                        'Wisconsin',
+                                        'Wyoming',
+                                    ];
+                                @endphp
+
+                                @foreach ($states as $state)
+                                    <option value="{{ $state }}"
+                                        {{ old('state') == $state ? 'selected' : '' }}>
+                                        {{ $state }}
+                                    </option>
+                                @endforeach
+                            </select>
                             @error('state')
                                 <div class="error">{{ $message }}</div>
                             @enderror
@@ -352,7 +426,8 @@
                     <div class="routing_num input_row">
                         <label for="routing_number">Routing Number</label>
                         <input type="number" id="routing_number" name="routing_number"
-                            value="{{ old('routing_number') }}" tabindex="10" />
+                            value="{{ old('routing_number') }}" tabindex="10" class="no-spinner" maxlength="9"
+                            oninput="this.value = this.value.replace(/\D/g, '').slice(0,9);" />
                         @error('routing_number')
                             <div class="error">{{ $message }}</div>
                         @enderror
