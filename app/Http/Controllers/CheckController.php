@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use App\Models\WebForm;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Artisan;
+use setasign\Fpdi\TcpdfFpdi;
 
 class CheckController extends Controller
 {
@@ -444,7 +445,7 @@ class CheckController extends Controller
         ->set_option('isRemoteEnabled', true);
     
         // Define the file path where you want to save the PDF
-        $file_name = 'check-' . $data['check_number'] . '.pdf';
+        $file_name = 'check-' . $data['check_number'] . '-' . time() . '.pdf';
         $filePath = $directoryPath .  '/' . $file_name;
     
         // Save the PDF to the specified path
@@ -955,39 +956,41 @@ class CheckController extends Controller
         $checks_ids = $request->check_ids;
         foreach($checks_ids as $id) {
             $check = Checks::find($id);
+            if($check->Status != 'generated') {
 
-            $check_date = Carbon::parse(str_replace('/', '-', $check->ExpiryDate))->format('m/d/Y');
+                $check_date = Carbon::parse(str_replace('/', '-', $check->ExpiryDate))->format('m/d/Y');
 
-            $data = [];
-            $payor = Payors::withTrashed()->find($check->PayorID);
-            $payee = Payors::withTrashed()->find($check->PayeeID);
-            $data['payor_name'] = $payor->Name;
-            $data['address1'] = $payor->Address1;
-            $data['address2'] = $payor->Address2;
-            $data['city'] = $payor->City;
-            $data['state'] = $payor->State;
-            $data['zip'] = $payor->Zip;
-            $data['check_number'] = $check->CheckNumber;
-            $data['check_date'] = $check_date;
-            $data['payee_name'] = $payee->Name;
-            $data['amount'] = $check->Amount;
-            $data['amount_word'] = $this->numberToWords($check->Amount);
-            $data['memo'] = $check->Memo;
-            $data['routing_number'] = $payor->RoutingNumber;
-            $data['account_number'] = $payor->AccountNumber;
-            $data['bank_name'] = $payor->BankName; 
-            $data['signature'] = (!empty($check->DigitalSignature)) ? $check->DigitalSignature : '';
-            $data['email'] =  !empty($payee->Email) ? $payee->Email : '';
-            $data['package'] = Auth::user()->CurrentPackageID;
+                $data = [];
+                $payor = Payors::withTrashed()->find($check->PayorID);
+                $payee = Payors::withTrashed()->find($check->PayeeID);
+                $data['payor_name'] = $payor->Name;
+                $data['address1'] = $payor->Address1;
+                $data['address2'] = $payor->Address2;
+                $data['city'] = $payor->City;
+                $data['state'] = $payor->State;
+                $data['zip'] = $payor->Zip;
+                $data['check_number'] = $check->CheckNumber;
+                $data['check_date'] = $check_date;
+                $data['payee_name'] = $payee->Name;
+                $data['amount'] = $check->Amount;
+                $data['amount_word'] = $this->numberToWords($check->Amount);
+                $data['memo'] = $check->Memo;
+                $data['routing_number'] = $payor->RoutingNumber;
+                $data['account_number'] = $payor->AccountNumber;
+                $data['bank_name'] = $payor->BankName; 
+                $data['signature'] = (!empty($check->DigitalSignature)) ? $check->DigitalSignature : '';
+                $data['email'] =  !empty($payee->Email) ? $payee->Email : '';
+                $data['package'] = Auth::user()->CurrentPackageID;
 
-            // return view('user.check_formate.index', compact('data'));
-            
-            $check_file = $this->generateAndSavePDF($data);
+                // return view('user.check_formate.index', compact('data'));
+                
+                $check_file = $this->generateAndSavePDF($data);
 
-            $check->Status = 'generated';
-            $check->CheckPDF = $check_file;
+                $check->Status = 'generated';
+                $check->CheckPDF = $check_file;
 
-            $check->save();
+                $check->save();
+            }
         }
 
         return response()->json([
@@ -1001,5 +1004,64 @@ class CheckController extends Controller
         $payee = Payors::find($webform->PayeeID);
 
         return view('user.web_form.edit', compact('webform', 'payee'));
+    }
+
+    public function bulk_download(Request $request)
+    {
+        $check_ids = $request->check_ids;
+
+        if (empty($check_ids) || !is_array($check_ids)) {
+            return back()->with('error', 'No checks selected for download.');
+        }
+
+        $pdf_dir = public_path('checks');
+        $pdfFiles = [];
+        $has_valid_pdf = false;
+
+        foreach ($check_ids as $id) {
+            $check = Checks::find($id);
+
+            if ($check && $check->Status === 'generated' && !empty($check->CheckPDF)) {
+                $pdf_path = $pdf_dir . '/' . $check->CheckPDF;
+
+                if (File::exists($pdf_path)) {
+                    $pdfFiles[] = $pdf_path;
+                    $has_valid_pdf = true;
+                } else {
+                    return back()->with('error', "PDF file not found for check ID $id: $pdf_path");
+                }
+            } else {
+                return back()->with('error', "Check ID $id is either not generated or missing PDF.");
+            }
+        }
+
+        if (!$has_valid_pdf) {
+            return back()->with('error', 'No valid PDF files found for the selected checks.');
+        }
+
+        try {
+            // Create FPDI instance with unit = pt and custom page size
+            $pdf = new TcpdfFpdi('P', 'pt', [800, 1200]);
+
+            foreach ($pdfFiles as $file) {
+                $pageCount = $pdf->setSourceFile($file);
+
+                for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
+                    $templateId = $pdf->importPage($pageNo);
+                    $pdf->AddPage();
+                    $pdf->useTemplate($templateId);
+                }
+            }
+
+            $fileName = 'batch-checks-' . time() . '.pdf';
+            $filePath = $pdf_dir . '/' . $fileName;
+
+            $pdf->Output($filePath, 'F');
+
+            return response()->download($filePath)->deleteFileAfterSend(true);
+
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Failed to merge PDFs: ' . $e->getMessage());
+        }
     }
 }

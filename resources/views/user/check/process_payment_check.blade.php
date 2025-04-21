@@ -39,6 +39,10 @@
                     style="height: 40px !important;margin-right: 25px !important;">
                     <i class="menu-icon tf-icons ti ti-files"></i>Batch Generate
                 </button>
+                <button id="bulk-download-checks" class="btn btn-primary mr-4"
+                    style="height: 40px !important;margin-right: 25px !important;">
+                    <i class="fa-solid fa-download"></i>&nbsp; Batch Download
+                </button>
             </div>
         </div>
         <div class="card-datatable table-responsive pt-0">
@@ -82,12 +86,7 @@
                         orderable: false,
                         searchable: false,
                         render: function(data, type, row, meta) {
-                            // Check if the check is generated
-                            if (row.Status === 'generated') {
-                                return '-'; // Don't show checkbox
-                            } else {
-                                return `<input type="checkbox" class="row-checkbox" value="${data}">`;
-                            }
+                            return `<input type="checkbox" class="row-checkbox" value="${data}">`;
                         }
 
                     },
@@ -226,6 +225,44 @@
                 }
             });
         });
+
+        $('#bulk-download-checks').on('click', function() {
+            let selected = $('.row-checkbox:checked').map(function() {
+                return $(this).val();
+            }).get();
+
+            if (selected.length === 0) {
+                showAlert('danger', 'Please select at least one check.');
+                return;
+            }
+
+            // Create a hidden form
+            let form = $('<form>', {
+                method: 'POST',
+                action: "{{ route('bulk_download') }}"
+            });
+
+            // Add CSRF token
+            form.append($('<input>', {
+                type: 'hidden',
+                name: '_token',
+                value: "{{ csrf_token() }}"
+            }));
+
+            // Add selected check IDs
+            selected.forEach(function(id) {
+                form.append($('<input>', {
+                    type: 'hidden',
+                    name: 'check_ids[]',
+                    value: id
+                }));
+            });
+
+            $('body').append(form);
+            form.submit();
+        });
+
+
 
         function showAlert(type, message) {
             let alertDiv = $(`
