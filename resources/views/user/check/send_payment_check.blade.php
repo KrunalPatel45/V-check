@@ -68,8 +68,7 @@
             send_payment_table = $('#send_payment_checks').DataTable({
                 processing: true,
                 serverSide: true,
-                pageLength: "{{ config('app.sp_per_page') }}",
-                lengthChange: false,
+                pageLength: 10,
                 ajax: "{{ route('check.send_payment') }}",
                 order: [
                     [0, 'desc']

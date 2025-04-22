@@ -182,8 +182,70 @@
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="state">State</label>
                             <div class="col-sm-10">
-                                <input type="text" name="state" id="state" class="form-control"
-                                    value="{{ $payee->State }}" />
+                                <select name="state" id="state" class="form-control">
+                                    <option value="">-- Select State --</option>
+                                    @php
+                                        $states = [
+                                            'Alabama',
+                                            'Alaska',
+                                            'Arizona',
+                                            'Arkansas',
+                                            'California',
+                                            'Colorado',
+                                            'Connecticut',
+                                            'Delaware',
+                                            'Florida',
+                                            'Georgia',
+                                            'Hawaii',
+                                            'Idaho',
+                                            'Illinois',
+                                            'Indiana',
+                                            'Iowa',
+                                            'Kansas',
+                                            'Kentucky',
+                                            'Louisiana',
+                                            'Maine',
+                                            'Maryland',
+                                            'Massachusetts',
+                                            'Michigan',
+                                            'Minnesota',
+                                            'Mississippi',
+                                            'Missouri',
+                                            'Montana',
+                                            'Nebraska',
+                                            'Nevada',
+                                            'New Hampshire',
+                                            'New Jersey',
+                                            'New Mexico',
+                                            'New York',
+                                            'North Carolina',
+                                            'North Dakota',
+                                            'Ohio',
+                                            'Oklahoma',
+                                            'Oregon',
+                                            'Pennsylvania',
+                                            'Rhode Island',
+                                            'South Carolina',
+                                            'South Dakota',
+                                            'Tennessee',
+                                            'Texas',
+                                            'Utah',
+                                            'Vermont',
+                                            'Virginia',
+                                            'Washington',
+                                            'West Virginia',
+                                            'Wisconsin',
+                                            'Wyoming',
+                                        ];
+                                    @endphp
+
+                                    @foreach ($states as $state)
+                                        <option value="{{ $state }}"
+                                            {{ $payee->State == $state ? 'selected' : '' }}>
+                                            {{ $state }}
+                                        </option>
+                                    @endforeach
+                                </select>
                                 @if ($errors->has('state'))
                                     <span class="text-danger">
                                         {{ $errors->first('state') }}

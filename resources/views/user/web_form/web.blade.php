@@ -76,7 +76,7 @@
         .content_left form {
             padding: 20px 20px 30px;
             border-radius: 10px;
-            background-color: #f8f7fa;
+            background-color: #ffffff;
             display: flex;
             flex-direction: column;
             box-shadow: 0 0.1875rem 0.75rem #2f2b3d24;
@@ -236,6 +236,23 @@
         .no-spinner {
             -moz-appearance: textfield;
         }
+
+        .footer-section {
+            box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px
+        }
+
+        .footer-section p {
+            width: 100%;
+            text-align: center;
+            margin: 30px 0 0;
+            padding: 20px;
+        }
+
+        .footer-section a {
+            text-decoration: none;
+            font-weight: 600;
+            color: #7367f0;
+        }
     </style>
 </head>
 
@@ -312,6 +329,14 @@
                         <input type="text" id="name" name="name" value="{{ old('name') }}"
                             tabindex="4" />
                         @error('name')
+                            <div class="error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="email input_row">
+                        <label for="email">Email</label>
+                        <input type="text" id="email" name="email" value="{{ old('email') }}"
+                            tabindex="13" />
+                        @error('email')
                             <div class="error">{{ $message }}</div>
                         @enderror
                     </div>
@@ -508,6 +533,9 @@
             </div>
         </div>
     </section>
+    <footer class="footer-section">
+        <p>Power By <a href="https://echecksystems.com/" target="_blank">Echeck System</a></p>
+    </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous">
     </script>

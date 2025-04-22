@@ -156,7 +156,8 @@
                                 @endif
                             </div>
                         </div> --}}
-                        <div class="row mb-6">
+                        <input type="hidden" id="category" name="category" value="RP" />
+                        {{-- <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="category">Category</label>
                             <div class="col-sm-10">
                                 <select id="category" name="category" class="form-control form-select">
@@ -173,7 +174,7 @@
                                     </span>
                                 @endif
                             </div>
-                        </div>
+                        </div> --}}
                         <input type="hidden" name="type" id="type" value="Payee" />
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="status">Status</label>

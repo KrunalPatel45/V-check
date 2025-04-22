@@ -52,8 +52,7 @@
             $('#clientTable').DataTable({
                 processing: true,
                 serverSide: true,
-                pageLength: "{{ config('app.payee_per_page') }}",
-                lengthChange: false,
+                pageLength: 10,
                 ajax: "{{ route('user.Payee') }}",
                 columns: [{
                         data: 'DT_RowIndex',

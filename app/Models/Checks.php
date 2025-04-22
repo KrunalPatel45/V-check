@@ -28,6 +28,7 @@ class Checks extends Model
         'Memo',
         'CheckPDF',
         'signed',
+        'SignID',
     ];
 
 }

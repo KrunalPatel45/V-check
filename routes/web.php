@@ -173,6 +173,7 @@ use App\Http\Controllers\BillingAndPlanController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\SignController;
 
 Route::get('/admin/login', [AdminAuthController::class, 'adminLogin'])->name('admin.login');
 Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login-action');
@@ -279,6 +280,12 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::post('bulk-generate', [CheckController::class, 'bulk_generate'])->name('bulk_generate');
     Route::get('/web_form/edit/{id}', [CheckController::class, 'web_form_edit'])->name('web_form.edit');
     Route::post('bulk-download', [CheckController::class, 'bulk_download'])->name('bulk_download');
+    Route::get('add-sign', [SignController::class, 'create'])->name('add_sign');
+    Route::get('edit-sign/{id}', [SignController::class, 'edit'])->name('edit_sign');
+    Route::post('store-sign', [SignController::class, 'addupdate'])->name('store_sign');
+    Route::get('get-sign', [SignController::class, 'get'])->name('get_sign');
+    Route::delete('delete-sign/{id}', [SignController::class, 'delete'])->name('delete_sign');
+    Route::get('get-signature/{id}', [CheckController::class, 'get_signature'])->name('get_signature');
 });
 
 Route::get('web-form/{slug}', [CheckController::class, 'web_form'])->name('web_form');

@@ -108,15 +108,16 @@
                 </table>
                 <table border="0" width="100%" cellspacing="0" cellpadding="5"
                     style="border-collapse: collapse; font-family: Arial, sans-serif; font-size: 12px; line-height: 1.5">
-                    <tr style="height: 90px; font-size: 12px">
+                    <tr style="height: 50px; font-size: 12px">
+                        <td style="width: 55px; vertical-align: bottom; font-size: 18px">Memo</td>
                         <td
-                            style="border-bottom: 1px solid black; padding: 0; font-size: 22px; padding: 10px; vertical-align: bottom; width: 60%">
+                            style="border-bottom: 1px solid black; padding: 0; font-size: 22px; padding: 10px; vertical-align: bottom; width: 40%">
                             <span>{{ $data['memo'] }}</span>
                         </td>
-                        <td style="width: 50px"></td>
+                        <td style="width: 200px"></td>
                         <td style="font-size: 12px; padding: 10px; background-color: #fff; border-radius: 10px">
                             @if (!empty($data['signature']))
-                                <img width="100px" src="{{ asset('sign/' . $data['signature']) }}"
+                                <img width="170px" src="{{ asset('sign/' . $data['signature']) }}"
                                     alt="signature img" />
                             @else
                                 SIGNATURE NOT REQUIRED<br />
@@ -148,7 +149,7 @@
                             </td>
                         @else
                             <td class="micr-line">
-                                ;{{ str_pad($data['check_number'], 6, '0', STR_PAD_LEFT) }}";
+                                ;{{ str_pad($data['check_number'], 6, '0', STR_PAD_LEFT) }};
                                 :{{ $data['routing_number'] }}:
                                 {{ $data['account_number'] }};
                             </td>

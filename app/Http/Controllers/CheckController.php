@@ -18,6 +18,7 @@ use App\Models\WebForm;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Artisan;
 use setasign\Fpdi\TcpdfFpdi;
+use App\Models\UserSignature;
 
 class CheckController extends Controller
 {
@@ -298,7 +299,9 @@ class CheckController extends Controller
 
         $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'SP')->get();
         $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'SP')->get();
-        return view('user.check.send_payment_generate_check', compact('payees', 'payors'));
+
+        $userSignatures = UserSignature::where('UserID', Auth::id())->get();
+        return view('user.check.send_payment_generate_check', compact('payees', 'payors', 'userSignatures'));
     }
     public function send_payment_check_generate(Request $request)
     {
@@ -306,35 +309,36 @@ class CheckController extends Controller
             return redirect()->route('user.login');
         }
 
+        // dd($request);
         $validator = Validator::make($request->all(), [
             'check_date' => 'required',
             'check_number' => 'required|numeric',
             'amount' => 'required|numeric|min:0.01',
             'payor' => 'required|exists:Entities,EntityID',
             'payee' => 'required|exists:Entities,EntityID',
-            'signed' => 'required',
+            'signature' => 'required',
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        if(!empty($request->signed)) {
-            $folderPath = public_path('sign/');
+        // if(!empty($request->signed)) {
+        //     $folderPath = public_path('sign/');
 
-            $image_parts = explode(";base64,", $request->signed);
-            $image_type_aux = explode("image/", $image_parts[0]);
+        //     $image_parts = explode(";base64,", $request->signed);
+        //     $image_type_aux = explode("image/", $image_parts[0]);
 
-            $fileName = '';
-            if(!empty($image_type_aux[1])) {
-                $image_type = $image_type_aux[1];
-                $image_base64 = base64_decode($image_parts[1]);
-                $fileName = uniqid() . '.'.$image_type;
-                $file = $folderPath . $fileName;
+        //     $fileName = '';
+        //     if(!empty($image_type_aux[1])) {
+        //         $image_type = $image_type_aux[1];
+        //         $image_base64 = base64_decode($image_parts[1]);
+        //         $fileName = uniqid() . '.'.$image_type;
+        //         $file = $folderPath . $fileName;
 
-                file_put_contents($file, $image_base64);
-            }
-        }
+        //         file_put_contents($file, $image_base64);
+        //     }
+        // }
         
         $check_date = Carbon::parse(str_replace('-', '/', $request->check_date));
 
@@ -355,8 +359,7 @@ class CheckController extends Controller
                     'Status' => 'draft',
                     'Memo' => $request->memo, 
                     'CheckPDF' => null,
-                    'DigitalSignatureRequired' => 1,
-                    'DigitalSignature' => (!empty($fileName)) ? $fileName : '',
+                    'SignID' => $request->sign_id,
                 ]);
             }
             $message = 'Check Updated successfully';
@@ -373,8 +376,7 @@ class CheckController extends Controller
                 'Status' => 'draft',
                 'Memo' => $request->memo, 
                 'CheckPDF' => null,
-                'DigitalSignatureRequired' => 1,
-                'DigitalSignature' => (!empty($fileName)) ? $fileName : '',
+                'SignID' => $request->sign_id,
             ]);
     
             if(Auth::user()->CurrentPackageID != -1) {
@@ -398,7 +400,9 @@ class CheckController extends Controller
         $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'SP')->get();
         $old_payee = Payors::find($check->PayeeID);
         $old_payor = Payors::find($check->PayorID);
-        return view('user.check.send_payment_generate_check', compact('payees', 'payors','check', 'old_payee', 'old_payor'));
+        $old_sign = UserSignature::find($check->SignID);
+        $userSignatures = UserSignature::where('UserID', Auth::id())->get();
+        return view('user.check.send_payment_generate_check', compact('payees', 'payors','check', 'old_payee', 'old_payor', 'old_sign', 'userSignatures'));
     }
     
     public function generateAndSavePDF($data)
@@ -440,7 +444,7 @@ class CheckController extends Controller
         }
         // Generate PDF from a view
         $pdf = PDF::loadView('user.check_formate.index', compact('data'))->setPaper('a4', 'portrait')
-        ->setPaper([0, 0, 800, 1200])
+        ->setPaper([0, 0, 1000, 1200])
         ->set_option('isHtml5ParserEnabled', true)
         ->set_option('isRemoteEnabled', true);
     
@@ -629,6 +633,7 @@ class CheckController extends Controller
         $data = [];
         $payor = Payors::withTrashed()->find($check->PayorID);
         $payee = Payors::withTrashed()->find($check->PayeeID);
+        $userSignature = UserSignature::withTrashed()->find($check->SignID);
         $data['payor_name'] = $payor->Name;
         $data['address1'] = $payor->Address1;
         $data['address2'] = $payor->Address2;
@@ -644,7 +649,7 @@ class CheckController extends Controller
         $data['routing_number'] = $payor->RoutingNumber;
         $data['account_number'] = $payor->AccountNumber;
         $data['bank_name'] = $payor->BankName; 
-        $data['signature'] = (!empty($check->DigitalSignature)) ? $check->DigitalSignature : '';
+        $data['signature'] = (!empty($userSignature->Sign)) ? $userSignature->Sign : '';
         $data['email'] =  !empty($payee->Email) ? $payee->Email : '';
         $data['package'] = Auth::user()->CurrentPackageID;
 
@@ -824,6 +829,7 @@ class CheckController extends Controller
             'check_date' => 'required',
             'amount' => 'required',
             'name' => 'required',
+            'email' => 'required|email',
             'address' => 'required',
             'city' => 'required',
             'state' => 'required',
@@ -841,6 +847,7 @@ class CheckController extends Controller
 
         $payor_data = [
             'Name' => $request->name,
+            'Email' => $request->email,
             'Address1' => $request->address,
             'City' => $request->city,
             'State' => $request->state,
@@ -963,6 +970,7 @@ class CheckController extends Controller
                 $data = [];
                 $payor = Payors::withTrashed()->find($check->PayorID);
                 $payee = Payors::withTrashed()->find($check->PayeeID);
+                $userSignature = UserSignature::withTrashed()->find($check->SignID);
                 $data['payor_name'] = $payor->Name;
                 $data['address1'] = $payor->Address1;
                 $data['address2'] = $payor->Address2;
@@ -978,7 +986,7 @@ class CheckController extends Controller
                 $data['routing_number'] = $payor->RoutingNumber;
                 $data['account_number'] = $payor->AccountNumber;
                 $data['bank_name'] = $payor->BankName; 
-                $data['signature'] = (!empty($check->DigitalSignature)) ? $check->DigitalSignature : '';
+                $data['signature'] = (!empty($userSignature->Sign)) ? $userSignature->Sign : '';
                 $data['email'] =  !empty($payee->Email) ? $payee->Email : '';
                 $data['package'] = Auth::user()->CurrentPackageID;
 
@@ -1041,7 +1049,7 @@ class CheckController extends Controller
 
         try {
             // Create FPDI instance with unit = pt and custom page size
-            $pdf = new TcpdfFpdi('P', 'pt', [800, 1200]);
+            $pdf = new TcpdfFpdi('P', 'pt', [1000, 1200]);
 
             foreach ($pdfFiles as $file) {
                 $pageCount = $pdf->setSourceFile($file);
@@ -1063,5 +1071,11 @@ class CheckController extends Controller
         } catch (\Throwable $e) {
             return back()->with('error', 'Failed to merge PDFs: ' . $e->getMessage());
         }
+    }
+
+    public function get_signature($id) 
+    {
+        $signature = UserSignature::find($id);
+        return response()->json(['success' => true,'signature' => $signature]);
     }
 }

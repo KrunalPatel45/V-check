@@ -74,8 +74,7 @@
             receive_payment_table = $('#receive_payment_checks').DataTable({
                 processing: true,
                 serverSide: true,
-                pageLength: "{{ config('app.rp_per_page') }}",
-                lengthChange: false,
+                pageLength: 10,
                 ajax: "{{ route('check.process_payment') }}",
                 order: [
                     [0, 'desc']

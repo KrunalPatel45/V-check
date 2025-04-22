@@ -155,24 +155,7 @@
                                 @endif
                             </div>
                         </div> --}}
-                        <div class="row mb-6">
-                            <label class="col-sm-2 col-form-label" for="category">Category</label>
-                            <div class="col-sm-10">
-                                <select id="category" name="category" class="form-control form-select">
-                                    <option value="RP" {{ old('category') == 'RP' ? 'selected' : '' }}>Payment recive
-                                        check genration
-                                    </option>
-                                    <option value="SP" {{ old('category') == 'SP' ? 'selected' : '' }}>Payment send
-                                        check genration
-                                    </option>
-                                </select>
-                                @if ($errors->has('category'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('category') }}
-                                    </span>
-                                @endif
-                            </div>
-                        </div>
+                        <input type="hidden" id="category" name="category" value="RP" />
                         <input type="hidden" name="type" id="type" value="Payee" />
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="status">Status</label>

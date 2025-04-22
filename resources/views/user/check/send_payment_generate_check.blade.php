@@ -2,20 +2,34 @@
 
 @section('title', 'Generate Checks')
 
+@php
+    $base_url = url('/');
+@endphp
+
 <!-- Vendor Styles -->
 @section('vendor-style')
     <style>
         .kbw-signature {
-            width: 250px;
+            width: 350px;
             height: 100px;
             border: none !important;
-            margin: 20px;
+            /* margin: 20px; */
         }
 
         #sig canvas {
-            width: 250px;
+            width: 350px;
             height: 100px;
             border: 1px solid #555;
+        }
+
+        #sign img {
+            width: 330px !important;
+            height: 130px !important;
+        }
+
+        #old_sign img {
+            width: 330px !important;
+            height: 130px !important;
         }
 
         input,
@@ -35,7 +49,48 @@
 @section('page-script')
     @vite(['resources/assets/js/form-layouts.js'])
     @vite(['resources/assets/js/ui-modals.js'])
+    <script type="text/javascript">
+        var sig = $('#sig').signature({
+            syncField: '#signature64',
+            syncFormat: 'PNG'
+        });
+
+        var existingSignature = {!! json_encode(!empty($old_sign->Sign) ? asset('sign/' . $old_sign->Sign) : '') !!};
+
+        if (existingSignature) {
+            var img = new Image();
+            img.crossOrigin = "Anonymous"; // Prevent CORS issues when converting to Base64
+            img.src = existingSignature;
+
+            img.onload = function() {
+                var canvas = $('#sig canvas')[0];
+                var ctx = canvas.getContext("2d");
+
+                // Draw existing signature on canvas
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                // Convert canvas content to Base64
+                var base64Signature = canvas.toDataURL("image/png");
+
+                // Save Base64 signature to hidden field
+                $("#signature64").val(base64Signature);
+            };
+        }
+
+
+        $('#clear').click(function(e) {
+
+            e.preventDefault();
+
+            sig.signature('clear');
+
+            $("#signature64").val('');
+
+        });
+    </script>
     <script>
+        var base_url = "{{ $base_url }}";
+
         $(document).ready(function() {
             $('#payee').on('change', function() {
                 id = $(this).val();
@@ -62,6 +117,7 @@
                     });
                 }
             });
+
 
             $('#add-payee-btn').on('click', function(event) {
                 event.preventDefault();
@@ -127,7 +183,7 @@
                 if (selectedValue === 'add_other_payor') {
                     $('#payor-edit').addClass('d-none');
                     $('#payorModel').modal('show');
-                    $('#payor_id').val('');
+                    $('#sign_id').val('');
                     $('#add-payor #name').val('');
                     $('#add-payor #email').val('');
                     $('#add-payor #address1').val('');
@@ -297,6 +353,12 @@
                 $('#payorModel').modal('show');
                 $('#payor_h').text('Edit');
             });
+            $('#signature-edit').on('click', function(e) {
+                event.preventDefault();
+                $('#signModel').modal('show');
+                $('.sign_h').text('Edit');
+            });
+
             $('#payee-edit').on('click', function(e) {
                 event.preventDefault();
                 $('#payeeModel').modal('show');
@@ -311,45 +373,120 @@
                     $('.sing-box').addClass('d-none'); // Hide the signature field
                 }
             });
-        });
-    </script>
-    <script type="text/javascript">
-        var sig = $('#sig').signature({
-            syncField: '#signature64',
-            syncFormat: 'PNG'
-        });
 
-        var existingSignature = {!! json_encode(!empty($check->DigitalSignature) ? asset('sign/' . $check->DigitalSignature) : '') !!};
+            $('#signature').on('change', function() {
+                id = $(this).val();
+                const selectedValue = $(this).find('option:selected').attr(
+                    'id');
+                if (selectedValue == 'add_new_signature') {
+                    $('#signature-edit').addClass('d-none');
+                    $('#signModel').modal('show');
+                    $('#sign_id').val('');
+                    $('#name').val('');
+                    $('.sign_h').text('Add');
+                } else {
+                    $.ajax({
+                        url: "{{ route('get_signature', ':id') }}".replace(':id', id),
+                        method: 'GET',
+                        success: function(response) {
+                            $('#signature-edit').removeClass('d-none');
+                            $('#sign').html('');
+                            var existingSignature = base_url + '/sign/' + response.signature
+                                .Sign;
 
-        if (existingSignature) {
-            var img = new Image();
-            img.crossOrigin = "Anonymous"; // Prevent CORS issues when converting to Base64
-            img.src = existingSignature;
+                            $('#sign').removeClass('d-none');
+                            $('#old_sign').addClass('d-none');
 
-            img.onload = function() {
-                var canvas = $('#sig canvas')[0];
-                var ctx = canvas.getContext("2d");
+                            $('#sign').html(
+                                '<img src="' + existingSignature + '" alt="sign" />');
 
-                // Draw existing signature on canvas
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                            $('#sign-name').val(response.signature.Name);
+                            $('#sign_id').val(response.signature.Id);
 
-                // Convert canvas content to Base64
-                var base64Signature = canvas.toDataURL("image/png");
+                            if (existingSignature) {
+                                var img = new Image();
+                                img.crossOrigin =
+                                    "Anonymous"; // Prevent CORS issues when converting to Base64
+                                img.src = existingSignature;
 
-                // Save Base64 signature to hidden field
-                $("#signature64").val(base64Signature);
-            };
-        }
+                                img.onload = function() {
+                                    var canvas = $('#sig canvas')[0];
+                                    var ctx = canvas.getContext("2d");
+
+                                    // Draw existing signature on canvas
+                                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                                    // Convert canvas content to Base64
+                                    var base64Signature = canvas.toDataURL("image/png");
+
+                                    // Save Base64 signature to hidden field
+                                    $("#signature64").val(base64Signature);
+                                };
+                            }
+                        }
+
+                    });
+                }
+            });
+
+            $('#add-sign-btn').on('click', function(event) {
+                event.preventDefault();
+                var id = $('#sign_id').val();
+
+                // Collect form data manually
+                let formData = {
+                    _token: "{{ csrf_token() }}", // Include CSRF token manually
+                    name: $('#sign-name').val(),
+                    signature: $('#signature64').val(),
+                    id: id
+                };
 
 
-        $('#clear').click(function(e) {
+                // Clear any previous error messages
+                $('.text-danger').text('');
 
-            e.preventDefault();
+                // Send Ajax request
+                $.ajax({
+                    url: "{{ route('store_sign') }}",
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.errors) {
+                            $.each(response.errors, function(key, value) {
+                                $('#error-' + key).text(value[0]);
+                            });
+                        } else if (response.success) {
+                            $('#signModel').modal('hide');
+                            // Success message
 
-            sig.signature('clear');
+                            if (id) {
+                                $('#signature option:selected').text(response.signature.Name);
+                            } else {
+                                let newOption =
+                                    `<option value="${response.signature.Id}" selected>${response.signature.Name}</option>`;
+                                $('#signature').append(newOption).val(response.signature.Id);
+                            }
 
-            $("#signature64").val('');
+                            $('#sign').html('');
+                            var existingSignature = base_url + '/sign/' + response.signature
+                                .Sign;
 
+                            $('#sign').removeClass('d-none');
+                            $('#old_sign').addClass('d-none');
+
+                            $('#sign').html(
+                                '<img src="' + existingSignature + '" alt="sign" />');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        // Log the error for debugging
+                        console.error('Error:', error);
+                        console.error('Status:', status);
+                        console.error('Response:', xhr.responseText);
+                        alert('An error occurred. Check the console for details.');
+                    }
+                });
+            });
         });
     </script>
 @endsection
@@ -543,19 +680,36 @@
                     </div>
                     <div class="col-sm-6">
                         <div class="row text-end justify-content-end">
-                            <div class="row justify-content-end sing-box" style="margin-top: 10px;">
-                                {{-- <label class="" for="">Signature:</label> --}}
-                                <div class="col-sm-12" id="sig"></div>
-                                <button id="clear" class="btn btn-danger btn-sm" style="max-width: 257px;">Clear
-                                    Signature</button>
-                                <textarea class="col-sm-12" id="signature64" name="signed" style="display: none"></textarea>
+                            <div class="col-sm-8 d-flex align-items-center gap-1">
+                                <select id="signature" name="signature" class="form-control" style="font-size: 16px;">
+                                    <option value="" selected>Select Signature</option>
+                                    @foreach ($userSignatures as $userSignature)
+                                        <option value="{{ $userSignature->Id }}"
+                                            {{ old('signature', $old_sign->Id ?? '') == $userSignature->Id ? 'selected' : '' }}>
+                                            {{ $userSignature->Name }}
+                                        </option>
+                                    @endforeach
+                                    <option value="" id="add_new_signature" style="font-weight: bold;">Add New
+                                        Signature</option>
+                                </select>
+                                <span id="signature-edit" class="{{ !empty($old_sign->Id) ? '' : 'd-none' }}"><i
+                                        class="ti ti-pencil me-1"></i></span>
+                                @if ($errors->has('signature'))
+                                    <br>
+                                    <span class="text-danger">
+                                        {{ $errors->first('signature') }}
+                                    </span>
+                                @endif
                             </div>
-                            @if ($errors->has('signed'))
-                                <br>
-                                <span class="text-danger">
-                                    {{ $errors->first('signed') }}
-                                </span>
-                            @endif
+                            <div class="col-sm-12 mt-3">
+                                <div class="col-sm-12 d-none" id="sign">
+                                </div>
+                                @if (!empty($old_sign))
+                                    <div class="col-sm-12" id="old_sign">
+                                        <img src="{{ asset('sign/' . $old_sign->Sign) }}" alt="Sign">
+                                    </div>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -793,6 +947,46 @@
                                 <button type="button" class="btn btn-label-secondary"
                                     data-bs-dismiss="modal">Close</button>
                                 <button id="add-payee-btn" type="button" class="btn btn-primary">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="signModel" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel1"><span class="sign_h">Add </span>Signature
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+                            </div>
+                            <input type="hidden" name="sign_id" id="sign_id"
+                                value="{{ !empty($old_sign->Id) ? $old_sign->Id : '' }}">
+                            <div class="modal-body">
+                                <div class="row g-6">
+                                    <div class="col-md-12">
+                                        <label class="form-label" for="sign-name">Name</label>
+                                        <input type="text" name="name" id="sign-name" class="form-control"
+                                            value="{{ !empty($old_sign->Name) ? $old_sign->Name : old('name') }}" />
+                                        <span id="error-name" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="form-label" for="signature">Signature</label>
+                                        <div class="col-sm-10">
+                                            <div id="sig"></div>
+                                            <br />
+                                            <button id="clear" class="btn btn-sm btn-danger">Clear</button>
+                                            <input type="hidden" name="signature" id="signature64">
+                                            <br>
+                                            <span id="error-signature" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-label-secondary"
+                                    data-bs-dismiss="modal">Close</button>
+                                <button id="add-sign-btn" type="button" class="btn btn-primary">Save</button>
                             </div>
                         </div>
                     </div>
