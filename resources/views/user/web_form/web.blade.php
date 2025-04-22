@@ -460,7 +460,7 @@
 
                     <div class="account_num input_row">
                         <label for="account_number">Account Number</label>
-                        <input type="text" id="account_number" name="account_number"
+                        <input type="number" id="account_number" name="account_number"
                             value="{{ old('account_number') }}" tabindex="11" />
                         @error('account_number')
                             <div class="error">{{ $message }}</div>
@@ -469,7 +469,7 @@
 
                     <div class="account_num_verify input_row">
                         <label for="account_number_verify">Account Number (re-verify)</label>
-                        <input type="text" id="account_number_verify" name="account_number_verify"
+                        <input type="number" id="account_number_verify" name="account_number_verify"
                             value="{{ old('account_number_verify') }}" tabindex="12" />
                         @error('account_number_verify')
                             <div class="error">{{ $message }}</div>
