@@ -22,10 +22,10 @@
         @endif
         <div class="d-flex justify-content-between align-items-center">
             <h5 class="card-header">Payee</h5>
-            <a href="{{ route('user.payee.add') }}" class="btn btn-primary mr-4"
+            {{-- <a href="{{ route('user.payee.add') }}" class="btn btn-primary mr-4"
                 style="height: 40px !important;margin-right: 25px !important;">
                 <i class="fa-solid fa-plus"></i> &nbsp; Add Pay TO
-            </a>
+            </a> --}}
         </div>
         <div class="card-datatable table-responsive pt-0">
             <table id="clientTable" class="table">
