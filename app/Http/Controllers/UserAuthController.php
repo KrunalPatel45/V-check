@@ -107,6 +107,7 @@ class UserAuthController extends Controller
             'address' => 'required',
             'email' => 'required|string|email|unique:User,Email|max:255',
             'phone_number' => 'required|string|max:20',
+            'company_name' => 'required'
         ]);
         
         if ($validator->fails()) {
@@ -131,6 +132,7 @@ class UserAuthController extends Controller
             'CreatedAt' => now(),
             'UpdatedAt' => now(),
             'CusID' => !empty($cus['id']) ? $cus['id'] : NULL,
+            'CompanyName' => $request->company_name,
         ]);
 
         return redirect()->route('user.package', ['user_id' => $user->UserID]);

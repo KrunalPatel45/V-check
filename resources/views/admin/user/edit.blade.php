@@ -121,6 +121,23 @@
                         </div>
                     </div>
                     <div class="row mb-6">
+                        <label class="col-sm-2 col-form-label" for="basic-icon-default-fullname">Company Name</label>
+                        <div class="col-sm-10">
+                            <div class="input-group input-group-merge">
+                                <span id="basic-icon-default-fullname2" class="input-group-text"><i
+                                        class="ti ti-user"></i></span>
+                                <input type="text" class="form-control" id="company_name" name="company_name"
+                                    placeholder="company name" value="{{ $user->CompanyName }}"
+                                    aria-describedby="basic-icon-default-fullname2" />
+                            </div>
+                            @if ($errors->has('lastname'))
+                                <span class="text-danger">
+                                    {{ $errors->first('lastname') }}
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="row mb-6">
                         <label class="col-sm-2 col-form-label" for="address">Address</label>
                         <div class="col-sm-10">
                             <div class="input-group input-group-merge">

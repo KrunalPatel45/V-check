@@ -125,6 +125,7 @@ class UserDashboardController extends Controller
             'address' => 'required',
             'email' => 'required|email',
             'phone_number' => 'required|numeric',
+            'company_name' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -138,6 +139,7 @@ class UserDashboardController extends Controller
         $admin->Address = $request->address;
         $admin->LastName = $request->lastname;
         $admin->PhoneNumber = $request->phone_number;
+        $admin->CompanyName = $request->company_name;
         $admin->UpdatedAt = now();
         $admin->save();
 

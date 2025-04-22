@@ -234,6 +234,7 @@ class AdminDashboardController extends Controller
             'address' => 'required',
             'email' => 'required|email',
             'phone_number' => 'required|numeric',
+            'company_name' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -246,6 +247,7 @@ class AdminDashboardController extends Controller
         $admin->FirstName = $request->firstname;
         $admin->LastName = $request->lastname;
         $admin->PhoneNumber = $request->phone_number;
+        $admin->CompanyName = $request->company_name;
         $admin->UpdatedAt = now();
         $admin->save();
 

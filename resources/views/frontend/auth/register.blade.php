@@ -95,6 +95,16 @@
                                 @endif
                             </div>
                             <div class="mb-6">
+                                <label for="company_name" class="form-label">Company Name</label>
+                                <input type="text" class="form-control" id="company_name" name="company_name"
+                                    placeholder="Enter your company name" value="{{ old('company_name') }}">
+                                @if ($errors->has('company_name'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('company_name') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="mb-6">
                                 <label for="address" class="form-label">Address</label>
                                 <textarea class="form-control" id="address" name="address">
                                     {{ old('address') }}
@@ -132,7 +142,8 @@
                             </div>
                             <div class="my-8">
                                 <div class="form-check mb-0 ms-2">
-                                    <input class="form-check-input" type="checkbox" id="terms-conditions" name="terms">
+                                    <input class="form-check-input" type="checkbox" id="terms-conditions"
+                                        name="terms">
                                     <label class="form-check-label" for="terms-conditions">
                                         I agree to
                                         <a href="javascript:void(0);">privacy policy & terms</a>
