@@ -183,7 +183,7 @@
                 if (selectedValue === 'add_other_payor') {
                     $('#payor-edit').addClass('d-none');
                     $('#payorModel').modal('show');
-                    $('#sign_id').val('');
+                    $('#payor_id').val('');
                     $('#add-payor #name').val('');
                     $('#add-payor #email').val('');
                     $('#add-payor #address1').val('');
