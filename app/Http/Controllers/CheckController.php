@@ -19,6 +19,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Artisan;
 use setasign\Fpdi\TcpdfFpdi;
 use App\Models\UserSignature;
+use App\Mail\SendCheckMail;
+use Illuminate\Support\Facades\Mail;
 
 class CheckController extends Controller
 {
@@ -239,6 +241,8 @@ class CheckController extends Controller
                     
                     $editUrl = route('check.process_send_check_edit', ['id' => $row->CheckID]);
                     $check_generate = route('send_check_generate', ['id' => $row->CheckID]);
+                    $send_email_url = route('send_check_email', ['id' => $row->CheckID]);
+                    $send_email_lable = !empty($row->is_email_send) ? 'Resend' : 'Send';
 
                     if($row->Status == 'draft') {
                         return '<div class="d-flex">
@@ -269,9 +273,13 @@ class CheckController extends Controller
                             </div>';
                     } else {
                         if(!empty($row->CheckPDF)) {
-                            return '<a href="'.asset('checks/' . $row->CheckPDF).'" target="_blank" class="btn">
-                                        <i class="menu-icon tf-icons ti ti-files"></i>
-                                </a>';
+                            return '<div class="d-flex"><a href="'.asset('checks/' . $row->CheckPDF).'" target="_blank" class="btn">
+                                        <i class="menu-icon tf-icons ti ti-files"></i> Preview
+                                </a>
+                                <a href="'.$send_email_url.'" class="btn">
+                                        <i class="menu-icon tf-icons ti ti-mail"></i> '.$send_email_lable.'
+                                </a>
+                                </div>';
     
                         } else {
                             return '-';
@@ -1077,5 +1085,31 @@ class CheckController extends Controller
     {
         $signature = UserSignature::find($id);
         return response()->json(['success' => true,'signature' => $signature]);
+    }
+
+    public function send_check_email($id)
+    {
+        $check = Checks::find($id);
+        $data = [];
+        $payor = Payors::withTrashed()->find($check->PayorID);
+        $payee = Payors::withTrashed()->find($check->PayeeID);
+        $userSignature = UserSignature::withTrashed()->find($check->SignID);
+        $data['sender_name'] = $payor->Name;
+        $data['clinet_name'] = $payee->Name;
+        $data['check_number'] = $check->CheckNumber;
+        $data['issued_date'] =  Carbon::parse(str_replace('/', '-', $check->IssueDate))->format('m/d/Y');
+        $data['amount'] = $check->Amount;
+        $check_pdf = public_path('checks/' . $check->CheckPDF);
+
+        try {
+            Mail::to($payee->Email)->send(new SendCheckMail(4, $data, $check_pdf));
+    
+            $check->is_email_send = 1;
+            $check->save();
+            
+            return redirect()->back()->with('success', 'Email sent successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('fail', 'Email not sent.');
+        }
     }
 }

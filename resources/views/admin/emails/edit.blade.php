@@ -174,7 +174,7 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <div id="editor-container1"></div>
-                                        <textarea name="body1" id="body1" style="display:none;">{{ $emailTemplates->body1 }}</textarea>
+                                        <textarea name="body1" id="body1" style="display:none;">{!! $emailTemplates->body1 !!}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -186,7 +186,7 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <div id="editor-container2"></div>
-                                        <textarea name="body2" id="body2" style="display:none;">{{ $emailTemplates->body2 }}</textarea>
+                                        <textarea name="body2" id="body2" style="display:none;">{!! $emailTemplates->body2 !!}</textarea>
                                     </div>
                                 </div>
                             </div>

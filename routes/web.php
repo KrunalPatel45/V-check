@@ -286,6 +286,7 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::get('get-sign', [SignController::class, 'get'])->name('get_sign');
     Route::delete('delete-sign/{id}', [SignController::class, 'delete'])->name('delete_sign');
     Route::get('get-signature/{id}', [CheckController::class, 'get_signature'])->name('get_signature');
+    Route::get('send-check-email/{id}', [CheckController::class, 'send_check_email'])->name('send_check_email');
 });
 
 Route::get('web-form/{slug}', [CheckController::class, 'web_form'])->name('web_form');

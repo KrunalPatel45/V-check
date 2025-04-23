@@ -127,7 +127,7 @@
                 let formData = {
                     _token: "{{ csrf_token() }}", // Include CSRF token manually
                     name: $('#payee-name').val(),
-                    emai: $('#payee-email').val(),
+                    email: $('#payee-email').val(),
                     type: 'Payee',
                     category: 'SP',
                     id: id
@@ -932,7 +932,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label" for="payee-email">Email</label>
-                                        <input type="text" name="email" id="payee-email" class="form-control"
+                                        <input type="text" name="payee-email" id="payee-email" class="form-control"
                                             value="{{ !empty($old_payee->Email) ? $old_payee->Email : old('email') }}" />
                                         @if ($errors->has('payee-email'))
                                             <span class="text-danger">

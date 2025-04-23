@@ -20,6 +20,11 @@
                 {{ session('success') }}
             </div>
         @endif
+        @if (session('fail'))
+            <div class="alert alert-danger">
+                {{ session('fail') }}
+            </div>
+        @endif
         <div id="alert-message">
         </div>
         <div class="d-flex justify-content-between align-items-center">

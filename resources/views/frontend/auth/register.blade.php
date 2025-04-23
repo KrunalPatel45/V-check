@@ -106,9 +106,8 @@
                             </div>
                             <div class="mb-6">
                                 <label for="address" class="form-label">Address</label>
-                                <textarea class="form-control" id="address" name="address">
-                                    {{ old('address') }}
-                                </textarea>
+                                <textarea class="form-control" id="address" name="address" placeholder="Enter your address">{{ old('address') }}</textarea>
+
                                 @if ($errors->has('address'))
                                     <span class="text-danger">
                                         {{ $errors->first('address') }}

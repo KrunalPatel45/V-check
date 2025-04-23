@@ -29,6 +29,7 @@ class Checks extends Model
         'CheckPDF',
         'signed',
         'SignID',
+        'is_email_send',
     ];
 
 }
