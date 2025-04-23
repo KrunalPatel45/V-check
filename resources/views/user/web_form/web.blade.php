@@ -11,7 +11,12 @@
     <style>
         @font-face {
             font-family: "Public Sans";
-            src: url(../../font/PublicSans-Regular.woff2) format("woff2"), url(../../font/PublicSans-Regular.woff) format("woff"), url(../../font/PublicSans-Regular.ttf) format("truetype");
+            src: url("../../font/PublicSans-Regular.woff2") format("woff2"),
+                /* Modern browsers */
+                url("../../font/PublicSans-Regular.woff") format("woff"),
+                /* Most fallback */
+                url("../../font/PublicSans-Regular.ttf") format("truetype");
+            /* Legacy fallback */
             font-weight: normal;
             font-style: normal;
             font-display: swap;
@@ -27,7 +32,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: "Public Sans" !important;
+            font-family: "Public Sans", sans-serif;
         }
 
         .container_area {
@@ -108,7 +113,7 @@
             font-size: 15px;
             font-weight: 400;
             line-height: 20px;
-            font-family: "Public Sans";
+            font-family: "Public Sans", sans-serif !important;
             color: #444050;
             background-color: transparent;
             border: 1px solid #d1d0d4;
@@ -254,6 +259,14 @@
             color: #7367f0;
         }
     </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        flatpickr("#check_date", {
+            dateFormat: "m/d/Y",
+            defaultDate: "{{ old('check_date') }}"
+        });
+    </script>
 </head>
 
 <body>
@@ -460,7 +473,7 @@
 
                     <div class="account_num input_row">
                         <label for="account_number">Account Number</label>
-                        <input type="number" id="account_number" name="account_number"
+                        <input type="number" id="account_number" name="account_number" class="no-spinner"
                             value="{{ old('account_number') }}" tabindex="11" />
                         @error('account_number')
                             <div class="error">{{ $message }}</div>
@@ -470,7 +483,7 @@
                     <div class="account_num_verify input_row">
                         <label for="account_number_verify">Account Number (re-verify)</label>
                         <input type="number" id="account_number_verify" name="account_number_verify"
-                            value="{{ old('account_number_verify') }}" tabindex="12" />
+                            class="no-spinner" value="{{ old('account_number_verify') }}" tabindex="12" />
                         @error('account_number_verify')
                             <div class="error">{{ $message }}</div>
                         @enderror
