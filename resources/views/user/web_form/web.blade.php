@@ -264,7 +264,6 @@
     <script>
         flatpickr("#check_date", {
             dateFormat: "m/d/Y",
-            defaultDate: "{{ old('check_date') }}"
         });
     </script>
 </head>
