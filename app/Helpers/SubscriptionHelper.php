@@ -161,4 +161,30 @@ class SubscriptionHelper {
         return $update->json();
     }
 
+    public function getCustomerPaymentMethods($customerId)
+    {
+        $response = Http::withToken(config('services.stripe.secret'))
+        ->get("https://api.stripe.com/v1/payment_methods", [
+            'customer' => $customerId,
+            'type' => 'card',
+        ]);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return false;
+    }
+
+    public function getDefaultCard($id)
+    {
+        $customerResponse = Http::withToken(config('services.stripe.secret'))
+        ->get("https://api.stripe.com/v1/customers/" . $id);
+
+        $customer = $customerResponse->json();
+
+        $defaultSourceId = $customer['default_source'] ?? null;
+        return $defaultSourceId;
+    }
+
 }

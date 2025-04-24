@@ -42,6 +42,8 @@ class BillingAndPlanController extends Controller
             $remainingDays = $expiry->diffInDays(Carbon::now(), false);
             $downgrade_payment = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('Status', 'Pending')->first();
             $cancel_plan = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('Status', 'Canceled')->first();
+            $cards = $this->subscriptionHelper->getCustomerPaymentMethods($user->CusID);
+            $default_card = $this->subscriptionHelper->getDefaultCard($user->CusID);
             
             $package_data = [
                 'total_days' => $total_days,
@@ -55,7 +57,7 @@ class BillingAndPlanController extends Controller
         $maxPricePackage = Package::orderBy('price', 'desc')->first();
         $stander_Plan_price = $maxPricePackage->Price;
         $packages = Package::all();
-        return view('user.billing_and_plan.index', compact('package_data', 'stander_Plan_price', 'user', 'packages', 'package_id'));
+        return view('user.billing_and_plan.index', compact('package_data', 'stander_Plan_price', 'user', 'packages', 'package_id', 'cards', 'default_card'));
       }
 
       public function upgragde_plan($id)

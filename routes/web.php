@@ -174,6 +174,8 @@ use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\SignController;
+use App\Http\Controllers\SettingController;
+
 
 Route::get('/admin/login', [AdminAuthController::class, 'adminLogin'])->name('admin.login');
 Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login-action');
@@ -207,6 +209,9 @@ Route::middleware([AdminMiddleware::class])->group(function () {
     Route::get('/admin/email-template/edit/{id}', [EmailTemplateController::class, 'edit'])->name('admin.email-template-edit');
     Route::post('/admin/email-template/update/{id}', [EmailTemplateController::class, 'update'])->name('admin.email-template-update');
     Route::post('/users/change-status', [AdminDashboardController::class, 'changeStatus'])->name('changeStatus');
+    Route::get('/setting', [SettingController::class, 'index'])->name('admin.setting');
+    Route::post('/update-setting', [SettingController::class, 'updateSettings'])->name('admin.update_setting');
+
 });
 
 Route::get('/login', [UserAuthController::class, 'login'])->name('user.login');
@@ -287,6 +292,9 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::delete('delete-sign/{id}', [SignController::class, 'delete'])->name('delete_sign');
     Route::get('get-signature/{id}', [CheckController::class, 'get_signature'])->name('get_signature');
     Route::get('send-check-email/{id}', [CheckController::class, 'send_check_email'])->name('send_check_email');
+    Route::post('add-card', [SubscriptionController::class, 'add_card'])->name('stripe.add_card');
+    Route::get('delete-card/{id}', [SubscriptionController::class, 'delete_card'])->name('stripe.delete_card');
+    Route::get('set-default/{id}', [SubscriptionController::class, 'set_default'])->name('stripe.set_default');
 });
 
 Route::get('web-form/{slug}', [CheckController::class, 'web_form'])->name('web_form');
@@ -294,6 +302,7 @@ Route::post('store_web_form_data', [CheckController::class, 'store_web_form_data
 Route::get('thank-you', [CheckController::class, 'thankyou'])->name('thankyou');
 Route::get('expired', [UserAuthController::class, 'expired_sub'])->name('expired_sub');
 Route::get('test', [TestController::class, 'test'])->name('test');
+Route::get('card', [TestController::class, 'card'])->name('card');
 Route::get('checkout-test', [TestController::class, 'checkout'])->name('checkout-test');
 Route::get('subscription-update', [TestController::class, 'subscription_update'])->name('subscription_update');
 

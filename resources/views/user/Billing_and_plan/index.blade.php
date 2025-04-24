@@ -15,7 +15,14 @@
 @section('page-script')
     @vite(['resources/assets/js/pages-pricing.js', 'resources/assets/js/pages-account-settings-billing.js', 'resources/assets/js/app-invoice-list.js', 'resources/assets/js/modal-edit-cc.js', 'resources/assets/js/ui-modals.js'])
 
+    <script src="https://js.stripe.com/v3/"></script>
     <script>
+        var key = "{{ env('STRIPE_PUBLIC') }}";
+        const stripe = Stripe(key);
+        var elements = stripe.elements();
+        var card = elements.create('card');
+        card.mount('#card-element');
+
         $(document).ready(function() {
             $('#invoice_data').DataTable({
                 processing: true,
@@ -48,6 +55,29 @@
                         name: 'PaymentDate'
                     },
                 ]
+            });
+
+            $('#cardForm').on('submit', function(e) {
+                e.preventDefault(); // Prevent the form from submitting normally
+
+                stripe.createToken(card).then(function(result) {
+                    if (result.error) {
+                        // If there's an error, display it
+                        alert(result.error.message);
+                    } else {
+                        var stripeToken = result.token.id;
+
+                        // If token creation is successful, append it to the form as a hidden input
+                        $('<input>').attr({
+                            type: 'hidden',
+                            name: 'stripeToken',
+                            value: stripeToken
+                        }).appendTo('#cardForm');
+
+                        // Submit the form with the stripeToken
+                        $('#cardForm')[0].submit();
+                    }
+                });
             });
         });
     </script>
@@ -146,126 +176,84 @@
                 </div>
                 <!-- /Current Plan -->
             </div>
-            @if (false)
-                <div class="card mb-6">
-                    <h5 class="card-header">Payment Methods</h5>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <form id="creditCardForm" class="row g-6" onsubmit="return false">
-                                    <div class="col-12 mb-2">
-                                        <div class="form-check form-check-inline my-2 ms-2 me-6">
-                                            <input name="collapsible-payment" class="form-check-input" type="radio"
-                                                value="" id="collapsible-payment-cc" checked="" />
-                                            <label class="form-check-label" for="collapsible-payment-cc">Credit/Debit/ATM
-                                                Card</label>
-                                        </div>
-                                        <div class="form-check form-check-inline ms-2 my-2">
-                                            <input name="collapsible-payment" class="form-check-input" type="radio"
-                                                value="" id="collapsible-payment-cash" />
-                                            <label class="form-check-label" for="collapsible-payment-cash">Paypal
-                                                account</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <label class="form-label w-100" for="paymentCard">Card Number</label>
-                                        <div class="input-group input-group-merge">
-                                            <input id="paymentCard" name="paymentCard" class="form-control credit-card-mask"
-                                                type="text" placeholder="1356 3215 6548 7898"
-                                                aria-describedby="paymentCard2" />
-                                            <span class="input-group-text cursor-pointer p-1" id="paymentCard2"><span
-                                                    class="card-type"></span></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <label class="form-label" for="paymentName">Name</label>
-                                        <input type="text" id="paymentName" class="form-control"
-                                            placeholder="John Doe" />
-                                    </div>
-                                    <div class="col-6 col-md-3">
-                                        <label class="form-label" for="paymentExpiryDate">Exp. Date</label>
-                                        <input type="text" id="paymentExpiryDate" class="form-control expiry-date-mask"
-                                            placeholder="MM/YY" />
-                                    </div>
-                                    <div class="col-6 col-md-3">
-                                        <label class="form-label" for="paymentCvv">CVV Code</label>
-                                        <div class="input-group input-group-merge">
-                                            <input type="text" id="paymentCvv" class="form-control cvv-code-mask"
-                                                maxlength="3" placeholder="654" />
-                                            <span class="input-group-text cursor-pointer" id="paymentCvv2"><i
-                                                    class="ti ti-help text-muted" data-bs-toggle="tooltip"
-                                                    data-bs-placement="top" title="Card Verification Value"></i></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-12">
-                                        <div class="form-check form-switch ms-2 my-2">
-                                            <input type="checkbox" class="form-check-input" id="future-billing" />
-                                            <label for="future-billing" class="switch-label">Save card for future
-                                                billing?</label>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 mt-6">
-                                        <button type="submit" class="btn btn-primary me-3">Save Changes</button>
-                                        <button type="reset" class="btn btn-label-secondary">Cancel</button>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="col-md-6 mt-12 mt-md-0">
-                                <h6 class="mb-6">My Cards</h6>
-                                <div class="added-cards">
-                                    <div class="cardMaster p-6 bg-lighter rounded mb-6">
-                                        <div class="d-flex justify-content-between flex-sm-row flex-column">
-                                            <div class="card-information me-2">
-                                                <img class="mb-2 img-fluid"
-                                                    src="{{ asset('assets/img/icons/payments/mastercard.png') }}"
-                                                    alt="Master Card">
-                                                <div class="d-flex align-items-center mb-2 flex-wrap gap-2">
-                                                    <h6 class="mb-0 me-2">Tom McBride</h6>
-                                                    <span class="badge bg-label-primary">Primary</span>
-                                                </div>
-                                                <span class="card-number">&#8727;&#8727;&#8727;&#8727;
-                                                    &#8727;&#8727;&#8727;&#8727; 9856</span>
-                                            </div>
-                                            <div class="d-flex flex-column text-start text-lg-end">
-                                                <div class="d-flex order-sm-0 order-1 mt-sm-0 mt-4">
-                                                    <button class="btn btn-sm btn-label-primary me-4"
-                                                        data-bs-toggle="modal" data-bs-target="#editCCModal">Edit</button>
-                                                    <button class="btn btn-sm btn-label-danger">Delete</button>
-                                                </div>
-                                                <small class="mt-sm-4 mt-2 order-sm-1 order-0">Card expires at
-                                                    12/26</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="cardMaster p-6 bg-lighter rounded">
-                                        <div class="d-flex justify-content-between flex-sm-row flex-column">
-                                            <div class="card-information me-2">
-                                                <img class="mb-2 img-fluid"
-                                                    src="{{ asset('assets/img/icons/payments/visa.png') }}"
-                                                    alt="Visa Card">
-                                                <h6 class="mb-2">Mildred Wagner</h6>
-                                                <span class="card-number">&#8727;&#8727;&#8727;&#8727;
-                                                    &#8727;&#8727;&#8727;&#8727; 5896</span>
-                                            </div>
-                                            <div class="d-flex flex-column text-start text-lg-end">
-                                                <div class="d-flex order-sm-0 order-1 mt-sm-0 mt-4">
-                                                    <button class="btn btn-sm btn-label-primary me-4"
-                                                        data-bs-toggle="modal" data-bs-target="#editCCModal">Edit</button>
-                                                    <button class="btn btn-sm btn-label-danger">Delete</button>
-                                                </div>
-                                                <small class="mt-sm-4 mt-2 order-sm-1 order-0">Card expires at
-                                                    10/27</small>
-                                            </div>
-                                        </div>
-                                    </div>
+            <div class="card mb-6">
+                @if (session('success_card'))
+                    <div class="alert alert-success">
+                        {{ session('success_card') }}
+                    </div>
+                @endif
+                @if (session('error_card'))
+                    <div class="alert alert-success">
+                        {{ session('error_card') }}
+                    </div>
+                @endif
+                <h5 class="card-header">Payment Methods</h5>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <form id="cardForm" class="row g-6" method="POST" action="{{ route('stripe.add_card') }}">
+                                @csrf
+                                <div id="card-element">
                                 </div>
-                                <!-- Modal -->
-                                @include('_partials/_modals/modal-edit-cc')
-                                <!--/ Modal -->
-                            </div>
+                                <div class="col-12 mt-6">
+                                    <button type="submit" id="submitBtn" class="btn btn-primary me-3">Save
+                                        Changes</button>
+                                </div>
+                            </form>
+
+                        </div>
+                        <div class="col-md-12 mt-5 mt-md-0">
+                            <h5 class="mb-6">My Cards</h5>
+                            @if (!empty($cards['data']))
+                                <div class="added-cards">
+                                    @foreach ($cards['data'] as $card)
+                                        <div class="cardMaster p-6 bg-lighter rounded mb-6">
+                                            <div class="d-flex justify-content-between flex-sm-row flex-column">
+                                                <div class="card-information me-2">
+                                                    <img class="mb-2 img-fluid"
+                                                        src="{{ asset('assets/img/icons/payments/' . $card['card']['brand'] . '.png') }}"
+                                                        alt="Master Card">
+                                                    <div class="d-flex align-items-center mb-2 flex-wrap gap-2">
+                                                        <h6 class="mb-0 me-2">{{ $card['billing_details']['name'] }}</h6>
+                                                    </div>
+                                                    <span class="card-number">&#8727;&#8727;&#8727;&#8727;
+                                                        &#8727;&#8727;&#8727;&#8727; {{ $card['card']['last4'] }}</span>
+                                                </div>
+                                                <div class="d-flex flex-column text-start text-lg-end">
+                                                    <div class="d-flex order-sm-0 order-1 mt-sm-0 mt-4">
+                                                        @php
+                                                            $isOnlyCard = count($cards['data']) === 1;
+                                                            $isDefault =
+                                                                (!empty($default_card) &&
+                                                                    $default_card == $card['id']) ||
+                                                                ($isOnlyCard && empty($default_card));
+                                                        @endphp
+
+                                                        @if ($isDefault)
+                                                            <button class="btn btn-sm btn-label-info">Default</button>
+                                                        @else
+                                                            <a href="{{ route('stripe.set_default', ['id' => $card['id']]) }}"
+                                                                class="btn btn-sm btn-label-info">Set Default</a>
+                                                        @endif
+                                                        <a href="{{ route('stripe.delete_card', ['id' => $card['id']]) }}"
+                                                            class="btn btn-sm btn-label-danger">Delete</a>
+                                                    </div>
+                                                    <small class="mt-sm-4 mt-2 order-sm-1 order-0">Card expires at
+                                                        {{ $card['card']['exp_month'] }}/{{ $card['card']['exp_year'] }}</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                            <!-- Modal -->
+                            @include('_partials/_modals/modal-edit-cc')
+                            <!--/ Modal -->
                         </div>
                     </div>
                 </div>
+            </div>
+            @if (false)
                 <div class="card mb-6">
                     <!-- Billing Address -->
                     <h5 class="card-header">Billing Address</h5>

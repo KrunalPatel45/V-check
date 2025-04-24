@@ -15,6 +15,8 @@ use App\Models\EmailTemplate;
 use App\Mail\SendEmail;
 use App\Mail\ResetPasswordMail;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class SubscriptionController extends Controller
 {
@@ -108,5 +110,74 @@ class SubscriptionController extends Controller
     public function cancel()
     {
         return redirect()->route('user.login')->with('success', 'Something went wrong');
+    }
+
+    public function add_card(Request $request) 
+    {
+    
+        $stripeSecretKey = env('STRIPE_SECRET');
+        $stripeToken = $request->stripeToken; 
+        $customerId =Auth::user()->CusID;
+
+        try {
+            $response = Http::withBasicAuth($stripeSecretKey, '')
+            ->asForm()
+            ->post("https://api.stripe.com/v1/customers/{$customerId}/sources", [
+                'source' => $stripeToken
+            ]);
+
+            $data = $response->json();
+
+            if ($response->failed() || isset($data['error'])) {
+                $message = $data['error']['message'] ?? 'Something went wrong';
+                return redirect()->back()->with('error_card', $message);
+            }
+
+            return redirect()->back()->with('success_card', 'Card added successfully');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error_card', 'Something went wrong');
+        }
+    }
+
+    public function delete_card($id)
+    {
+        $stripeSecretKey = env('STRIPE_SECRET');
+        $customerId =Auth::user()->CusID;
+
+        try {
+            $response = Http::withBasicAuth($stripeSecretKey, '')
+                ->delete("https://api.stripe.com/v1/customers/{$customerId}/sources/{$id}");
+
+            $data = $response->json();
+
+            if ($response->failed() || isset($data['error'])) {
+                $message = $data['error']['message'] ?? 'Failed to delete card';
+                return redirect()->back()->with('error_card', $message);
+            }
+
+            return back()->with('success_card', 'Card deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error_card', 'Failed to delete card');
+        }
+    }
+
+    public function set_default($id)
+    {
+        $stripeSecretKey = env('STRIPE_SECRET');
+        $customerId =Auth::user()->CusID; 
+
+        $response = Http::withBasicAuth($stripeSecretKey, '')
+            ->asForm()
+            ->post("https://api.stripe.com/v1/customers/{$customerId}", [
+                'default_source' => $id,
+            ]);
+
+        $data = $response->json();
+
+        if ($response->failed() || isset($data['error'])) {
+            return back()->with('error_card', $data['error']['message'] ?? 'Failed to set default card.');
+        }
+
+        return back()->with('success_card', 'Default card set successfully!');
     }
 }
