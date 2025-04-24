@@ -179,12 +179,23 @@ class SubscriptionHelper {
     public function getDefaultCard($id)
     {
         $customerResponse = Http::withToken(config('services.stripe.secret'))
-        ->get("https://api.stripe.com/v1/customers/" . $id);
+            ->get("https://api.stripe.com/v1/customers/" . $id);
 
         $customer = $customerResponse->json();
 
-        $defaultSourceId = $customer['default_source'] ?? null;
-        return $defaultSourceId;
+        $defaultPaymentMethodId = $customer['invoice_settings']['default_payment_method'] ?? null;
+
+        if ($defaultPaymentMethodId) {
+            // Fetch the payment method details (card brand, last4, etc.)
+            $pmResponse = Http::withToken(config('services.stripe.secret'))
+                ->get("https://api.stripe.com/v1/payment_methods/" . $defaultPaymentMethodId);
+
+            $data = $pmResponse->json();
+            return !empty($data['id']) ? $data['id'] : null;
+        }
+
+        return null;
     }
+
 
 }

@@ -164,12 +164,12 @@ class SubscriptionController extends Controller
     public function set_default($id)
     {
         $stripeSecretKey = env('STRIPE_SECRET');
-        $customerId =Auth::user()->CusID; 
+        $customerId = Auth::user()->CusID;
 
         $response = Http::withBasicAuth($stripeSecretKey, '')
             ->asForm()
             ->post("https://api.stripe.com/v1/customers/{$customerId}", [
-                'default_source' => $id,
+                'invoice_settings[default_payment_method]' => $id,
             ]);
 
         $data = $response->json();
@@ -180,4 +180,5 @@ class SubscriptionController extends Controller
 
         return back()->with('success_card', 'Default card set successfully!');
     }
+
 }
