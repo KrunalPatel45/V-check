@@ -103,6 +103,13 @@
       "icon": "menu-icon tf-icons ti ti-logout",
       "slug": "logout",
       "access": "admin"
+    },
+    {
+      "url": "setting",
+      "name": "Settings",
+      "icon": "menu-icon tf-icons ti ti-settings",
+      "slug": "settings",
+      "access": "admin"
     }
   ]
 }
