@@ -41,7 +41,7 @@
                 </button>
                 <button id="bulk-download-checks" class="btn btn-primary mr-4"
                     style="height: 40px !important;margin-right: 25px !important;">
-                    <i class="fa-solid fa-download"></i>&nbsp; Batch Download
+                    <i class="menu-icon tf-icons ti ti-download"></i>Batch Download
                 </button>
             </div>
         </div>

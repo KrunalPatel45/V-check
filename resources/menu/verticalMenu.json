@@ -77,7 +77,7 @@
       "access": "web"
     },
     {
-      "url": "/webform",
+      "url": "/setting",
       "name": "Settings",
       "icon": "menu-icon tf-icons ti ti-settings",
       "slug": "get_web_forms",
@@ -88,6 +88,13 @@
       "name": "Email Templates",
       "icon": "menu-icon tf-icons ti ti-mail",
       "slug": "admin.email-template",
+      "access": "admin"
+    },
+    {
+      "url": "admin/setting",
+      "name": "Settings",
+      "icon": "menu-icon tf-icons ti ti-settings",
+      "slug": "admin.setting",
       "access": "admin"
     },
     {
@@ -102,13 +109,6 @@
       "name": "Logout",
       "icon": "menu-icon tf-icons ti ti-logout",
       "slug": "logout",
-      "access": "admin"
-    },
-    {
-      "url": "setting",
-      "name": "Settings",
-      "icon": "menu-icon tf-icons ti ti-settings",
-      "slug": "settings",
       "access": "admin"
     }
   ]

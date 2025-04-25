@@ -209,7 +209,7 @@ Route::middleware([AdminMiddleware::class])->group(function () {
     Route::get('/admin/email-template/edit/{id}', [EmailTemplateController::class, 'edit'])->name('admin.email-template-edit');
     Route::post('/admin/email-template/update/{id}', [EmailTemplateController::class, 'update'])->name('admin.email-template-update');
     Route::post('/users/change-status', [AdminDashboardController::class, 'changeStatus'])->name('changeStatus');
-    Route::get('/setting', [SettingController::class, 'index'])->name('admin.setting');
+    Route::get('/admin/setting', [SettingController::class, 'index'])->name('admin.setting');
     Route::post('/update-setting', [SettingController::class, 'updateSettings'])->name('admin.update_setting');
 
 });
@@ -271,7 +271,7 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::get('get-payor/{id}', [CheckController::class, 'get_payor'])->name('get_payor');
     Route::get('check-generate/{id}', [CheckController::class, 'check_generate'])->name('check_generate');
     Route::get('send-payment-check-generate/{id}', [CheckController::class, 'send_check_generate'])->name('send_check_generate');
-    Route::get('webform', [CheckController::class, 'get_web_forms'])->name('get_web_forms');
+    Route::get('setting', [CheckController::class, 'get_web_forms'])->name('get_web_forms');
     Route::get('webform/new', [CheckController::class, 'new_web_form'])->name('new_web_form');
     Route::post('webform/new', [CheckController::class, 'new_web_form_store'])->name('store_web_form');
     Route::post('web-form-slug', [CheckController::class, 'web_form_slug'])->name('web_form_slug');
