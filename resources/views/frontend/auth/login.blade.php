@@ -41,6 +41,11 @@
                         {{ $errors->first('email') }}
                     </div>
                 @endif
+                @if ($errors->has('login'))
+                    <div class="alert alert-danger">
+                        {{ $errors->first('login') }}
+                    </div>
+                @endif
                 <!-- Login -->
                 <div class="card">
                     <div class="card-body">
