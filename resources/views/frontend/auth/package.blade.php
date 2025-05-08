@@ -131,37 +131,50 @@
 <body>
     <h1 class="heading">Please Select Package</h1>
     <div class="pricing-table">
+        @php
+            $trial_package = [];
+        @endphp
         @foreach ($packages as $package)
-            <div class="pricing-card {{ $package->Name == 'PRO' || $package->Name == 'ENTERPRISE' ? 'popular' : '' }}">
-                <h3>{{ $package->Name }}</h3>
+            @if ($package->Name != 'Trial')
+                <div
+                    class="pricing-card {{ $package->Name == 'PRO' || $package->Name == 'ENTERPRISE' ? 'popular' : '' }}">
+                    <h3>{{ $package->Name }}</h3>
+                    <p class="price">${{ $package->Price }} <span>monthly</span></p>
+                    <ul class="features">
+                        <li>Up to {{ $package->Name != 'UNLIMITED' ? $package->CheckLimitPerMonth : 'Unlimited ' }}
+                            checks
+                            / month</li>
+                        <li>Email Support</li>
+                        <li>Unlimited Users</li>
+                        @if ($package->Name != 'BASIC')
+                            <li>Custom Webform*</li>
+                        @endif
+                        <li>3 mos History Storage</li>
+                    </ul>
+                    <a href="{{ route('user-select-package', ['id' => $userId, 'plan' => $package->PackageID]) }}"
+                        class="plan-button">Select Plan</a>
+                </div>
+            @else
+                @php
+                    $trial_package = $package;
+                @endphp
+            @endif
+        @endforeach
+        @if (!empty($trial_package))
+            <div class="pricing-card">
+                <h3>{{ $trial_package->Name }}</h3>
                 <p class="price">${{ $package->Price }} <span>monthly</span></p>
                 <ul class="features">
-                    <li>Up to {{ $package->Name != 'UNLIMITED' ? $package->CheckLimitPerMonth : 'Unlimited ' }} checks
+                    <li>Up to {{ $package->CheckLimitPerMonth }} checks
                         / month</li>
                     <li>Email Support</li>
                     <li>Unlimited Users</li>
-                    @if ($package->Name != 'BASIC')
-                        <li>Custom Webform*</li>
-                    @endif
+                    <li>Custom Webform*</li>
                     <li>3 mos History Storage</li>
                 </ul>
-                <a href="{{ route('user-select-package', ['id' => $userId, 'plan' => $package->PackageID]) }}"
-                    class="plan-button">Select Plan</a>
+                <a href="{{ route('user-select-free-package', ['id' => $userId]) }}" class="plan-button">Select Plan</a>
             </div>
-        @endforeach
-        <div class="pricing-card">
-            <h3>Free Trial</h3>
-            <p class="price">$0.00 <span>monthly</span></p>
-            <ul class="features">
-                <li>Up to Unlimited checks
-                    / month</li>
-                <li>Email Support</li>
-                <li>Unlimited Users</li>
-                <li>Custom Webform*</li>
-                <li>3 mos History Storage</li>
-            </ul>
-            <a href="{{ route('user-select-free-package', ['id' => $userId]) }}" class="plan-button">Select Plan</a>
-        </div>
+        @endif
     </div>
 </body>
 

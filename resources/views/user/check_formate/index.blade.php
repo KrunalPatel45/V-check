@@ -4,10 +4,10 @@
 <head>
     <title>Cheque Format</title>
     <style>
-        @page {
+        /* @page {
             margin: 0;
-            /* size: 8.25in 10in; */
-        }
+            size: 1100px 960px;
+        } */
 
         html {
             margin: 0 auto;
@@ -22,7 +22,6 @@
 
         body {
             margin: 0 auto;
-            font-family: Arial, sans-serif;
         }
 
         td {
@@ -39,7 +38,7 @@
 </head>
 
 <body style="padding: 20px; font-family: Arial, sans-serif">
-    <table style="background-color: #ecedf6; padding: 10px 30px; border: 1px solid #000; height: 2.75in" width="100%">
+    <table style="background-color: #ecedf6; padding: 10px 30px; border: 1px solid #000;" width="100%">
         <tr>
             <td>
                 <table border="0" width="100%" cellspacing="0" cellpadding="5"
