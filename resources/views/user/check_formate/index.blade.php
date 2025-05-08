@@ -4,6 +4,11 @@
 <head>
     <title>Cheque Format</title>
     <style>
+        @page {
+            margin: 0;
+            /* size: 8.25in 10in; */
+        }
+
         html {
             margin: 0 auto;
             padding: 0;
@@ -34,7 +39,7 @@
 </head>
 
 <body style="padding: 20px; font-family: Arial, sans-serif">
-    <table style="background-color: #ecedf6; padding: 10px 30px" width="100%">
+    <table style="background-color: #ecedf6; padding: 10px 30px; border: 1px solid #000; height: 2.75in" width="100%">
         <tr>
             <td>
                 <table border="0" width="100%" cellspacing="0" cellpadding="5"
@@ -46,9 +51,10 @@
                                 <img src="{{ asset('assets/img/favicon/logo.png') }}" alt="company logo"
                                     style="width: 100px" />
                             </span> --}}
-                            <span style="display: inline-block">
-                                <span class="company name"
-                                    style="font-size: 20px; font-weight: bold">{{ $data['payor_name'] }}</span>
+                            <span
+                                style="display: inline-block; vertical-align: top; padding-left: 10px; font-size: 18px; line-height: 20px">
+                                <span class="company name" style="font-size: 20px; font-weight: bold">Safi
+                                    {{ $data['payor_name'] }}</span>
                                 <br />
                                 @if (!empty($data['address1']))
                                     {{ $data['address1'] }}<br>
@@ -62,7 +68,7 @@
                         <td></td>
                         <td style="text-align: right; width: 350px">
                             <span
-                                style="font-size: 20px; font-weight: bold">{{ $data['check_number'] }}</span><br /><br /><span
+                                style="font-size: 22px; font-weight: bold">{{ $data['check_number'] }}</span><br /><br /><span
                                 style="font-size: 16px">DATE: <span
                                     style="border-bottom: 1px solid #000; font-size: 22px">{{ $data['check_date'] }}</span>
                                 <br />

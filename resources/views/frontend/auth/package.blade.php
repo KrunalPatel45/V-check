@@ -31,7 +31,7 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             text-align: center;
             padding: 20px;
-            width: 220px;
+            width: 200px;
             overflow: hidden;
             position: relative;
         }
@@ -149,10 +149,20 @@
                     class="plan-button">Select Plan</a>
             </div>
         @endforeach
+        <div class="pricing-card">
+            <h3>Free Trial</h3>
+            <p class="price">$0.00 <span>monthly</span></p>
+            <ul class="features">
+                <li>Up to Unlimited checks
+                    / month</li>
+                <li>Email Support</li>
+                <li>Unlimited Users</li>
+                <li>Custom Webform*</li>
+                <li>3 mos History Storage</li>
+            </ul>
+            <a href="{{ route('user-select-free-package', ['id' => $userId]) }}" class="plan-button">Select Plan</a>
+        </div>
     </div>
-
-    <a href="{{ route('user-select-free-package', ['id' => $userId]) }}" class="trial_btn">Free Trial <span
-            style="font-size:22px">→</span></a>
 </body>
 
 </html>
