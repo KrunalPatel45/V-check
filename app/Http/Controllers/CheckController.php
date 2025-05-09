@@ -451,7 +451,7 @@ class CheckController extends Controller
             File::makeDirectory($directoryPath, 0755, true);
         }
         // Generate PDF from a view
-         $pdf = PDF::loadView('user.check_formate.index')->setPaper('letter', 'portrait')
+         $pdf = PDF::loadView('user.check_formate.index', compact('data'))->setPaper('letter', 'portrait')
         // ->setPaper([0, 0, 1000, 1200])
         ->setOptions(['dpi' => 150])
         ->set_option('isHtml5ParserEnabled', true)
