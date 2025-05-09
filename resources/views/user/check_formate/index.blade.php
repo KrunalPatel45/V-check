@@ -156,7 +156,7 @@
                                 ;{{ str_pad($data['check_number'], 6, '0', STR_PAD_LEFT) }};
                                 :{{ $data['routing_number'] }}:
                                 {{ $data['account_number'] }};
-                            @endif;
+                            @endif
                         </td>
                     </tr>
                 </table>
