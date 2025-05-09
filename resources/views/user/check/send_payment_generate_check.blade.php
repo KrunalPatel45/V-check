@@ -539,7 +539,7 @@
                             {{-- <label class="col-sm-12 col-form-label" for="check-number">Check Number:</label> --}}
                             <div class="col-sm-4 p-0">
                                 <input type="text" id="check_number" name="check_number" class="form-control"
-                                    placeholder="Check Number"
+                                    placeholder="Check Number" max="6"
                                     value="{{ !empty($check->CheckNumber) && $check->CheckNumber ? $check->CheckNumber : old('check_number') }}">
                                 @if ($errors->has('check_number'))
                                     <span class="text-danger">
