@@ -5,6 +5,44 @@
 <!-- Vendor Styles -->
 @section('vendor-style')
     @vite(['resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss', 'resources/assets/vendor/libs/animate-css/animate.scss', 'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss', 'resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss'])
+    <style>
+        #card-element {
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background-color: #f9fafb;
+            transition: border 0.3s;
+        }
+
+        #card-element.StripeElement--focus {
+            border-color: #6366f1;
+            background-color: #fff;
+        }
+
+        #card-element.StripeElement--invalid {
+            border-color: #dc3545;
+        }
+
+        #card-errors {
+            margin-top: 8px;
+            font-size: 0.875rem;
+            color: #dc3545;
+        }
+
+        .btn-custom {
+            background-color: #6366f1;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .btn-custom:hover {
+            background-color: #4f46e5;
+        }
+    </style>
 @endsection
 <!-- Vendor Scripts -->
 @section('vendor-script')
@@ -193,205 +231,205 @@
                         <div class="col-md-6 mb-4">
                             <form id="cardForm" class="row g-6" method="POST" action="{{ route('stripe.add_card') }}">
                                 @csrf
-                                <div id="card-element">
+                                <div class="mb-3">
+                                    <label for="card-element" class="form-label">Card Details</label>
+                                    <div id="card-element"><!-- Stripe Element mounts here --></div>
+                                    <div id="card-errors" role="alert"></div>
                                 </div>
-                                <div class="col-12 mt-6">
-                                    <button type="submit" id="submitBtn" class="btn btn-primary me-3">Save
-                                        Changes</button>
-                                </div>
-                            </form>
-
+                                <button type="submit" class="btn btn-custom w-100 mt-3">Save Card</button>
                         </div>
-                        <div class="col-md-12 mt-5 mt-md-0">
-                            <h5 class="mb-6">My Cards</h5>
-                            @if (!empty($cards['data']))
-                                <div class="added-cards">
-                                    @foreach ($cards['data'] as $card)
-                                        <div class="cardMaster p-6 bg-lighter rounded mb-6">
-                                            <div class="d-flex justify-content-between flex-sm-row flex-column">
-                                                <div class="card-information me-2">
-                                                    <img class="mb-2 img-fluid"
-                                                        src="{{ asset('assets/img/icons/payments/' . $card['card']['brand'] . '.png') }}"
-                                                        alt="Master Card">
-                                                    <div class="d-flex align-items-center mb-2 flex-wrap gap-2">
-                                                        <h6 class="mb-0 me-2">{{ $card['billing_details']['name'] }}</h6>
-                                                    </div>
-                                                    <span class="card-number">&#8727;&#8727;&#8727;&#8727;
-                                                        &#8727;&#8727;&#8727;&#8727; {{ $card['card']['last4'] }}</span>
-                                                </div>
-                                                <div class="d-flex flex-column text-start text-lg-end">
-                                                    <div class="d-flex order-sm-0 order-1 mt-sm-0 mt-4">
-                                                        @php
-                                                            $isOnlyCard = count($cards['data']) === 1;
-                                                            $isDefault =
-                                                                (!empty($default_card) &&
-                                                                    $default_card == $card['id']) ||
-                                                                ($isOnlyCard && empty($default_card));
-                                                        @endphp
+                        </form>
 
-                                                        @if ($isDefault)
-                                                            <button class="btn btn-sm btn-label-info">Default</button>
-                                                        @else
-                                                            <a href="{{ route('stripe.set_default', ['id' => $card['id']]) }}"
-                                                                class="btn btn-sm btn-label-info">Set Default</a>
-                                                        @endif
-                                                        <a href="{{ route('stripe.delete_card', ['id' => $card['id']]) }}"
-                                                            class="btn btn-sm btn-label-danger">Delete</a>
-                                                    </div>
-                                                    <small class="mt-sm-4 mt-2 order-sm-1 order-0">Card expires at
-                                                        {{ $card['card']['exp_month'] }}/{{ $card['card']['exp_year'] }}</small>
+                    </div>
+                    <div class="col-md-12 mt-5 mt-md-0">
+                        <h5 class="mb-6">My Cards</h5>
+                        @if (!empty($cards['data']))
+                            <div class="added-cards">
+                                @foreach ($cards['data'] as $card)
+                                    <div class="cardMaster p-6 bg-lighter rounded mb-6">
+                                        <div class="d-flex justify-content-between flex-sm-row flex-column">
+                                            <div class="card-information me-2">
+                                                <img class="mb-2 img-fluid"
+                                                    src="{{ asset('assets/img/icons/payments/' . $card['card']['brand'] . '.png') }}"
+                                                    alt="Master Card">
+                                                <div class="d-flex align-items-center mb-2 flex-wrap gap-2">
+                                                    <h6 class="mb-0 me-2">{{ $card['billing_details']['name'] }}</h6>
                                                 </div>
+                                                <span class="card-number">&#8727;&#8727;&#8727;&#8727;
+                                                    &#8727;&#8727;&#8727;&#8727; {{ $card['card']['last4'] }}</span>
+                                            </div>
+                                            <div class="d-flex flex-column text-start text-lg-end">
+                                                <div class="d-flex order-sm-0 order-1 mt-sm-0 mt-4">
+                                                    @php
+                                                        $isOnlyCard = count($cards['data']) === 1;
+                                                        $isDefault =
+                                                            (!empty($default_card) && $default_card == $card['id']) ||
+                                                            ($isOnlyCard && empty($default_card));
+                                                    @endphp
+
+                                                    @if ($isDefault)
+                                                        <button class="btn btn-sm btn-label-info">Default</button>
+                                                    @else
+                                                        <a href="{{ route('stripe.set_default', ['id' => $card['id']]) }}"
+                                                            class="btn btn-sm btn-label-info">Set Default</a>
+                                                    @endif
+                                                    <a href="{{ route('stripe.delete_card', ['id' => $card['id']]) }}"
+                                                        class="btn btn-sm btn-label-danger">Delete</a>
+                                                </div>
+                                                <small class="mt-sm-4 mt-2 order-sm-1 order-0">Card expires at
+                                                    {{ $card['card']['exp_month'] }}/{{ $card['card']['exp_year'] }}</small>
                                             </div>
                                         </div>
-                                    @endforeach
-                                </div>
-                            @endif
-                            <!-- Modal -->
-                            @include('_partials/_modals/modal-edit-cc')
-                            <!--/ Modal -->
-                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                        <!-- Modal -->
+                        @include('_partials/_modals/modal-edit-cc')
+                        <!--/ Modal -->
                     </div>
                 </div>
             </div>
-            @if (false)
-                <div class="card mb-6">
-                    <!-- Billing Address -->
-                    <h5 class="card-header">Billing Address</h5>
-                    <div class="card-body">
-                        <form id="formAccountSettings" onsubmit="return false">
-                            <div class="row">
-                                <div class="mb-4 col-sm-6">
-                                    <label for="companyName" class="form-label">Company Name</label>
-                                    <input type="text" id="companyName" name="companyName" class="form-control"
-                                        placeholder="{{ config('variables.creatorName') }}" />
-                                </div>
-                                <div class="mb-4 col-sm-6">
-                                    <label for="billingEmail" class="form-label">Billing Email</label>
-                                    <input class="form-control" type="text" id="billingEmail" name="billingEmail"
-                                        placeholder="john.doe@example.com" />
-                                </div>
-                                <div class="mb-4 col-sm-6">
-                                    <label for="taxId" class="form-label">Tax ID</label>
-                                    <input type="text" id="taxId" name="taxId" class="form-control"
-                                        placeholder="Enter Tax ID" />
-                                </div>
-                                <div class="mb-4 col-sm-6">
-                                    <label for="vatNumber" class="form-label">VAT Number</label>
-                                    <input class="form-control" type="text" id="vatNumber" name="vatNumber"
-                                        placeholder="Enter VAT Number" />
-                                </div>
-                                <div class="mb-4 col-sm-6">
-                                    <label for="mobileNumber" class="form-label">Mobile</label>
-                                    <div class="input-group input-group-merge">
-                                        <span class="input-group-text">US (+1)</span>
-                                        <input class="form-control mobile-number" type="text" id="mobileNumber"
-                                            name="mobileNumber" placeholder="202 555 0111" />
-                                    </div>
-                                </div>
-                                <div class="mb-4 col-sm-6">
-                                    <label for="country" class="form-label">Country</label>
-                                    <select id="country" class="form-select select2" name="country">
-                                        <option selected>USA</option>
-                                        <option>Canada</option>
-                                        <option>UK</option>
-                                        <option>Germany</option>
-                                        <option>France</option>
-                                    </select>
-                                </div>
-                                <div class="mb-4 col-12">
-                                    <label for="billingAddress" class="form-label">Billing Address</label>
-                                    <input type="text" class="form-control" id="billingAddress" name="billingAddress"
-                                        placeholder="Billing Address" />
-                                </div>
-                                <div class="mb-4 col-sm-6">
-                                    <label for="state" class="form-label">State</label>
-                                    <input class="form-control" type="text" id="state" name="state"
-                                        placeholder="California" />
-                                </div>
-                                <div class="mb-4 col-sm-6">
-                                    <label for="zipCode" class="form-label">Zip Code</label>
-                                    <input type="text" class="form-control zip-code" id="zipCode" name="zipCode"
-                                        placeholder="231465" maxlength="6" />
-                                </div>
-                            </div>
-                            <div class="mt-2">
-                                <button type="submit" class="btn btn-primary me-3">Save changes</button>
-                                <button type="reset" class="btn btn-label-secondary">Discard</button>
-                            </div>
-                        </form>
-                    </div>
-                    <!-- /Billing Address -->
-                </div>
-            @endif
         </div>
-        @if ($package_id != '-1')
-            <div class="col-md-12">
-                <div class="card mb-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="card-header">Invoice paid</h5>
-                    </div>
-                    <div class="card-datatable table-responsive">
-                        <table class="table" id="invoice_data">
-                            <thead>
-                                <tr>
-                                    <th class="d-none">ID</th>
-                                    <th>#</th>
-                                    <th>Status</th>
-                                    <th>Amount</th>
-                                    <th>Issued Date</th>
-                                </tr>
-                            </thead>
-                        </table>
-                    </div>
+        @if (false)
+            <div class="card mb-6">
+                <!-- Billing Address -->
+                <h5 class="card-header">Billing Address</h5>
+                <div class="card-body">
+                    <form id="formAccountSettings" onsubmit="return false">
+                        <div class="row">
+                            <div class="mb-4 col-sm-6">
+                                <label for="companyName" class="form-label">Company Name</label>
+                                <input type="text" id="companyName" name="companyName" class="form-control"
+                                    placeholder="{{ config('variables.creatorName') }}" />
+                            </div>
+                            <div class="mb-4 col-sm-6">
+                                <label for="billingEmail" class="form-label">Billing Email</label>
+                                <input class="form-control" type="text" id="billingEmail" name="billingEmail"
+                                    placeholder="john.doe@example.com" />
+                            </div>
+                            <div class="mb-4 col-sm-6">
+                                <label for="taxId" class="form-label">Tax ID</label>
+                                <input type="text" id="taxId" name="taxId" class="form-control"
+                                    placeholder="Enter Tax ID" />
+                            </div>
+                            <div class="mb-4 col-sm-6">
+                                <label for="vatNumber" class="form-label">VAT Number</label>
+                                <input class="form-control" type="text" id="vatNumber" name="vatNumber"
+                                    placeholder="Enter VAT Number" />
+                            </div>
+                            <div class="mb-4 col-sm-6">
+                                <label for="mobileNumber" class="form-label">Mobile</label>
+                                <div class="input-group input-group-merge">
+                                    <span class="input-group-text">US (+1)</span>
+                                    <input class="form-control mobile-number" type="text" id="mobileNumber"
+                                        name="mobileNumber" placeholder="202 555 0111" />
+                                </div>
+                            </div>
+                            <div class="mb-4 col-sm-6">
+                                <label for="country" class="form-label">Country</label>
+                                <select id="country" class="form-select select2" name="country">
+                                    <option selected>USA</option>
+                                    <option>Canada</option>
+                                    <option>UK</option>
+                                    <option>Germany</option>
+                                    <option>France</option>
+                                </select>
+                            </div>
+                            <div class="mb-4 col-12">
+                                <label for="billingAddress" class="form-label">Billing Address</label>
+                                <input type="text" class="form-control" id="billingAddress" name="billingAddress"
+                                    placeholder="Billing Address" />
+                            </div>
+                            <div class="mb-4 col-sm-6">
+                                <label for="state" class="form-label">State</label>
+                                <input class="form-control" type="text" id="state" name="state"
+                                    placeholder="California" />
+                            </div>
+                            <div class="mb-4 col-sm-6">
+                                <label for="zipCode" class="form-label">Zip Code</label>
+                                <input type="text" class="form-control zip-code" id="zipCode" name="zipCode"
+                                    placeholder="231465" maxlength="6" />
+                            </div>
+                        </div>
+                        <div class="mt-2">
+                            <button type="submit" class="btn btn-primary me-3">Save changes</button>
+                            <button type="reset" class="btn btn-label-secondary">Discard</button>
+                        </div>
+                    </form>
                 </div>
+                <!-- /Billing Address -->
             </div>
         @endif
-
-        <div class="modal-onboarding modal fade animate__animated" id="onboardingHorizontalSlideModal" tabindex="-1"
-            aria-hidden="true">
-            <div class="modal-dialog modal-xl" role="document">
-                <div class="modal-content text-center">
-                    <div class="modal-header border-0">
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                        </button>
-                    </div>
-                    <div class="pricing-table">
-                        @if (count($packages) > 0)
-                            @foreach ($packages as $package)
-                                <div
-                                    class="pricing-card {{ $package->Name == 'PRO' || $package->Name == 'ENTERPRISE' ? 'popular' : '' }}{{ $user->CurrentPackageID != '-1' && $user->CurrentPackageID == $package->PackageID ? ' selected-plan' : '' }}">
-                                    <h3>{{ $package->Name }}</h3>
-                                    <p class="price">${{ $package->Price }} <span>monthly</span></p>
-                                    <ul class="features">
-                                        <li>Up to
-                                            {{ $package->Name != 'UNLIMITED' ? $package->CheckLimitPerMonth : 'Unlimited ' }}
-                                            checks
-                                            / month</li>
-                                        <li>Email Support</li>
-                                        <li>Unlimited Users</li>
-                                        @if ($package->Name != 'BASIC')
-                                            <li>Custom Webform*</li>
-                                        @endif
-                                        <li>3 mos History Storage</li>
-                                    </ul>
-                                    @if ($user->CurrentPackageID != '-1' && $user->CurrentPackageID == $package->PackageID)
-                                        <p class="current-plan">Current Plan</p>
-                                    @else
-                                        @if ($user->CurrentPackageID != '-1')
-                                            <a href="{{ route('user.select-package', ['id' => $user->UserID, 'plan' => $package->PackageID]) }}"
-                                                class="plan-button">Select Plan</a>
-                                        @else
-                                            <a href="{{ route('user-select-package', ['id' => $user->UserID, 'plan' => $package->PackageID]) }}"
-                                                class="plan-button">Select Plan</a>
-                                        @endif
-                                    @endif
-                                </div>
-                            @endforeach
-                        @endif
-                    </div>
-
+    </div>
+    @if ($package_id != '-1')
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="card-header">Invoice paid</h5>
+                </div>
+                <div class="card-datatable table-responsive">
+                    <table class="table" id="invoice_data">
+                        <thead>
+                            <tr>
+                                <th class="d-none">ID</th>
+                                <th>#</th>
+                                <th>Status</th>
+                                <th>Amount</th>
+                                <th>Issued Date</th>
+                            </tr>
+                        </thead>
+                    </table>
                 </div>
             </div>
         </div>
+    @endif
+
+    <div class="modal-onboarding modal fade animate__animated" id="onboardingHorizontalSlideModal" tabindex="-1"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content text-center">
+                <div class="modal-header border-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    </button>
+                </div>
+                <div class="pricing-table">
+                    @if (count($packages) > 0)
+                        @foreach ($packages as $package)
+                            <div
+                                class="pricing-card {{ $package->Name == 'PRO' || $package->Name == 'ENTERPRISE' ? 'popular' : '' }}{{ $user->CurrentPackageID != '-1' && $user->CurrentPackageID == $package->PackageID ? ' selected-plan' : '' }}">
+                                <h3>{{ $package->Name }}</h3>
+                                <p class="price">${{ $package->Price }} <span>monthly</span></p>
+                                <ul class="features">
+                                    <li>Up to
+                                        {{ $package->Name != 'UNLIMITED' ? $package->CheckLimitPerMonth : 'Unlimited ' }}
+                                        checks
+                                        / month</li>
+                                    <li>Email Support</li>
+                                    <li>Unlimited Users</li>
+                                    @if ($package->Name != 'BASIC')
+                                        <li>Custom Webform*</li>
+                                    @endif
+                                    <li>3 mos History Storage</li>
+                                </ul>
+                                @if ($user->CurrentPackageID != '-1' && $user->CurrentPackageID == $package->PackageID)
+                                    <p class="current-plan">Current Plan</p>
+                                @else
+                                    @if ($user->CurrentPackageID != '-1')
+                                        <a href="{{ route('user.select-package', ['id' => $user->UserID, 'plan' => $package->PackageID]) }}"
+                                            class="plan-button">Select Plan</a>
+                                    @else
+                                        <a href="{{ route('user-select-package', ['id' => $user->UserID, 'plan' => $package->PackageID]) }}"
+                                            class="plan-button">Select Plan</a>
+                                    @endif
+                                @endif
+                            </div>
+                        @endforeach
+                    @endif
+                </div>
+
+            </div>
+        </div>
+    </div>
     </div>
 @endsection
