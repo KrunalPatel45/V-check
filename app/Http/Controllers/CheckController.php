@@ -506,60 +506,77 @@ class CheckController extends Controller
 
     public function history(Request $request)
     {
-        if(!Auth::check()) {
+        if (!Auth::check()) {
             return redirect()->route('user.login');
         }
-
+    
         if ($request->ajax()) {
-            $checks = Checks::where('UserID', Auth::id())->get();
-            return datatables()->of($checks)
+            $query = Checks::where('UserID', Auth::id());
+    
+            // Apply filter if "type" parameter exists (from JS)
+            if ($request->has('type') && !empty($request->type)) {
+                $query->where('CheckType', $request->type);
+            }
+    
+            return datatables()->of($query)
                 ->addIndexColumn()
+                ->setRowId(function ($row) {
+                    return $row->id;
+                })
                 ->addColumn('CompanyID', function ($row) {
                     $payee = Payors::withTrashed()->find($row->PayeeID);
-                    return $payee->Name;
+                    return $payee ? $payee->Name : '-';
                 })
                 ->addColumn('EntityID', function ($row) {
                     $payor = Payors::withTrashed()->find($row->PayorID);
-                    return $payor->Name;
+                    return $payor ? $payor->Name : '-';
                 })
                 ->addColumn('IssueDate', function ($row) {
-                    return Carbon::parse($row->IssueDate)->format('m/d/Y');
+                    return $row->IssueDate ? Carbon::parse($row->IssueDate)->format('m/d/Y') : '-';
                 })
                 ->addColumn('Status', function ($row) {
-                    if($row->Status == 'draft') {
-                        return 'Draft';
-                    } else {
-                        return 'Generated';
-                    }
+                    return $row->Status === 'draft' ? 'Draft' : 'Generated';
                 })
                 ->addColumn('actions', function ($row) {
-                    $check_preview = asset('checks/' . $row->CheckPDF);
-
-                    if(!empty($row->CheckPDF)) {
-                        return ' <a href="'.$check_preview.'" target="_blank" class="btn">
-                        <i class="menu-icon tf-icons ti ti-files"></i>
-                        </a>';
+                    if (!empty($row->CheckPDF)) {
+                        $check_preview = asset('checks/' . $row->CheckPDF);
+                        return '<a href="' . $check_preview . '" target="_blank" class="btn">
+                                    <i class="menu-icon tf-icons ti ti-files"></i>
+                                </a>';
                     } else {
                         return '-';
                     }
                 })
-                ->rawColumns(['Status','actions'])
+                ->rawColumns(['Status', 'actions'])
                 ->make(true);
         }
-
-        // $clients = Payors::where('UserID', Auth::id())->count();
-        // $checks = Checks::where('UserID', Auth::id())->count();
-        // $paidAmount = Checks::where('UserID', Auth::id())->where('Status', 'generated')->sum('Amount');
-        // $unPaidAmount = Checks::where('UserID', Auth::id())->where('Status','draft')->sum('Amount');
-
-        $total_receive_check = Checks::where('UserID', Auth::id())->where('CheckType', 'Process Payment')->count();
-        $total_receive_check_amount = Checks::where('UserID', Auth::id())->where('CheckType', 'Process Payment')->sum('Amount');
-        $total_send_check = Checks::where('UserID', Auth::id())->where('CheckType', 'Make Payment')->count();
-        $total_send_check_amount = Checks::where('UserID', Auth::id())->where('CheckType', 'Make Payment')->sum('Amount');
-        
+    
+        // Metrics for main page (optional but already in your code)
+        $total_receive_check = Checks::where('UserID', Auth::id())
+            ->where('CheckType', 'Process Payment')
+            ->count();
+    
+        $total_receive_check_amount = Checks::where('UserID', Auth::id())
+            ->where('CheckType', 'Process Payment')
+            ->sum('Amount');
+    
+        $total_send_check = Checks::where('UserID', Auth::id())
+            ->where('CheckType', 'Make Payment')
+            ->count();
+    
+        $total_send_check_amount = Checks::where('UserID', Auth::id())
+            ->where('CheckType', 'Make Payment')
+            ->sum('Amount');
+    
         $total_receive_check_amount = $this->formatToK($total_receive_check_amount);
         $total_send_check_amount = $this->formatToK($total_send_check_amount);
-        return view('user.check.history', compact('total_receive_check', 'total_send_check', 'total_receive_check_amount', 'total_send_check_amount'));
+    
+        return view('user.check.history', compact(
+            'total_receive_check',
+            'total_send_check',
+            'total_receive_check_amount',
+            'total_send_check_amount'
+        ));
     }
 
     function formatToK($number)

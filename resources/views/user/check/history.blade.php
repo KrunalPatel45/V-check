@@ -78,7 +78,22 @@
             </div>
         </div>
     </div>
+    <div class="col-xl-12 col-lg-12 order-0 order-md-1">
+        <!-- User Pills -->
+
+    </div>
     <div class="card">
+        <div class="d-flex justify-content-end mt-2">
+            <ul class="nav nav-pills flex-column flex-md-row flex-wrap mb-6 row-gap-2" style="margin-right:10px;gap: 10px;">
+                <li class="nav-item">
+                    <button class="nav-link active" id="send-payment">Send Payment</button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="receive-payment">Receive Payment</button>
+                </li>
+            </ul>
+        </div>
+
         @if (session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
@@ -111,12 +126,19 @@
 @endsection
 @section('page-script')
     <script>
+        var filterType = 'Make Payment'; // Default filter type
+
         $(document).ready(function() {
-            $('#check_history').DataTable({
+            var table = $('#check_history').DataTable({
                 processing: true,
                 serverSide: true,
                 pageLength: 10,
-                ajax: "{{ route('check_history') }}",
+                ajax: {
+                    url: "{{ route('check_history') }}", // Make sure the route is correct
+                    data: function(d) {
+                        d.type = filterType; // Send the filter type to the server
+                    }
+                },
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',
@@ -137,7 +159,7 @@
                     },
                     {
                         data: 'Amount',
-                        name: 'Amount',
+                        name: 'Amount'
                     },
                     {
                         data: 'IssueDate',
@@ -145,16 +167,32 @@
                     },
                     {
                         data: 'Status',
-                        name: 'Status',
+                        name: 'Status'
                     },
                     {
                         data: 'actions',
                         name: 'actions',
                         orderable: false,
                         searchable: false,
-                        className: 'text-center',
+                        className: 'text-center'
                     }
                 ]
+            });
+
+            // Click event for 'Send Payment' button
+            $('#send-payment').on('click', function() {
+                filterType = 'Make Payment'; // Set filter type to 'Make Payment'
+                $('#send-payment').addClass('active'); // Highlight the active button
+                $('#receive-payment').removeClass('active'); // Remove highlight from the other button
+                table.ajax.reload(); // Reload the table data with the new filter
+            });
+
+            // Click event for 'Receive Payment' button
+            $('#receive-payment').on('click', function() {
+                filterType = 'Process Payment'; // Set filter type to 'Process Payment'
+                $('#send-payment').removeClass('active'); // Remove highlight from 'Send Payment'
+                $('#receive-payment').addClass('active'); // Highlight 'Receive Payment'
+                table.ajax.reload(); // Reload the table data with the new filter
             });
         });
     </script>
