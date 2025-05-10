@@ -25,15 +25,10 @@ class EmailTemplateController extends Controller
                     $editUrl = route('admin.email-template-edit', ['id' => $row->id]);
 
                     return '
-                        <div class="dropdown">
-                            <button type="button" class="btn p-0 dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                                <i class="ti ti-dots-vertical"></i>
-                            </button>
-                            <div class="dropdown-menu">
-                                <a href="' . $editUrl . '" class="dropdown-item">
-                                    <i class="ti ti-pencil me-1"></i> Edit
-                                </a>
-                            </div>
+                        <div class="d-flex">
+                            <a href="' . $editUrl . '" class="dropdown-item">
+                                <i class="ti ti-pencil me-1"></i> Edit
+                            </a>
                         </div>';
                 })
                 ->rawColumns(['actions']) // Specify which columns have HTML content

@@ -82,18 +82,17 @@
         <!-- User Pills -->
 
     </div>
+    <div class="d-flex justify-content-end mt-2">
+        <ul class="nav nav-pills flex-column flex-md-row flex-wrap mb-6 row-gap-2" style="margin-right:10px;gap: 10px;">
+            <li class="nav-item">
+                <button class="nav-link active" id="send-payment">Send Payment</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="receive-payment">Receive Payment</button>
+            </li>
+        </ul>
+    </div>
     <div class="card">
-        <div class="d-flex justify-content-end mt-2">
-            <ul class="nav nav-pills flex-column flex-md-row flex-wrap mb-6 row-gap-2" style="margin-right:10px;gap: 10px;">
-                <li class="nav-item">
-                    <button class="nav-link active" id="send-payment">Send Payment</button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link" id="receive-payment">Receive Payment</button>
-                </li>
-            </ul>
-        </div>
-
         @if (session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}

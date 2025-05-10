@@ -24,3 +24,5 @@ yarn-error.log
 # !/public/assets/*
 # /public/css
 # /public/js
+public/checks/
+public/sign/
