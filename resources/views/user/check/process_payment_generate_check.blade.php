@@ -9,6 +9,18 @@
         select {
             border: 1px solid !important;
         }
+
+        /* For Chrome, Safari, Edge, Opera */
+        .no-spinner::-webkit-inner-spin-button,
+        .no-spinner::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* For Firefox */
+        .no-spinner {
+            -moz-appearance: textfield;
+        }
     </style>
     @vite(['resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
@@ -375,8 +387,9 @@
                         <div class="row text-end justify-content-end">
                             {{-- <label class="col-sm-12 col-form-label" for="check-number">Check Number:</label> --}}
                             <div class="col-sm-4 p-0">
-                                <input type="text" id="check_number" name="check_number" class="form-control"
-                                    placeholder="Check Number" max="6"
+                                <input type="number" id="check_number" name="check_number" class="form-control no-spinner"
+                                    placeholder="Check Number" maxlength="6"
+                                    oninput="if(this.value.length > 6) this.value = this.value.slice(0, 6)"
                                     value="{{ !empty($check->CheckNumber) && $check->CheckNumber ? $check->CheckNumber : old('check_number') }}">
                                 @if ($errors->has('check_number'))
                                     <span class="text-danger">

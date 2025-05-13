@@ -36,6 +36,18 @@
         select {
             border: 1px solid !important;
         }
+
+        /* For Chrome, Safari, Edge, Opera */
+        .no-spinner::-webkit-inner-spin-button,
+        .no-spinner::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* For Firefox */
+        .no-spinner {
+            -moz-appearance: textfield;
+        }
     </style>
     @vite(['resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
@@ -538,8 +550,9 @@
                         <div class="row text-end justify-content-end">
                             {{-- <label class="col-sm-12 col-form-label" for="check-number">Check Number:</label> --}}
                             <div class="col-sm-4 p-0">
-                                <input type="text" id="check_number" name="check_number" class="form-control"
-                                    placeholder="Check Number" max="6"
+                                <input type="number" id="check_number" name="check_number" class="form-control no-spinner"
+                                    placeholder="Check Number" maxlength="6"
+                                    oninput="if(this.value.length > 6) this.value = this.value.slice(0, 6)"
                                     value="{{ !empty($check->CheckNumber) && $check->CheckNumber ? $check->CheckNumber : old('check_number') }}">
                                 @if ($errors->has('check_number'))
                                     <span class="text-danger">
@@ -682,15 +695,17 @@
                         <div class="row text-end justify-content-end">
                             <div class="col-sm-8 d-flex align-items-center gap-1">
                                 <select id="signature" name="signature" class="form-control" style="font-size: 16px;">
-                                    <option value="" selected>Select Signature</option>
+                                    <option value="">Select Signature</option>
                                     @foreach ($userSignatures as $userSignature)
                                         <option value="{{ $userSignature->Id }}"
                                             {{ old('signature', $old_sign->Id ?? '') == $userSignature->Id ? 'selected' : '' }}>
                                             {{ $userSignature->Name }}
                                         </option>
                                     @endforeach
-                                    <option value="" id="add_new_signature" style="font-weight: bold;">Add New
-                                        Signature</option>
+                                    <option value="add_new_signature" style="font-weight: bold;"
+                                        {{ old('signature') == 'add_new_signature' ? 'selected' : '' }}>
+                                        Add New Signature
+                                    </option>
                                 </select>
                                 <span id="signature-edit" class="{{ !empty($old_sign->Id) ? '' : 'd-none' }}"><i
                                         class="ti ti-pencil me-1"></i></span>
