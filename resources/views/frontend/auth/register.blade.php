@@ -114,6 +114,99 @@
                                     </span>
                                 @endif
                             </div>
+                            <div class="mb-6">
+                                <label for="city" class="form-label">City</label>
+                                <input type="text" class="form-control" id="city" name="city"
+                                    placeholder="Enter your city" value="{{ old('city') }}">
+                                @if ($errors->has('city'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('city') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="mb-6">
+                                <label for="state" class="form-label">State</label>
+                                <select name="state" id="state" class="form-control">
+                                    <option value="">-- Select State --</option>
+                                    @php
+                                        $states = [
+                                            'Alabama',
+                                            'Alaska',
+                                            'Arizona',
+                                            'Arkansas',
+                                            'California',
+                                            'Colorado',
+                                            'Connecticut',
+                                            'Delaware',
+                                            'Florida',
+                                            'Georgia',
+                                            'Hawaii',
+                                            'Idaho',
+                                            'Illinois',
+                                            'Indiana',
+                                            'Iowa',
+                                            'Kansas',
+                                            'Kentucky',
+                                            'Louisiana',
+                                            'Maine',
+                                            'Maryland',
+                                            'Massachusetts',
+                                            'Michigan',
+                                            'Minnesota',
+                                            'Mississippi',
+                                            'Missouri',
+                                            'Montana',
+                                            'Nebraska',
+                                            'Nevada',
+                                            'New Hampshire',
+                                            'New Jersey',
+                                            'New Mexico',
+                                            'New York',
+                                            'North Carolina',
+                                            'North Dakota',
+                                            'Ohio',
+                                            'Oklahoma',
+                                            'Oregon',
+                                            'Pennsylvania',
+                                            'Rhode Island',
+                                            'South Carolina',
+                                            'South Dakota',
+                                            'Tennessee',
+                                            'Texas',
+                                            'Utah',
+                                            'Vermont',
+                                            'Virginia',
+                                            'Washington',
+                                            'West Virginia',
+                                            'Wisconsin',
+                                            'Wyoming',
+                                        ];
+                                    @endphp
+
+                                    @foreach ($states as $state)
+                                        <option value="{{ $state }}"
+                                            {{ old('state') == $state ? 'selected' : '' }}>
+                                            {{ $state }}
+                                        </option>
+                                    @endforeach
+                                </select>
+
+                                @if ($errors->has('state'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('state') }}
+                                    </span>
+                                @endif
+                            </div>
+                            <div class="mb-6">
+                                <label for="zip" class="form-label">Zip</label>
+                                <input type="text" class="form-control" id="zip" name="zip"
+                                    placeholder="Enter your zip" value="{{ old('zip') }}">
+                                @if ($errors->has('zip'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('zip') }}
+                                    </span>
+                                @endif
+                            </div>
                             <div class="mb-6 form-password-toggle">
                                 <label class="form-label" for="password">Password</label>
                                 <div class="input-group input-group-merge">

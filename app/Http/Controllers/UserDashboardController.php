@@ -140,6 +140,9 @@ class UserDashboardController extends Controller
         $admin->LastName = $request->lastname;
         $admin->PhoneNumber = $request->phone_number;
         $admin->CompanyName = $request->company_name;
+        $admin->City = $request->city;
+        $admin->State = $request->state;
+        $admin->Zip = $request->zip;
         $admin->UpdatedAt = now();
         $admin->save();
 

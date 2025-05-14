@@ -149,6 +149,110 @@
                             @endif
                         </div>
                     </div>
+                    <div class="row mb-6">
+                        <label class="col-sm-2 col-form-label" for="city">City</label>
+                        <div class="col-sm-10">
+                            <div class="input-group input-group-merge">
+                                <input type="text" class="form-control" id="city" name="city"
+                                    placeholder="City" value="{{ $user->City }}" />
+                            </div>
+                            @if ($errors->has('city'))
+                                <span class="text-danger">
+                                    {{ $errors->first('city') }}
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="row mb-6">
+                        <label class="col-sm-2 col-form-label" for="city">State</label>
+                        <div class="col-sm-10">
+                            <div class="input-group input-group-merge">
+                                <select name="state" id="state" class="form-control">
+                                    <option value="">-- Select State --</option>
+                                    @php
+                                        $states = [
+                                            'Alabama',
+                                            'Alaska',
+                                            'Arizona',
+                                            'Arkansas',
+                                            'California',
+                                            'Colorado',
+                                            'Connecticut',
+                                            'Delaware',
+                                            'Florida',
+                                            'Georgia',
+                                            'Hawaii',
+                                            'Idaho',
+                                            'Illinois',
+                                            'Indiana',
+                                            'Iowa',
+                                            'Kansas',
+                                            'Kentucky',
+                                            'Louisiana',
+                                            'Maine',
+                                            'Maryland',
+                                            'Massachusetts',
+                                            'Michigan',
+                                            'Minnesota',
+                                            'Mississippi',
+                                            'Missouri',
+                                            'Montana',
+                                            'Nebraska',
+                                            'Nevada',
+                                            'New Hampshire',
+                                            'New Jersey',
+                                            'New Mexico',
+                                            'New York',
+                                            'North Carolina',
+                                            'North Dakota',
+                                            'Ohio',
+                                            'Oklahoma',
+                                            'Oregon',
+                                            'Pennsylvania',
+                                            'Rhode Island',
+                                            'South Carolina',
+                                            'South Dakota',
+                                            'Tennessee',
+                                            'Texas',
+                                            'Utah',
+                                            'Vermont',
+                                            'Virginia',
+                                            'Washington',
+                                            'West Virginia',
+                                            'Wisconsin',
+                                            'Wyoming',
+                                        ];
+                                    @endphp
+
+                                    @foreach ($states as $state)
+                                        <option value="{{ $state }}"
+                                            {{ $user->State == $state ? 'selected' : '' }}>
+                                            {{ $state }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @if ($errors->has('state'))
+                                <span class="text-danger">
+                                    {{ $errors->first('state') }}
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="row mb-6">
+                        <label class="col-sm-2 col-form-label" for="city">Zip</label>
+                        <div class="col-sm-10">
+                            <div class="input-group input-group-merge">
+                                <input type="text" class="form-control" id="zip" name="zip"
+                                    placeholder="Zip" value="{{ $user->Zip }}" />
+                            </div>
+                            @if ($errors->has('zip'))
+                                <span class="text-danger">
+                                    {{ $errors->first('zip') }}
+                                </span>
+                            @endif
+                        </div>
+                    </div>
                     <div class="row justify-content-end">
                         <div class="col-sm-10">
                             <button type="submit" class="btn btn-primary">Save</button>

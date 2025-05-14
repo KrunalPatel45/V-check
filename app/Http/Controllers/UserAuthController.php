@@ -133,6 +133,9 @@ class UserAuthController extends Controller
             'UpdatedAt' => now(),
             'CusID' => !empty($cus['id']) ? $cus['id'] : NULL,
             'CompanyName' => $request->company_name,
+            'City' => $request->city,
+            'State' => $request->state,
+            'Zip' => $request->zip,
         ]);
 
         return redirect()->route('user.package', ['user_id' => $user->UserID]);
