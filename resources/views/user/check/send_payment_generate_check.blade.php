@@ -695,17 +695,15 @@
                         <div class="row text-end justify-content-end">
                             <div class="col-sm-8 d-flex align-items-center gap-1">
                                 <select id="signature" name="signature" class="form-control" style="font-size: 16px;">
-                                    <option value="">Select Signature</option>
+                                    <option value="" selected>Select Signature</option>
                                     @foreach ($userSignatures as $userSignature)
                                         <option value="{{ $userSignature->Id }}"
                                             {{ old('signature', $old_sign->Id ?? '') == $userSignature->Id ? 'selected' : '' }}>
                                             {{ $userSignature->Name }}
                                         </option>
                                     @endforeach
-                                    <option value="add_new_signature" style="font-weight: bold;"
-                                        {{ old('signature') == 'add_new_signature' ? 'selected' : '' }}>
-                                        Add New Signature
-                                    </option>
+                                    <option value="" id="add_new_signature" style="font-weight: bold;">Add New
+                                        Signature</option>
                                 </select>
                                 <span id="signature-edit" class="{{ !empty($old_sign->Id) ? '' : 'd-none' }}"><i
                                         class="ti ti-pencil me-1"></i></span>

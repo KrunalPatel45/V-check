@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cheque Format v4</title>
+    <title>Echeck System</title>
     <style>
         @page {
             margin: 0;
