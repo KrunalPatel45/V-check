@@ -65,8 +65,11 @@ class UserAuthController extends Controller
         }
     
         $user = User::where('Email', $request->email)->first();
+        
+        $packag_c = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)->count();
+        
 
-        if (!empty($user) && empty($user->CurrentPackageID)) {
+        if (!empty($user) && $packag_c == 0 && $user->CurrentPackageID != -1) {
             return redirect()->route('user.package', ['user_id' => $user->UserID]);
         }
 
@@ -296,6 +299,9 @@ class UserAuthController extends Controller
         $user->CurrentPackageID = -1;
         $user->Status = 'Active';
         $user->save();
+        
+        $name = $user->FirstName . ' ' .$user->LastName;
+        Mail::to($user->Email)->send(new SendEmail(1, $name));
 
         return redirect()->route('user.login')->with('success', 'Account created successful!');
     }

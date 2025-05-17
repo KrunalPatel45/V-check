@@ -767,7 +767,7 @@ class CheckController extends Controller
         }
 
         $package = Package::find(Auth::user()->CurrentPackageID);
-        $is_web_form = (Auth::user()->CurrentPackageID != -1) ? $package->web_forms : 1;
+        $is_web_form = (Auth::user()->CurrentPackageID != -1) ? $package->web_forms : 0;
         return view('user.web_form.index' , compact('is_web_form'));
     }
 
@@ -1043,21 +1043,21 @@ class CheckController extends Controller
     public function bulk_download(Request $request)
     {
         $check_ids = $request->check_ids;
-
+    
         if (empty($check_ids) || !is_array($check_ids)) {
             return back()->with('error', 'No checks selected for download.');
         }
-
+    
         $pdf_dir = public_path('checks');
         $pdfFiles = [];
         $has_valid_pdf = false;
-
+    
         foreach ($check_ids as $id) {
             $check = Checks::find($id);
-
+    
             if ($check && $check->Status === 'generated' && !empty($check->CheckPDF)) {
                 $pdf_path = $pdf_dir . '/' . $check->CheckPDF;
-
+    
                 if (File::exists($pdf_path)) {
                     $pdfFiles[] = $pdf_path;
                     $has_valid_pdf = true;
@@ -1068,36 +1068,44 @@ class CheckController extends Controller
                 return back()->with('error', "Check ID $id is either not generated or missing PDF.");
             }
         }
-
+    
         if (!$has_valid_pdf) {
             return back()->with('error', 'No valid PDF files found for the selected checks.');
         }
-
+    
         try {
-            // Create FPDI instance with unit = pt and custom page size
-            $pdf = new TcpdfFpdi('P', 'pt', [1000, 1200]);
-
+            // Init with dummy Letter size (will override per page)
+            $pdf = new TcpdfFpdi('P', 'pt', 'letter');
+            $pdf->SetPrintHeader(false);
+            $pdf->SetPrintFooter(false);
+    
             foreach ($pdfFiles as $file) {
                 $pageCount = $pdf->setSourceFile($file);
-
+    
                 for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
                     $templateId = $pdf->importPage($pageNo);
-                    $pdf->AddPage();
-                    $pdf->useTemplate($templateId);
+                    $size = $pdf->getTemplateSize($templateId);
+    
+                    // Add new page with original PDF size
+                    $pdf->AddPage('P', [$size['width'], $size['height']]);
+    
+                    // Place template at (0,0) without scaling
+                    $pdf->useTemplate($templateId, 0, 0, $size['width'], $size['height']);
                 }
             }
-
+    
             $fileName = 'batch-checks-' . time() . '.pdf';
             $filePath = $pdf_dir . '/' . $fileName;
-
+    
             $pdf->Output($filePath, 'F');
-
+    
             return response()->download($filePath)->deleteFileAfterSend(true);
-
+    
         } catch (\Throwable $e) {
             return back()->with('error', 'Failed to merge PDFs: ' . $e->getMessage());
         }
     }
+
 
     public function get_signature($id) 
     {
