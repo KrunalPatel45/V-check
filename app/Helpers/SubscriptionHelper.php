@@ -131,55 +131,73 @@ class SubscriptionHelper {
         $subscriptionId = $data['subscription_id'];
         $newPriceId = $data['new_price_id'];
 
-        // 1. Get the subscription
-        $subscription = Http::withToken(config('services.stripe.secret'))
+        $stripeSecret = config('services.stripe.secret');
+
+        // Step 1: Retrieve subscription
+        $subscriptionResponse = Http::withToken($stripeSecret)
             ->get("https://api.stripe.com/v1/subscriptions/{$subscriptionId}");
 
-        if (!$subscription->successful()) {
+        if (!$subscriptionResponse->successful()) {
             return false;
         }
 
-        $items = $subscription->json('items.data');
+        $subscription = $subscriptionResponse->json();
+        $items = $subscription['items']['data'];
+
         if (empty($items)) {
             return false;
         }
 
         $itemId = $items[0]['id'];
+        $customerId = $subscription['customer'];
 
-        // 2. Update the subscription item with the new price
-        $update = Http::withToken(config('services.stripe.secret'))
+        // Step 2: Update subscription item with proration
+        $updateItemResponse = Http::withToken($stripeSecret)
             ->asForm()
             ->post("https://api.stripe.com/v1/subscription_items/{$itemId}", [
                 'price' => $newPriceId,
-                'proration_behavior' => 'always_invoice',
-                // Remove 'billing_cycle_anchor' if it causes 400 error
+                'proration_behavior' => 'create_prorations',
             ]);
 
-        if (!$update->successful()) {
-            return false;
+        if (!$updateItemResponse->successful()) {
+           return false;
         }
 
-        // 3. Fetch latest invoice
-        $invoices = Http::withToken(config('services.stripe.secret'))
-            ->get("https://api.stripe.com/v1/invoices", [
+        // Step 3: Create invoice
+        $invoiceResponse = Http::withToken($stripeSecret)
+            ->asForm()
+            ->post("https://api.stripe.com/v1/invoices", [
                 'subscription' => $subscriptionId,
-                'limit' => 1,
+                'customer' => $customerId,
+                'auto_advance' => 'false', // Must be string
             ]);
 
-        if (!$invoices->successful()) {
+        if (!$invoiceResponse->successful()) {
+           return false;
+        }
+
+        $invoiceId = $invoiceResponse->json('id');
+
+        // Step 4: Finalize invoice
+        $finalizeResponse = Http::withToken($stripeSecret)
+            ->asForm()
+            ->post("https://api.stripe.com/v1/invoices/{$invoiceId}/finalize");
+
+        if (!$finalizeResponse->successful()) {
             return false;
         }
 
-        $latestInvoice = $invoices->json('data.0');
+        // Step 5: Pay invoice
+        $payResponse = Http::withToken($stripeSecret)
+            ->asForm()
+            ->post("https://api.stripe.com/v1/invoices/{$invoiceId}/pay");
 
-        if (!empty($latestInvoice) && $latestInvoice['amount_due'] > 0) {
-           return !empty($latestInvoice['id']) ? $latestInvoice['id'] : false;
+        if (!$payResponse->successful()) {
+           return false;
         }
-
-        return false;
+        return $payResponse->json();
+        
     }
-
-
 
     public function getCustomerPaymentMethods($customerId)
     {
@@ -236,25 +254,30 @@ class SubscriptionHelper {
     {
         $stripeSecret = config('services.stripe.secret');
 
-        // Step 1: Retrieve the current subscription
+        // Step 1: Retrieve the current subscription with expanded items.price (optional but recommended)
         $subscriptionResponse = Http::withToken($stripeSecret)
-            ->get("https://api.stripe.com/v1/subscriptions/{$subscriptionId}");
+            ->get("https://api.stripe.com/v1/subscriptions/{$subscriptionId}?expand[]=items.data.price");
 
         if (!$subscriptionResponse->successful()) {
-           return false;
+            dd('Subscription fetch failed', $subscriptionResponse->json());
         }
 
         $subscription = $subscriptionResponse->json();
 
-        // Extract necessary details
+        // Correctly fetch current price ID and period end from subscription items data
         $currentPriceId = $subscription['items']['data'][0]['price']['id'] ?? null;
         $currentPeriodEnd = $subscription['items']['data'][0]['current_period_end'] ?? null;
+        $startDate = $subscription['start_date'] ?? null;
 
-        if (!$currentPriceId || !$currentPeriodEnd) {
-             return false;
+        if (!$currentPriceId || !$currentPeriodEnd || !$startDate) {
+            dd('Missing current price or current period end or start date', [
+                'currentPriceId' => $currentPriceId,
+                'currentPeriodEnd' => $currentPeriodEnd,
+                'startDate' => $startDate,
+            ]);
         }
 
-        // Step 2: Create a Subscription Schedule from the existing subscription
+        // Step 2: Create Subscription Schedule from current subscription
         $scheduleResponse = Http::withToken($stripeSecret)
             ->asForm()
             ->post("https://api.stripe.com/v1/subscription_schedules", [
@@ -262,23 +285,20 @@ class SubscriptionHelper {
             ]);
 
         if (!$scheduleResponse->successful()) {
-           return false;
+            dd('Failed to create schedule', $scheduleResponse->json());
         }
 
-        $schedule = $scheduleResponse->json();
-        $scheduleId = $schedule['id'];
+        $scheduleId = $scheduleResponse->json()['id'];
 
-        // Step 3: Update the Subscription Schedule to add a new phase for the downgrade
+        // Step 3: Update schedule with phases (current plan till period end, then downgrade)
         $updateResponse = Http::withToken($stripeSecret)
             ->asForm()
             ->post("https://api.stripe.com/v1/subscription_schedules/{$scheduleId}", [
-                // Phase 1: Current plan until current_period_end
-                'phases[0][start_date]' => $subscription['start_date'],
+                'phases[0][start_date]' => $startDate,
                 'phases[0][end_date]' => $currentPeriodEnd,
                 'phases[0][items][0][price]' => $currentPriceId,
                 'phases[0][items][0][quantity]' => 1,
 
-                // Phase 2: Downgrade plan after current_period_end
                 'phases[1][start_date]' => $currentPeriodEnd,
                 'phases[1][items][0][price]' => $newPriceId,
                 'phases[1][items][0][quantity]' => 1,
@@ -286,10 +306,11 @@ class SubscriptionHelper {
             ]);
 
         if (!$updateResponse->successful()) {
-            false;
+            dd('Failed to update schedule', $updateResponse->json());
         }
 
-        return $updateResponse->json();
+        return true;
     }
+
 
 }

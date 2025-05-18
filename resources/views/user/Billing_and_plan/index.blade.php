@@ -184,7 +184,6 @@
                                 @if (!empty($paymentSubscription->NextPackageID))
                                     <div class="alert alert-warning mt-3" role="alert">
                                         Your subscription plan downgrade has been scheduled. The change will take effect on
-                                        {{ \Carbon\Carbon::parse($package_data['downgrade_payment']->PaymentDate)->format('m-d-Y') }},
                                         after your current plan expires. You can continue to enjoy your current plan
                                         benefits
                                         until then

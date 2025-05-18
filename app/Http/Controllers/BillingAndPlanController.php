@@ -99,7 +99,7 @@ class BillingAndPlanController extends Controller
                  'new_price_id' => $package->PriceID,
              ];
              $res = $this->subscriptionHelper->updateSubscription($data);
-             if(!empty($res)) {
+             if(!empty($res['id'])) {
                  // Delete any pending or canceled subscriptions
                  $cancel_or_pending_query = PaymentSubscription::where('UserId', $id)
                      ->whereIn('Status', ['Pending', 'Canceled']);
@@ -127,7 +127,7 @@ class BillingAndPlanController extends Controller
                      'ChecksUsed' => $data_current_package->ChecksUsed,
                      'PaymentDate' => $data_current_package->PaymentDate,
                      'PaymentAttempts' => 0,
-                     'TransactionID' => $res,
+                     'TransactionID' => $res['id'],
                      'Status' => 'Active',
                  ]);
 
@@ -138,7 +138,7 @@ class BillingAndPlanController extends Controller
                      'PaymentDate' => now(),
                      'PaymentStatus' => 'Success',
                      'PaymentAttempts' => 0,
-                     'TransactionID' => $res,
+                     'TransactionID' => $res['id'],
                  ]);
 
                  $user->CurrentPackageID = $plan;
