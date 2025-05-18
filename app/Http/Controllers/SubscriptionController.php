@@ -97,7 +97,7 @@ class SubscriptionController extends Controller
 
         $paymentStartDate = Carbon::now();
         $paymentEndDate = $paymentStartDate->copy()->addHours(24);
-        $nextRenewalDate = $paymentStartDate->copy()->addDays($packages->Duration);
+        $nextRenewalDate = $paymentStartDate->copy()->addDays((int)$packages->Duration);
 
         $paymentSubscription = PaymentSubscription::create([
             'UserID' => $user->UserID,
@@ -133,7 +133,7 @@ class SubscriptionController extends Controller
 
     public function cancel()
     {
-        return redirect()->route('user.login')->with('success', 'Something went wrong');
+        return redirect()->route('user.login')->with('error', 'Something went wrong');
     }
 
     public function add_card(Request $request) 
