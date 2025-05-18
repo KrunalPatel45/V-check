@@ -29,6 +29,7 @@ class PaymentSubscription extends Model
         'TransactionID',
         'PromotionID',
         'Status',
+        'NextPackageID',
     ];
 
 }

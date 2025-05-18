@@ -169,8 +169,6 @@ class AdminDashboardController extends Controller
         $expiryDate = !empty($expiry) ? $expiry->format('M d, Y') : '';
         $remainingDays = !empty($expiry) ? $expiry->diffInDays(Carbon::now(), false) : '';
         $packages = Package::all();
-        $downgrade_payment = PaymentSubscription::where('UserID', $id)->where('Status', 'Pending')->first();
-        $cancel_plan = PaymentSubscription::where('UserID', $id)->where('Status', 'Canceled')->first();
         
         $check_used = '-';
         $remaining_checks = '-';
@@ -184,8 +182,6 @@ class AdminDashboardController extends Controller
             'package_name' => $package_name,
             'expiryDate' => $expiryDate,
             'remainingDays' => !empty($remainingDays) ? abs(round($remainingDays)) : '',
-            'downgrade_payment' => $downgrade_payment,
-            'cancel_plan' => $cancel_plan,
         ];
        $type = 'default';
         if(!empty($request->type)) {
@@ -194,7 +190,7 @@ class AdminDashboardController extends Controller
         $maxPricePackage = Package::orderBy('price', 'desc')->first();
         $stander_Plan_price = $maxPricePackage->Price;
         $currentPackage = $user->CurrentPackageID;
-        return view('admin.user.user_detail_page', compact('user', 'package_data', 'packages', 'check_used', 'remaining_checks', 'package', 'type', 'stander_Plan_price', 'currentPackage', 'user_history'));
+        return view('admin.user.user_detail_page', compact('user', 'package_data', 'packages', 'check_used', 'remaining_checks', 'package', 'type', 'stander_Plan_price', 'currentPackage', 'user_history', 'paymentSubscription'));
     }
 
     public function updateUserProfile(Request $request)

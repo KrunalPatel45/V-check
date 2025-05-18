@@ -51,27 +51,53 @@ class SubscriptionController extends Controller
     public function success(Request $request)
     {
         $sessionId = $request->get('session_id');
-        $user = $request->get('user');
+        $userHash = $request->get('user');
 
-        $user = User::whereRaw('MD5(UserID) = ?', [$user])->first();
+        $user = User::whereRaw('MD5(UserID) = ?', [$userHash])->firstOrFail();
 
-        $session = Http::withToken(config('services.stripe.secret'))->get("https://api.stripe.com/v1/checkout/sessions/{$sessionId}");
+        // 1. Get checkout session details
+        $session = Http::withToken(config('services.stripe.secret'))
+            ->get("https://api.stripe.com/v1/checkout/sessions/{$sessionId}");
+
+        if (!$session->successful()) {
+            abort(500, 'Payment session could not be verified.');
+        }
 
         $session_data = $session->json();
+        $subscriptionId = $session_data['subscription'] ?? null;
+
+        if (!$subscriptionId) {
+            abort(500, 'Subscription ID missing in session.');
+        }
+
+        // 2. Fetch latest invoice for subscription
+        $invoice = Http::withToken(config('services.stripe.secret'))
+            ->get("https://api.stripe.com/v1/invoices", [
+                'subscription' => $subscriptionId,
+                'limit' => 1,
+            ]);
+
+        $invoiceData = null;
+        if ($invoice->successful() && !empty($invoice->json('data.0'))) {
+            $invoiceData = $invoice->json('data.0');
+        }
+
+        $invoiceId = $invoiceData['id'] ?? null;
+
+        // 3. Update user and create subscription record
         $user->Status = 'Active';
+        $user->SubID = $subscriptionId;
         $user->save();
 
-        $PaymentSubscription_plan = PaymentSubscription::where('UserID', $user->UserID)->whereIn('Status', ['Canceled', 'Pending'])->delete();
+        PaymentSubscription::where('UserID', $user->UserID)
+            ->whereIn('Status', ['Canceled', 'Pending'])
+            ->delete();
 
-
-        $packages = Package::find($user->CurrentPackageID);
+        $packages = Package::findOrFail($user->CurrentPackageID);
 
         $paymentStartDate = Carbon::now();
-
         $paymentEndDate = $paymentStartDate->copy()->addHours(24);
-
         $nextRenewalDate = $paymentStartDate->copy()->addDays($packages->Duration);
-
 
         $paymentSubscription = PaymentSubscription::create([
             'UserID' => $user->UserID,
@@ -82,29 +108,27 @@ class SubscriptionController extends Controller
             'PaymentEndDate' => $paymentEndDate,
             'NextRenewalDate' => $nextRenewalDate,
             'ChecksGiven' => $packages->CheckLimitPerMonth,
-            'ChecksUsed'=> 0,
+            'ChecksUsed' => 0,
             'RemainingChecks' => 0,
             'PaymentDate' => $paymentStartDate,
-            'PaymentAttempts' => 0 ,
-            'TransactionID' => $session_data['subscription'],
-            'Status' => 'Active', 
+            'PaymentAttempts' => 0,
+            'TransactionID' => $invoiceId,
+            'InvoiceID' => $invoiceId,
+            'Status' => 'Active',
         ]);
 
-        $paymentSubscriptionId = $paymentSubscription->PaymentSubscriptionID;
-
-        $paymentSubscription = PaymentHistory::create([
-            'PaymentSubscriptionID' => $paymentSubscriptionId,
+        PaymentHistory::create([
+            'PaymentSubscriptionID' => $paymentSubscription->PaymentSubscriptionID,
             'PaymentAmount' => $packages->Price,
             'PaymentDate' => $paymentStartDate,
             'PaymentStatus' => 'Success',
             'PaymentAttempts' => 0,
-            'TransactionID' => $paymentSubscription->TransactionID,
+            'TransactionID' => $invoiceId,
+            'InvoiceID' => $invoiceId,
         ]);
 
-        $name = $user->FirstName . ' ' .$user->LastName;
-        Mail::to($user->Email)->send(new SendEmail(1, $name));
-        return redirect()->route('user.login')->with('success', 'Account created successful!');
-
+        // Optional: redirect or show a view
+        return redirect()->route('user.login')->with('success', 'Account created successfully!');
     }
 
     public function cancel()

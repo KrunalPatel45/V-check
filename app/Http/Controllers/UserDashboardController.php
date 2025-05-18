@@ -50,15 +50,11 @@ class UserDashboardController extends Controller
             $expiry = Carbon::createFromFormat('Y-m-d', $paymentSubscription->NextRenewalDate);
             $expiryDate = $expiry->format('M d, Y');
             $remainingDays = $expiry->diffInDays(Carbon::now(), false);
-            $downgrade_payment = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('Status', 'Pending')->first();
-            $cancel_plan = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('Status', 'Canceled')->first();
             $package_data = [
                 'total_days' => $total_days,
                 'package_name' => $package_name,
                 'expiryDate' => $expiryDate,
                 'remainingDays' => abs(round($remainingDays)),
-                'downgrade_payment' => $downgrade_payment,
-                'cancel_plan' => $cancel_plan,
             ];
 
             $given_checks = ($paymentSubscription->ChecksGiven == 0) ? 'Unlimited' : $paymentSubscription->ChecksGiven;
@@ -77,7 +73,7 @@ class UserDashboardController extends Controller
             $total_companies = Company::where('UserID', Auth::user()->UserID)->count();
 
         }
-        return view('content.dashboard.user-dashboards-analytics', compact('package_data', 'total_vendor', 'total_client', 'total_companies', 'given_checks', 'used_checks', 'remaining_checks', 'package'));
+        return view('content.dashboard.user-dashboards-analytics', compact('package_data', 'total_vendor', 'total_client', 'total_companies', 'given_checks', 'used_checks', 'remaining_checks', 'package', 'paymentSubscription'));
     }
 
     public function profile()

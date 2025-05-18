@@ -500,7 +500,7 @@
                                     aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                             <small>{{ $package_data['remainingDays'] }} days remaining</small>
-                            @if (!empty($package_data['downgrade_payment']))
+                            @if (!empty($paymentSubscription->NextPackageID))
                                 <div class="alert alert-warning mt-3" role="alert">
                                     Your subscription plan downgrade has been scheduled. The change will take effect on
                                     {{ \Carbon\Carbon::parse($package_data['downgrade_payment']->PaymentDate)->format('m-d-Y') }},
@@ -509,7 +509,7 @@
                                     then
                                 </div>
                             @endif
-                            @if (!empty($package_data['cancel_plan']))
+                            @if ($paymentSubscription->Status == 'Canceled')
                                 <div class="alert alert-danger mt-3" role="alert">
                                     Your subscription cancellation has been scheduled. The change will take effect after
                                     your current plan ends. You will continue to enjoy your current plan benefits until
