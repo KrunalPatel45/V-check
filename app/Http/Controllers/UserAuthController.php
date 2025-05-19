@@ -293,12 +293,36 @@ class UserAuthController extends Controller
         return redirect()->route('user.login')->with('success', 'Your password has been reset successfully!');
     }
 
-    public function select_free_package(Request $request, $id)
+    public function select_free_package(Request $request, $id, $plan)
     {
         $user = User::find($id);
         $user->CurrentPackageID = -1;
         $user->Status = 'Active';
         $user->save();
+
+        $packages = Package::findOrFail($plan);
+
+        $paymentStartDate = Carbon::now();
+        $paymentEndDate = $paymentStartDate->copy()->addHours(24);
+        $nextRenewalDate = $paymentStartDate->copy()->addDays((int)$packages->Duration);
+
+        $paymentSubscription = PaymentSubscription::create([
+            'UserID' => $user->UserID,
+            'PackageID' => $user->CurrentPackageID,
+            'PaymentMethodID' => 1,
+            'PaymentAmount' => $packages->Price,
+            'PaymentStartDate' => $paymentStartDate,
+            'PaymentEndDate' => $paymentEndDate,
+            'NextRenewalDate' => $nextRenewalDate,
+            'ChecksGiven' => $packages->CheckLimitPerMonth,
+            'ChecksUsed' => 0,
+            'RemainingChecks' => 0,
+            'PaymentDate' => $paymentStartDate,
+            'PaymentAttempts' => 0,
+            'TransactionID' => 'Trial',
+            'InvoiceID' => 'Tiral',
+            'Status' => 'Active',
+        ]);
         
         $name = $user->FirstName . ' ' .$user->LastName;
         Mail::to($user->Email)->send(new SendEmail(1, $name));

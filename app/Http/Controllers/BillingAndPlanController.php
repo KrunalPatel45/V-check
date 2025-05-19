@@ -21,20 +21,14 @@ class BillingAndPlanController extends Controller
       }     
       public function index()
       {
-        $user = User::where('userID', Auth::user()->UserID)->first();
-        $package_id = $user->CurrentPackageID;
-        if($user->CurrentPackageID == -1) {
-            $package_data = [
-                'total_days' => 0,
-                'package_name' => 0,
-                'expiryDate' => 0,
-                'remainingDays' => 0,
-                'downgrade_payment' => 0,
-                'cancel_plan' => 0,
-            ];
-        } else {
+            $user = User::where('userID', Auth::user()->UserID)->first();
+            $package_id = $user->CurrentPackageID;
             $paymentSubscription = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('PackageID', $user->CurrentPackageID)->first();
-            $package = Package::find($user->CurrentPackageID);
+            if($package_id == -1) {
+                $package = Package::whereRaw('LOWER(Name) = ?', ['trial'])->first();
+            } else {
+                $package = Package::find($user->CurrentPackageID);
+            }
             $total_days = $package->Duration;
             $package_name = $package->Name;
             $expiry = Carbon::createFromFormat('Y-m-d', $paymentSubscription->NextRenewalDate);
@@ -47,13 +41,12 @@ class BillingAndPlanController extends Controller
                 'expiryDate' => $expiryDate,
                 'remainingDays' => abs(round($remainingDays)),
             ];
-        }
-        $maxPricePackage = Package::orderBy('price', 'desc')->first();
-        $stander_Plan_price = $maxPricePackage->Price;
-        $packages = Package::all();
-        $cards = $this->subscriptionHelper->getCustomerPaymentMethods($user->CusID);
-        $default_card = $this->subscriptionHelper->getDefaultCard($user->CusID);
-        return view('user.billing_and_plan.index', compact('package_data', 'stander_Plan_price', 'user', 'packages', 'package_id', 'cards', 'default_card', 'paymentSubscription'));
+            $maxPricePackage = Package::orderBy('price', 'desc')->first();
+            $stander_Plan_price = $maxPricePackage->Price;
+            $packages = Package::all();
+            $cards = $this->subscriptionHelper->getCustomerPaymentMethods($user->CusID);
+            $default_card = $this->subscriptionHelper->getDefaultCard($user->CusID);
+            return view('user.billing_and_plan.index', compact('package_data', 'stander_Plan_price', 'user', 'packages', 'package_id', 'cards', 'default_card', 'paymentSubscription'));
       }
 
       public function upgragde_plan($id)

@@ -220,7 +220,7 @@ Route::get('/register', [UserAuthController::class, 'register'])->name('user.reg
 Route::post('/register', [UserAuthController::class, 'store'])->name('register.store');
 Route::get('/package', [UserAuthController::class, 'package'])->name('user.package');
 // Route::get('/select-package/{id}/{plan}', [UserAuthController::class, 'select_package'])->name('user-select-package');
-Route::get('/select-free-package/{id}/', [UserAuthController::class, 'select_free_package'])->name('user-select-free-package');
+Route::get('/select-free-package/{id}/{plan}', [UserAuthController::class, 'select_free_package'])->name('user-select-free-package');
 Route::get('/select-package/{id}/{plan}', [SubscriptionController::class, 'checkout'])->name('user-select-package');
 Route::get('/user/logout', [UserAuthController::class, 'logout'])->name('user.logout');
 Route::get('/email', [UserAuthController::class, 'email'])->name('user.email');
@@ -292,6 +292,7 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::delete('delete-sign/{id}', [SignController::class, 'delete'])->name('delete_sign');
     Route::get('get-signature/{id}', [CheckController::class, 'get_signature'])->name('get_signature');
     Route::get('send-check-email/{id}', [CheckController::class, 'send_check_email'])->name('send_check_email');
+    Route::post('stripe-subscribe', [SubscriptionController::class, 'subscribe'])->name('stripe.subscribe');
     Route::post('add-card', [SubscriptionController::class, 'add_card'])->name('stripe.add_card');
     Route::get('delete-card/{id}', [SubscriptionController::class, 'delete_card'])->name('stripe.delete_card');
     Route::get('set-default/{id}', [SubscriptionController::class, 'set_default'])->name('stripe.set_default');

@@ -172,7 +172,8 @@
                     <li>Custom Webform*</li>
                     <li>3 mos History Storage</li>
                 </ul>
-                <a href="{{ route('user-select-free-package', ['id' => $userId]) }}" class="plan-button">Select Plan</a>
+                <a href="{{ route('user-select-free-package', ['id' => $userId, 'plan' => $trial_package->PackageID]) }}"
+                    class="plan-button">Select Plan</a>
             </div>
         @endif
     </div>
