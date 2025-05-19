@@ -114,7 +114,7 @@ class SubscriptionHelper {
             'line_items[0][price]' => $data['price_id'] ,
             'line_items[0][quantity]' => 1,
             'mode' => 'subscription',
-            'success_url' => route('stripe.success') . '?session_id={CHECKOUT_SESSION_ID}&user=' . md5($data['user_id']),
+            'success_url' => route('stripe.success') . '?session_id={CHECKOUT_SESSION_ID}&user=' . md5($data['user_id']).'&plan='. $data['plan'],
             'cancel_url' => route('stripe.cancel'),
         ]);
 

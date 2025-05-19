@@ -29,19 +29,18 @@ class SubscriptionController extends Controller
     public function checkout($id, $plan) 
     {
         $user = User::find($id);
-        $user->CurrentPackageID = $plan;
         
         $package = Package::find($plan);
         $data = [
             'cusID' => $user->CusID,
             'price_id' => $package->PriceID,
             'user_id' => $id,
+            'plan' => $plan,
         ];
 
         $res = $this->subscriptionHelper->addSubscription($data);
 
         if(!empty($res)) {
-            $user->save();
             return redirect($res['url']);
         }
 
@@ -52,6 +51,7 @@ class SubscriptionController extends Controller
     {
         $sessionId = $request->get('session_id');
         $userHash = $request->get('user');
+        $plan = $request->get('plan');
 
         $user = User::whereRaw('MD5(UserID) = ?', [$userHash])->firstOrFail();
 
@@ -84,51 +84,55 @@ class SubscriptionController extends Controller
 
         $invoiceId = $invoiceData['id'] ?? null;
 
-        // 3. Update user and create subscription record
-        $user->Status = 'Active';
-        $user->SubID = $subscriptionId;
-        $user->save();
+        if(!empty($invoiceId)) {
+            // 3. Update user and create subscription record
+            $user->Status = 'Active';
+            $user->SubID = $subscriptionId;
+            $user->CurrentPackageID = $plan;
+            $user->save();
 
-        PaymentSubscription::where('UserID', $user->UserID)
-            ->whereIn('Status', ['Canceled', 'Pending'])
-            ->delete();
+            PaymentSubscription::where('UserID', $user->UserID)
+                ->whereIn('Status', ['Canceled', 'Pending'])
+                ->delete();
 
-        $packages = Package::findOrFail($user->CurrentPackageID);
+            $packages = Package::findOrFail($user->CurrentPackageID);
 
-        $paymentStartDate = Carbon::now();
-        $paymentEndDate = $paymentStartDate->copy()->addHours(24);
-        $nextRenewalDate = $paymentStartDate->copy()->addDays((int)$packages->Duration);
+            $paymentStartDate = Carbon::now();
+            $paymentEndDate = $paymentStartDate->copy()->addHours(24);
+            $nextRenewalDate = $paymentStartDate->copy()->addDays((int)$packages->Duration);
 
-        $paymentSubscription = PaymentSubscription::create([
-            'UserID' => $user->UserID,
-            'PackageID' => $user->CurrentPackageID,
-            'PaymentMethodID' => 1,
-            'PaymentAmount' => $packages->Price,
-            'PaymentStartDate' => $paymentStartDate,
-            'PaymentEndDate' => $paymentEndDate,
-            'NextRenewalDate' => $nextRenewalDate,
-            'ChecksGiven' => $packages->CheckLimitPerMonth,
-            'ChecksUsed' => 0,
-            'RemainingChecks' => 0,
-            'PaymentDate' => $paymentStartDate,
-            'PaymentAttempts' => 0,
-            'TransactionID' => $invoiceId,
-            'InvoiceID' => $invoiceId,
-            'Status' => 'Active',
-        ]);
+            $paymentSubscription = PaymentSubscription::create([
+                'UserID' => $user->UserID,
+                'PackageID' => $user->CurrentPackageID,
+                'PaymentMethodID' => 1,
+                'PaymentAmount' => $packages->Price,
+                'PaymentStartDate' => $paymentStartDate,
+                'PaymentEndDate' => $paymentEndDate,
+                'NextRenewalDate' => $nextRenewalDate,
+                'ChecksGiven' => $packages->CheckLimitPerMonth,
+                'ChecksUsed' => 0,
+                'RemainingChecks' => 0,
+                'PaymentDate' => $paymentStartDate,
+                'PaymentAttempts' => 0,
+                'TransactionID' => $invoiceId,
+                'InvoiceID' => $invoiceId,
+                'Status' => 'Active',
+            ]);
 
-        PaymentHistory::create([
-            'PaymentSubscriptionID' => $paymentSubscription->PaymentSubscriptionID,
-            'PaymentAmount' => $packages->Price,
-            'PaymentDate' => $paymentStartDate,
-            'PaymentStatus' => 'Success',
-            'PaymentAttempts' => 0,
-            'TransactionID' => $invoiceId,
-            'InvoiceID' => $invoiceId,
-        ]);
+            PaymentHistory::create([
+                'PaymentSubscriptionID' => $paymentSubscription->PaymentSubscriptionID,
+                'PaymentAmount' => $packages->Price,
+                'PaymentDate' => $paymentStartDate,
+                'PaymentStatus' => 'Success',
+                'PaymentAttempts' => 0,
+                'TransactionID' => $invoiceId,
+                'InvoiceID' => $invoiceId,
+            ]);
 
-        // Optional: redirect or show a view
-        return redirect()->route('user.login')->with('success', 'Account created successfully!');
+            // Optional: redirect or show a view
+            return redirect()->route('user.login')->with('success', 'Account created successfully!');
+        }
+         return redirect()->route('user.login')->with('error', 'Something want to wrong');
     }
 
     public function cancel()

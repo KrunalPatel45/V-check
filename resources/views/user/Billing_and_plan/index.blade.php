@@ -400,34 +400,36 @@
                 <div class="pricing-table">
                     @if (count($packages) > 0)
                         @foreach ($packages as $package)
-                            <div
-                                class="pricing-card {{ $package->Name == 'PRO' || $package->Name == 'ENTERPRISE' ? 'popular' : '' }}{{ $user->CurrentPackageID != '-1' && $user->CurrentPackageID == $package->PackageID ? ' selected-plan' : '' }}">
-                                <h3>{{ $package->Name }}</h3>
-                                <p class="price">${{ $package->Price }} <span>monthly</span></p>
-                                <ul class="features">
-                                    <li>Up to
-                                        {{ $package->Name != 'UNLIMITED' ? $package->CheckLimitPerMonth : 'Unlimited ' }}
-                                        checks
-                                        / month</li>
-                                    <li>Email Support</li>
-                                    <li>Unlimited Users</li>
-                                    @if ($package->Name != 'BASIC')
-                                        <li>Custom Webform*</li>
-                                    @endif
-                                    <li>3 mos History Storage</li>
-                                </ul>
-                                @if ($user->CurrentPackageID != '-1' && $user->CurrentPackageID == $package->PackageID)
-                                    <p class="current-plan">Current Plan</p>
-                                @else
-                                    @if ($user->CurrentPackageID != '-1')
-                                        <a href="{{ route('user.select-package', ['id' => $user->UserID, 'plan' => $package->PackageID]) }}"
-                                            class="plan-button">Select Plan</a>
+                            @if ($package->Name != 'Trial')
+                                <div
+                                    class="pricing-card {{ $package->Name == 'PRO' || $package->Name == 'ENTERPRISE' ? 'popular' : '' }}{{ $user->CurrentPackageID != '-1' && $user->CurrentPackageID == $package->PackageID ? ' selected-plan' : '' }}">
+                                    <h3>{{ $package->Name }}</h3>
+                                    <p class="price">${{ $package->Price }} <span>monthly</span></p>
+                                    <ul class="features">
+                                        <li>Up to
+                                            {{ $package->Name != 'UNLIMITED' ? $package->CheckLimitPerMonth : 'Unlimited ' }}
+                                            checks
+                                            / month</li>
+                                        <li>Email Support</li>
+                                        <li>Unlimited Users</li>
+                                        @if ($package->Name != 'BASIC')
+                                            <li>Custom Webform*</li>
+                                        @endif
+                                        <li>3 mos History Storage</li>
+                                    </ul>
+                                    @if ($user->CurrentPackageID != '-1' && $user->CurrentPackageID == $package->PackageID)
+                                        <p class="current-plan">Current Plan</p>
                                     @else
-                                        <a href="{{ route('user-select-package', ['id' => $user->UserID, 'plan' => $package->PackageID]) }}"
-                                            class="plan-button">Select Plan</a>
+                                        @if ($user->CurrentPackageID != '-1')
+                                            <a href="{{ route('user.select-package', ['id' => $user->UserID, 'plan' => $package->PackageID]) }}"
+                                                class="plan-button">Select Plan</a>
+                                        @else
+                                            <a href="{{ route('user-select-package', ['id' => $user->UserID, 'plan' => $package->PackageID]) }}"
+                                                class="plan-button">Select Plan</a>
+                                        @endif
                                     @endif
-                                @endif
-                            </div>
+                                </div>
+                            @endif
                         @endforeach
                     @endif
                 </div>
