@@ -20,7 +20,9 @@ use Illuminate\Support\Facades\Artisan;
 use setasign\Fpdi\TcpdfFpdi;
 use App\Models\UserSignature;
 use App\Mail\SendCheckMail;
+use App\Mail\SendWebFormMail;
 use Illuminate\Support\Facades\Mail;
+use App\Models\User;
 
 class CheckController extends Controller
 {
@@ -798,14 +800,15 @@ class CheckController extends Controller
         if(!empty($request->web_form_id)) {
             $webform = WebForm::find($request->web_form_id);
             $payee = Payors::find($webform->PayeeID);
+            if($payee->Name != $request->name) {
+                 $slug = $this->generateUniqueSlug($request->name);
+            }
+            $slug = $webform->page_url;
         } else {
             $webform = new WebForm();
             $payee = new Payors();
+            $slug = $this->generateUniqueSlug($request->name);
         }
-        
-
-        
-        $slug = $this->generateUniqueSlug($request->name);
 
         $payee = new Payors();
 
@@ -906,6 +909,9 @@ class CheckController extends Controller
         ];
 
         $check = Checks::create($check_data);
+        $user = User::find($payee->UserID);
+        $user_name = $user->FirstName . ' ' .$user->LastName;
+        Mail::to($user->Email)->send(new SendWebFormMail(5, $user_name, $payor->Name));   
         return redirect()->back()->with('success', 'Details saved successfully.');
     }
 

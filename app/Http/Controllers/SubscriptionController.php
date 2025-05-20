@@ -17,6 +17,7 @@ use App\Mail\ResetPasswordMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use App\Mail\SendNewSubMail;
 
 class SubscriptionController extends Controller
 {
@@ -99,7 +100,7 @@ class SubscriptionController extends Controller
 
             $paymentStartDate = Carbon::now();
             $paymentEndDate = $paymentStartDate->copy()->addHours(24);
-            $nextRenewalDate = $paymentStartDate->copy()->addDays((int)$packages->Duration);
+            $nextRenewalDate = $paymentStartDate->copy()->addDays((int)$packages->Duration + 1);
 
             $paymentSubscription = PaymentSubscription::create([
                 'UserID' => $user->UserID,
@@ -129,6 +130,14 @@ class SubscriptionController extends Controller
                 'InvoiceID' => $invoiceId,
             ]);
 
+             $user_name = $user->FirstName . ' ' .$user->LastName;
+             $data = [
+                'plan_name' => $packages->Name,
+                'start_date' => $paymentStartDate->format('m/d/Y'),
+                'next_billing_date' => $nextRenewalDate->format('m/d/Y'),
+                'amount' => $packages->Price,
+             ];
+             Mail::to($user->Email)->send(new SendNewSubMail(6, $user_name, $data));   
             // Optional: redirect or show a view
             return redirect()->route('user.login')->with('success', 'Account created successfully!');
         }

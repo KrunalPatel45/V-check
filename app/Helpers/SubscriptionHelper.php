@@ -259,7 +259,7 @@ class SubscriptionHelper {
             ->get("https://api.stripe.com/v1/subscriptions/{$subscriptionId}?expand[]=items.data.price");
 
         if (!$subscriptionResponse->successful()) {
-            dd('Subscription fetch failed', $subscriptionResponse->json());
+            return false;
         }
 
         $subscription = $subscriptionResponse->json();
@@ -270,11 +270,7 @@ class SubscriptionHelper {
         $startDate = $subscription['start_date'] ?? null;
 
         if (!$currentPriceId || !$currentPeriodEnd || !$startDate) {
-            dd('Missing current price or current period end or start date', [
-                'currentPriceId' => $currentPriceId,
-                'currentPeriodEnd' => $currentPeriodEnd,
-                'startDate' => $startDate,
-            ]);
+           return false;
         }
 
         // Step 2: Create Subscription Schedule from current subscription
@@ -285,7 +281,7 @@ class SubscriptionHelper {
             ]);
 
         if (!$scheduleResponse->successful()) {
-            dd('Failed to create schedule', $scheduleResponse->json());
+            return false;
         }
 
         $scheduleId = $scheduleResponse->json()['id'];
@@ -306,7 +302,7 @@ class SubscriptionHelper {
             ]);
 
         if (!$updateResponse->successful()) {
-            dd('Failed to update schedule', $updateResponse->json());
+            return false;
         }
 
         return true;

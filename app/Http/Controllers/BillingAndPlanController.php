@@ -11,6 +11,10 @@ use App\Models\User;
 use App\Models\PaymentHistory;
 use Illuminate\Support\Str;
 use App\Helpers\SubscriptionHelper;
+use App\Mail\SendUpgradeSubMail;
+use App\Mail\SendDowngradeSubMail;
+use App\Mail\SendCancelSubMail;
+use Illuminate\Support\Facades\Mail;
 
 class BillingAndPlanController extends Controller
 {
@@ -80,75 +84,97 @@ class BillingAndPlanController extends Controller
          $package = Package::find($plan);
          $user_current_package = Package::find($user->CurrentPackageID);
          $data_current_package = PaymentSubscription::where('UserId', $id)->where('PackageID', $user->CurrentPackageID)->first();
-         
-         // If upgrading to a higher priced plan
-         if($package->Price > $user_current_package->Price) {
-             // Calculate price difference
-             $price_difference = $package->Price - $user_current_package->Price;
-             
-             // Update subscription in Stripe
-             $data = [
-                 'subscription_id' => $user->SubID,
-                 'new_price_id' => $package->PriceID,
-             ];
-             $res = $this->subscriptionHelper->updateSubscription($data);
-             if(!empty($res['id'])) {
-                 // Delete any pending or canceled subscriptions
-                 $cancel_or_pending_query = PaymentSubscription::where('UserId', $id)
-                     ->whereIn('Status', ['Pending', 'Canceled']);
-                 
-                 $subscriptionIds = $cancel_or_pending_query->pluck('PaymentSubscriptionID')->toArray();
-                 
-                 if (!empty($subscriptionIds)) {
-                     PaymentHistory::whereIn('PaymentSubscriptionID', $subscriptionIds)->delete();
-                 }
-                 
-                 $cancel_or_pending_query->delete();
 
-                 // Update current subscription
-                 $paymentSubscription = PaymentSubscription::find($data_current_package->PaymentSubscriptionID);
-                 $paymentSubscription->update([
-                     'UserID' => $id,
-                     'PackageID' => $plan,
-                     'PaymentMethodID' => 1,
-                     'PaymentAmount' => $price_difference,
-                     'PaymentStartDate' => $data_current_package->PaymentStartDate,
-                     'PaymentEndDate' => $data_current_package->PaymentEndDate,
-                     'NextRenewalDate' => $data_current_package->NextRenewalDate,
-                     'ChecksGiven' => $package->CheckLimitPerMonth,
-                     'RemainingChecks' => $package->CheckLimitPerMonth - $data_current_package->ChecksUsed,
-                     'ChecksUsed' => $data_current_package->ChecksUsed,
-                     'PaymentDate' => $data_current_package->PaymentDate,
-                     'PaymentAttempts' => 0,
-                     'TransactionID' => $res['id'],
-                     'Status' => 'Active',
-                 ]);
+        if(!empty($data_current_package)) {
+            // If upgrading to a higher priced plan
+            if($package->Price > $user_current_package->Price) {
+                // Calculate price difference
+                $price_difference = $package->Price - $user_current_package->Price;
+                
+                // Update subscription in Stripe
+                $data = [
+                    'subscription_id' => $user->SubID,
+                    'new_price_id' => $package->PriceID,
+                ];
+                $res = $this->subscriptionHelper->updateSubscription($data);
+                if(!empty($res['id'])) {
+                    // Delete any pending or canceled subscriptions
+                    $cancel_or_pending_query = PaymentSubscription::where('UserId', $id)
+                        ->whereIn('Status', ['Pending', 'Canceled']);
+                    
+                    $subscriptionIds = $cancel_or_pending_query->pluck('PaymentSubscriptionID')->toArray();
+                    
+                    if (!empty($subscriptionIds)) {
+                        PaymentHistory::whereIn('PaymentSubscriptionID', $subscriptionIds)->delete();
+                    }
+                    
+                    $cancel_or_pending_query->delete();
 
-                 // Create payment history for the upgrade charge
-                 PaymentHistory::create([
-                     'PaymentSubscriptionID' => $paymentSubscription->PaymentSubscriptionID,
-                     'PaymentAmount' => $price_difference,
-                     'PaymentDate' => now(),
-                     'PaymentStatus' => 'Success',
-                     'PaymentAttempts' => 0,
-                     'TransactionID' => $res['id'],
-                 ]);
+                    // Update current subscription
+                    $paymentSubscription = PaymentSubscription::find($data_current_package->PaymentSubscriptionID);
+                    $paymentSubscription->update([
+                        'UserID' => $id,
+                        'PackageID' => $plan,
+                        'PaymentMethodID' => 1,
+                        'PaymentAmount' => $price_difference,
+                        'PaymentStartDate' => $data_current_package->PaymentStartDate,
+                        'PaymentEndDate' => $data_current_package->PaymentEndDate,
+                        'NextRenewalDate' => $data_current_package->NextRenewalDate,
+                        'ChecksGiven' => $package->CheckLimitPerMonth,
+                        'RemainingChecks' => $package->CheckLimitPerMonth - $data_current_package->ChecksUsed,
+                        'ChecksUsed' => $data_current_package->ChecksUsed,
+                        'PaymentDate' => $data_current_package->PaymentDate,
+                        'PaymentAttempts' => 0,
+                        'TransactionID' => $res['id'],
+                        'Status' => 'Active',
+                    ]);
 
-                 $user->CurrentPackageID = $plan;
-                 $user->save();
-             }
-         } else {
+                    // Create payment history for the upgrade charge
+                    PaymentHistory::create([
+                        'PaymentSubscriptionID' => $paymentSubscription->PaymentSubscriptionID,
+                        'PaymentAmount' => $price_difference,
+                        'PaymentDate' => now(),
+                        'PaymentStatus' => 'Success',
+                        'PaymentAttempts' => 0,
+                        'TransactionID' => $res['id'],
+                    ]);
 
-             $res = $this->subscriptionHelper->schedulePlanDowngrade($user->SubID, $package->PriceID);
-             if(!empty($res)) {
-                $paymentSubscription = PaymentSubscription::find($data_current_package->PaymentSubscriptionID);
-                $paymentSubscription->update([
-                    'NextPackageID' => $plan,
-                ]);
-             } else {
-                return redirect()->route('billing_and_plan')->with('error', 'somthing want to wrong');
-             }
-         }
+                    $old_plan =  Package::find($user->CurrentPackageID);
+                    $user->CurrentPackageID = $plan;
+                    $user->save();
+
+                    $paymentStartDate = Carbon::now();
+
+                    $user_name = $user->FirstName . ' ' .$user->LastName;
+                    $data = [
+                        'old_plan_name' => $old_plan->Name,
+                        'new_plan_name' => $package->Name,
+                        'upgrade_date' => $paymentStartDate->format('m/d/Y'),
+                    ];
+                    Mail::to($user->Email)->send(new SendUpgradeSubMail(7, $user_name, $data));   
+                }
+            } else {
+
+                $res = $this->subscriptionHelper->schedulePlanDowngrade($user->SubID, $package->PriceID);
+                if(!empty($res)) {
+                    $paymentSubscription = PaymentSubscription::find($data_current_package->PaymentSubscriptionID);
+                    $paymentSubscription->update([
+                        'NextPackageID' => $plan,
+                    ]);
+
+                    $new_plan =  Package::find($plan);
+                    $user_name = $user->FirstName . ' ' .$user->LastName;
+                    $data = [
+                        'old_plan_name' =>$package->Name,
+                        'new_plan_name' => $new_plan->Name,
+                        'end_date' => Carbon::parse($paymentSubscription->NextRenewalDate)->format('m/d/Y'),
+                    ];
+                    Mail::to($user->Email)->send(new SendDowngradeSubMail(8, $user_name, $data));   
+                } else {
+                    return redirect()->route('billing_and_plan')->with('error', 'somthing want to wrong');
+                }
+            }
+        }
          
          return redirect()->route('billing_and_plan')->with('success', 'Your plan has been updated successfully');
       }
@@ -157,11 +183,18 @@ class BillingAndPlanController extends Controller
       {
          $user = User::find($id);
          $res = $this->subscriptionHelper->cancelAtPeriodEnd($user->SubID);
-         if(!empty($res)) {
-            $data_current_package = PaymentSubscription::where('UserId', $id)->where('Status', 'Active')->first();
+         $data_current_package = PaymentSubscription::where('UserId', $id)->where('Status', 'Active')->first();
+         if(!empty($res) && !empty($data_current_package)) {
             $data_current_package->Status = 'Canceled';
             $data_current_package->save();
             PaymentSubscription::where('UserId', $id)->where('Status', 'Pending')->delete();
+            $user_name = $user->FirstName . ' ' .$user->LastName;
+            $package = Package::find($data_current_package->PackageID);
+            $data = [
+                'plan_name' => $package->Name,
+                'end_date' => Carbon::parse($data_current_package->NextRenewalDate)->format('m/d/Y'),
+            ];
+                Mail::to($user->Email)->send(new SendCancelSubMail(9, $user_name, $data));   
             return redirect()->route('billing_and_plan')->with('success', 'Your plan has been canceled');
          } else {
             return redirect()->route('billing_and_plan')->with('error', 'somthing want to wrong');

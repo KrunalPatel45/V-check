@@ -380,7 +380,7 @@
                                 <th>#</th>
                                 <th>Status</th>
                                 <th>Amount</th>
-                                <th>Issued Date</th>
+                                <th>Payment Date</th>
                             </tr>
                         </thead>
                     </table>

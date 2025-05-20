@@ -131,9 +131,25 @@
 <body>
     <h1 class="heading">Please Select Package</h1>
     <div class="pricing-table">
-        @php
-            $trial_package = [];
-        @endphp
+        @foreach ($packages as $package)
+            @if ($package->Name == 'Trial')
+                <div class="pricing-card">
+                    <h3>{{ $package->Name }}</h3>
+                    <p class="price">${{ $package->Price }} <span>monthly</span></p>
+                    <ul class="features">
+                        <li>Up to {{ $package->CheckLimitPerMonth }} checks / month</li>
+                        <li>Email Support</li>
+                        <li>Unlimited Users</li>
+                        <li>Custom Webform*</li>
+                        <li>3 mos History Storage</li>
+                    </ul>
+                    <a href="{{ route('user-select-free-package', ['id' => $userId, 'plan' => $package->PackageID]) }}"
+                        class="plan-button">Select Plan</a>
+                </div>
+            @endif
+        @endforeach
+
+        {{-- Show all other packages after Trial --}}
         @foreach ($packages as $package)
             @if ($package->Name != 'Trial')
                 <div
@@ -141,9 +157,10 @@
                     <h3>{{ $package->Name }}</h3>
                     <p class="price">${{ $package->Price }} <span>monthly</span></p>
                     <ul class="features">
-                        <li>Up to {{ $package->Name != 'UNLIMITED' ? $package->CheckLimitPerMonth : 'Unlimited ' }}
-                            checks
-                            / month</li>
+                        <li>
+                            Up to {{ $package->Name != 'UNLIMITED' ? $package->CheckLimitPerMonth : 'Unlimited' }}
+                            checks / month
+                        </li>
                         <li>Email Support</li>
                         <li>Unlimited Users</li>
                         @if ($package->Name != 'BASIC')
@@ -154,28 +171,8 @@
                     <a href="{{ route('user-select-package', ['id' => $userId, 'plan' => $package->PackageID]) }}"
                         class="plan-button">Select Plan</a>
                 </div>
-            @else
-                @php
-                    $trial_package = $package;
-                @endphp
             @endif
         @endforeach
-        @if (!empty($trial_package))
-            <div class="pricing-card">
-                <h3>{{ $trial_package->Name }}</h3>
-                <p class="price">${{ $package->Price }} <span>monthly</span></p>
-                <ul class="features">
-                    <li>Up to {{ $package->CheckLimitPerMonth }} checks
-                        / month</li>
-                    <li>Email Support</li>
-                    <li>Unlimited Users</li>
-                    <li>Custom Webform*</li>
-                    <li>3 mos History Storage</li>
-                </ul>
-                <a href="{{ route('user-select-free-package', ['id' => $userId, 'plan' => $trial_package->PackageID]) }}"
-                    class="plan-button">Select Plan</a>
-            </div>
-        @endif
     </div>
 </body>
 
