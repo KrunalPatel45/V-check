@@ -783,6 +783,7 @@ class CheckController extends Controller
         $rules = [
             'name' => 'required',
             'address' => 'required',
+            'phone_number' => 'required|numeric',
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
@@ -820,6 +821,7 @@ class CheckController extends Controller
         $payee->Zip = $request->zip;
         $payee->Type = 'Payee';
         $payee->Category = 'RP';
+        $payee->PhoneNumber = $request->phone_number;
 
         $payee->save();
 

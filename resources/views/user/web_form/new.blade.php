@@ -260,6 +260,18 @@
                             </div>
                         </div>
                         <div class="row mb-6">
+                            <label class="col-sm-2 col-form-label" for="phone_number">Phone Number</label>
+                            <div class="col-sm-10">
+                                <input type="text" name="phone_number" id="phone_number" class="form-control"
+                                    value="{{ old('phone_number') }}" />
+                                @if ($errors->has('phone_number'))
+                                    <span class="text-danger">
+                                        {{ $errors->first('phone_number') }}
+                                    </span>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="page_desc">Page Description</label>
                             <div class="col-sm-10">
                                 <div class="card">

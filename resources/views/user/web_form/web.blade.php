@@ -283,6 +283,7 @@
                         {{ $company->Address1 }}<br>
                     @endif
                     {{ $company->City }}, {{ $company->State }} {{ $company->Zip }}<br>
+                    {{ $company->PhoneNumber }}
                 </address>
             </div>
         </div>
