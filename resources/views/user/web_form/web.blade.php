@@ -350,7 +350,7 @@
                     <div class="email input_row">
                         <label for="email">Email</label>
                         <input type="text" id="email" name="email" value="{{ old('email') }}"
-                            tabindex="13" />
+                            tabindex="5" />
                         @error('email')
                             <div class="error">{{ $message }}</div>
                         @enderror
@@ -359,7 +359,7 @@
                     <div class="address input_row">
                         <label for="address">Address</label>
                         <input type="text" id="address" name="address" value="{{ old('address') }}"
-                            tabindex="5" />
+                            tabindex="6" />
                         @error('address')
                             <div class="error">{{ $message }}</div>
                         @enderror
@@ -367,7 +367,7 @@
                     <div class="address input_row">
                         <label for="phone_number">Phone Number</label>
                         <input type="text" id="phone_number" name="phone_number" value="{{ old('phone_number') }}"
-                            tabindex="5" />
+                            tabindex="7" />
                         @error('phone_number')
                             <div class="error">{{ $message }}</div>
                         @enderror
@@ -377,14 +377,14 @@
                         <div class="city w-33">
                             <label for="city">City</label>
                             <input type="text" id="city" name="city" value="{{ old('city') }}"
-                                tabindex="6" />
+                                tabindex="8" />
                             @error('city')
                                 <div class="error">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="state w-33">
                             <label for="state">State</label>
-                            <select name="state" id="state" class="form-control">
+                            <select  tabindex="9" name="state" id="state" class="form-control">
                                 <option value="">-- Select State --</option>
                                 @php
                                     $states = [
@@ -455,7 +455,7 @@
                         <div class="zip w-33">
                             <label for="zip">Zip</label>
                             <input type="text" id="zip" name="zip" value="{{ old('zip') }}"
-                                tabindex="8" />
+                                tabindex="10" />
                             @error('zip')
                                 <div class="error">{{ $message }}</div>
                             @enderror
@@ -465,7 +465,7 @@
                     <div class="bank_name input_row">
                         <label for="bank_name">Bank Name</label>
                         <input type="text" id="bank_name" name="bank_name" value="{{ old('bank_name') }}"
-                            tabindex="9" />
+                            tabindex="10" />
                         @error('bank_name')
                             <div class="error">{{ $message }}</div>
                         @enderror
@@ -474,7 +474,7 @@
                     <div class="routing_num input_row">
                         <label for="routing_number">Routing Number</label>
                         <input type="number" id="routing_number" name="routing_number"
-                            value="{{ old('routing_number') }}" tabindex="10" class="no-spinner" maxlength="9"
+                            value="{{ old('routing_number') }}" tabindex="11" class="no-spinner" maxlength="9"
                             oninput="this.value = this.value.replace(/\D/g, '').slice(0,9);" />
                         @error('routing_number')
                             <div class="error">{{ $message }}</div>
@@ -484,7 +484,7 @@
                     <div class="account_num input_row">
                         <label for="account_number">Account Number</label>
                         <input type="number" id="account_number" name="account_number" class="no-spinner"
-                            value="{{ old('account_number') }}" tabindex="11" />
+                            value="{{ old('account_number') }}" tabindex="12" />
                         @error('account_number')
                             <div class="error">{{ $message }}</div>
                         @enderror
@@ -493,7 +493,7 @@
                     <div class="account_num_verify input_row">
                         <label for="account_number_verify">Account Number (re-verify)</label>
                         <input type="number" id="account_number_verify" name="account_number_verify"
-                            class="no-spinner" value="{{ old('account_number_verify') }}" tabindex="12" />
+                            class="no-spinner" value="{{ old('account_number_verify') }}" tabindex="13" />
                         @error('account_number_verify')
                             <div class="error">{{ $message }}</div>
                         @enderror
@@ -502,7 +502,7 @@
                     <div class="memo input_row">
                         <label for="Memo">Memo (optional)</label>
                         <input type="text" id="Memo" name="Memo" value="{{ old('Memo') }}"
-                            tabindex="13" />
+                            tabindex="14" />
                         @error('Memo')
                             <div class="error">{{ $message }}</div>
                         @enderror
