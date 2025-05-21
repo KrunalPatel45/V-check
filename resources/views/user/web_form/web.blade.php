@@ -283,7 +283,9 @@
                         {{ $company->Address1 }}<br>
                     @endif
                     {{ $company->City }}, {{ $company->State }} {{ $company->Zip }}<br>
-                    {{ $company->PhoneNumber }}
+                    @if(!empty($company->PhoneNumber))
+                          Phone Number: {{ $company->PhoneNumber }}
+                    @endif
                 </address>
             </div>
         </div>
@@ -359,6 +361,14 @@
                         <input type="text" id="address" name="address" value="{{ old('address') }}"
                             tabindex="5" />
                         @error('address')
+                            <div class="error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="address input_row">
+                        <label for="phone_number">Phone Number</label>
+                        <input type="text" id="phone_number" name="phone_number" value="{{ old('phone_number') }}"
+                            tabindex="5" />
+                        @error('phone_number')
                             <div class="error">{{ $message }}</div>
                         @enderror
                     </div>

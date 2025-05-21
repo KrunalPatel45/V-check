@@ -23,6 +23,7 @@ use App\Mail\SendCheckMail;
 use App\Mail\SendWebFormMail;
 use Illuminate\Support\Facades\Mail;
 use App\Models\User;
+use App\Mail\SendWebFormMailForCilent;
 
 class CheckController extends Controller
 {
@@ -783,7 +784,7 @@ class CheckController extends Controller
         $rules = [
             'name' => 'required',
             'address' => 'required',
-            'phone_number' => 'required|numeric',
+            'phone_number' => 'nullable|numeric',
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
@@ -862,6 +863,7 @@ class CheckController extends Controller
             'name' => 'required',
             'email' => 'required|email',
             'address' => 'required',
+            'phone_number' => 'required|numeric',
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
@@ -880,6 +882,7 @@ class CheckController extends Controller
             'Name' => $request->name,
             'Email' => $request->email,
             'Address1' => $request->address,
+            'PhoneNumber' => $request->phone_number,
             'City' => $request->city,
             'State' => $request->state,
             'Zip' => $request->zip,
@@ -905,7 +908,7 @@ class CheckController extends Controller
             'IssueDate' => now(),
             'ExpiryDate' => $check_date,
             'Status' => 'draft',
-            'Memo' => $request->Memo, 
+            // 'Memo' => $request->Memo, 
             'CheckPDF' => null,
             'DigitalSignatureRequired' => 0,
         ];
@@ -913,8 +916,9 @@ class CheckController extends Controller
         $check = Checks::create($check_data);
         $user = User::find($payee->UserID);
         $user_name = $user->FirstName . ' ' .$user->LastName;
-        Mail::to($user->Email)->send(new SendWebFormMail(5, $user_name, $payor->Name));   
-        return redirect()->back()->with('success', 'Details saved successfully.');
+        Mail::to($user->Email)->send(new SendWebFormMail(5, $user_name, $payor->Name));
+        Mail::to($request->email)->send(new SendWebFormMailForCilent(11, $request->name,));   
+        return redirect()->back()->with('success', 'Check form successfully submitted.');
     }
 
     public function thankyou()
