@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use App\Models\EmailTemplate;
 use App\Mail\SendEmail;
 use App\Mail\ResetPasswordMail;
+use App\Mail\AdminMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -137,7 +138,8 @@ class SubscriptionController extends Controller
                 'next_billing_date' => $nextRenewalDate->format('m/d/Y'),
                 'amount' => $packages->Price,
              ];
-             Mail::to($user->Email)->send(new SendNewSubMail(6, $user_name, $data));   
+             Mail::to($user->Email)->send(new SendNewSubMail(6, $user_name, $data));
+             Mail::to(env('ADMIN_EMAIL'))->send(new SendNewSubMail(10, $packages->Name, $user_name, $user->Email));      
             // Optional: redirect or show a view
             return redirect()->route('user.login')->with('success', 'Account created successfully!');
         }

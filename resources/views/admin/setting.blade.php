@@ -131,6 +131,16 @@
                                 @endif
                             </div>
                         </div>
+                        <div class="row mb-6">
+                            <label class="col-sm-2 col-form-label" for="admin_email">Admin Notification Email</label>
+                            <div class="col-sm-10">
+                                <input type="text" name="stripe_secret" id="admin_email" class="form-control"
+                                    value="{{ old('admin_email', $settings['admin_email']) }}" />
+                                @if ($errors->has('admin_email'))
+                                    <span class="text-danger">{{ $errors->first('admin_email') }}</span>
+                                @endif
+                            </div>
+                        </div>
                     </div>
                     <!-- end card body -->
                 </div> <!-- end card -->

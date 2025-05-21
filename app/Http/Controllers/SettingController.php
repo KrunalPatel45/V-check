@@ -18,6 +18,7 @@ class SettingController extends Controller
             'mail_from_address' => env('MAIL_FROM_ADDRESS'),
             'stripe_public' => env('STRIPE_PUBLIC'),
             'stripe_secret' => env('STRIPE_SECRET'),
+            'admin_email' => env('ADMIN_EMAIL'),
         ];
         return view('admin.setting', compact('settings'));
     }
@@ -33,6 +34,7 @@ class SettingController extends Controller
             'mail_from_address' => 'required|string',
             'stripe_public' => 'required|string',
             'stripe_secret' => 'required|string',
+            'admin_email' => 'required|email',
         ]);
 
         // Update .env values using the helper function
@@ -44,6 +46,7 @@ class SettingController extends Controller
         $this->update_env('MAIL_FROM_ADDRESS', $validated['mail_from_address']);
         $this->update_env('STRIPE_PUBLIC', $validated['stripe_public']);
         $this->update_env('STRIPE_SECRET', $validated['stripe_secret']);
+        $this->update_env('ADMIN_EMAIL', $validated['admin_email']);
 
         // Clear the cached configuration
         Artisan::call('config:clear');
