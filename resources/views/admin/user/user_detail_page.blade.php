@@ -623,7 +623,7 @@
                                     <th>#</th>
                                     <th>Status</th>
                                     <th>Amount</th>
-                                    <th>Issued Date</th>
+                                    <th>Payment Date</th>
                                 </tr>
                             </thead>
                         </table>
@@ -640,7 +640,7 @@
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Status</th>
-                                    <th>CreatedAt</th>
+                                    <th>Created Date</th>
                                 </tr>
                             </thead>
                         </table>
@@ -657,7 +657,7 @@
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Status</th>
-                                    <th>CreatedAt</th>
+                                    <th>Created Date</th>
                                 </tr>
                             </thead>
                         </table>
@@ -677,28 +677,31 @@
                 </div>
                 <div class="pricing-table">
                     @foreach ($packages as $package)
-                        <div
-                            class="pricing-card {{ $package->Name == 'PRO' || $package->Name == 'ENTERPRISE' ? 'popular' : '' }}{{ $user->CurrentPackageID == $package->PackageID ? ' selected-plan' : '' }}">
-                            <h3>{{ $package->Name }}</h3>
-                            <p class="price">${{ $package->Price }} <span>monthly</span></p>
-                            <ul class="features">
-                                <li>Up to {{ $package->Name != 'UNLIMITED' ? $package->CheckLimitPerMonth : 'Unlimited ' }}
-                                    checks
-                                    / month</li>
-                                <li>Email Support</li>
-                                <li>Unlimited Users</li>
-                                @if ($package->Name != 'BASIC')
-                                    <li>Clients Webform*</li>
+                        @if ($package->Name != 'Trial')
+                            <div
+                                class="pricing-card {{ $package->Name == 'PRO' || $package->Name == 'ENTERPRISE' ? 'popular' : '' }}{{ $user->CurrentPackageID == $package->PackageID ? ' selected-plan' : '' }}">
+                                <h3>{{ $package->Name }}</h3>
+                                <p class="price">${{ $package->Price }} <span>monthly</span></p>
+                                <ul class="features">
+                                    <li>Up to
+                                        {{ $package->Name != 'UNLIMITED' ? $package->CheckLimitPerMonth : 'Unlimited ' }}
+                                        checks
+                                        / month</li>
+                                    <li>Email Support</li>
+                                    <li>Unlimited Users</li>
+                                    @if ($package->Name != 'BASIC')
+                                        <li>Clients Webform*</li>
+                                    @endif
+                                    <li>3 mos History Storage</li>
+                                </ul>
+                                @if ($user->CurrentPackageID == $package->PackageID)
+                                    <p class="current-plan">Current Plan</p>
+                                @else
+                                    <a href="{{ route('admin.user.select-package', ['id' => $user->UserID, 'plan' => $package->PackageID]) }}"
+                                        class="plan-button">Select Plan</a>
                                 @endif
-                                <li>3 mos History Storage</li>
-                            </ul>
-                            @if ($user->CurrentPackageID == $package->PackageID)
-                                <p class="current-plan">Current Plan</p>
-                            @else
-                                <a href="{{ route('admin.user.select-package', ['id' => $user->UserID, 'plan' => $package->PackageID]) }}"
-                                    class="plan-button">Select Plan</a>
-                            @endif
-                        </div>
+                            </div>
+                        @endif
                     @endforeach
                 </div>
 

@@ -22,7 +22,7 @@
                         <div class="d-flex justify-content-between align-items-center card-widget-1 border-end pb-4 pb-sm-0">
                             <div>
                                 <h4 class="mb-0">{{ $total_receive_check }}</h4>
-                                <p class="mb-0">Check Payments Received.</p>
+                                <p class="mb-0">Check Payments Received</p>
                             </div>
                             <div class="avatar me-sm-6">
                                 <span class="avatar-initial rounded bg-label-secondary text-heading">
@@ -34,10 +34,24 @@
                     </div>
                     <div class="col-sm-6 col-lg-3">
                         <div
+                            class="d-flex justify-content-between align-items-center border-end pb-4 pb-sm-0 card-widget-3">
+                            <div>
+                                <h4 class="mb-0">${{ $total_receive_check_amount }}</h4>
+                                <p class="mb-0">Total Amount Received</p>
+                            </div>
+                            <div class="avatar me-sm-6">
+                                <span class="avatar-initial rounded bg-label-secondary text-heading">
+                                    <i class="ti ti-checks ti-26px"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-lg-3">
+                        <div
                             class="d-flex justify-content-between align-items-center card-widget-2 border-end pb-4 pb-sm-0">
                             <div>
                                 <h4 class="mb-0">{{ $total_send_check }}</h4>
-                                <p class="mb-0">Check Payments Sent.</p>
+                                <p class="mb-0">Check Payments Sent</p>
                             </div>
                             <div class="avatar me-lg-6">
                                 <span class="avatar-initial rounded bg-label-secondary text-heading">
@@ -48,24 +62,10 @@
                         <hr class="d-none d-sm-block d-lg-none">
                     </div>
                     <div class="col-sm-6 col-lg-3">
-                        <div
-                            class="d-flex justify-content-between align-items-center border-end pb-4 pb-sm-0 card-widget-3">
-                            <div>
-                                <h4 class="mb-0">${{ $total_receive_check_amount }}</h4>
-                                <p class="mb-0">Total Amount Received.</p>
-                            </div>
-                            <div class="avatar me-sm-6">
-                                <span class="avatar-initial rounded bg-label-secondary text-heading">
-                                    <i class="ti ti-checks ti-26px"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-lg-3">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h4 class="mb-0">${{ $total_send_check_amount }}</h4>
-                                <p class="mb-0">Total Amount Sent.</p>
+                                <p class="mb-0">Total Amount Sent</p>
                             </div>
                             <div class="avatar">
                                 <span class="avatar-initial rounded bg-label-secondary text-heading">

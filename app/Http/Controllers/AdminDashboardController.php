@@ -169,8 +169,7 @@ class AdminDashboardController extends Controller
         $expiry = !empty($paymentSubscription->NextRenewalDate) ? Carbon::createFromFormat('Y-m-d', $paymentSubscription->NextRenewalDate) : '';
         $expiryDate = !empty($expiry) ? $expiry->format('M d, Y') : '';
         $remainingDays = !empty($expiry) ? $expiry->diffInDays(Carbon::now(), false) : '';
-        $packages = Package::all();
-        
+        $packages = Package::where('Status', 'Active')->get();
         $check_used = '-';
         $remaining_checks = '-';
         if(!empty($paymentSubscription)) {

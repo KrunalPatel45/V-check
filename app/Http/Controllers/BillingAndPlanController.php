@@ -47,7 +47,7 @@ class BillingAndPlanController extends Controller
             ];
             $maxPricePackage = Package::orderBy('price', 'desc')->first();
             $stander_Plan_price = $maxPricePackage->Price;
-            $packages = Package::all();
+            $packages = Package::where('Status', 'Active')->get();
             $cards = $this->subscriptionHelper->getCustomerPaymentMethods($user->CusID);
             $default_card = $this->subscriptionHelper->getDefaultCard($user->CusID);
             return view('user.billing_and_plan.index', compact('package_data', 'stander_Plan_price', 'user', 'packages', 'package_id', 'cards', 'default_card', 'paymentSubscription'));

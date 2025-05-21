@@ -18,6 +18,7 @@ use App\Mail\SendEmail;
 use App\Mail\ResetPasswordMail;
 use Illuminate\Support\Facades\Mail;
 use App\Helpers\SubscriptionHelper;
+use App\Mail\AdminMail;
 
 class UserAuthController extends Controller
 {
@@ -159,57 +160,6 @@ class UserAuthController extends Controller
        return redirect()->route('user.login')->with('success', 'Account created successful!');
     }
 
-    // public function select_package(Request $request, $id, $plan) 
-    // {
-    //     $user = User::find($id);
-    //     $user->CurrentPackageID = $plan;
-    //     $user->Status = 'Active';
-    //     $user->save();
-
-    //     $PaymentSubscription_plan = PaymentSubscription::where('UserID', $id)->whereIn('Status', ['Canceled', 'Pending'])->delete();
-
-
-    //     $packages = Package::find($plan);
-
-    //     $paymentStartDate = Carbon::now();
-
-    //     $paymentEndDate = $paymentStartDate->copy()->addHours(24);
-
-    //     $nextRenewalDate = $paymentStartDate->copy()->addDays($packages->Duration);
-
-
-    //     $paymentSubscription = PaymentSubscription::create([
-    //         'UserID' => $id,
-    //         'PackageID' => $plan,
-    //         'PaymentMethodID' => 1,
-    //         'PaymentAmount' => $packages->Price,
-    //         'PaymentStartDate' => $paymentStartDate,
-    //         'PaymentEndDate' => $paymentEndDate,
-    //         'NextRenewalDate' => $nextRenewalDate,
-    //         'ChecksGiven' => $packages->CheckLimitPerMonth,
-    //         'ChecksUsed'=> 0,
-    //         'RemainingChecks' => 0,
-    //         'PaymentDate' => $paymentStartDate,
-    //         'PaymentAttempts' => 0 ,
-    //         'TransactionID' => Str::random(10),
-    //         'Status' => 'Active', 
-    //     ]);
-
-    //     $paymentSubscriptionId = $paymentSubscription->PaymentSubscriptionID;
-
-    //     $paymentSubscription = PaymentHistory::create([
-    //         'PaymentSubscriptionID' => $paymentSubscriptionId,
-    //         'PaymentAmount' => $packages->Price,
-    //         'PaymentDate' => $paymentStartDate,
-    //         'PaymentStatus' => 'Success',
-    //         'PaymentAttempts' => 0,
-    //         'TransactionID' => $paymentSubscription->TransactionID,
-    //     ]);
-
-    //     $name = $user->FirstName . ' ' .$user->LastName;
-    //     Mail::to($user->Email)->send(new SendEmail(1, $name));
-    //     return redirect()->route('user.login')->with('success', 'Account created successful!');
-    // }
 
     public function logout()
     {
@@ -298,7 +248,6 @@ class UserAuthController extends Controller
         $user = User::find($id);
         $user->CurrentPackageID = -1;
         $user->Status = 'Active';
-        $user->save();
 
         $packages = Package::findOrFail($plan);
 
@@ -323,9 +272,12 @@ class UserAuthController extends Controller
             'InvoiceID' => 'Tiral',
             'Status' => 'Active',
         ]);
+
+         $user->save();
         
         $name = $user->FirstName . ' ' .$user->LastName;
         Mail::to($user->Email)->send(new SendEmail(1, $name));
+        Mail::to(env('ADMIN_EMAIL'))->send(new AdminMail(10, 'Trial', $name, $user->Email));
 
         return redirect()->route('user.login')->with('success', 'Account created successful!');
     }
