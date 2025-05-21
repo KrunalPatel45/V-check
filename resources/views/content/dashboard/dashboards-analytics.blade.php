@@ -33,7 +33,7 @@
                 </div>
             </div>
         </div>
-         <div class="col-xl-4 col-sm-6">
+        <div class="col-xl-4 col-sm-6">
             <div class="card">
                 <div class="card-header pb-0">
                     <h5 class="mb-3 card-title">This Month Revenue</h5>
@@ -203,7 +203,7 @@
                                     <div class="col-9">
                                         <div class="me-2">
                                             <h6 class="mb-2">{{ $package['name'] }}</h6>
-                                            <small>{{ $package['total_count'] }} People </small>
+                                            <small>{{ $package['total_count'] }} Customers </small>
                                         </div>
                                     </div>
                                     {{-- <div class="col-3 text-end">
