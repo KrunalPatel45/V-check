@@ -29,6 +29,7 @@ class Payors extends Model
         'BankName',
         'RoutingNumber',
         'AccountNumber',
+        'PhoneNumber',
         'Type',
         'Status',
         'CreatedAt',
