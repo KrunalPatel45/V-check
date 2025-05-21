@@ -75,7 +75,7 @@
 
 
                 // Clear any previous error messages
-                $('.text-danger').remove();
+                // $('.text-danger').remove();
 
                 // Send Ajax request
                 $.ajax({
@@ -86,7 +86,6 @@
                         if (response.errors) {
                             // Display validation errors
                             $.each(response.errors, function(key, value) {
-                                console.log(value[0]);
 
                                 $('#payee-name-error').text(value[0]);
                             });
