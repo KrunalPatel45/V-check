@@ -32,7 +32,7 @@
             <div>
                 <a href="{{ route('check.send_payment_check') }}" class="btn btn-primary mr-4"
                     style="height: 40px !important;margin-right: 25px !important;">
-                    <i class="fa-solid fa-plus"></i> &nbsp; Generate Checks
+                    <i class="fa-solid fa-plus"></i> &nbsp; Create New Check
                 </a>
                 <button id="bulk-generate-checks" class="btn btn-primary mr-4"
                     style="height: 40px !important;margin-right: 25px !important;">
