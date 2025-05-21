@@ -86,12 +86,9 @@
                         if (response.errors) {
                             // Display validation errors
                             $.each(response.errors, function(key, value) {
-                                console.log('#add-payee #' + key);
+                                console.log(value[0]);
 
-                                $('#payee-' + key).closest('.col-md-6').append(
-                                    '<span class="text-danger">' + value[0] +
-                                    '</span>'
-                                );
+                                $('#payee-name-error').text(value[0]);
                             });
                         } else if (response.success) {
                             $('#payeeModel').modal('hide');
@@ -746,11 +743,8 @@
                                         <label class="form-label" for="payee-name">Name</label>
                                         <input type="text" name="name" id="payee-name" class="form-control"
                                             value="{{ !empty($old_payee->Name) ? $old_payee->Name : old('name') }}" />
-                                        @if ($errors->has('name'))
-                                            <span class="text-danger">
-                                                {{ $errors->first('name') }}
-                                            </span>
-                                        @endif
+                                        <span class="text-danger" id="payee-name-error">
+                                        </span>
                                     </div>
                                 </div>
                                 <input type="hidden" name="type" id="type" value="Payee" />

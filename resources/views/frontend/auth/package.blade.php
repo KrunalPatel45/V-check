@@ -140,7 +140,6 @@
                         <li>Up to {{ $package->CheckLimitPerMonth }} checks / month</li>
                         <li>Email Support</li>
                         <li>Unlimited Users</li>
-                        <li>Custom Webform*</li>
                         <li>3 mos History Storage</li>
                     </ul>
                     <a href="{{ route('user-select-free-package', ['id' => $userId, 'plan' => $package->PackageID]) }}"
@@ -164,7 +163,7 @@
                         <li>Email Support</li>
                         <li>Unlimited Users</li>
                         @if ($package->Name != 'BASIC')
-                            <li>Custom Webform*</li>
+                            <li>Custom Webform</li>
                         @endif
                         <li>3 mos History Storage</li>
                     </ul>

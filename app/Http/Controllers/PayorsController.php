@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Payors;
 use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 
 class PayorsController extends Controller
 {
@@ -383,7 +384,7 @@ class PayorsController extends Controller
     {
          $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'nullable|email',
+            'email' => 'required|email',
             'address1' => 'required',
             'city' => 'required',
             'state' => 'required',
@@ -426,10 +427,26 @@ class PayorsController extends Controller
 
     public function add_payee(Request $request)
     {
-         $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'email' => 'nullable|email',
-        ]);
+        $rules = [
+            'email' => [
+                'nullable',
+                'email',
+            ],
+            'name' => ['required'],
+        ];
+        $category = $request->category;
+        
+        if (empty($request->email)) {
+            $rules['name'][] = Rule::unique('Entities', 'Name')->where(function ($query) use ($category) {
+                $query->where('Type', 'Payee')->where('Category', $category);
+            });
+        } else {
+            $rules['email'][] = Rule::unique('Entities', 'Email')->where(function ($query) use ($category) {
+                $query->where('Type', 'Payee')->where('Category', $category);
+            });
+        }
+
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()]);

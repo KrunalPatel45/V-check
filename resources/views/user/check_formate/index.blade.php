@@ -283,7 +283,7 @@
                             <br />
                             <br />
                             <div style="margin-bottom: 5px; font-size: 20px">
-                                <strong>Issued date: </strong>
+                                <strong>Payment Date: </strong>
                                 <span>{{ $data['check_date'] }}</span>
                             </div>
                             <div style="margin-bottom: 5px; font-size: 20px">

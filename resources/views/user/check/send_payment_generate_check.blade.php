@@ -637,9 +637,18 @@
                                 <select id="payee" name="payee" class="form-control" style="font-size: 16px;">
                                     <option value="" selected>Select Payee</option>
                                     @foreach ($payees as $payee)
+                                        @php
+                                            if (!empty($payee->Email)) {
+                                                $name = $payee->Name . '(' . $payee->Email . ')';
+                                            } else {
+                                                $name = $payee->Name;
+                                            }
+                                        @endphp
+                                        @if (!empty($payee->Email))
+                                        @endif
                                         <option value="{{ $payee->EntityID }}"
                                             {{ old('payee', $check->PayeeID ?? '') == $payee->EntityID ? 'selected' : '' }}>
-                                            {{ $payee->Name }}
+                                            {{ $name }}
                                         </option>
                                     @endforeach
                                     <option value="" id="add_other_company" style="font-weight: bold;">Add New
