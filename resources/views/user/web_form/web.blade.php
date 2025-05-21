@@ -465,7 +465,7 @@
                     <div class="bank_name input_row">
                         <label for="bank_name">Bank Name</label>
                         <input type="text" id="bank_name" name="bank_name" value="{{ old('bank_name') }}"
-                            tabindex="10" />
+                            tabindex="1" />
                         @error('bank_name')
                             <div class="error">{{ $message }}</div>
                         @enderror

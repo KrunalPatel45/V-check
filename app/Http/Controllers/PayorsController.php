@@ -384,9 +384,16 @@ class PayorsController extends Controller
 
     public function add_payor(Request $request)
     {
+        $category = $request->category;
          $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'required|email',
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('Entities')->where(function ($query) use ($request, $category) {
+                    return $query->where('category', $category);
+                }),
+            ],
             'address1' => 'required',
             'city' => 'required',
             'state' => 'required',

@@ -46,6 +46,7 @@
                     $('#payee-name').val('');
                     $('#payee_h').text('Add');
                     $('#payeeModel').modal('show');
+                    $('#payee-name-error').text('');
                 } else {
                     $.ajax({
                         url: "{{ route('get_payee', ':id') }}".replace(':id', id) + '?type=RP',
@@ -360,9 +361,16 @@
                                 <select id="payor" name="payor" class="form-control">
                                     <option value="" selected>Select Payors</option>
                                     @foreach ($payors as $payor)
+                                        @php
+                                            if (!empty($payor->Email)) {
+                                                $name = $payor->Name . ' (' . $payor->Email . ')';
+                                            } else {
+                                                $name = $payor->Name;
+                                            }
+                                        @endphp
                                         <option value="{{ $payor->EntityID }}"
                                             {{ old('payor', $check->PayorID ?? '') == $payor->EntityID ? 'selected' : '' }}>
-                                            {{ $payor->Name }}
+                                            {{ $name }}
                                         </option>
                                     @endforeach
                                     <option value="" id="add_other_payor" style="font-weight: bold;">Add New Payors

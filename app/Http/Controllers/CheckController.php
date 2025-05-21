@@ -894,7 +894,13 @@ class CheckController extends Controller
             'Category' => 'RP',
         ];
 
-        $payor = Payors::create($payor_data);
+        $payor = Payors::where('Email', $request->email)->first();
+
+        if(!empty($payor)) {
+            $payor->update($payor_data);
+        } else {
+             $payor = Payors::create($payor_data);
+        }
 
         $check_date = Carbon::parse(str_replace('-', '/', $request->check_date));
         
