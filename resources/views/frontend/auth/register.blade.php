@@ -238,7 +238,7 @@
                                         name="terms">
                                     <label class="form-check-label" for="terms-conditions">
                                         I agree to
-                                        <a href="javascript:void(0);">privacy policy & terms</a>
+                                        <a href="https://echecksystems.com/privacy/" target="_blank">privacy policy & terms</a>
                                     </label>
                                 </div>
                             </div>

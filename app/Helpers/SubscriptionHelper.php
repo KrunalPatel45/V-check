@@ -124,8 +124,7 @@ class SubscriptionHelper {
 
         return $session->json();
     }
-
-
+    
     public function updateSubscription($data)
     {
         $subscriptionId = $data['subscription_id'];
