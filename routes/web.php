@@ -310,6 +310,8 @@ Route::get('subscription-update', [TestController::class, 'subscription_update']
 Route::get('/subscribe/success', [SubscriptionController::class, 'success'])->name('stripe.success');
 Route::get('/subscribe/cancel', [SubscriptionController::class, 'cancel'])->name('stripe.cancel');
 
+Route::get('check-smtp', [TestController::class, 'smtp_checker_view'])->name('check_smtp');
+Route::post('smtp-checker', [TestController::class, 'smtp_checker'])->name('smtp_checker');
 // Main Page Route
 Route::get('/', [HomeController::class, 'index'])->name('index');
 Route::get('/dashboard/analytics', [Analytics::class, 'index'])->name('dashboard-analytics');

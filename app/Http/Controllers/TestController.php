@@ -16,6 +16,8 @@ use App\Models\PaymentSubscription;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\PaymentHistory;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 
 class TestController extends Controller
 {
@@ -104,5 +106,51 @@ class TestController extends Controller
     public function checkout()
     {
         return view('frontend.checkout');
+    }
+
+    public function smtp_checker_view()
+    {
+        return view('user.mail_check');
+    }
+
+    public function smtp_checker(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        $smtpHost = env('MAIL_HOST'); 
+        $smtpPort = env('MAIL_PORT');  
+        $smtpUser = env('MAIL_USERNAME'); 
+        $smtpPass = env('MAIL_PASSWORD'); 
+        $fromEmail = env('MAIL_FROM_ADDRESS');  
+        $toEmail = $request->email; 
+
+        $mail = new PHPMailer(true);
+
+        
+        try {
+            $mail->isSMTP();
+            $mail->Host       = $smtpHost;
+            $mail->SMTPAuth   = true;
+            $mail->Username   = $smtpUser;
+            $mail->Password   = $smtpPass;
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = $smtpPort;
+
+            $mail->setFrom($fromEmail, 'PHPMailer');
+            $mail->addAddress($toEmail);
+
+            $mail->isHTML(true);
+            $mail->Subject = 'PHPMailer SMTP Test';
+            $mail->Body    = 'This is a test email sent using PHPMailer';
+            $mail->AltBody = 'This is a test email sent using PHPMailer';
+
+            $mail->send();
+            return back()->with('success', 'Email sent successfully to ' . $toEmail);
+        } catch (Exception $e) {
+            return back()->with('error', 'Mail error: ' . $mail->ErrorInfo);
+        }
+
     }
 }
