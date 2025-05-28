@@ -232,6 +232,15 @@
                                     <span class="input-group-text cursor-pointer"><i class="ti ti-eye-off"></i></span>
                                 </div>
                             </div>
+                            <div class="mb-6">
+                                <label for="timezone" class="form-label">Timezone</label>
+                                <select name="timezone" id="timezone" class="form-control">
+                                     <option value="America/Chicago" selected>Central Time (CT)</option>
+                                    <option value="America/New_York">Eastern Time (ET)</option>
+                                    <option value="America/Denver">Mountain Time (MT)</option>
+                                    <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                                </select>
+                            </div>
                             <div class="my-8">
                                 <div class="form-check mb-0 ms-2">
                                     <input class="form-check-input" type="checkbox" id="terms-conditions"

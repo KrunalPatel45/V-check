@@ -47,7 +47,7 @@ class CheckController extends Controller
                     return $payor->Name;
                 })
                 ->addColumn('IssueDate', function ($row) {
-                    return Carbon::parse($row->IssueDate)->format('m/d/Y');
+                    return User::user_timezone($row->IssueDate,'m/d/Y');
                 })
                 ->addColumn('actions', function ($row) {
                     // $editUrl = route('user.payors.edit', ['type' => 'Payee', 'id' => $row->EntityID]);
@@ -238,7 +238,7 @@ class CheckController extends Controller
                     return $payor->Name;
                 })
                 ->addColumn('IssueDate', function ($row) {
-                    return Carbon::parse($row->IssueDate)->format('m/d/Y');
+                    return User::user_timezone($row->IssueDate,'m/d/Y');
                 })
                 ->addColumn('actions', function ($row) {
                     
@@ -535,7 +535,7 @@ class CheckController extends Controller
                     return $payor ? $payor->Name : '-';
                 })
                 ->addColumn('IssueDate', function ($row) {
-                    return $row->IssueDate ? Carbon::parse($row->IssueDate)->format('m/d/Y') : '-';
+                    return $row->IssueDate ? User::user_timezone($row->IssueDate,'m/d/Y') : '-';
                 })
                 ->addColumn('Status', function ($row) {
                     return $row->Status === 'draft' ? 'Draft' : 'Generated';

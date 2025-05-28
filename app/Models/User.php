@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Carbon\Carbon;
 
 class User extends Authenticatable
 {
@@ -42,6 +43,7 @@ class User extends Authenticatable
     'State',
     'Zip',
     'SubID',
+    'timezone',
   ];
 
   /**
@@ -65,5 +67,18 @@ class User extends Authenticatable
       'email_verified_at' => 'datetime',
       'password' => 'hashed',
     ];
+  }
+
+  static function user_timezone($datetime, $format = 'm/d/Y')
+  {
+      if (!$datetime) return null;
+
+      $timezone = auth()->check() ? auth()->user()->timezone : 'America/Chicago';
+
+      if (!$datetime instanceof Carbon) {
+          $datetime = Carbon::parse($datetime);
+      }
+
+      return $datetime->timezone($timezone)->format($format);
   }
 }

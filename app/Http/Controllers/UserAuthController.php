@@ -140,6 +140,7 @@ class UserAuthController extends Controller
             'City' => $request->city,
             'State' => $request->state,
             'Zip' => $request->zip,
+            'timezone' => $request->timezone,
         ]);
 
         return redirect()->route('user.package', ['user_id' => $user->UserID]);

@@ -253,6 +253,30 @@
                             @endif
                         </div>
                     </div>
+                    <div class="row mb-6">
+                        <label class="col-sm-2 col-form-label" for="timezone">Timezone</label>
+                        <div class="col-sm-10">
+                            <div class="input-group input-group-merge">
+                                <select name="timezone" id="timezone" class="form-control">
+                                    @php
+                                        $timezones = [
+                                           'America/Chicago' => 'Central Time (CT)',
+                                           'America/New_York' => 'Eastern Time (ET)',
+                                           'America/Denver' => 'Mountain Time (MT)',
+                                           'America/Los_Angeles' => 'Pacific Time (PT)',
+                                        ];
+                                    @endphp
+
+                                    @foreach ($timezones as $key => $timezone)
+                                        <option value="{{ $key }}"
+                                            {{ $user->timezone == $key ? 'selected' : '' }}>
+                                            {{ $timezone }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                     <div class="row justify-content-end">
                         <div class="col-sm-10">
                             <button type="submit" class="btn btn-primary">Save</button>

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Payors;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
+use App\Models\User;
 
 class PayorsController extends Controller
 {
@@ -31,10 +32,10 @@ class PayorsController extends Controller
                         '">' . $row->Status . '</span>';
                 })
                 ->addColumn('CreatedAt', function ($row) {
-                    return Carbon::parse($row->CreatedAt)->format('m/d/Y'); 
+                    return User::user_timezone($row->CreatedAt,'m/d/Y');
                 })
                 ->addColumn('UpdatedAt', function ($row) {
-                    return Carbon::parse($row->UpdatedAt)->format('m/d/Y');
+                    return User::user_timezone($row->UpdatedAt, 'm/d/Y');
                 })
                 ->addColumn('actions', function ($row) {
                     $editUrl = route('user.payee.edit', ['id' => $row->EntityID]);
@@ -98,10 +99,10 @@ class PayorsController extends Controller
                         '">' . $row->Status . '</span>';
                 })
                 ->addColumn('CreatedAt', function ($row) {
-                    return Carbon::parse($row->CreatedAt)->format('m/d/Y'); 
+                    return User::user_timezone($row->CreatedAt,'m/d/Y');
                 })
                 ->addColumn('UpdatedAt', function ($row) {
-                    return Carbon::parse($row->UpdatedAt)->format('m/d/Y');
+                    return User::user_timezone($row->UpdatedAt, 'm/d/Y');
                 })
                 ->addColumn('actions', function ($row) {
                     $editUrl = route('user.payors.edit', ['id' => $row->EntityID]);

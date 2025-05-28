@@ -35,13 +35,14 @@ class UserDashboardController extends Controller
         $total_days = $package->Duration;
         $package_name = $package->Name;
         $expiry = Carbon::createFromFormat('Y-m-d', $paymentSubscription->NextRenewalDate);
-        $expiryDate = $expiry->format('M d, Y');
+        $expiryDate = User::user_timezone($expiry, 'M d, Y');
         $remainingDays = $expiry->diffInDays(Carbon::now(), false);
+
         $package_data = [
             'total_days' => $total_days,
             'package_name' => $package_name,
             'expiryDate' => $expiryDate,
-            'remainingDays' => abs(round($remainingDays)),
+            'remainingDays' => abs((int)$remainingDays),
         ];
 
         $given_checks = ($paymentSubscription->ChecksGiven == 0) ? 'Unlimited' : $paymentSubscription->ChecksGiven;
@@ -85,13 +86,14 @@ class UserDashboardController extends Controller
             $total_days = $package->Duration;
             $package_name = $package->Name;
             $expiry = Carbon::createFromFormat('Y-m-d', $paymentSubscription->NextRenewalDate);
-            $expiryDate = $expiry->format('M d, Y');
+            $expiryDate = User::user_timezone($expiry, 'M d, Y');
             $remainingDays = $expiry->diffInDays(Carbon::now(), false);
+
             $package_data = [
                 'total_days' => $total_days,
                 'package_name' => $package_name,
                 'expiryDate' => $expiryDate,
-                'remainingDays' => abs(round($remainingDays)),
+                'remainingDays' => abs((int)$remainingDays),
             ];
         }
 
@@ -124,6 +126,7 @@ class UserDashboardController extends Controller
         $admin->City = $request->city;
         $admin->State = $request->state;
         $admin->Zip = $request->zip;
+        $admin->timezone = $request->timezone;
         $admin->UpdatedAt = now();
         $admin->save();
 

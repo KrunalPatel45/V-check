@@ -36,14 +36,14 @@ class BillingAndPlanController extends Controller
             $total_days = $package->Duration;
             $package_name = $package->Name;
             $expiry = Carbon::createFromFormat('Y-m-d', $paymentSubscription->NextRenewalDate);
-            $expiryDate = $expiry->format('M d, Y');
+            $expiryDate = User::user_timezone($expiry, 'M d, Y');
             $remainingDays = $expiry->diffInDays(Carbon::now(), false);
-            
+
             $package_data = [
                 'total_days' => $total_days,
                 'package_name' => $package_name,
                 'expiryDate' => $expiryDate,
-                'remainingDays' => abs(round($remainingDays)),
+                'remainingDays' => abs((int)$remainingDays),
             ];
             $maxPricePackage = Package::orderBy('price', 'desc')->first();
             $stander_Plan_price = $maxPricePackage->Price;
@@ -211,7 +211,7 @@ class BillingAndPlanController extends Controller
             return datatables()->of($invoice)
                 ->addIndexColumn()
                 ->addColumn('PaymentDate', function ($row) {
-                    return Carbon::parse($row->PaymentDate)->format('m/d/Y'); 
+                    return User::user_timezone($row->PaymentDate); 
                 })
                 ->addColumn('PaymentStatus', function ($row) {
                     return '<span class="badge ' .
