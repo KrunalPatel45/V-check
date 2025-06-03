@@ -126,7 +126,7 @@ class UserDashboardController extends Controller
         $admin->City = $request->city;
         $admin->State = $request->state;
         $admin->Zip = $request->zip;
-        $admin->timezone = $request->timezone;
+        // $admin->timezone = $request->timezone;
         $admin->UpdatedAt = now();
         $admin->save();
 

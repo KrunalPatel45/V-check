@@ -21,6 +21,22 @@
 
 @section('page-script')
     @vite(['resources/assets/js/pages-auth.js'])
+    <script>
+        $(document).ready(function () {
+            $.getJSON("https://ipapi.co/json/", function (data) {
+                if (data && data.timezone) {
+                    $('#timezone').val(data.timezone);
+                    console.log("Time zone set to:", data.timezone);
+                } else {
+                    $('#timezone').val('UTC');
+                    console.warn("Timezone not found. Defaulting to UTC.");
+                }
+            }).fail(function () {
+                $('#timezone').val('UTC');
+                console.error("Failed to fetch IP-based timezone. Defaulted to UTC.");
+            });
+        });
+    </script>
 @endsection
 
 @section('content')
@@ -232,7 +248,7 @@
                                     <span class="input-group-text cursor-pointer"><i class="ti ti-eye-off"></i></span>
                                 </div>
                             </div>
-                            <div class="mb-6">
+                            {{-- <div class="mb-6">
                                 <label for="timezone" class="form-label">Timezone</label>
                                 <select name="timezone" id="timezone" class="form-control">
                                      <option value="America/Chicago" selected>Central Time (CT)</option>
@@ -240,7 +256,8 @@
                                     <option value="America/Denver">Mountain Time (MT)</option>
                                     <option value="America/Los_Angeles">Pacific Time (PT)</option>
                                 </select>
-                            </div>
+                            </div> --}}
+                            <input type="hidden" id="timezone" name="timezone">
                             <div class="my-8">
                                 <div class="form-check mb-0 ms-2">
                                     <input class="form-check-input" type="checkbox" id="terms-conditions"
