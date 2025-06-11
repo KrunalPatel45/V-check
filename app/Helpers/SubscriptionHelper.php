@@ -307,5 +307,4 @@ class SubscriptionHelper {
         return true;
     }
 
-
 }

@@ -141,7 +141,7 @@ class SubscriptionController extends Controller
              Mail::to($user->Email)->send(new SendNewSubMail(6, $user_name, $data));
              Mail::to(env('ADMIN_EMAIL'))->send(new AdminMail(10, $packages->Name, $user_name, $user->Email));      
             // Optional: redirect or show a view
-            return redirect()->route('user.login')->with('success', 'Account created successfully!');
+            return redirect()->route('user.login')->with('success', 'Account created successfully');
         }
          return redirect()->route('user.login')->with('error', 'Something want to wrong');
     }

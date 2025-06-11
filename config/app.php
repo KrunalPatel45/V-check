@@ -26,5 +26,5 @@
   'sp_per_page' => '20',
   'payee_per_page' => '20',
   'payor_per_page' => '20',
-  'history_per_page' => '5',
+  'history_per_page' => '50',
 );

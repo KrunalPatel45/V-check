@@ -306,7 +306,8 @@ Route::get('test', [TestController::class, 'test'])->name('test');
 Route::get('card', [TestController::class, 'card'])->name('card');
 Route::get('checkout-test', [TestController::class, 'checkout'])->name('checkout-test');
 Route::get('subscription-update', [TestController::class, 'subscription_update'])->name('subscription_update');
-
+Route::get('/smtp-test', [TestController::class, 'index']);
+Route::post('/smtp-test', [TestController::class, 'send'])->name('smtp.test.send');
 Route::get('/subscribe/success', [SubscriptionController::class, 'success'])->name('stripe.success');
 Route::get('/subscribe/cancel', [SubscriptionController::class, 'cancel'])->name('stripe.cancel');
 

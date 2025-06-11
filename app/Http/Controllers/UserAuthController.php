@@ -67,15 +67,19 @@ class UserAuthController extends Controller
     
         $user = User::where('Email', $request->email)->first();
         
+        if(empty($user)) {
+            return redirect()->back()->withErrors(['email' => 'Invalid login credentials'])->withInput();
+        }
+        
+        if (!empty($user) && $user->Status == 'Inactive') {
+            return redirect()->back()->withErrors(['login' => 'User status is not Active'])->withInput();
+        }
+        
         $packag_c = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)->count();
         
 
         if (!empty($user) && $packag_c == 0 && $user->CurrentPackageID != -1) {
             return redirect()->route('user.package', ['user_id' => $user->UserID]);
-        }
-
-        if (!empty($user) && $user->Status == 'Inactive') {
-            return redirect()->back()->withErrors(['login' => 'User status is not Active'])->withInput();
         }
 
         if ($user && Hash::check($request->password, $user->PasswordHash)) {
@@ -281,5 +285,7 @@ class UserAuthController extends Controller
         Mail::to(env('ADMIN_EMAIL'))->send(new AdminMail(10, 'Trial', $name, $user->Email));
 
         return redirect()->route('user.login')->with('success', 'Account created successful!');
+    
+    
     }
-}
+}  

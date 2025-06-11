@@ -23,8 +23,10 @@ class TestController extends Controller
 {
     public function test()
     {
-        return view('user.check_formate.test');
+        // return view('user.check_formate.test');
         $check_file = $this->generateAndSavePDF();
+        $file = public_path('checks/' . $check_file); // Correct local path
+        return response()->download($file);
     }
 
     public function generateAndSavePDF()
@@ -65,13 +67,14 @@ class TestController extends Controller
             File::makeDirectory($directoryPath, 0755, true);
         }
         // Generate PDF from a view
-        $pdf = PDF::loadView('user.check_formate.test')->setPaper('a4', 'portrait')
-        ->setPaper([0, 0, 1000, 1200])
+         $pdf = PDF::loadView('user.check_formate.test')->setPaper('letter', 'portrait')
+        // ->setPaper([0, 0, 1000, 1200])
+        ->setOptions(['dpi' => 150])
         ->set_option('isHtml5ParserEnabled', true)
         ->set_option('isRemoteEnabled', true);
     
         // Define the file path where you want to save the PDF
-        $file_name = 'check-' .'testing' . '.pdf';
+        $file_name = 'check-' .'testing-sign17' . '.pdf';
         $filePath = $directoryPath .  '/' . $file_name;
     
         // Save the PDF to the specified path
@@ -137,6 +140,15 @@ class TestController extends Controller
             $mail->Password   = $smtpPass;
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port       = $smtpPort;
+        
+            $mail->SMTPOptions = [
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true,
+                ],
+            ];
+
 
             $mail->setFrom($fromEmail, 'PHPMailer');
             $mail->addAddress($toEmail);
@@ -153,4 +165,61 @@ class TestController extends Controller
         }
 
     }
+    
+    public function index()
+    {
+        return view('smtp_test');
+    }
+
+    public function send(Request $request)
+    {
+        $request->validate([
+            'host' => 'required|string',
+            'port' => 'required|numeric',
+            'username' => 'required|email',
+            'password' => 'required|string',
+            'encryption' => 'nullable|string|in:ssl,tls',
+            'to' => 'required|email',
+            'subject' => 'required|string',
+            'body' => 'required|string',
+        ]);
+    
+        $mail = new PHPMailer(true);
+    
+        try {
+            // Server settings
+            $mail->isSMTP();
+            $mail->Host       = $request->host;
+            $mail->SMTPAuth   = true;
+            $mail->Username   = $request->username;
+            $mail->Password   = $request->password;
+            $mail->Port       = $request->port;
+    
+            if ($request->encryption) {
+                $mail->SMTPSecure = $request->encryption;
+            }
+    
+            // Optional: Disable SSL verification (testing only)
+            $mail->SMTPOptions = [
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true,
+                ],
+            ];
+    
+            $mail->setFrom($request->username, 'SMTP Test');
+            $mail->addAddress($request->to);
+    
+            $mail->isHTML(true);
+            $mail->Subject = $request->subject;
+            $mail->Body    = nl2br($request->body); // Preserve line breaks
+    
+            $mail->send();
+            return back()->with('success', 'Message has been sent successfully!');
+        } catch (Exception $e) {
+            return back()->with('error', "Message could not be sent. Mailer Error: {$mail->ErrorInfo}");
+        }
+    }
 }
+
