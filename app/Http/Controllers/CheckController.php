@@ -534,6 +534,9 @@ class CheckController extends Controller
                     $payor = Payors::withTrashed()->find($row->PayorID);
                     return $payor ? $payor->Name : '-';
                 })
+                 ->editColumn('Amount', function ($row) {
+                    return '$'.$row->Amount;
+                })
                 ->addColumn('IssueDate', function ($row) {
                     return $row->IssueDate ? User::user_timezone($row->IssueDate,'m/d/Y') : '-';
                 })
@@ -584,12 +587,17 @@ class CheckController extends Controller
 
     function formatToK($number)
     {
-        if ($number >= 1000) {
-            return round($number / 1000, 1) . 'K';
+        if ($number >= 10000000) { // 1 Crore
+            return round($number / 10000000, 2) . ' Cr';
+        } elseif ($number >= 100000) { // 1 Lakh
+            return round($number / 100000, 2) . ' L';
+        } elseif ($number >= 1000) { // 1 Thousand
+            return round($number / 1000, 2) . ' K';
         }
 
         return $number;
     }
+
     
     public function amount_word(Request $request)
     {
