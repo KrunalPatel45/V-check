@@ -83,12 +83,12 @@
 
     </div>
     <div class="d-flex justify-content-end mt-2">
-        <ul class="nav nav-pills flex-column flex-md-row flex-wrap mb-6 row-gap-2" style="margin-right:10px;gap: 10px;">
+        <ul class="nav nav-pills flex-column flex-md-row flex-wrap mb-6 row-gap-2" style="margin-right:10px;gap: 10px;background: #e5dfdf;">
             <li class="nav-item">
-                <button class="nav-link active" id="send-payment">Send Payment</button>
+                <button class="nav-link active" id="send-payment" style="border-radius: 0;">Send Payment</button>
             </li>
             <li class="nav-item">
-                <button class="nav-link" id="receive-payment">Receive Payment</button>
+                <button class="nav-link" id="receive-payment" style="border-radius: 0;">Receive Payment</button>
             </li>
         </ul>
     </div>

@@ -792,7 +792,7 @@ class CheckController extends Controller
         $rules = [
             'name' => 'required',
             'address' => 'required',
-            'phone_number' => 'nullable|numeric',
+            'phone_number' => 'nullable|regex:/^\d{3}-\d{3}-\d{4}$/',
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
@@ -877,7 +877,8 @@ class CheckController extends Controller
             'zip' => 'required',
             'bank_name' => 'required',
             'routing_number' => 'required',
-            'account_number_verify' => 'required',
+            'account_number' => 'required',
+            'account_number_verify' => 'required|same:account_number',
         ]);
         
         if ($validator->fails()) {

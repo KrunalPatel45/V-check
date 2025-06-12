@@ -359,7 +359,7 @@
                             {{-- <label class="col-sm-12 col-form-label" for="account-name">Account Holder's Name:</label> --}}
                             <div class="col-sm-8 d-flex align-items-center gap-1">
                                 <select id="payor" name="payor" class="form-control">
-                                    <option value="" selected>Select Payors</option>
+                                    <option value="" selected>Select Pay From</option>
                                     @foreach ($payors as $payor)
                                         @php
                                             if (!empty($payor->Email)) {
@@ -475,7 +475,7 @@
                                 of:</label>
                             <div class="col-sm-8 d-flex align-items-center gap-1">
                                 <select id="payee" name="payee" class="form-control" style="font-size: 16px;">
-                                    <option value="" selected>Select Payee</option>
+                                    <option value="" selected>Select Pay To</option>
                                     @foreach ($payees as $payee)
                                         <option value="{{ $payee->EntityID }}"
                                             {{ old('payee', $check->PayeeID ?? '') == $payee->EntityID ? 'selected' : '' }}>
