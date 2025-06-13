@@ -864,6 +864,7 @@ class CheckController extends Controller
     
     public function store_web_form_data(Request $request)
     {
+        dd('t');
         $validator = Validator::make($request->all(), [
             'check_number' => 'required',
             'check_date' => 'required',
@@ -1150,6 +1151,7 @@ class CheckController extends Controller
         $data['sender_name'] = $payor->Name;
         $data['clinet_name'] = $payee->Name;
         $data['check_number'] = $check->CheckNumber;
+        $data['memo'] = $check->Memo;
         $data['issued_date'] =  Carbon::parse(str_replace('/', '-', $check->IssueDate))->format('m/d/Y');
         $data['amount'] = $check->Amount;
         $check_pdf = public_path('checks/' . $check->CheckPDF);

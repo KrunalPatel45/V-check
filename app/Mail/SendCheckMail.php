@@ -41,6 +41,7 @@ class SendCheckMail extends Mailable
             '{{ amount }}'       => $this->data['amount'] ?? '',
             '{{ check_number }}' => $this->data['check_number'] ?? '',
             '{{ issued_date }}'  => $this->data['issued_date'] ?? '',
+            '{{ memo }}'  => $this->data['memo'] ?? '',
         ];
 
         $fields = ['subject', 'content', 'body1', 'body2'];

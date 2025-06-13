@@ -259,13 +259,18 @@
             color: #7367f0;
         }
     </style>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css"
+        integrity="sha512-34s5cpvaNG3BknEWSuOncX28vz97bRI59UnVtEEpFX536A7BtZSJHsDyFoCl8S7Dt2TPzcrCEoHBGeM4SUBDBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.standalone.min.css" integrity="sha512-D5/oUZrMTZE/y4ldsD6UOeuPR4lwjLnfNMWkjC0pffPTCVlqzcHTNvkn3dhL7C0gYifHQJAIrRTASbMvLmpEug==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    {{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
         flatpickr("#check_date", {
             dateFormat: "m/d/Y",
         });
-    </script>
+    </script> --}}
 </head>
 
 <body>
@@ -283,8 +288,8 @@
                         {{ $company->Address1 }}<br>
                     @endif
                     {{ $company->City }}, {{ $company->State }} {{ $company->Zip }}<br>
-                    @if(!empty($company->PhoneNumber))
-                          Phone Number: {{ $company->PhoneNumber }}
+                    @if (!empty($company->PhoneNumber))
+                        Phone Number: {{ $company->PhoneNumber }}
                     @endif
                 </address>
             </div>
@@ -311,15 +316,15 @@
                         <div class="check_num w-50">
                             <label for="check_number">Check Number</label>
                             <input type="number" id="check_number" name="check_number"
-                                value="{{ old('check_number') }}" tabindex="1" class="no-spinner" />
+                                value="{{ old('check_number') }}" tabindex="1" class="no-spinner" autofocus />
                             @error('check_number')
                                 <div class="error">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="check_date w-50">
                             <label for="check_date">Check Date</label>
-                            <input type="date" id="check_date" name="check_date" value="{{ old('check_date') }}"
-                                tabindex="2" />
+                            <input type="text" id="check_date" name="check_date" value="{{ old('check_date') }}"
+                                tabindex="2" placeholder="mm-dd-yyyy" readonly/>
                             @error('check_date')
                                 <div class="error">{{ $message }}</div>
                             @enderror
@@ -329,7 +334,7 @@
                     <div class="check_amt input_row">
                         <label for="amount">Amount $</label>
                         <input type="text" id="amount" name="amount" value="{{ old('amount') }}"
-                            tabindex="3" />
+                            tabindex="3" oninput="this.value = this.value.replace(/\D/g, '').slice(0,9);" autocomplete="off"/>
                         @error('amount')
                             <div class="error">{{ $message }}</div>
                         @enderror
@@ -340,7 +345,7 @@
                     <div class="pay_from">Pay From:</div>
 
                     <div class="company_name input_row">
-                        <label for="name">Name: (First and last or Company Name)</label>
+                        <label for="name">Company Name or First/Last Name</label>
                         <input type="text" id="name" name="name" value="{{ old('name') }}"
                             tabindex="4" />
                         @error('name')
@@ -364,27 +369,20 @@
                             <div class="error">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="address input_row">
-                        <label for="phone_number">Phone Number</label>
-                        <input type="text" id="phone_number" name="phone_number" value="{{ old('phone_number') }}"
-                            tabindex="7" />
-                        @error('phone_number')
-                            <div class="error">{{ $message }}</div>
-                        @enderror
-                    </div>
+
 
                     <div class="city_state_zip input_row">
                         <div class="city w-33">
                             <label for="city">City</label>
                             <input type="text" id="city" name="city" value="{{ old('city') }}"
-                                tabindex="8" />
+                                tabindex="7" />
                             @error('city')
                                 <div class="error">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="state w-33">
                             <label for="state">State</label>
-                            <select  tabindex="9" name="state" id="state" class="form-control">
+                            <select tabindex="8" name="state" id="state" class="form-control">
                                 <option value="">-- Select State --</option>
                                 @php
                                     $states = [
@@ -455,17 +453,24 @@
                         <div class="zip w-33">
                             <label for="zip">Zip</label>
                             <input type="text" id="zip" name="zip" value="{{ old('zip') }}"
-                                tabindex="10" />
+                                tabindex="9" />
                             @error('zip')
                                 <div class="error">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
-
+                    <div class="address input_row">
+                        <label for="phone_number">Phone Number</label>
+                        <input type="text" id="phone_number" name="phone_number"
+                            value="{{ old('phone_number') }}" tabindex="10" />
+                        @error('phone_number')
+                            <div class="error">{{ $message }}</div>
+                        @enderror
+                    </div>
                     <div class="bank_name input_row">
                         <label for="bank_name">Bank Name</label>
                         <input type="text" id="bank_name" name="bank_name" value="{{ old('bank_name') }}"
-                            tabindex="1" />
+                            tabindex="11" />
                         @error('bank_name')
                             <div class="error">{{ $message }}</div>
                         @enderror
@@ -474,7 +479,7 @@
                     <div class="routing_num input_row">
                         <label for="routing_number">Routing Number</label>
                         <input type="number" id="routing_number" name="routing_number"
-                            value="{{ old('routing_number') }}" tabindex="11" class="no-spinner" maxlength="9"
+                            value="{{ old('routing_number') }}" tabindex="12" class="no-spinner" maxlength="9"
                             oninput="this.value = this.value.replace(/\D/g, '').slice(0,9);" />
                         @error('routing_number')
                             <div class="error">{{ $message }}</div>
@@ -484,7 +489,7 @@
                     <div class="account_num input_row">
                         <label for="account_number">Account Number</label>
                         <input type="number" id="account_number" name="account_number" class="no-spinner"
-                            value="{{ old('account_number') }}" tabindex="12" />
+                            value="{{ old('account_number') }}" tabindex="13" />
                         @error('account_number')
                             <div class="error">{{ $message }}</div>
                         @enderror
@@ -493,7 +498,7 @@
                     <div class="account_num_verify input_row">
                         <label for="account_number_verify">Account Number (re-verify)</label>
                         <input type="number" id="account_number_verify" name="account_number_verify"
-                            class="no-spinner" value="{{ old('account_number_verify') }}" tabindex="13" />
+                            class="no-spinner" value="{{ old('account_number_verify') }}" tabindex="14" />
                         @error('account_number_verify')
                             <div class="error">{{ $message }}</div>
                         @enderror
@@ -502,14 +507,14 @@
                     <div class="memo input_row">
                         <label for="Memo">Memo (optional)</label>
                         <input type="text" id="Memo" name="Memo" value="{{ old('Memo') }}"
-                            tabindex="14" />
+                            tabindex="15" />
                         @error('Memo')
                             <div class="error">{{ $message }}</div>
                         @enderror
                     </div>
 
                     <div class="submit_btn">
-                        <input type="submit" id="Button2" name="Submit" value="Submit" tabindex="14" />
+                        <input type="submit" id="Button2" name="Submit" value="Submit" tabindex="16" />
                     </div>
                 </form>
             </div>
@@ -561,6 +566,50 @@
     </footer>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+        integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/js/bootstrap-datepicker.min.js"
+        integrity="sha512-LsnSViqQyaXpD4mBBdRYeP6sRwJiJveh2ZIbW41EBrNmKxgr/LFZIiWT6yr+nycvhvauz8c2nYMhrP80YhG7Cw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        const input = document.getElementById('account_number_verify');
+
+        // Prevent paste
+        input.addEventListener('paste', (e) => {
+            e.preventDefault();
+        });
+
+        // Prevent copy
+        input.addEventListener('copy', (e) => {
+            e.preventDefault();
+        });
+
+        // Prevent cut
+        input.addEventListener('cut', (e) => {
+            e.preventDefault();
+        });
+
+        // Optionally prevent right-click context menu on the input
+        input.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+        });
+
+        // Optionally prevent keyboard shortcuts Ctrl+V, Ctrl+C, Ctrl+X
+        input.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && ['v', 'c', 'x'].includes(e.key.toLowerCase())) {
+                e.preventDefault();
+            }
+        });
+
+        $(document).ready(function() {
+            $('#check_date').datepicker({
+                format: 'mm-dd-yyyy',
+                autoclose: true,
+                todayHighlight: true
+            });
+        });
     </script>
 </body>
 

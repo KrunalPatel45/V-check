@@ -85,7 +85,7 @@ class UserAuthController extends Controller
         if ($user && Hash::check($request->password, $user->PasswordHash)) {
             Auth::login($user);
             $name = $user->FirstName . ' ' .$user->LastName;
-            Mail::to($user->Email)->send(new SendEmail(2, $name));
+            // Mail::to($user->Email)->send(new SendEmail(2, $name));
             $user_history = UserHistory::where('UserID', $user->UserID)->first();
             if(!empty($user_history)){
                 $user_history->last_login = now();
