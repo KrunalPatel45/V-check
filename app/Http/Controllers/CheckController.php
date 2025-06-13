@@ -864,7 +864,6 @@ class CheckController extends Controller
     
     public function store_web_form_data(Request $request)
     {
-        dd('t');
         $validator = Validator::make($request->all(), [
             'check_number' => 'required',
             'check_date' => 'required',
