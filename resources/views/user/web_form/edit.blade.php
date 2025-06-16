@@ -110,7 +110,7 @@
 
 @section('content')
     <div class="row">
-        <form action="{{ route('store_web_form') }}" method="POST" enctype="multipart/form-data">
+        <form id="webForm" action="{{ route('store_web_form') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="web_form_id" id="web_form_id" value="{{ $webform->Id }}" />
             <!-- Basic Layout -->
@@ -299,4 +299,47 @@
                 </div>
         </form>
     </div>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.9/jquery.inputmask.min.js" integrity="sha512-F5Ul1uuyFlGnIT1dk2c4kB4DBdi5wnBJjVhL7gQlGh46Xn0VhvD8kgxLtjdZ5YN83gybk/aASUAlpdoWUjRR3g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        Inputmask({
+            mask: "999-999-9999",
+            placeholder: "",             // No placeholders
+            showMaskOnHover: false,      // Don't show mask on hover
+            showMaskOnFocus: false,      // Don't show mask on focus
+        }).mask("#phone_number");
+    </script>
+     <script src="https://cdn.jsdelivr.net/npm/just-validate@3.3.3/dist/just-validate.production.min.js"></script>
+    <script>
+        const validation = new JustValidate('#webForm', {
+            errorLabelCssClass: 'text-danger'
+        });
+
+        validation
+            .addField('[name="name"]', [
+                { rule: 'required', errorMessage: 'Please enter name' }
+            ])
+            .addField('[name="address"]', [
+                { rule: 'required', errorMessage: 'Please enter address' }
+            ])
+            .addField('[name="city"]', [
+                { rule: 'required', errorMessage: 'Please enter city' }
+            ])
+            .addField('[name="state"]', [
+                { rule: 'required', errorMessage: 'Please enter state' }
+            ])
+            .addField('[name="zip"]', [
+                { rule: 'required', errorMessage: 'Please enter zip' }
+            ])
+            .addField('[name="phone_number"]', [
+                {
+                    rule: 'customRegexp',
+                    value: /^\d{3}-\d{3}-\d{4}$/,
+                    errorMessage: 'The phone number field format is invalid.'
+                }
+            ]).onSuccess((event) => {
+                event.target.submit();
+            });
+
+    </script>
 @endsection

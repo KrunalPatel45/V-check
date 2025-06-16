@@ -25,16 +25,18 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use App\Mail\SendWebFormMailForCilent;
 
+
 class CheckController extends Controller
 {
     public function process_payment(Request $request)
     {
-        if(!Auth::check()) {
+        if (!Auth::check()) {
             return redirect()->route('user.login');
         }
 
         if ($request->ajax()) {
-            $checks = Checks::where('UserID', Auth::id())->where('CheckType', 'Process Payment')->get();
+            $checks = Checks::where('UserID', Auth::id())->where('CheckType', 'Process Payment')
+                        ->where('is_seen',0)->get();
 
             return datatables()->of($checks)
                 ->addIndexColumn()
@@ -47,7 +49,7 @@ class CheckController extends Controller
                     return $payor->Name;
                 })
                 ->addColumn('IssueDate', function ($row) {
-                    return User::user_timezone($row->IssueDate,'m/d/Y');
+                    return User::user_timezone($row->IssueDate, 'm/d/Y');
                 })
                 ->addColumn('actions', function ($row) {
                     // $editUrl = route('user.payors.edit', ['type' => 'Payee', 'id' => $row->EntityID]);
@@ -55,7 +57,7 @@ class CheckController extends Controller
                     $editUrl = route('check.process_payment_check_edit', ['id' => $row->CheckID]);
                     $check_generate = route('check_generate', ['id' => $row->CheckID]);
 
-                    if($row->Status == 'draft') {
+                    if ($row->Status == 'draft') {
                         return '<div class="d-flex">
                                 <a href="' . $editUrl . '" class="dropdown-item">
                                         <i class="ti ti-pencil me-1"></i> Edit
@@ -77,17 +79,20 @@ class CheckController extends Controller
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                            <a href="'.$check_generate.'" class="btn btn-primary">Generate</a>
+                                            <a href="' . $check_generate . '" class="btn btn-primary">Generate</a>
                                         </div>
                                     </div>
                                 </div>
                             </div>';
                     } else {
-                        if(!empty($row->CheckPDF)) {
-                            return '<a href="'.asset('checks/' . $row->CheckPDF).'" target="_blank" class="btn">
+                        if (!empty($row->CheckPDF)) {
+                            // return '<a href="'.asset('checks/' . $row->CheckPDF).'" target="_blank" class="btn">
+                            //             <i class="menu-icon tf-icons ti ti-files"></i>
+                            //     </a>';
+                            return '<a href="' . route('view.pdf', $row->CheckID) . '" target="_blank" class="btn">
                                         <i class="menu-icon tf-icons ti ti-files"></i>
                                 </a>';
-    
+
                         } else {
                             return '-';
                         }
@@ -101,7 +106,7 @@ class CheckController extends Controller
     }
     public function process_payment_check()
     {
-        if(!Auth::check()) {
+        if (!Auth::check()) {
             return redirect()->route('user.login');
         }
 
@@ -109,7 +114,7 @@ class CheckController extends Controller
         $total_used_check = Checks::where('UserID', Auth::id())->count();
         // dd($package->CheckLimitPerMonth, $total_used_check);
 
-        if(Auth::user()->CurrentPackageID !=-1 && $package->CheckLimitPerMonth != 0 && $package->CheckLimitPerMonth <= $total_used_check && Auth::user()->CurrentPackageID) {
+        if (Auth::user()->CurrentPackageID != -1 && $package->CheckLimitPerMonth != 0 && $package->CheckLimitPerMonth <= $total_used_check && Auth::user()->CurrentPackageID) {
             return redirect()->route('check.process_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
 
@@ -119,7 +124,7 @@ class CheckController extends Controller
     }
     public function process_payment_check_generate(Request $request)
     {
-        if(!Auth::check()) {
+        if (!Auth::check()) {
             return redirect()->route('user.login');
         }
 
@@ -135,17 +140,17 @@ class CheckController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        if(!empty($request->signed)) {
+        if (!empty($request->signed)) {
             $folderPath = public_path('sign/');
 
             $image_parts = explode(";base64,", $request->signed);
             $image_type_aux = explode("image/", $image_parts[0]);
 
             $fileName = '';
-            if(!empty($image_type_aux[1])) {
+            if (!empty($image_type_aux[1])) {
                 $image_type = $image_type_aux[1];
                 $image_base64 = base64_decode($image_parts[1]);
-                $fileName = uniqid() . '.'.$image_type;
+                $fileName = uniqid() . '.' . $image_type;
                 $file = $folderPath . $fileName;
 
                 file_put_contents($file, $image_base64);
@@ -153,11 +158,11 @@ class CheckController extends Controller
         }
 
         $check_date = Carbon::parse(str_replace('-', '/', $request->check_date));
-        
+
         if (!empty($request->id)) {
             // Update existing record
             $checks = Checks::find($request->id);
-            if(empty($fileName)) {
+            if (empty($fileName)) {
                 $fileName = $checks->DigitalSignature;
             }
             if ($checks) {
@@ -170,7 +175,7 @@ class CheckController extends Controller
                     'IssueDate' => now(),
                     'ExpiryDate' => $check_date,
                     'Status' => 'draft',
-                    'Memo' => $request->memo, 
+                    'Memo' => $request->memo,
                     'CheckPDF' => null,
                     'DigitalSignatureRequired' => (!empty($request->is_sign) && $request->is_sign == 'on') ? 1 : 0,
                     'DigitalSignature' => (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '',
@@ -181,7 +186,7 @@ class CheckController extends Controller
             // Create new record
             $checks = Checks::create([
                 'UserID' => Auth::id(),
-                'PayeeID'=> $request->payee,
+                'PayeeID' => $request->payee,
                 'CheckType' => 'Process Payment',
                 'Amount' => $request->amount,
                 'PayorID' => $request->payor,
@@ -189,21 +194,21 @@ class CheckController extends Controller
                 'IssueDate' => now(),
                 'ExpiryDate' => $check_date,
                 'Status' => 'draft',
-                'Memo' => $request->memo, 
+                'Memo' => $request->memo,
                 'CheckPDF' => null,
                 'DigitalSignatureRequired' => (!empty($request->is_sign) && $request->is_sign == 'on') ? 1 : 0,
                 'DigitalSignature' => (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '',
             ]);
 
-            if(Auth::user()->CurrentPackageID != -1) {
+            if (Auth::user()->CurrentPackageID != -1) {
                 $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->orderBy('PaymentSubscriptionID', 'desc')->first();
-                $paymentSubscription->ChecksUsed  = $paymentSubscription->ChecksUsed + 1;
-                $paymentSubscription->RemainingChecks  = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
+                $paymentSubscription->ChecksUsed = $paymentSubscription->ChecksUsed + 1;
+                $paymentSubscription->RemainingChecks = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
                 $paymentSubscription->save();
             }
             $message = 'Check Crated successfully';
         }
-        
+
         return redirect()->route('check.process_payment')->with('success', $message);
     }
 
@@ -215,17 +220,18 @@ class CheckController extends Controller
         $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'RP')->get();
         $old_payee = Payors::find($check->PayeeID);
         $old_payor = Payors::find($check->PayorID);
-        return view('user.check.process_payment_generate_check', compact('payees', 'payors','check', 'old_payee', 'old_payor'));
+        return view('user.check.process_payment_generate_check', compact('payees', 'payors', 'check', 'old_payee', 'old_payor'));
     }
 
     public function send_payment(Request $request)
     {
-        if(!Auth::check()) {
+        if (!Auth::check()) {
             return redirect()->route('user.login');
         }
 
         if ($request->ajax()) {
-            $checks = Checks::where('UserID', Auth::id())->where('CheckType', 'Make Payment')->get();
+            $checks = Checks::where('UserID', Auth::id())->where('CheckType', 'Make Payment')
+                        ->where('is_seen',0)->get();
 
             return datatables()->of($checks)
                 ->addIndexColumn()
@@ -238,16 +244,16 @@ class CheckController extends Controller
                     return $payor->Name;
                 })
                 ->addColumn('IssueDate', function ($row) {
-                    return User::user_timezone($row->IssueDate,'m/d/Y');
+                    return User::user_timezone($row->IssueDate, 'm/d/Y');
                 })
                 ->addColumn('actions', function ($row) {
-                    
+
                     $editUrl = route('check.process_send_check_edit', ['id' => $row->CheckID]);
                     $check_generate = route('send_check_generate', ['id' => $row->CheckID]);
                     $send_email_url = route('send_check_email', ['id' => $row->CheckID]);
                     $send_email_lable = !empty($row->is_email_send) ? 'Resend' : 'Send';
 
-                    if($row->Status == 'draft') {
+                    if ($row->Status == 'draft') {
                         return '<div class="d-flex">
                                 <a href="' . $editUrl . '" class="dropdown-item">
                                         <i class="ti ti-pencil me-1"></i> Edit
@@ -269,21 +275,21 @@ class CheckController extends Controller
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                            <a href="'.$check_generate.'" class="btn btn-primary">Generate</a>
+                                            <a href="' . $check_generate . '" class="btn btn-primary">Generate</a>
                                         </div>
                                     </div>
                                 </div>
                             </div>';
                     } else {
-                        if(!empty($row->CheckPDF)) {
-                            return '<div class="d-flex"><a href="'.asset('checks/' . $row->CheckPDF).'" target="_blank" class="btn">
+                        if (!empty($row->CheckPDF)) {
+                            return '<div class="d-flex"><a href="' . route('view.pdf', $row->CheckID) . '" target="_blank" class="btn">
                                         <i class="menu-icon tf-icons ti ti-files"></i> Preview
                                 </a>
-                                <a href="'.$send_email_url.'" class="btn">
-                                        <i class="menu-icon tf-icons ti ti-mail"></i> '.$send_email_lable.'
+                                <a href="' . $send_email_url . '" class="btn">
+                                        <i class="menu-icon tf-icons ti ti-mail"></i> ' . $send_email_lable . '
                                 </a>
                                 </div>';
-    
+
                         } else {
                             return '-';
                         }
@@ -297,14 +303,14 @@ class CheckController extends Controller
     }
     public function send_payment_check()
     {
-        if(!Auth::check()) {
+        if (!Auth::check()) {
             return redirect()->route('user.login');
         }
 
         $package = Package::find(Auth::user()->CurrentPackageID);
         $total_used_check = Checks::where('UserID', Auth::id())->count();
 
-        if(Auth::user()->CurrentPackageID != -1 && $package->CheckLimitPerMonth != 0 && $package->CheckLimitPerMonth <= $total_used_check) {
+        if (Auth::user()->CurrentPackageID != -1 && $package->CheckLimitPerMonth != 0 && $package->CheckLimitPerMonth <= $total_used_check) {
             return redirect()->route('check.process_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
 
@@ -316,7 +322,7 @@ class CheckController extends Controller
     }
     public function send_payment_check_generate(Request $request)
     {
-        if(!Auth::check()) {
+        if (!Auth::check()) {
             return redirect()->route('user.login');
         }
 
@@ -327,7 +333,9 @@ class CheckController extends Controller
             'amount' => 'required|numeric|min:0.01',
             'payor' => 'required|exists:Entities,EntityID',
             'payee' => 'required|exists:Entities,EntityID',
-            'signature' => 'required',
+            'signature_id' => 'required',
+        ], [
+            'signature_id' => 'The signature field is required.',
         ]);
 
         if ($validator->fails()) {
@@ -350,17 +358,17 @@ class CheckController extends Controller
         //         file_put_contents($file, $image_base64);
         //     }
         // }
-        
+
         $check_date = Carbon::parse(str_replace('-', '/', $request->check_date));
 
         if (!empty($request->id)) {
             $checks = Checks::find($request->id);
-            if(empty($fileName)) {
+            if (empty($fileName)) {
                 $fileName = $checks->DigitalSignature;
             }
             if ($checks) {
                 $checks->update([
-                    'CompanyID'=> $request->payor,
+                    'CompanyID' => $request->payor,
                     'CheckType' => 'Make Payment',
                     'Amount' => $request->amount,
                     'EntityID' => $request->payee,
@@ -368,16 +376,16 @@ class CheckController extends Controller
                     'IssueDate' => now(),
                     'ExpiryDate' => $check_date,
                     'Status' => 'draft',
-                    'Memo' => $request->memo, 
+                    'Memo' => $request->memo,
                     'CheckPDF' => null,
-                    'SignID' => $request->sign_id,
+                    'SignID' => $request->signature_id,
                 ]);
             }
             $message = 'Check Updated successfully';
         } else {
             $checks = Checks::create([
                 'UserID' => Auth::id(),
-                'PayorID'=> $request->payor,
+                'PayorID' => $request->payor,
                 'CheckType' => 'Make Payment',
                 'Amount' => $request->amount,
                 'PayeeID' => $request->payee,
@@ -385,21 +393,21 @@ class CheckController extends Controller
                 'IssueDate' => now(),
                 'ExpiryDate' => $check_date,
                 'Status' => 'draft',
-                'Memo' => $request->memo, 
+                'Memo' => $request->memo,
                 'CheckPDF' => null,
-                'SignID' => $request->sign_id,
+                'SignID' => $request->signature_id,
             ]);
-    
-            if(Auth::user()->CurrentPackageID != -1) {
+
+            if (Auth::user()->CurrentPackageID != -1) {
                 $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->orderBy('PaymentSubscriptionID', 'desc')->first();
-                $paymentSubscription->ChecksUsed  = $paymentSubscription->ChecksUsed + 1;
-                $paymentSubscription->RemainingChecks  = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
+                $paymentSubscription->ChecksUsed = $paymentSubscription->ChecksUsed + 1;
+                $paymentSubscription->RemainingChecks = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
                 $paymentSubscription->save();
             }
-            
+
             $message = 'Check Crated successfully';
         }
-        
+
         return redirect()->route('check.send_payment')->with('success', $message);
     }
 
@@ -413,9 +421,9 @@ class CheckController extends Controller
         $old_payor = Payors::find($check->PayorID);
         $old_sign = UserSignature::find($check->SignID);
         $userSignatures = UserSignature::where('UserID', Auth::id())->get();
-        return view('user.check.send_payment_generate_check', compact('payees', 'payors','check', 'old_payee', 'old_payor', 'old_sign', 'userSignatures'));
+        return view('user.check.send_payment_generate_check', compact('payees', 'payors', 'check', 'old_payee', 'old_payor', 'old_sign', 'userSignatures'));
     }
-    
+
     public function generateAndSavePDF($data)
     {
         $directoryPath = public_path('checks');
@@ -437,7 +445,7 @@ class CheckController extends Controller
         foreach ($fontFiles as $fontFile) {
             $sourcePath = public_path('storage/fonts/' . $fontFile);
             $destPath = $fontPath . '/' . $fontFile;
-            
+
             if (!File::exists($destPath) && File::exists($sourcePath)) {
                 File::copy($sourcePath, $destPath);
             }
@@ -454,16 +462,16 @@ class CheckController extends Controller
             File::makeDirectory($directoryPath, 0755, true);
         }
         // Generate PDF from a view
-         $pdf = PDF::loadView('user.check_formate.index', compact('data'))->setPaper('letter', 'portrait')
-        // ->setPaper([0, 0, 1000, 1200])
-        ->setOptions(['dpi' => 150])
-        ->set_option('isHtml5ParserEnabled', true)
-        ->set_option('isRemoteEnabled', true);
-    
+        $pdf = PDF::loadView('user.check_formate.index', compact('data'))->setPaper('letter', 'portrait')
+            // ->setPaper([0, 0, 1000, 1200])
+            ->setOptions(['dpi' => 150])
+            ->set_option('isHtml5ParserEnabled', true)
+            ->set_option('isRemoteEnabled', true);
+
         // Define the file path where you want to save the PDF
         $file_name = 'check-' . $data['check_number'] . '-' . time() . '.pdf';
-        $filePath = $directoryPath .  '/' . $file_name;
-    
+        $filePath = $directoryPath . '/' . $file_name;
+
         // Save the PDF to the specified path
         $pdf->save($filePath);
         return $file_name;
@@ -472,13 +480,13 @@ class CheckController extends Controller
     function numberToWords($number)
     {
         $parts = explode('.', number_format($number, 2, '.', ''));
-    
-        $whole = (int)$parts[0];
+
+        $whole = (int) $parts[0];
         $decimal = $parts[1];
-    
+
         $numberToWords = new NumberToWords();
         $transformer = $numberToWords->getNumberTransformer('en');
-    
+
         $words = ucfirst($transformer->toWords($whole));
         return "{$words} and {$decimal}/100";
     }
@@ -512,15 +520,15 @@ class CheckController extends Controller
         if (!Auth::check()) {
             return redirect()->route('user.login');
         }
-    
+
         if ($request->ajax()) {
             $query = Checks::where('UserID', Auth::id());
-    
+
             // Apply filter if "type" parameter exists (from JS)
             if ($request->has('type') && !empty($request->type)) {
                 $query->where('CheckType', $request->type);
             }
-    
+
             return datatables()->of($query)
                 ->addIndexColumn()
                 ->setRowId(function ($row) {
@@ -534,11 +542,11 @@ class CheckController extends Controller
                     $payor = Payors::withTrashed()->find($row->PayorID);
                     return $payor ? $payor->Name : '-';
                 })
-                 ->editColumn('Amount', function ($row) {
-                    return '$'.$row->Amount;
+                ->editColumn('Amount', function ($row) {
+                    return '$' . $row->Amount;
                 })
                 ->addColumn('IssueDate', function ($row) {
-                    return $row->IssueDate ? User::user_timezone($row->IssueDate,'m/d/Y') : '-';
+                    return $row->IssueDate ? User::user_timezone($row->IssueDate, 'm/d/Y') : '-';
                 })
                 ->addColumn('Status', function ($row) {
                     return $row->Status === 'draft' ? 'Draft' : 'Generated';
@@ -556,27 +564,27 @@ class CheckController extends Controller
                 ->rawColumns(['Status', 'actions'])
                 ->make(true);
         }
-    
+
         // Metrics for main page (optional but already in your code)
         $total_receive_check = Checks::where('UserID', Auth::id())
             ->where('CheckType', 'Process Payment')
             ->count();
-    
+
         $total_receive_check_amount = Checks::where('UserID', Auth::id())
             ->where('CheckType', 'Process Payment')
             ->sum('Amount');
-    
+
         $total_send_check = Checks::where('UserID', Auth::id())
             ->where('CheckType', 'Make Payment')
             ->count();
-    
+
         $total_send_check_amount = Checks::where('UserID', Auth::id())
             ->where('CheckType', 'Make Payment')
             ->sum('Amount');
-    
+
         $total_receive_check_amount = $this->formatToK($total_receive_check_amount);
         $total_send_check_amount = $this->formatToK($total_send_check_amount);
-    
+
         return view('user.check.history', compact(
             'total_receive_check',
             'total_send_check',
@@ -598,28 +606,28 @@ class CheckController extends Controller
         return $number;
     }
 
-    
+
     public function amount_word(Request $request)
     {
         $word = '';
-        if(!empty($request->amount)) {
+        if (!empty($request->amount)) {
             $word = $this->numberToWords($request->amount);
         }
-        return response()->json(['success' => true,'word' => $word]);
+        return response()->json(['success' => true, 'word' => $word]);
     }
 
-    public function get_payee($id) 
+    public function get_payee($id)
     {
-        $type = request()->query('type'); 
+        $type = request()->query('type');
         $payee = Payors::where('EntityID', $id)->where('Category', $type)->first();
-        return response()->json(['success' => true,'payee' => $payee]);
+        return response()->json(['success' => true, 'payee' => $payee]);
     }
 
-    public function get_payor($id) 
+    public function get_payor($id)
     {
-        $type = request()->query('type'); 
+        $type = request()->query('type');
         $payor = Payors::where('EntityID', $id)->where('Category', $type)->first();
-        return response()->json(['success' => true,'payor' => $payor]);
+        return response()->json(['success' => true, 'payor' => $payor]);
     }
 
     public function check_generate($id)
@@ -645,12 +653,12 @@ class CheckController extends Controller
         $data['memo'] = $check->Memo;
         $data['routing_number'] = $payor->RoutingNumber;
         $data['account_number'] = $payor->AccountNumber;
-        $data['bank_name'] = $payor->BankName; 
+        $data['bank_name'] = $payor->BankName;
         $data['signature'] = (!empty($check->DigitalSignatureRequired)) ? $check->DigitalSignature : '';
-        $data['email'] =  !empty($payee->Email) ? $payee->Email : '';
+        $data['email'] = !empty($payee->Email) ? $payee->Email : '';
         $data['package'] = Auth::user()->CurrentPackageID;
         // return view('user.check_formate.index', compact('data'));
-        
+
         $check_file = $this->generateAndSavePDF($data);
 
         $check->Status = 'generated';
@@ -685,13 +693,13 @@ class CheckController extends Controller
         $data['memo'] = $check->Memo;
         $data['routing_number'] = $payor->RoutingNumber;
         $data['account_number'] = $payor->AccountNumber;
-        $data['bank_name'] = $payor->BankName; 
+        $data['bank_name'] = $payor->BankName;
         $data['signature'] = (!empty($userSignature->Sign)) ? $userSignature->Sign : '';
-        $data['email'] =  !empty($payee->Email) ? $payee->Email : '';
+        $data['email'] = !empty($payee->Email) ? $payee->Email : '';
         $data['package'] = Auth::user()->CurrentPackageID;
 
         // return view('user.check_formate.index', compact('data'));
-        
+
         $check_file = $this->generateAndSavePDF($data);
 
         $check->Status = 'generated';
@@ -721,7 +729,7 @@ class CheckController extends Controller
             return datatables()->of($webforms)
                 ->addIndexColumn()
                 ->addColumn('logo', function ($row) {
-                    if(!empty($row->Logo)) {
+                    if (!empty($row->Logo)) {
                         return '<img src="' . asset($row->Logo) . '" alt="Webform Logo" style="width: 50px;">';
                     } else {
                         return '<img src="' . asset('assets/img/empty.jpg') . '" alt="Webform Logo" style="width: 50px;">';
@@ -729,7 +737,7 @@ class CheckController extends Controller
                 })
                 ->addColumn('company_name', function ($row) {
                     $company = Payors::withTrashed()->find($row->PayeeID);
-                    if(!empty($company)) {
+                    if (!empty($company)) {
                         return $company->Name;
                     } else {
                         return '-';
@@ -773,13 +781,13 @@ class CheckController extends Controller
                                 </div>
                             </div>';
                 })
-                ->rawColumns(['logo','actions'])
+                ->rawColumns(['logo', 'actions'])
                 ->make(true);
         }
 
         $package = Package::find(Auth::user()->CurrentPackageID);
         $is_web_form = (Auth::user()->CurrentPackageID != -1) ? $package->web_forms : 0;
-        return view('user.web_form.index' , compact('is_web_form'));
+        return view('user.web_form.index', compact('is_web_form'));
     }
 
     public function new_web_form()
@@ -789,6 +797,7 @@ class CheckController extends Controller
 
     public function new_web_form_store(Request $request)
     {
+
         $rules = [
             'name' => 'required',
             'address' => 'required',
@@ -798,7 +807,7 @@ class CheckController extends Controller
             'zip' => 'required',
             'page_desc' => 'required',
         ];
-        if(empty($request->web_form_id)) {
+        if (empty($request->web_form_id)) {
             $rules['logo'] = 'required';
         }
         $validator = Validator::make($request->all(), $rules);
@@ -806,12 +815,12 @@ class CheckController extends Controller
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
-
-        if(!empty($request->web_form_id)) {
+        
+        if (!empty($request->web_form_id)) {
             $webform = WebForm::find($request->web_form_id);
             $payee = Payors::withTrashed()->find($webform->PayeeID);
-            if($payee->Name != $request->name) {
-                 $slug = $this->generateUniqueSlug($request->name);
+            if ($payee->Name != $request->name) {
+                $slug = $this->generateUniqueSlug($request->name);
             }
             $slug = $webform->page_url;
         } else {
@@ -823,14 +832,14 @@ class CheckController extends Controller
         $payee = new Payors();
 
         $payee->UserID = Auth::id();
-        $payee->Name = $request->name; 
+        $payee->Name = $request->name;
         $payee->Address1 = $request->address;
         $payee->City = $request->city;
         $payee->State = $request->state;
         $payee->Zip = $request->zip;
         $payee->Type = 'Payee';
         $payee->Category = 'RP';
-        $payee->PhoneNumber = $request->phone_number;
+        $payee->PhoneNumber = preg_replace('/\D/', '', $request->phone_number);
 
         $payee->save();
 
@@ -838,11 +847,11 @@ class CheckController extends Controller
             $file = $request->file('logo');
             $uniqueName = Str::uuid() . '.' . $file->getClientOriginalExtension();
             $destinationPath = public_path('logos');
-    
+
             if (!file_exists($destinationPath)) {
                 mkdir($destinationPath, 0755, true);
             }
-    
+
             $file->move($destinationPath, $uniqueName);
             $logoPath = 'logos/' . $uniqueName;
         } else {
@@ -861,7 +870,7 @@ class CheckController extends Controller
 
         return redirect()->route('get_web_forms')->with('success', 'Web form generated successfully');
     }
-    
+
     public function store_web_form_data(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -871,7 +880,7 @@ class CheckController extends Controller
             'name' => 'required',
             'email' => 'required|email',
             'address' => 'required',
-            'phone_number' => 'required|numeric',
+            'phone_number' => 'required|regex:/^\d{3}-\d{3}-\d{4}$/',
             'city' => 'required',
             'state' => 'required',
             'zip' => 'required',
@@ -880,7 +889,7 @@ class CheckController extends Controller
             'account_number' => 'required',
             'account_number_verify' => 'required|same:account_number',
         ]);
-        
+
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
@@ -891,7 +900,7 @@ class CheckController extends Controller
             'Name' => $request->name,
             'Email' => $request->email,
             'Address1' => $request->address,
-            'PhoneNumber' => $request->phone_number,
+            'PhoneNumber' => preg_replace('/\D/', '', $request->phone_number),
             'City' => $request->city,
             'State' => $request->state,
             'Zip' => $request->zip,
@@ -905,17 +914,17 @@ class CheckController extends Controller
 
         $payor = Payors::where('Email', $request->email)->first();
 
-        if(!empty($payor)) {
+        if (!empty($payor)) {
             $payor->update($payor_data);
         } else {
-             $payor = Payors::create($payor_data);
+            $payor = Payors::create($payor_data);
         }
 
         $check_date = Carbon::parse(str_replace('-', '/', $request->check_date));
-        
+
         $check_data = [
             'UserID' => $payee->UserID,
-            'PayeeID'=> $request->company_id,
+            'PayeeID' => $request->company_id,
             'CheckType' => 'Process Payment',
             'Amount' => $request->amount,
             'PayorID' => $payor->EntityID,
@@ -930,9 +939,9 @@ class CheckController extends Controller
 
         $check = Checks::create($check_data);
         $user = User::find($payee->UserID);
-        $user_name = $user->FirstName . ' ' .$user->LastName;
+        $user_name = $user->FirstName . ' ' . $user->LastName;
         Mail::to($user->Email)->send(new SendWebFormMail(5, $user_name, $payor->Name));
-        Mail::to($request->email)->send(new SendWebFormMailForCilent(11, $request->name,));   
+        Mail::to($request->email)->send(new SendWebFormMailForCilent(11, $request->name, ));
         return redirect()->back()->with('success', 'Check form successfully submitted.');
     }
 
@@ -997,7 +1006,7 @@ class CheckController extends Controller
 
         if (File::exists($path)) {
             $config = File::getRequire($path);
-            
+
             // Update value
             data_set($config, $key, $value);
 
@@ -1011,12 +1020,12 @@ class CheckController extends Controller
         }
     }
 
-    public function bulk_generate(Request $request) 
+    public function bulk_generate(Request $request)
     {
         $checks_ids = $request->check_ids;
-        foreach($checks_ids as $id) {
+        foreach ($checks_ids as $id) {
             $check = Checks::find($id);
-            if($check->Status != 'generated') {
+            if ($check->Status != 'generated') {
 
                 $check_date = Carbon::parse(str_replace('/', '-', $check->ExpiryDate))->format('m/d/Y');
 
@@ -1038,13 +1047,13 @@ class CheckController extends Controller
                 $data['memo'] = $check->Memo;
                 $data['routing_number'] = $payor->RoutingNumber;
                 $data['account_number'] = $payor->AccountNumber;
-                $data['bank_name'] = $payor->BankName; 
+                $data['bank_name'] = $payor->BankName;
                 $data['signature'] = (!empty($userSignature->Sign)) ? $userSignature->Sign : '';
-                $data['email'] =  !empty($payee->Email) ? $payee->Email : '';
+                $data['email'] = !empty($payee->Email) ? $payee->Email : '';
                 $data['package'] = Auth::user()->CurrentPackageID;
 
                 // return view('user.check_formate.index', compact('data'));
-                
+
                 $check_file = $this->generateAndSavePDF($data);
 
                 $check->Status = 'generated';
@@ -1070,21 +1079,21 @@ class CheckController extends Controller
     public function bulk_download(Request $request)
     {
         $check_ids = $request->check_ids;
-    
+
         if (empty($check_ids) || !is_array($check_ids)) {
             return back()->with('error', 'No checks selected for download.');
         }
-    
+
         $pdf_dir = public_path('checks');
         $pdfFiles = [];
         $has_valid_pdf = false;
-    
+
         foreach ($check_ids as $id) {
             $check = Checks::find($id);
-    
+
             if ($check && $check->Status === 'generated' && !empty($check->CheckPDF)) {
                 $pdf_path = $pdf_dir . '/' . $check->CheckPDF;
-    
+
                 if (File::exists($pdf_path)) {
                     $pdfFiles[] = $pdf_path;
                     $has_valid_pdf = true;
@@ -1095,49 +1104,49 @@ class CheckController extends Controller
                 return back()->with('error', "Check ID $id is either not generated or missing PDF.");
             }
         }
-    
+
         if (!$has_valid_pdf) {
             return back()->with('error', 'No valid PDF files found for the selected checks.');
         }
-    
+
         try {
             // Init with dummy Letter size (will override per page)
             $pdf = new TcpdfFpdi('P', 'pt', 'letter');
             $pdf->SetPrintHeader(false);
             $pdf->SetPrintFooter(false);
-    
+
             foreach ($pdfFiles as $file) {
                 $pageCount = $pdf->setSourceFile($file);
-    
+
                 for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
                     $templateId = $pdf->importPage($pageNo);
                     $size = $pdf->getTemplateSize($templateId);
-    
+
                     // Add new page with original PDF size
                     $pdf->AddPage('P', [$size['width'], $size['height']]);
-    
+
                     // Place template at (0,0) without scaling
                     $pdf->useTemplate($templateId, 0, 0, $size['width'], $size['height']);
                 }
             }
-    
+
             $fileName = 'batch-checks-' . time() . '.pdf';
             $filePath = $pdf_dir . '/' . $fileName;
-    
+
             $pdf->Output($filePath, 'F');
-    
+
             return response()->download($filePath)->deleteFileAfterSend(true);
-    
+
         } catch (\Throwable $e) {
             return back()->with('error', 'Failed to merge PDFs: ' . $e->getMessage());
         }
     }
 
 
-    public function get_signature($id) 
+    public function get_signature($id)
     {
         $signature = UserSignature::find($id);
-        return response()->json(['success' => true,'signature' => $signature]);
+        return response()->json(['success' => true, 'signature' => $signature]);
     }
 
     public function send_check_email($id)
@@ -1151,19 +1160,45 @@ class CheckController extends Controller
         $data['clinet_name'] = $payee->Name;
         $data['check_number'] = $check->CheckNumber;
         $data['memo'] = $check->Memo;
-        $data['issued_date'] =  Carbon::parse(str_replace('/', '-', $check->IssueDate))->format('m/d/Y');
+        $data['issued_date'] = Carbon::parse(str_replace('/', '-', $check->IssueDate))->format('m/d/Y');
         $data['amount'] = $check->Amount;
         $check_pdf = public_path('checks/' . $check->CheckPDF);
 
         try {
             Mail::to($payee->Email)->send(new SendCheckMail(4, $data, $check_pdf));
-    
+
             $check->is_email_send = 1;
             $check->save();
-            
+
             return redirect()->back()->with('success', 'Email sent successfully.');
         } catch (\Exception $e) {
             return redirect()->back()->with('fail', 'Email not sent.');
         }
+    }
+
+    public function view_pdf($id)
+    {
+
+        $check = Checks::find($id);
+
+        if (!$check) {
+            abort(404, 'Check not found.');
+        }
+
+        $check->update([
+            'is_seen' => 1
+        ]);
+
+        $path = public_path('checks/' . $check->CheckPDF);
+
+        if (!File::exists($path)) {
+            abort(404, 'PDF not found.');
+        }
+
+        return response()->file($path, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . basename($path) . '"'
+        ]);
+
     }
 }

@@ -30,6 +30,7 @@ class Checks extends Model
         'signed',
         'SignID',
         'is_email_send',
+        'is_seen'
     ];
 
 }

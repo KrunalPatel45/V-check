@@ -296,6 +296,8 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::post('add-card', [SubscriptionController::class, 'add_card'])->name('stripe.add_card');
     Route::get('delete-card/{id}', [SubscriptionController::class, 'delete_card'])->name('stripe.delete_card');
     Route::get('set-default/{id}', [SubscriptionController::class, 'set_default'])->name('stripe.set_default');
+
+    Route::get('view-pdf/{id}', [CheckController::class, 'view_pdf'])->name('view.pdf');
 });
 
 Route::get('web-form/{slug}', [CheckController::class, 'web_form'])->name('web_form');

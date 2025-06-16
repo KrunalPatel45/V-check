@@ -107,7 +107,7 @@ class UserDashboardController extends Controller
             'lastname' => 'required',
             'address' => 'required',
             'email' => 'required|email',
-            'phone_number' => 'required|numeric',
+            'phone_number' => 'required|regex:/^\d{3}-\d{3}-\d{4}$/',
             'company_name' => 'required',
         ]);
 
@@ -121,7 +121,7 @@ class UserDashboardController extends Controller
         $admin->FirstName = $request->firstname;
         $admin->Address = $request->address;
         $admin->LastName = $request->lastname;
-        $admin->PhoneNumber = $request->phone_number;
+        $admin->PhoneNumber = preg_replace('/\D/', '', $request->phone_number);
         $admin->CompanyName = $request->company_name;
         $admin->City = $request->city;
         $admin->State = $request->state;

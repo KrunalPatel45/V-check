@@ -211,7 +211,7 @@ class AdminDashboardController extends Controller
             'lastname' => 'required',
             'address' => 'required',
             'email' => 'required|email',
-            'phone_number' => 'required|numeric',
+            'phone_number' => 'required|regex:/^\d{3}-\d{3}-\d{4}$/',
             'company_name' => 'required',
         ]);
 
@@ -224,7 +224,7 @@ class AdminDashboardController extends Controller
         $admin->Email = $request->email;
         $admin->FirstName = $request->firstname;
         $admin->LastName = $request->lastname;
-        $admin->PhoneNumber = $request->phone_number;
+        $admin->PhoneNumber = preg_replace('/\D/', '', $request->phone_number);
         $admin->CompanyName = $request->company_name;
         $admin->UpdatedAt = now();
         $admin->save();

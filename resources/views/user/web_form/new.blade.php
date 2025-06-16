@@ -20,7 +20,7 @@
     @vite(['resources/assets/js/forms-editors.js'])
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             var quillContainer = document.getElementById('editor-container');
 
             if (quillContainer) {
@@ -69,9 +69,14 @@
                 });
 
                 // Save Quill content in hidden textarea before submitting form
-                document.querySelector('form').onsubmit = function() {
+                document.querySelector('form').onsubmit = function () {
                     document.getElementById('page_desc').value = quill.root.innerHTML;
                 };
+
+                var oldContent = document.getElementById('page_desc').value;
+                if (oldContent) {
+                    quill.root.innerHTML = oldContent;
+                }
             } else {
                 console.error(
                     "❌ Error: Quill container not found! Check if #editor-container exists in your HTML.");
@@ -80,14 +85,14 @@
     </script>
 
     <script>
-        document.getElementById('logo').addEventListener('change', function(event) {
+        document.getElementById('logo').addEventListener('change', function (event) {
             const file = event.target.files[0];
             const preview = document.getElementById('preview');
 
             if (file) {
                 const reader = new FileReader();
 
-                reader.onload = function(e) {
+                reader.onload = function (e) {
                     preview.src = e.target.result;
                     preview.style.display = 'block'; // Show the image
                 };
@@ -104,7 +109,7 @@
 
 @section('content')
     <div class="row">
-        <form action="{{ route('store_web_form') }}" method="POST" enctype="multipart/form-data">
+        <form id="webForm" action="{{ route('store_web_form') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <!-- Basic Layout -->
             <div class="col-xxl">
@@ -122,8 +127,7 @@
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="name">Name</label>
                             <div class="col-sm-10">
-                                <input type="text" name="name" id="name" class="form-control"
-                                    value="{{ old('name') }}" />
+                                <input type="text" name="name" id="name" class="form-control" value="{{ old('name') }}" />
                                 @if ($errors->has('name'))
                                     <span class="text-danger">
                                         {{ $errors->first('name') }}
@@ -134,8 +138,7 @@
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="name">LOGO</label>
                             <div class="col-sm-10">
-                                <input type="file" name="logo" id="logo" class="form-control"
-                                    value="{{ old('logo') }}" />
+                                <input type="file" name="logo" id="logo" class="form-control" value="{{ old('logo') }}" />
                                 @if ($errors->has('logo'))
                                     <span class="text-danger">
                                         {{ $errors->first('logo') }}
@@ -164,8 +167,7 @@
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="city">City</label>
                             <div class="col-sm-10">
-                                <input type="text" name="city" id="city" class="form-control"
-                                    value="{{ old('city') }}" />
+                                <input type="text" name="city" id="city" class="form-control" value="{{ old('city') }}" />
                                 @if ($errors->has('city'))
                                     <span class="text-danger">
                                         {{ $errors->first('city') }}
@@ -234,8 +236,7 @@
                                     @endphp
 
                                     @foreach ($states as $state)
-                                        <option value="{{ $state }}"
-                                            {{ old('state') == $state ? 'selected' : '' }}>
+                                        <option value="{{ $state }}" {{ old('state') == $state ? 'selected' : '' }}>
                                             {{ $state }}
                                         </option>
                                     @endforeach
@@ -250,8 +251,7 @@
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="zip">Zip</label>
                             <div class="col-sm-10">
-                                <input type="text" name="zip" id="zip" class="form-control"
-                                    value="{{ old('zip') }}" />
+                                <input type="text" name="zip" id="zip" class="form-control" value="{{ old('zip') }}" />
                                 @if ($errors->has('zip'))
                                     <span class="text-danger">
                                         {{ $errors->first('zip') }}
@@ -278,7 +278,8 @@
                                     <div class="card-body">
                                         <div id="editor-container">
                                         </div>
-                                        <textarea name="page_desc" id="page_desc" style="display:none;"></textarea>
+                                        <textarea name="page_desc" id="page_desc"
+                                            style="display:none;">{{ old('page_desc') ?? '' }}</textarea>
                                     </div>
                                     @if ($errors->has('page_desc'))
                                         <span class="text-danger">
@@ -293,4 +294,59 @@
                 </div>
         </form>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.9/jquery.inputmask.min.js"
+        integrity="sha512-F5Ul1uuyFlGnIT1dk2c4kB4DBdi5wnBJjVhL7gQlGh46Xn0VhvD8kgxLtjdZ5YN83gybk/aASUAlpdoWUjRR3g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        Inputmask({
+            mask: "999-999-9999",
+            placeholder: "",             // No placeholders
+            showMaskOnHover: false,      // Don't show mask on hover
+            showMaskOnFocus: false,      // Don't show mask on focus
+        }).mask("#phone_number");
+    </script>
+
+   
+    <script src="https://cdn.jsdelivr.net/npm/just-validate@3.3.3/dist/just-validate.production.min.js"></script>
+    <script>
+        const validation = new JustValidate('#webForm', {
+            errorLabelCssClass: 'text-danger'
+        });
+
+        validation
+            .addField('[name="name"]', [
+                { rule: 'required', errorMessage: 'Please enter name' }
+            ])
+            .addField('[name="logo"]', [
+                {
+                    rule: 'minFilesCount',
+                    value: 1,
+                    errorMessage: 'Please upload a logo'
+                }
+            ])
+            .addField('[name="address"]', [
+                { rule: 'required', errorMessage: 'Please enter address' }
+            ])
+            .addField('[name="city"]', [
+                { rule: 'required', errorMessage: 'Please enter city' }
+            ])
+            .addField('[name="state"]', [
+                { rule: 'required', errorMessage: 'Please enter state' }
+            ])
+            .addField('[name="zip"]', [
+                { rule: 'required', errorMessage: 'Please enter zip' }
+            ])
+            .addField('[name="phone_number"]', [
+                {
+                    rule: 'customRegexp',
+                    value: /^\d{3}-\d{3}-\d{4}$/,
+                    errorMessage: 'The phone number field format is invalid.'
+                }
+            ]).onSuccess((event) => {
+                event.target.submit();
+            });
+
+    </script>
+
 @endsection

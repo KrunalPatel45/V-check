@@ -159,6 +159,16 @@
             </div>
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.9/jquery.inputmask.min.js" integrity="sha512-F5Ul1uuyFlGnIT1dk2c4kB4DBdi5wnBJjVhL7gQlGh46Xn0VhvD8kgxLtjdZ5YN83gybk/aASUAlpdoWUjRR3g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        Inputmask({
+            mask: "999-999-9999",
+            placeholder: "",             // No placeholders
+            showMaskOnHover: false,      // Don't show mask on hover
+            showMaskOnFocus: false,      // Don't show mask on focus
+        }).mask("#phone_number");
+    </script>
     {{-- 
     <div class="col-xxl">
         <div class="card mb-6">

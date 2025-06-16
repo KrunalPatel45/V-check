@@ -85,7 +85,7 @@
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="phone_number">Phone Number</label>
                             <div class="col-sm-10">
-                                <input type="text" inputmode="numeric" pattern="[0-9]*" name="phone_number"
+                                <input type="text"  name="phone_number"
                                     id="phone_number" class="form-control" value="{{ $payor->PhoneNumber }}" />
                                 @if ($errors->has('phone_number'))
                                     <span class="text-danger">
@@ -184,7 +184,7 @@
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="zip">Zip</label>
                             <div class="col-sm-10">
-                                <input type="text" name="zip" id="zip" class="form-control"
+                                <input type="text"  name="zip" id="zip" onkeypress="return /^[0-9]+$/.test(event.key)" class="form-control"
                                     value="{{ $payor->Zip }}" />
                                 @if ($errors->has('zip'))
                                     <span class="text-danger">
@@ -269,4 +269,14 @@
             </div>
         </form>
     </div>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.9/jquery.inputmask.min.js" integrity="sha512-F5Ul1uuyFlGnIT1dk2c4kB4DBdi5wnBJjVhL7gQlGh46Xn0VhvD8kgxLtjdZ5YN83gybk/aASUAlpdoWUjRR3g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script>
+        Inputmask({
+            mask: "999-999-9999",
+            placeholder: "",             // No placeholders
+            showMaskOnHover: false,      // Don't show mask on hover
+            showMaskOnFocus: false,      // Don't show mask on focus
+        }).mask("#phone_number");
+    </script>
 @endsection

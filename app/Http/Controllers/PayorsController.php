@@ -226,7 +226,7 @@ class PayorsController extends Controller
             'state' => 'required',
             'zip' => 'required',
             'bank_name' => 'required',
-            'phone_number' => 'nullable|numeric',
+            'phone_number' => 'nullable|regex:/^\d{3}-\d{3}-\d{4}$/',
             'routing_number' => 'required|digits:9',
             'account_number' => 'required|numeric',
             'status' => 'required',
@@ -251,7 +251,7 @@ class PayorsController extends Controller
         $payor->City = $request->city;
         $payor->State = $request->state;
         $payor->Zip = $request->zip;
-        $payor->PhoneNumber = $request->phone_number;
+        $payor->PhoneNumber = preg_replace('/\D/', '', $request->phone_number);
         $payor->Email = $request->email;
         $payor->BankName = $request->bank_name;
         $payor->RoutingNumber = $request->routing_number;

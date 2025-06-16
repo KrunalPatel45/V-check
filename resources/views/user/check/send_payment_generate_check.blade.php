@@ -678,8 +678,8 @@
                             <label class="col-sm-4 col-form-label" for="amount"
                                 style="font-size: 15px;font-weight: bold;text-align: right;">Amount: $</label>
                             <div class="col-sm-8">
-                                <input type="text" id="amount" name="amount" style="font-size: 16px;"
-                                    class="form-control"
+                                <input type="number" id="amount" name="amount" style="font-size: 16px;"
+                                    class="form-control no-spinner" autocomplete="off"
                                     value="{{ !empty($check->Amount) && $check->Amount ? $check->Amount : old('amount') }}">
                                 @if ($errors->has('amount'))
                                     <br>
@@ -710,11 +710,11 @@
                     <div class="col-sm-6">
                         <div class="row text-end justify-content-end">
                             <div class="col-sm-8 d-flex align-items-center gap-1">
-                                <select id="signature" name="signature" class="form-control" style="font-size: 16px;">
+                                <select id="signature" name="signature_id" class="form-control" style="font-size: 16px;">
                                     <option value="" selected>Select Signature</option>
                                     @foreach ($userSignatures as $userSignature)
                                         <option value="{{ $userSignature->Id }}"
-                                            {{ old('signature', $old_sign->Id ?? '') == $userSignature->Id ? 'selected' : '' }}>
+                                            {{ old('signature_id', $old_sign?->Id ?? '') == $userSignature->Id ? 'selected' : '' }}>
                                             {{ $userSignature->Name }}
                                         </option>
                                     @endforeach
@@ -723,15 +723,18 @@
                                 </select>
                                 <span id="signature-edit" class="{{ !empty($old_sign->Id) ? '' : 'd-none' }}"><i
                                         class="ti ti-pencil me-1"></i></span>
-                                @if ($errors->has('signature'))
-                                    <br>
-                                    <span class="text-danger">
-                                        {{ $errors->first('signature') }}
-                                    </span>
-                                @endif
-                            </div>
+                                    </div>
+                                    @if ($errors->has('signature_id'))
+                                        <br>
+                                        <span class="text-danger">
+                                            {{ $errors->first('signature_id') }}
+                                        </span>
+                                    @endif
                             <div class="col-sm-12 mt-3">
-                                <div class="col-sm-12 d-none" id="sign">
+                                <div class="col-sm-12 @if(!old('signature_id')) d-none @endif" id="sign">
+                                    @if(old('signature_id'))
+                                        <img src="{{ asset('sign/' . \App\Models\UserSignature::find(old('signature_id'))->Sign) }}" alt="Sign">
+                                    @endif
                                 </div>
                                 @if (!empty($old_sign))
                                     <div class="col-sm-12" id="old_sign">
