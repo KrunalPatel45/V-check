@@ -50,15 +50,17 @@ class AdminDashboardController extends Controller
         $package_selected_user = User::whereNotNull('CurrentPackageID')->count();
         $package_data = [];
         $packages = Package::where('Status', 'Active')->get();
+        $total_package_count=0;
         foreach($packages as $key => $package) {
             $package_data[$key]['name'] = $package->Name;
             if(strtolower($package->Name) == 'trial') {
-                $package_data[$key]['total_count'] = PaymentSubscription::select('PaymentSubscriptionID')->where('Status', 'Active')->where('PackageID', '-1')->count();
+                $package_data[$key]['total_count'] = PaymentSubscription::select('PaymentSubscriptionID')->where('Status', 'Active')->where('PackageID', '-1')->distinct('UserID')->count();
             } else {
-                $package_data[$key]['total_count'] = PaymentSubscription::select('PaymentSubscriptionID')->where('Status', 'Active')->where('PackageID', $package->PackageID)->count();
+                $package_data[$key]['total_count'] = PaymentSubscription::select('PaymentSubscriptionID')->where('Status', 'Active')->where('PackageID', $package->PackageID)->distinct('UserID')->count();
             }
+            $total_package_count += $package_data[$key]['total_count'];
         }
-        return view('content.dashboard.dashboards-analytics', compact('total_users', 'total_checks', 'total_revanue', 'total_used_checks', 'total_unused_checks', 'package_data', 'package_selected_user', 'month_revanue'));
+        return view('content.dashboard.dashboards-analytics', compact('total_package_count','total_users', 'total_checks', 'total_revanue', 'total_used_checks', 'total_unused_checks', 'package_data', 'package_selected_user', 'month_revanue'));
     }
 
     public function profile()

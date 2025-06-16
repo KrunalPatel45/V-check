@@ -196,7 +196,7 @@
                         @foreach ($package_data as $package)
                             <li class="d-flex mb-6">
                                 <div class="chart-progress me-4" data-color="primary"
-                                    data-series="{{ !empty($package['total_count']) ? round(($package['total_count'] / $package_selected_user) * 100) : '0' }}"
+                                    data-series="{{ !empty($package['total_count']) ? round(($package['total_count'] / $total_package_count) * 100) : '0' }}"
                                     data-progress_variant="true">
                                 </div>
                                 <div class="row w-100 align-items-center">
