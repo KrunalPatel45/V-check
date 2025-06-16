@@ -334,7 +334,9 @@
                     <div class="check_amt input_row">
                         <label for="amount">Amount $</label>
                         <input type="text" id="amount" name="amount" value="{{ old('amount') }}"
-                            tabindex="3" oninput="this.value = this.value.replace(/\D/g, '').slice(0,9);" autocomplete="off"/>
+                            tabindex="3"
+                            oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');"
+                            autocomplete="off"/>
                         @error('amount')
                             <div class="error">{{ $message }}</div>
                         @enderror

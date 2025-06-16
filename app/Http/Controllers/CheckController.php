@@ -809,7 +809,7 @@ class CheckController extends Controller
 
         if(!empty($request->web_form_id)) {
             $webform = WebForm::find($request->web_form_id);
-            $payee = Payors::find($webform->PayeeID);
+            $payee = Payors::withTrashed()->find($webform->PayeeID);
             if($payee->Name != $request->name) {
                  $slug = $this->generateUniqueSlug($request->name);
             }
@@ -867,7 +867,7 @@ class CheckController extends Controller
         $validator = Validator::make($request->all(), [
             'check_number' => 'required',
             'check_date' => 'required',
-            'amount' => 'required',
+            'amount' => 'required|numeric',
             'name' => 'required',
             'email' => 'required|email',
             'address' => 'required',
@@ -1062,7 +1062,7 @@ class CheckController extends Controller
     public function web_form_edit(Request $request, $id)
     {
         $webform = WebForm::find($id);
-        $payee = Payors::find($webform->PayeeID);
+        $payee = Payors::withTrashed()->find($webform->PayeeID);
 
         return view('user.web_form.edit', compact('webform', 'payee'));
     }
