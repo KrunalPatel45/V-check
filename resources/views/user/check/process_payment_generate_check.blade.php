@@ -502,8 +502,8 @@
                             <label class="col-sm-4 col-form-label" for="amount"
                                 style="font-size: 15px;font-weight: bold;text-align: right;">Amount: $</label>
                             <div class="col-sm-8">
-                                <input type="number" id="amount" name="amount" style="font-size: 16px;"
-                                    class="form-control no-spinner" placeholder="Amount" autocomplete="off" 
+                                <input type="text" id="amount" name="amount" style="font-size: 16px;"
+                                    class="form-control" placeholder="Amount" autocomplete="off" onkeypress="return /^[0-9.]+$/.test(event.key)" 
                                     value="{{ !empty($check->Amount) && $check->Amount ? $check->Amount : old('amount') }}">
                                 @if ($errors->has('amount'))
                                     <br>

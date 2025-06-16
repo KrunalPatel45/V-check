@@ -678,8 +678,8 @@
                             <label class="col-sm-4 col-form-label" for="amount"
                                 style="font-size: 15px;font-weight: bold;text-align: right;">Amount: $</label>
                             <div class="col-sm-8">
-                                <input type="number" id="amount" name="amount" style="font-size: 16px;"
-                                    class="form-control no-spinner" autocomplete="off"
+                                <input type="text" id="amount" name="amount" style="font-size: 16px;" onkeypress="return /^[0-9.]+$/.test(event.key)"
+                                    class="form-control" autocomplete="off"
                                     value="{{ !empty($check->Amount) && $check->Amount ? $check->Amount : old('amount') }}">
                                 @if ($errors->has('amount'))
                                     <br>
@@ -998,7 +998,7 @@
                                 <div class="row g-6">
                                     <div class="col-md-12">
                                         <label class="form-label" for="sign-name">Name</label>
-                                        <input type="text" name="name" id="sign-name" class="form-control"
+                                            <input type="text" name="name" id="sign-name" class="form-control"
                                             value="{{ !empty($old_sign->Name) ? $old_sign->Name : old('name') }}" />
                                         <span id="error-name" class="text-danger"></span>
                                     </div>
@@ -1027,4 +1027,5 @@
     </div>
     </form>
     </div>
+    
 @endsection
