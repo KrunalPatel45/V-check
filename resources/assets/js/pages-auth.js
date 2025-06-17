@@ -31,8 +31,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
                 message: 'Please enter phone number'
               },
               regexp: {
-                regexp: /^[0-9]+$/,
-                message: 'The phone number must contain only digits'
+                regexp: /^\d{3}-\d{3}-\d{4}$/,
+                message: 'Invalid phone number format'
               },
             }
           },

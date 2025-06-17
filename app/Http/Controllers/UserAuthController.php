@@ -114,7 +114,7 @@ class UserAuthController extends Controller
             // 'username' => 'required|string|unique:User,Username|max:255',
             'address' => 'required',
             'email' => 'required|string|email|unique:User,Email|max:255',
-            'phone_number' => 'required|string|max:20',
+            'phone_number' => 'required|regex:/^\d{3}-\d{3}-\d{4}$/',
             'company_name' => 'required'
         ]);
         
@@ -134,7 +134,7 @@ class UserAuthController extends Controller
             'LastName' => $request->lastname,
             'Email' => $request->email,
             'Address' => $request->address,
-            'PhoneNumber' => $request->phone_number,
+            'PhoneNumber' => preg_replace('/\D/', '', $request->phone_number),
             'PasswordHash' => Hash::make($request->password),
             'Status' => 'Inactive',
             'CreatedAt' => now(),
