@@ -263,7 +263,10 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css"
         integrity="sha512-34s5cpvaNG3BknEWSuOncX28vz97bRI59UnVtEEpFX536A7BtZSJHsDyFoCl8S7Dt2TPzcrCEoHBGeM4SUBDBw=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.standalone.min.css" integrity="sha512-D5/oUZrMTZE/y4ldsD6UOeuPR4lwjLnfNMWkjC0pffPTCVlqzcHTNvkn3dhL7C0gYifHQJAIrRTASbMvLmpEug==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.standalone.min.css"
+        integrity="sha512-D5/oUZrMTZE/y4ldsD6UOeuPR4lwjLnfNMWkjC0pffPTCVlqzcHTNvkn3dhL7C0gYifHQJAIrRTASbMvLmpEug=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     {{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script>
@@ -308,7 +311,7 @@
         @endif
         <div class="container_area">
             <div class="content_left">
-                <form method="POST" action="{{ route('store_web_form_data') }}">
+                <form id="webForm" method="POST" action="{{ route('store_web_form_data') }}">
                     @csrf
                     <input type="hidden" id="company_id" name="company_id" value="{{ $company->EntityID }}">
 
@@ -324,7 +327,7 @@
                         <div class="check_date w-50">
                             <label for="check_date">Check Date</label>
                             <input type="text" id="check_date" name="check_date" value="{{ old('check_date') }}"
-                                tabindex="2" placeholder="mm-dd-yyyy" readonly/>
+                                tabindex="2" placeholder="mm-dd-yyyy" readonly />
                             @error('check_date')
                                 <div class="error">{{ $message }}</div>
                             @enderror
@@ -333,10 +336,9 @@
 
                     <div class="check_amt input_row">
                         <label for="amount">Amount $</label>
-                        <input type="text" id="amount" name="amount" value="{{ old('amount') }}"
-                            tabindex="3"
+                        <input type="text" id="amount" name="amount" value="{{ old('amount') }}" tabindex="3"
                             oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1');"
-                            autocomplete="off"/>
+                            autocomplete="off" />
                         @error('amount')
                             <div class="error">{{ $message }}</div>
                         @enderror
@@ -501,6 +503,8 @@
                         <label for="account_number_verify">Account Number (re-verify)</label>
                         <input type="number" id="account_number_verify" name="account_number_verify"
                             class="no-spinner" value="{{ old('account_number_verify') }}" tabindex="14" />
+                        <span id="error_verify" class="error" style="display:none;">Account number does not
+                            match</span>
                         @error('account_number_verify')
                             <div class="error">{{ $message }}</div>
                         @enderror
@@ -613,15 +617,82 @@
             });
         });
     </script>
-     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.9/jquery.inputmask.min.js" integrity="sha512-F5Ul1uuyFlGnIT1dk2c4kB4DBdi5wnBJjVhL7gQlGh46Xn0VhvD8kgxLtjdZ5YN83gybk/aASUAlpdoWUjRR3g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.9/jquery.inputmask.min.js"
+        integrity="sha512-F5Ul1uuyFlGnIT1dk2c4kB4DBdi5wnBJjVhL7gQlGh46Xn0VhvD8kgxLtjdZ5YN83gybk/aASUAlpdoWUjRR3g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script>
         Inputmask({
             mask: "999-999-9999",
-            placeholder: "",             // No placeholders
-            showMaskOnHover: false,      // Don't show mask on hover
-            showMaskOnFocus: false,      // Don't show mask on focus
+            placeholder: "", // No placeholders
+            showMaskOnHover: false, // Don't show mask on hover
+            showMaskOnFocus: false, // Don't show mask on focus
         }).mask("#phone_number");
+    </script>
+    {{-- <script src="https://cdn.jsdelivr.net/npm/just-validate@3.3.3/dist/just-validate.production.min.js"></script>
+    <script>
+        const validation = new JustValidate('#webForm', {
+            errorLabelCssClass: 'text-danger'
+        });
+
+        validation
+            .addField('#account_number', [{
+                rule: 'required',
+                errorMessage: 'Account number is required',
+            }, ])
+            .addField('#account_number_verify', [{
+                    rule: 'required',
+                    errorMessage: 'Please verify the account number',
+                },
+                {
+                    validator: (value, fields) => {
+                        return value === fields['#account_number'].elem.value;
+                    },
+                    errorMessage: 'Account numbers do not match',
+                },
+            ]).onSuccess((event) => {
+                event.target.submit();
+            });
+    </script> --}}
+    <script>
+        function checkMatch() {
+            const acc = $('#account_number').val();
+            const verify = $('#account_number_verify').val();
+
+            if (!acc.startsWith(verify)) {
+                $('#error_verify').show();
+                return false;
+            } else {
+                $('#error_verify').hide();
+                return true;
+            }
+        }
+
+        $(document).ready(function() {
+
+            // Live check while typing
+            $('#account_number_verify').on('input', function() {
+                checkMatch();
+            });
+
+            $('#account_number').on('input', function() {
+                checkMatch();
+            });
+
+            // Prevent form submission if not matching
+            $('#webForm').on('submit', function(e) {
+                const acc = $('#account_number').val();
+                const verify = $('#account_number_verify').val();
+                if (acc !== verify) {
+                    $('#error_verify').show();
+                    e.preventDefault();
+                    return false;
+                } else {
+                    $('#error_verify').hide();
+                    return true;
+                }
+            });
+        });
     </script>
 </body>
 
