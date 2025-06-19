@@ -12,6 +12,19 @@
 @endsection
 
 @section('content')
+    <style>
+        .nav-tabs .nav-link {
+            background-color: buttonface;
+            border-top-left-radius: 10px !important;
+            border-top-right-radius: 10px !important;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: buttonface;
+            border-top-left-radius: 10px !important;
+            border-top-right-radius: 10px !important;
+        }
+    </style>
     <div class="card">
         @if (session('success'))
             <div class="alert alert-success">
@@ -30,22 +43,56 @@
         @endif
         <h5 class="card-header">Clients</h5>
         <div class="card-datatable table-responsive pt-0">
-            <table class="table" id="users-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th style="width:20%">First Name</th>
-                        <th style="width:20%">Last Name</th>
-                        <th style="width:20%">Phone Number</th>
-                        <th style="width:25%">Subscription Plan</th>
-                        <th style="width:20%">Plan Price</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
+            <ul class="nav nav-tabs gap-2" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation" style="margin-left:5px;">
+                    <button class="nav-link active" id="active-user-tab" data-bs-toggle="tab"
+                        data-bs-target="#activeUserTab" type="button" role="tab" aria-controls="home"
+                        aria-selected="true">Active</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="inactive-user-tab" data-bs-toggle="tab" data-bs-target="#inactiveUserTab"
+                        type="button" role="tab" aria-controls="profile" aria-selected="false">Inactive</button>
+                </li>
+            </ul>
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="activeUserTab" role="tabpanel" aria-labelledby="active-user-tab">
+                    <table class="table" id="active-users-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th style="width:20%">First Name</th>
+                                <th style="width:20%">Last Name</th>
+                                <th style="width:20%">Phone Number</th>
+                                <th style="width:25%">Subscription Plan</th>
+                                <th style="width:20%">Plan Price</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane fade" id="inactiveUserTab" role="tabpanel" aria-labelledby="inactive-user-tab">
+                    <table class="table" id="inactive-users-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th style="width:20%">First Name</th>
+                                <th style="width:20%">Last Name</th>
+                                <th style="width:20%">Phone Number</th>
+                                <th style="width:25%">Subscription Plan</th>
+                                <th style="width:20%">Plan Price</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -53,10 +100,67 @@
 @section('page-script')
     <script>
         $(document).ready(function() {
-            $('#users-table').DataTable({
+            $('#active-users-table').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('admin.users') }}", // Your route to fetch data
+                ajax: {
+                    url: "{{ route('admin.users') }}",
+                    data: function(d) {
+                        d.status = 'Active';
+                    }
+                },
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex'
+                    }, // Automatically generated index column
+                    {
+                        data: 'FirstName',
+                        name: 'FirstName'
+                    },
+                    {
+                        data: 'LastName',
+                        name: 'LastName'
+                    },
+                    {
+                        data: 'PhoneNumber',
+                        name: 'PhoneNumber'
+                    },
+                    {
+                        data: 'package',
+                        name: 'package'
+                    },
+                    {
+                        data: 'package_price',
+                        name: 'package_price'
+                    },
+                    {
+                        data: 'status',
+                        name: 'status',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'actions',
+                        name: 'actions',
+                        orderable: false,
+                        searchable: false
+                    }
+                ],
+                columnDefs: [{
+                    targets: [0, 7],
+                    orderable: false
+                }]
+            });
+
+            $('#inactive-users-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('admin.users') }}",
+                    data: function(d) {
+                        d.status = 'Inactive';
+                    }
+                },
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex'

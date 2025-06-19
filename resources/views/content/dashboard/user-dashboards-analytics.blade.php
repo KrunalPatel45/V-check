@@ -37,54 +37,7 @@
                 </div>
             </div>
         </div> --}}
-        <div class="col-xl-6 col-sm-6">
-            <div class="card">
-                <div class="card-header pb-0">
-                    <h5 class="mb-3 card-title">Pay From</h5>
-                    <p class="mb-0 text-body">Total Number of Payors</p>
-                    <h4 class="mb-0">{{ $total_vendor }}</h4>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-6 col-sm-6">
-            <div class="card">
-                <div class="card-header pb-0">
-                    <h5 class="mb-3 card-title">Pay To</h5>
-                    <p class="mb-0 text-body">Total Number of Payees</p>
-                    <h4 class="mb-0">{{ $total_client }}</h4>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-4 col-sm-6">
-            <div class="card">
-                <div class="card-header pb-0">
-                    <h5 class="mb-3 card-title">Total Checks</h5>
-                    <p class="mb-0 text-body">Total Number of Checks</p>
-                    <h4 class="mb-0">{{ $given_checks }}</h4>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-4 col-sm-6">
-            <div class="card">
-                <div class="card-header pb-0">
-                    <h5 class="mb-3 card-title">Used Checks</h5>
-                    <p class="mb-0 text-body">Total Number of Used Checks</p>
-                    <h4 class="mb-0">{{ $used_checks }}</h4>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-4 col-sm-6">
-            <div class="card">
-                <div class="card-header pb-0">
-                    <h5 class="mb-3 card-title">Remaining Checks</h5>
-                    <p class="mb-0 text-body">Total Number of Remaining Checks</p>
-                    <h4 class="mb-0">{{ $remaining_checks }}</h4>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xxl">
+       <div class="col-xxl">
             <div class="card mb-6">
                 <h5 class="card-header">Current Plan</h5>
                 <div class="card-body">
@@ -98,7 +51,7 @@
                             @if ($package != '-1')
                                 <div class="mb-4">
                                     <h6 class="mb-1">Active until {{ $package_data['expiryDate'] }}</h6>
-                                    <p>We will send you a notification upon Subscription expiration</p>
+                                    <!-- <p>We will send you a notification upon Subscription expiration</p> -->
                                 </div>
                             @endif
                         </div>
@@ -138,6 +91,53 @@
                             </div>
                         @endif
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-sm-6">
+            <div class="card">
+                <div class="card-header pb-0">
+                    <h5 class="mb-3 card-title">Total Checks</h5>
+                    <p class="mb-0 text-body">Total Number of Checks</p>
+                    <h4 class="mb-0">{{ $given_checks }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-sm-6">
+            <div class="card">
+                <div class="card-header pb-0">
+                    <h5 class="mb-3 card-title">Used Checks</h5>
+                    <p class="mb-0 text-body">Total Number of Used Checks</p>
+                    <h4 class="mb-0">{{ $used_checks }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-4 col-sm-6">
+            <div class="card">
+                <div class="card-header pb-0">
+                    <h5 class="mb-3 card-title">Remaining Checks</h5>
+                    <p class="mb-0 text-body">Total Number of Remaining Checks</p>
+                    <h4 class="mb-0">{{ $remaining_checks }}</h4>
+                </div>
+            </div>
+        </div>
+
+         <div class="col-xl-6 col-sm-6">
+            <div class="card">
+                <div class="card-header pb-0">
+                    <h5 class="mb-3 card-title">Pay From</h5>
+                    <p class="mb-0 text-body">Total Number of Payors</p>
+                    <h4 class="mb-0">{{ $total_vendor }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6 col-sm-6">
+            <div class="card">
+                <div class="card-header pb-0">
+                    <h5 class="mb-3 card-title">Pay To</h5>
+                    <p class="mb-0 text-body">Total Number of Payees</p>
+                    <h4 class="mb-0">{{ $total_client }}</h4>
                 </div>
             </div>
         </div>

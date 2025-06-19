@@ -116,7 +116,14 @@ class AdminDashboardController extends Controller
     public function users(Request $request)
     {
         if ($request->ajax()) {
-            $users = User::all();
+
+            $query = User::query();
+
+            if (isset($request->status)) {
+                $query->where('status', $request->status);
+            }
+
+            $users=$query->get();
 
             foreach ($users as $user) {
                 $package = Package::find($user->CurrentPackageID);

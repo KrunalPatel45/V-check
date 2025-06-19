@@ -15,24 +15,31 @@ class PayorsController extends Controller
 {
     public function client_index(Request $request)
     {
+
         if (!Auth::check()) {
             return redirect()->route('user.login');
         }
 
         if ($request->ajax()) {
-            $payors = Payors::where('UserID', Auth::id())
-                ->whereIn('Type', ['Payee'])
-                ->get();
+
+            $query = Payors::where('UserID', Auth::id())
+                ->whereIn('Type', ['Payee']);
+
+            if (isset($request->status)) {
+                $query->where('status', $request->status);
+            }
+
+            $payors = $query->get();
 
             return datatables()->of($payors)
                 ->addIndexColumn()
                 ->addColumn('status', function ($row) {
-                    return '<span class="badge ' . 
-                        ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') . 
+                    return '<span class="badge ' .
+                        ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') .
                         '">' . $row->Status . '</span>';
                 })
                 ->addColumn('CreatedAt', function ($row) {
-                    return User::user_timezone($row->CreatedAt,'m/d/Y');
+                    return User::user_timezone($row->CreatedAt, 'm/d/Y');
                 })
                 ->addColumn('UpdatedAt', function ($row) {
                     return User::user_timezone($row->UpdatedAt, 'm/d/Y');
@@ -40,7 +47,7 @@ class PayorsController extends Controller
                 ->addColumn('actions', function ($row) {
                     $editUrl = route('user.payee.edit', ['id' => $row->EntityID]);
                     $deleteUrl = route('user.payee.delete', ['id' => $row->EntityID]);
-                
+
                     return '<div class="d-flex">
                                 <a href="' . $editUrl . '" class="dropdown-item">
                                         <i class="ti ti-pencil me-1"></i>
@@ -72,7 +79,7 @@ class PayorsController extends Controller
                                 </div>
                             </div>';
                 })
-                
+
                 ->rawColumns(['status', 'actions'])
                 ->make(true);
         }
@@ -82,24 +89,30 @@ class PayorsController extends Controller
 
     public function vendor_index(Request $request)
     {
-        if(!Auth::check()) {
+        if (!Auth::check()) {
             return redirect()->route('user.login');
         }
 
         if ($request->ajax()) {
-            $payors = Payors::where('UserID', Auth::id())
-                ->whereIn('Type', ['Payor', 'Both'])
-                ->get();
+
+            $query = Payors::where('UserID', Auth::id())
+                ->whereIn('Type', ['Payor', 'Both']);
+
+            if (isset($request->status)) {
+                $query->where('status', $request->status);
+            }
+                
+            $payors = $query->get();
 
             return datatables()->of($payors)
                 ->addIndexColumn()
                 ->addColumn('status', function ($row) {
-                    return '<span class="badge ' . 
-                        ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') . 
+                    return '<span class="badge ' .
+                        ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') .
                         '">' . $row->Status . '</span>';
                 })
                 ->addColumn('CreatedAt', function ($row) {
-                    return User::user_timezone($row->CreatedAt,'m/d/Y');
+                    return User::user_timezone($row->CreatedAt, 'm/d/Y');
                 })
                 ->addColumn('UpdatedAt', function ($row) {
                     return User::user_timezone($row->UpdatedAt, 'm/d/Y');
@@ -107,7 +120,7 @@ class PayorsController extends Controller
                 ->addColumn('actions', function ($row) {
                     $editUrl = route('user.payors.edit', ['id' => $row->EntityID]);
                     $deleteUrl = route('user.payors.delete', ['id' => $row->EntityID]);
-                
+
                     return '<div class="d-flex">
                                 <a href="' . $editUrl . '" class="dropdown-item">
                                         <i class="ti ti-pencil me-1"></i>
@@ -139,7 +152,7 @@ class PayorsController extends Controller
                                 </div>
                             </div>';
                 })
-                
+
                 ->rawColumns(['status', 'actions'])
                 ->make(true);
         }
@@ -147,20 +160,20 @@ class PayorsController extends Controller
         return view('user.Payors.index');
     }
 
-    public function payor_create() 
+    public function payor_create()
     {
         $type = 'Payors';
-        if(!Auth::check()) {
+        if (!Auth::check()) {
             return redirect()->route('user.login');
         }
-        return view('user.'.$type.'.new');   
+        return view('user.' . $type . '.new');
     }
 
-    public function payor_store(Request $request) 
-    {  
+    public function payor_store(Request $request)
+    {
         $type = 'Payors';
         $validator = Validator::make($request->all(), [
-            'name' => 'required' ,
+            'name' => 'required',
             'email' => 'nullable|email',
             'address1' => 'required',
             'city' => 'required',
@@ -181,7 +194,7 @@ class PayorsController extends Controller
         // if(!empty($request->same_as) && $request->same_as == 'on') {
         //     $payors_type = 'Both';
         // }
-       
+
         $payor = new Payors();
 
         $payor->Name = $request->name;
@@ -202,24 +215,24 @@ class PayorsController extends Controller
         $payor->save();
 
 
-        return redirect()->route('user.'. $type)->with('success', $type.' added successfully');
+        return redirect()->route('user.' . $type)->with('success', $type . ' added successfully');
     }
 
     public function payor_edit($id)
     {
         $type = 'Payors';
-        if(!Auth::check()) {
+        if (!Auth::check()) {
             return redirect()->route('user.login');
         }
         $payor = Payors::find($id);
-        return view('user.'.$type.'.edit', compact('payor'));
+        return view('user.' . $type . '.edit', compact('payor'));
     }
 
-    public function payor_update(Request $request, $id) 
-    {  
+    public function payor_update(Request $request, $id)
+    {
         $type = 'Payors';
         $validator = Validator::make($request->all(), [
-            'name' => 'required' ,
+            'name' => 'required',
             'email' => 'nullable|email',
             'address1' => 'required',
             'city' => 'required',
@@ -238,10 +251,10 @@ class PayorsController extends Controller
         }
 
         $payors_type = $request->type;
-        if(!empty($request->same_as) && $request->same_as == 'on') {
+        if (!empty($request->same_as) && $request->same_as == 'on') {
             $payors_type = 'Both';
         }
-        
+
         $payor = Payors::find($id);
 
         $payor->Name = $request->name;
@@ -263,7 +276,7 @@ class PayorsController extends Controller
         $payor->save();
 
 
-        return redirect()->route('user.'.$type)->with('success', $type . ' updated successfully');
+        return redirect()->route('user.' . $type)->with('success', $type . ' updated successfully');
     }
 
     public function payor_delete($id)
@@ -272,23 +285,23 @@ class PayorsController extends Controller
         $payor = Payors::find($id);
         $payor->delete();
 
-        return redirect()->route('user.'.$type)->with('success', $type . ' deleted successfully');
+        return redirect()->route('user.' . $type)->with('success', $type . ' deleted successfully');
     }
 
-    public function payee_create() 
+    public function payee_create()
     {
         $type = 'Payee';
-        if(!Auth::check()) {
+        if (!Auth::check()) {
             return redirect()->route('user.login');
         }
-        return view('user.'.$type.'.new');   
+        return view('user.' . $type . '.new');
     }
 
-    public function payee_store(Request $request) 
-    {  
+    public function payee_store(Request $request)
+    {
         $type = 'Payee';
         $validator = Validator::make($request->all(), [
-            'name' => 'required' ,
+            'name' => 'required',
             'email' => 'nullable|email',
         ]);
 
@@ -300,7 +313,7 @@ class PayorsController extends Controller
         // if(!empty($request->same_as) && $request->same_as == 'on') {
         //     $payors_type = 'Both';
         // }
-       
+
         $payor = new Payors();
 
         $payor->Name = $request->name;
@@ -321,24 +334,24 @@ class PayorsController extends Controller
         $payor->save();
 
 
-        return redirect()->route('user.'. $type)->with('success', $type.' added successfully');
+        return redirect()->route('user.' . $type)->with('success', $type . ' added successfully');
     }
 
     public function payee_edit($id)
     {
         $type = 'Payee';
-        if(!Auth::check()) {
+        if (!Auth::check()) {
             return redirect()->route('user.login');
         }
         $payor = Payors::find($id);
-        return view('user.'.$type.'.edit', compact('payor'));
+        return view('user.' . $type . '.edit', compact('payor'));
     }
 
-    public function payee_update(Request $request, $id) 
-    {  
+    public function payee_update(Request $request, $id)
+    {
         $type = 'Payee';
         $validator = Validator::make($request->all(), [
-            'name' => 'required' ,
+            'name' => 'required',
             'email' => 'nullable|email',
         ]);
 
@@ -347,10 +360,10 @@ class PayorsController extends Controller
         }
 
         $payors_type = $request->type;
-        if(!empty($request->same_as) && $request->same_as == 'on') {
+        if (!empty($request->same_as) && $request->same_as == 'on') {
             $payors_type = 'Both';
         }
-        
+
         $payor = Payors::find($id);
 
         $payor->Name = $request->name;
@@ -371,7 +384,7 @@ class PayorsController extends Controller
         $payor->save();
 
 
-        return redirect()->route('user.'.$type)->with('success', $type . ' updated successfully');
+        return redirect()->route('user.' . $type)->with('success', $type . ' updated successfully');
     }
 
     public function payee_delete($id)
@@ -380,13 +393,13 @@ class PayorsController extends Controller
         $package = Payors::find($id);
         $package->delete();
 
-        return redirect()->route('user.'.$type)->with('success', $type . ' deleted successfully');
+        return redirect()->route('user.' . $type)->with('success', $type . ' deleted successfully');
     }
 
     public function add_payor(Request $request)
     {
         $category = $request->category;
-         $validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => [
                 'required',
@@ -409,7 +422,7 @@ class PayorsController extends Controller
         }
 
         // Create a new Payee entry (optional)
-        if(!empty($request->id)) {
+        if (!empty($request->id)) {
             $payor = Payors::find($request->id);
         } else {
             $payor = new Payors();
@@ -432,7 +445,7 @@ class PayorsController extends Controller
         $payor->save();
 
         // Return success message
-        return response()->json(['success' => true,'payor' => $payor]);
+        return response()->json(['success' => true, 'payor' => $payor]);
     }
 
     public function add_payee(Request $request)
@@ -445,7 +458,7 @@ class PayorsController extends Controller
             'name' => ['required'],
         ];
         $category = $request->category;
-        
+
         if (empty($request->email)) {
             $rules['name'][] = Rule::unique('Entities', 'Name')->where(function ($query) use ($category) {
                 $query->where('Type', 'Payee')->where('Category', $category);
@@ -463,7 +476,7 @@ class PayorsController extends Controller
         }
 
         // Create a new Payee entry (optional)
-        if(!empty($request->id)) {
+        if (!empty($request->id)) {
             $payor = Payors::find($request->id);
         } else {
             $payor = new Payors();
@@ -478,7 +491,7 @@ class PayorsController extends Controller
         $payor->save();
 
         // Return success message
-        return response()->json(['success' => true,'payee' => $payor]);
+        return response()->json(['success' => true, 'payee' => $payor]);
     }
 
 }

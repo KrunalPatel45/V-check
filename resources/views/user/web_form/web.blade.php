@@ -81,7 +81,7 @@
         .content_left form {
             padding: 20px 20px 30px;
             border-radius: 10px;
-            background-color: #ffffff;
+            background-color: #F4F4F4;
             display: flex;
             flex-direction: column;
             box-shadow: 0 0.1875rem 0.75rem #2f2b3d24;
@@ -115,7 +115,7 @@
             line-height: 20px;
             font-family: "Public Sans", sans-serif !important;
             color: #444050;
-            background-color: transparent;
+            background-color: #ffffff;
             border: 1px solid #d1d0d4;
             border-radius: 5px;
             outline: none !important;
@@ -258,6 +258,7 @@
             font-weight: 600;
             color: #7367f0;
         }
+
     </style>
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css"
@@ -524,7 +525,7 @@
                     </div>
                 </form>
             </div>
-            <div class="content_right">
+            <div class="content_right d-flex flex-column justify-content-between">
                 <img src="{{ asset('assets/img/check-sample.jpg') }}" alt="check format img" />
                 <div class="company_desc">
                     @if (!empty($data->page_desc) && $data->page_desc != '<p><br></p>')
@@ -564,6 +565,7 @@
                         </p>
                     @endif
                 </div>
+                <a href="https://echecksystems.com/"><img src="{{ asset('assets/img/echeck-banner.jpg') }}" alt="echeck banner img" /></a>
             </div>
         </div>
     </section>

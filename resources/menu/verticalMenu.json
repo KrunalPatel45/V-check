@@ -29,24 +29,18 @@
       "access": "admin"
     },
     {
-      "name": "Checks",
-      "icon": "menu-icon tf-icons ti ti-files",
-      "slug": "check",
-      "access": "web",
-      "submenu": [
-        {
-          "url": "/check/process-payment",
-          "name": "Receive payment ",
-          "slug": "check.process_payment",
-          "access": "web"
-        },
-        {
-          "url": "/check/send-payment",
-          "name": "Send Payment",
-          "slug": "check.send_payment",
-          "access": "web"
-        }
-      ]
+      "url": "/check/process-payment",
+      "name": "Receive payment ",
+      "icon": "menu-icon tf-icons ti ti-arrow-right",
+      "slug": "check.process_payment",
+      "access": "web"
+    },
+    {
+      "url": "/check/send-payment",
+      "name": "Send Payment",
+      "icon": "menu-icon tf-icons ti ti-arrow-left",
+      "slug": "check.send_payment",
+      "access": "web"
     },
     {
       "url": "/user/client",

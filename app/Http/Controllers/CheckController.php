@@ -117,10 +117,12 @@ class CheckController extends Controller
         if (Auth::user()->CurrentPackageID != -1 && $package->CheckLimitPerMonth != 0 && $package->CheckLimitPerMonth <= $total_used_check && Auth::user()->CurrentPackageID) {
             return redirect()->route('check.process_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
-
+        
+        $lastCheck = Checks::where('UserID', Auth::id())->where('CheckType', 'Process Payment')->latest('CheckID')->first();
+       
         $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'RP')->get();
         $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'RP')->get();
-        return view('user.check.process_payment_generate_check', compact('payees', 'payors'));
+        return view('user.check.process_payment_generate_check', compact('lastCheck','payees', 'payors'));
     }
     public function process_payment_check_generate(Request $request)
     {
@@ -581,10 +583,9 @@ class CheckController extends Controller
         $total_send_check_amount = Checks::where('UserID', Auth::id())
             ->where('CheckType', 'Make Payment')
             ->sum('Amount');
-
-        $total_receive_check_amount = $this->formatToK($total_receive_check_amount);
-        $total_send_check_amount = $this->formatToK($total_send_check_amount);
-
+        // $total_receive_check_amount = $this->formatToK($total_receive_check_amount);
+        // $total_send_check_amount = $this->formatToK($total_send_check_amount);
+        
         return view('user.check.history', compact(
             'total_receive_check',
             'total_send_check',
