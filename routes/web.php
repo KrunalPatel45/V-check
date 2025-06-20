@@ -214,6 +214,7 @@ Route::middleware([AdminMiddleware::class])->group(function () {
 
 });
 
+Route::get('verify-email/{id}/{hash}', [UserAuthController::class, 'verify_email'])->name('user.verify_email');
 Route::get('/login', [UserAuthController::class, 'login'])->name('user.login');
 Route::post('/login', [UserAuthController::class, 'login_action'])->name('user.login-action');
 Route::get('/register', [UserAuthController::class, 'register'])->name('user.register');

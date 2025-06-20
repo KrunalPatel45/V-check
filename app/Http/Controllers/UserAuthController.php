@@ -74,6 +74,11 @@ class UserAuthController extends Controller
         if (!empty($user) && $user->Status == 'Inactive') {
             return redirect()->back()->withErrors(['login' => 'User status is not Active'])->withInput();
         }
+
+        if ($user->EmailVerified == false) {
+
+            return redirect()->back()->withErrors(['login' => 'Please verify your email first'])->withInput();
+        }
         
         $packag_c = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)->count();
         
@@ -287,5 +292,19 @@ class UserAuthController extends Controller
         return redirect()->route('user.login')->with('success', 'Account created successful!');
     
     
+    }
+
+    public function verify_email($id, $hash)
+    {
+        $user = User::find($id);
+
+        if($hash != sha1($user->Email)) {
+            return redirect()->route('user.login')->with('error', 'Invalid token!');
+        }
+
+        $user->EmailVerified = true;
+        $user->save();
+
+        return redirect()->route('user.login')->with('success', 'Email verified successful!');
     }
 }  

@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Mail\SendNewSubMail;
+use App\Mail\RegistrationVerificationMail;
 
 class SubscriptionController extends Controller
 {
@@ -40,9 +41,12 @@ class SubscriptionController extends Controller
             'plan' => $plan,
         ];
 
+        
+
         $res = $this->subscriptionHelper->addSubscription($data);
 
         if(!empty($res)) {
+
             return redirect($res['url']);
         }
 
@@ -138,10 +142,15 @@ class SubscriptionController extends Controller
                 'next_billing_date' => $nextRenewalDate->format('m/d/Y'),
                 'amount' => $packages->Price,
              ];
-             Mail::to($user->Email)->send(new SendNewSubMail(6, $user_name, $data));
-             Mail::to(env('ADMIN_EMAIL'))->send(new AdminMail(10, $packages->Name, $user_name, $user->Email));      
+
+            $link = route('user.verify_email',[$user->UserID, sha1($user->Email)]);
+            $link_button = '<a href="'.$link.'" target="_blank">Verify Email</a>';
+            
+            Mail::to($user->Email)->send(new RegistrationVerificationMail(12, $user->FirstName.' '.$user->LastName,$link_button,$link));   
+            Mail::to($user->Email)->send(new SendNewSubMail(6, $user_name, $data));
+            Mail::to(env('ADMIN_EMAIL'))->send(new AdminMail(10, $packages->Name, $user_name, $user->Email));      
             // Optional: redirect or show a view
-            return redirect()->route('user.login')->with('success', 'Account created successfully');
+            return redirect()->route('user.login')->with('success', 'Verification link sent to your email');
         }
          return redirect()->route('user.login')->with('error', 'Something want to wrong');
     }
