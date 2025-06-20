@@ -37,7 +37,7 @@
                 </div>
             </div>
         </div> --}}
-       <div class="col-xxl">
+       <div class="col-xxl-12">
             <div class="card mb-6">
                 <h5 class="card-header">Current Plan</h5>
                 <div class="card-body">
