@@ -395,6 +395,8 @@ class AdminDashboardController extends Controller
                     'NextRenewalDate' => $data_current_package->NextRenewalDate,
                     'ChecksGiven' => $package->CheckLimitPerMonth,
                     'RemainingChecks' => $package->CheckLimitPerMonth - $data_current_package->ChecksUsed,
+                    'ChecksReceived' => $data_current_package->ChecksReceived,
+                    'ChecksSent' => $data_current_package->ChecksSent,
                     'ChecksUsed' => $data_current_package->ChecksUsed,
                     'PaymentDate' => $data_current_package->PaymentDate,
                     'PaymentAttempts' => 0,

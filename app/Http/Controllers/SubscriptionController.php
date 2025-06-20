@@ -116,6 +116,8 @@ class SubscriptionController extends Controller
                 'PaymentEndDate' => $paymentEndDate,
                 'NextRenewalDate' => $nextRenewalDate,
                 'ChecksGiven' => $packages->CheckLimitPerMonth,
+                'ChecksReceived' => 0,
+                'ChecksSent' => 0,
                 'ChecksUsed' => 0,
                 'RemainingChecks' => 0,
                 'PaymentDate' => $paymentStartDate,

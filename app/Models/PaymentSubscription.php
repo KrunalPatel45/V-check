@@ -30,6 +30,8 @@ class PaymentSubscription extends Model
         'PromotionID',
         'Status',
         'NextPackageID',
+        'ChecksReceived',
+        'ChecksSent',
     ];
 
 }

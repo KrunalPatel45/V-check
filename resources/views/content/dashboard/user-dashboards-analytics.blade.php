@@ -94,35 +94,38 @@
                 </div>
             </div>
         </div>
-
-        <div class="col-xl-4 col-sm-6">
+        <div class="col-xl-3 col-sm-6">
             <div class="card">
-                <div class="card-header pb-0">
-                    <h5 class="mb-3 card-title">Total Checks</h5>
-                    <p class="mb-0 text-body">Total Number of Checks</p>
+                <div class="card-header pb-0 px-2 d-flex flex-column justify-content-around">
+                    <h5 class="mb-3 card-title">Total Checks in Plan</h5>
                     <h4 class="mb-0">{{ $given_checks }}</h4>
                 </div>
             </div>
         </div>
-        <div class="col-xl-4 col-sm-6">
+        <div class="col-xl-3 col-sm-6">
             <div class="card">
-                <div class="card-header pb-0">
-                    <h5 class="mb-3 card-title">Used Checks</h5>
-                    <p class="mb-0 text-body">Total Number of Used Checks</p>
-                    <h4 class="mb-0">{{ $used_checks }}</h4>
+                <div class="card-header pb-0 px-2 d-flex flex-column justify-content-around">
+                    <h5 class="mb-3 card-title">Total Checks Received</h5>
+                    <h4 class="mb-0">{{ $checks_received ?? 0 }}</h4>
                 </div>
             </div>
         </div>
-        <div class="col-xl-4 col-sm-6">
+        <div class="col-xl-3 col-sm-6">
             <div class="card">
-                <div class="card-header pb-0">
+                <div class="card-header pb-0 px-2 d-flex flex-column justify-content-around">
+                    <h5 class="mb-3 card-title">Total Checks Sent</h5>
+                    <h4 class="mb-0">{{ $checks_sent ?? 0 }}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-sm-6">
+            <div class="card">
+                <div class="card-header pb-0 px-2 d-flex flex-column justify-content-around">
                     <h5 class="mb-3 card-title">Remaining Checks</h5>
-                    <p class="mb-0 text-body">Total Number of Remaining Checks</p>
                     <h4 class="mb-0">{{ $remaining_checks }}</h4>
                 </div>
             </div>
         </div>
-
          <div class="col-xl-6 col-sm-6">
             <div class="card">
                 <div class="card-header pb-0">

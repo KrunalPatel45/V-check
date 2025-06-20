@@ -48,7 +48,9 @@ class UserDashboardController extends Controller
         $given_checks = ($paymentSubscription->ChecksGiven == 0) ? 'Unlimited' : $paymentSubscription->ChecksGiven;
         $used_checks = ($paymentSubscription->ChecksGiven == 0) ? '-' :$paymentSubscription->ChecksUsed;
         $remaining_checks =($paymentSubscription->ChecksGiven == 0) ? '-'  : $paymentSubscription->RemainingChecks;
-        
+        $checks_received = ($paymentSubscription->ChecksGiven == 0) ? '-' :$paymentSubscription->ChecksReceived;
+        $checks_sent = ($paymentSubscription->ChecksGiven == 0) ? '-' :$paymentSubscription->ChecksSent;
+
         $total_vendor = Payors::where('UserID', Auth::user()->UserID)
                         ->whereIn('Type', ['Payor'])
                         ->count();
@@ -59,7 +61,7 @@ class UserDashboardController extends Controller
                         ->count();                
         //
         $total_companies = Company::where('UserID', Auth::user()->UserID)->count();
-        return view('content.dashboard.user-dashboards-analytics', compact('package_data', 'total_vendor', 'total_client', 'total_companies', 'given_checks', 'used_checks', 'remaining_checks', 'package', 'paymentSubscription'));
+        return view('content.dashboard.user-dashboards-analytics', compact('checks_received', 'checks_sent', 'package_data', 'total_vendor', 'total_client', 'total_companies', 'given_checks', 'used_checks', 'remaining_checks', 'package', 'paymentSubscription'));
     }
 
     public function profile()

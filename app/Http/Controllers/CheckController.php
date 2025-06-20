@@ -126,6 +126,7 @@ class CheckController extends Controller
     }
     public function process_payment_check_generate(Request $request)
     {
+
         if (!Auth::check()) {
             return redirect()->route('user.login');
         }
@@ -204,6 +205,7 @@ class CheckController extends Controller
 
             if (Auth::user()->CurrentPackageID != -1) {
                 $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->orderBy('PaymentSubscriptionID', 'desc')->first();
+                $paymentSubscription->ChecksReceived = $paymentSubscription->ChecksReceived + 1;
                 $paymentSubscription->ChecksUsed = $paymentSubscription->ChecksUsed + 1;
                 $paymentSubscription->RemainingChecks = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
                 $paymentSubscription->save();
@@ -402,6 +404,7 @@ class CheckController extends Controller
 
             if (Auth::user()->CurrentPackageID != -1) {
                 $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->orderBy('PaymentSubscriptionID', 'desc')->first();
+                $paymentSubscription->ChecksSent = $paymentSubscription->ChecksSent + 1;
                 $paymentSubscription->ChecksUsed = $paymentSubscription->ChecksUsed + 1;
                 $paymentSubscription->RemainingChecks = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
                 $paymentSubscription->save();
