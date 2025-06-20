@@ -548,7 +548,7 @@
                     <div class="col-sm-3">
                         <input type="number" id="verify_check_number" name="verify_check_number"
                             placeholder="Check Number" class="form-control" readonly
-                            value="{{ !empty($check->CheckNumber) ? $check->CheckNumber : old('check_number') }}">
+                            value="{{ $checkNumber }}">
                     </div>
                     <div class="col-sm-3">
                         <input type="number" id="routing_number" name="routing_number" class="form-control"
