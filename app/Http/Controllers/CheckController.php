@@ -210,7 +210,7 @@ class CheckController extends Controller
                 $paymentSubscription->RemainingChecks = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
                 $paymentSubscription->save();
             }
-            $message = 'Check Crated successfully';
+            $message = 'Check Created successfully';
         }
 
         return redirect()->route('check.process_payment')->with('success', $message);
@@ -410,7 +410,7 @@ class CheckController extends Controller
                 $paymentSubscription->save();
             }
 
-            $message = 'Check Crated successfully';
+            $message = 'Check Created successfully';
         }
 
         return redirect()->route('check.send_payment')->with('success', $message);
@@ -471,7 +471,7 @@ class CheckController extends Controller
             // ->setPaper([0, 0, 1000, 1200])
             ->setOptions(['dpi' => 150])
             ->set_option('isHtml5ParserEnabled', true)
-            ->set_option('isRemoteEnabled', true);
+            ->set_option('isRemoteEnabled', false);
 
         // Define the file path where you want to save the PDF
         $file_name = 'check-' . $data['check_number'] . '-' . time() . '.pdf';
@@ -1169,6 +1169,7 @@ class CheckController extends Controller
         $check_pdf = public_path('checks/' . $check->CheckPDF);
 
         try {
+            return new SendCheckMail(4, $data, $check_pdf);
             Mail::to($payee->Email)->send(new SendCheckMail(4, $data, $check_pdf));
 
             $check->is_email_send = 1;

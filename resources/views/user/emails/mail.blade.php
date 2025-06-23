@@ -187,7 +187,7 @@
                                                                                     </tr>
                                                                                 </table>
                                                                                 <div class="spacer_block block-2"
-                                                                                    style="height: 150px; line-height: 150px; font-size: 1px">
+                                                                                    style="height: 50px; line-height: 150px; font-size: 1px">
                                                                                     &#8202;</div>
                                                                             </td>
                                                                             <td class="column column-3" width="50%"
@@ -217,7 +217,7 @@
                                                                                                             cellspacing="0"
                                                                                                             role="presentation">
                                                                                                             <!--<![endif]-->
-                                                                                                            <tr>
+                                                                                                            <!-- <tr>
                                                                                                                 <td class="header_icon"
                                                                                                                     style="vertical-align: middle; text-align: center; padding-top: 0px; padding-bottom: 0px; padding-left: 0px; padding-right: 10px">
                                                                                                                     <a href="https://echecksystems.com/contact/"
@@ -238,7 +238,7 @@
                                                                                                                         style="color: #fff; text-decoration: none">Contact
                                                                                                                         us</a>
                                                                                                                 </td>
-                                                                                                            </tr>
+                                                                                                            </tr> -->
                                                                                                         </table>
                                                                                                     </td>
                                                                                                 </tr>
@@ -409,7 +409,7 @@
 <v:textbox inset="0px,0px,0px,0px">
 <center style="color:#ffffff; font-family:'Trebuchet MS', Tahoma, sans-serif; font-size:15px">
 <!
-                                    [endif]--><a href="https://echecksystems.com/contact/" target="_blank"
+                                    [endif]--><a href="{{ route('user.login') }}" target="_blank"
                                                                                                         style="
                                         text-decoration: none;
                                         display: inline-block;
@@ -431,8 +431,7 @@
                                         word-break: keep-all;
                                       "><span
                                                                                                             style="padding-left: 30px; padding-right: 30px; font-size: 15px; display: inline-block; letter-spacing: 1px"><span
-                                                                                                                style="word-break: break-word; line-height: 30px">Contact
-                                                                                                                us</span></span></a><!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
+                                                                                                                style="word-break: break-word; line-height: 30px">LOGIN</span></span></a><!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
                                                                                                 </div>
                                                                                             </td>
                                                                                         </tr>
@@ -554,7 +553,7 @@
                                                                                             <!--[if vml]><table align="center" cellpadding="0" cellspacing="0" role="presentation" style="display:inline-block;padding-left:0px;padding-right:0px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;"><![endif]-->
                                                                                             <!--[if !vml]><!-->
                                                                                             <table class="icons-inner"
-                                                                                                style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-block; margin-right: -4px; padding-left: 0px; padding-right: 0px"
+                                                                                                style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-block; margin-right: 15px; padding-left: 0px; padding-right: 0px"
                                                                                                 cellpadding="0"
                                                                                                 cellspacing="0"
                                                                                                 role="presentation">
@@ -601,7 +600,7 @@
                                       mso-line-height-alt: 16.8px;
                                     ">
                                                                                     <p style="margin: 0">
-                                                                                        <a href="tel:(818) 900-5455"
+                                                                                        <a href="tel:(818) 922-7070"
                                                                                             style="color: #fff;
                                       direction: ltr;
                                       font-family: 'Montserrat', 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif;
@@ -611,7 +610,7 @@
                                       line-height: 120%;
                                       text-align: center;
                                       mso-line-height-alt: 16.8px;">(818)
-                                                                                            900-5455</a>
+                                                                                            922-7070</a>
                                                                                     </p>
                                                                                 </div>
                                                                             </td>
@@ -638,7 +637,7 @@
                                                                                             <!--[if vml]><table align="center" cellpadding="0" cellspacing="0" role="presentation" style="display:inline-block;padding-left:0px;padding-right:0px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;"><![endif]-->
                                                                                             <!--[if !vml]><!-->
                                                                                             <table class="icons-inner"
-                                                                                                style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-block; margin-right: -4px; padding-left: 0px; padding-right: 0px"
+                                                                                                style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-block; margin-right: 7px; padding-left: 0px; padding-right: 0px"
                                                                                                 cellpadding="0"
                                                                                                 cellspacing="0"
                                                                                                 role="presentation">
@@ -685,8 +684,8 @@
                                       mso-line-height-alt: 16.8px;
                                     ">
                                                                                     <p style="margin: 0"><a
-                                                                                            href="mailto:support@echecksystems.com"
-                                                                                            style="text-decoration: underline; color: #fff">support@echecksystems.com</a>
+                                                                                            href="mailto:info@echecksystems.com"
+                                                                                            style="text-decoration: underline; color: #fff">info@echecksystems.com</a>
                                                                                     </p>
                                                                                 </div>
                                                                             </td>
@@ -713,7 +712,7 @@
                                                                                             <!--[if vml]><table align="center" cellpadding="0" cellspacing="0" role="presentation" style="display:inline-block;padding-left:0px;padding-right:0px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;"><![endif]-->
                                                                                             <!--[if !vml]><!-->
                                                                                             <table class="icons-inner"
-                                                                                                style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-block; margin-right: -4px; padding-left: 0px; padding-right: 0px"
+                                                                                                style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-block; margin-right: 11px; padding-left: 0px; padding-right: 0px"
                                                                                                 cellpadding="0"
                                                                                                 cellspacing="0"
                                                                                                 role="presentation">
@@ -776,7 +775,7 @@
                                             </tr>
                                         </tbody>
                                     </table>
-                                    <table class="row row-7" align="center" width="100%" border="0"
+                                    <!-- <table class="row row-7" align="center" width="100%" border="0"
                                         cellpadding="0" cellspacing="0" role="presentation"
                                         style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #f4fcff">
                                         <tbody>
@@ -862,7 +861,7 @@
                                                 </td>
                                             </tr>
                                         </tbody>
-                                    </table>
+                                    </table> -->
                                     <table class="row row-8" align="center" width="100%" border="0"
                                         cellpadding="0" cellspacing="0" role="presentation"
                                         style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #f4fcff">
@@ -878,7 +877,7 @@
                                                                 <td class="column column-1" width="100%"
                                                                     style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 10px; padding-left: 20px; padding-right: 20px; padding-top: 10px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px">
 
-                                                                    <table class="paragraph_block block-2"
+                                                                    {{-- <table class="paragraph_block block-2"
                                                                         width="100%" border="0" cellpadding="0"
                                                                         cellspacing="0" role="presentation"
                                                                         style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word">
@@ -920,7 +919,7 @@
                                                                                 </div>
                                                                             </td>
                                                                         </tr>
-                                                                    </table>
+                                                                    </table> --}}
                                                                     <table class="paragraph_block block-4"
                                                                         width="100%" border="0" cellpadding="0"
                                                                         cellspacing="0" role="presentation"
