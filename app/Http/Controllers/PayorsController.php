@@ -33,6 +33,16 @@ class PayorsController extends Controller
 
             return datatables()->of($payors)
                 ->addIndexColumn()
+                ->addColumn('Name', function ($row) {
+                    return '
+                            <div class="d-flex gap-2">
+                                <span>'.$row->Name.'</span>
+                                <a href="'.route('check_history',['entity_id' => $row->EntityID]).'">
+                                    <i class="menu-icon tf-icons ti ti-map cursor-pointer"></i>
+                                </a>
+                            </div>
+                        ';
+                })
                 ->addColumn('status', function ($row) {
                     return '<span class="badge ' .
                         ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') .
@@ -80,7 +90,7 @@ class PayorsController extends Controller
                             </div>';
                 })
 
-                ->rawColumns(['status', 'actions'])
+                ->rawColumns(['Name','status', 'actions'])
                 ->make(true);
         }
 
@@ -106,6 +116,16 @@ class PayorsController extends Controller
 
             return datatables()->of($payors)
                 ->addIndexColumn()
+                ->addColumn('Name', function ($row) {
+                    return '
+                            <div class="d-flex gap-2">
+                                <span>'.$row->Name.'</span>
+                                <a href="'.route('check_history',['entity_id' => $row->EntityID]).'">
+                                    <i class="menu-icon tf-icons ti ti-map cursor-pointer"></i>
+                                </a>
+                            </div>
+                        ';
+                })
                 ->addColumn('status', function ($row) {
                     return '<span class="badge ' .
                         ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') .
@@ -153,7 +173,7 @@ class PayorsController extends Controller
                             </div>';
                 })
 
-                ->rawColumns(['status', 'actions'])
+                ->rawColumns(['Name','status', 'actions'])
                 ->make(true);
         }
 

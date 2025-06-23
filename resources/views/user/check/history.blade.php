@@ -136,6 +136,7 @@
                     url: "{{ route('check_history') }}", // Make sure the route is correct
                     data: function(d) {
                         d.type = filterType; // Send the filter type to the server
+                         d.entity_id = '{{ $_GET['entity_id'] ?? '' }}';
                     }
                 },
                 columns: [{

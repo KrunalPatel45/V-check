@@ -36,7 +36,7 @@ class CheckController extends Controller
 
         if ($request->ajax()) {
             $checks = Checks::where('UserID', Auth::id())->where('CheckType', 'Process Payment')
-                        ->where('is_seen',0)->get();
+                ->where('is_seen', 0)->get();
 
             return datatables()->of($checks)
                 ->addIndexColumn()
@@ -117,12 +117,12 @@ class CheckController extends Controller
         if (Auth::user()->CurrentPackageID != -1 && $package->CheckLimitPerMonth != 0 && $package->CheckLimitPerMonth <= $total_used_check && Auth::user()->CurrentPackageID) {
             return redirect()->route('check.process_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
-        
+
         $lastCheck = Checks::where('UserID', Auth::id())->where('CheckType', 'Process Payment')->latest('CheckID')->first();
-       
+
         $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'RP')->get();
         $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'RP')->get();
-        return view('user.check.process_payment_generate_check', compact('lastCheck','payees', 'payors'));
+        return view('user.check.process_payment_generate_check', compact('lastCheck', 'payees', 'payors'));
     }
     public function process_payment_check_generate(Request $request)
     {
@@ -235,7 +235,7 @@ class CheckController extends Controller
 
         if ($request->ajax()) {
             $checks = Checks::where('UserID', Auth::id())->where('CheckType', 'Make Payment')
-                        ->where('is_seen',0)->get();
+                ->where('is_seen', 0)->get();
 
             return datatables()->of($checks)
                 ->addIndexColumn()
@@ -471,7 +471,7 @@ class CheckController extends Controller
             // ->setPaper([0, 0, 1000, 1200])
             ->setOptions(['dpi' => 150])
             ->set_option('isHtml5ParserEnabled', true)
-            ->set_option('isRemoteEnabled', true);
+            ->set_option('isRemoteEnabled', false);
 
         // Define the file path where you want to save the PDF
         $file_name = 'check-' . $data['check_number'] . '-' . time() . '.pdf';
@@ -533,6 +533,13 @@ class CheckController extends Controller
             if ($request->has('type') && !empty($request->type)) {
                 $query->where('CheckType', $request->type);
             }
+            
+            if (isset($request->entity_id) && $request->entity_id != null) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('PayorID', $request->entity_id)
+                        ->orWhere('PayeeID', $request->entity_id);
+                });
+            }
 
             return datatables()->of($query)
                 ->addIndexColumn()
@@ -588,7 +595,7 @@ class CheckController extends Controller
             ->sum('Amount');
         // $total_receive_check_amount = $this->formatToK($total_receive_check_amount);
         // $total_send_check_amount = $this->formatToK($total_send_check_amount);
-        
+
         return view('user.check.history', compact(
             'total_receive_check',
             'total_send_check',
@@ -819,7 +826,7 @@ class CheckController extends Controller
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
-        
+
         if (!empty($request->web_form_id)) {
             $webform = WebForm::find($request->web_form_id);
             $payee = Payors::withTrashed()->find($webform->PayeeID);
@@ -1169,7 +1176,7 @@ class CheckController extends Controller
         $check_pdf = public_path('checks/' . $check->CheckPDF);
 
         try {
-            return new SendCheckMail(4, $data, $check_pdf);
+
             Mail::to($payee->Email)->send(new SendCheckMail(4, $data, $check_pdf));
 
             $check->is_email_send = 1;
