@@ -121,7 +121,7 @@
                             style="font-size: 12px; padding: 10px; background-color: #fff; border-radius: 10px;height: 80px;">
                             @if (!empty($data['signature']))
                                 <div style="text-align:center;">
-                                    <img width="100px" style="text-align:center; display:block; margin:0 auto;"
+                                    <img width="300px" style="text-align:center; display:block; margin:0 auto;"
                                         src="{{ asset('sign/' . $data['signature']) }}" alt="signature img" />
                                 </div>
                             @else
