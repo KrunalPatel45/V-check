@@ -951,7 +951,8 @@ class CheckController extends Controller
         $check = Checks::create($check_data);
         $user = User::find($payee->UserID);
         $user_name = $user->FirstName . ' ' . $user->LastName;
-        Mail::to($user->Email)->send(new SendWebFormMail(5, $user_name, $payor->Name));
+
+        Mail::to($user->Email)->send(new SendWebFormMail(5, $user_name, $payor->Name, $check));
         Mail::to($request->email)->send(new SendWebFormMailForCilent(11, $request->name, ));
         return redirect()->back()->with('success', 'Check form successfully submitted.');
     }

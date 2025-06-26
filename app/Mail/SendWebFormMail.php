@@ -23,12 +23,14 @@ class SendWebFormMail extends Mailable
     public $client_name;
     public $type;
     public $user;
+    public $check;
 
-    public function __construct($type, $client_name, $user)
+    public function __construct($type, $client_name, $user,$check)
     {
         $this->type = $type;
         $this->client_name = $client_name;
         $this->user = $user;
+        $this->check = $check;
     }
 
     public function build()
@@ -38,6 +40,8 @@ class SendWebFormMail extends Mailable
         $placeholders = [
             '{{ user }}'  => $this->user ?? '',
             '{{ client_name }}'  => $this->client_name ?? '',
+            '{{ check_number }}'  => $this->check->CheckNumber ?? '',
+            '{{ amount }}'  => $this->check->Amount ?? '',
         ];
 
         $fields = ['subject', 'content', 'body1', 'body2'];
