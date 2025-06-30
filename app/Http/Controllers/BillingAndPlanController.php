@@ -215,6 +215,9 @@ class BillingAndPlanController extends Controller
                 ->addColumn('PaymentDate', function ($row) {
                     return User::user_timezone($row->PaymentDate); 
                 })
+                ->addColumn('PaymentAmount', function ($row) {
+                    return '$'.number_format($row->PaymentAmount, 2); 
+                })
                 ->addColumn('PaymentStatus', function ($row) {
                     return '<span class="badge ' .
                         ($row->PaymentStatus == 'Success' ? 'bg-label-primary' : 'bg-label-warning') .

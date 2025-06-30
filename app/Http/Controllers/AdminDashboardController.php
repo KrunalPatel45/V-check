@@ -43,7 +43,10 @@ class AdminDashboardController extends Controller
                         ->whereMonth('PaymentDate', Carbon::now()->month)
                         ->whereYear('PaymentDate', Carbon::now()->year)
                         ->sum('PaymentAmount');
-                        
+                      
+        $month_revanue = number_format($month_revanue, 2);
+        $total_revanue = number_format($total_revanue, 2); 
+
         $total_used_checks = PaymentSubscription::sum('ChecksUsed');
         $total_unused_checks = abs($total_checks - $total_used_checks);
 
@@ -131,7 +134,7 @@ class AdminDashboardController extends Controller
                 if($user->CurrentPackageID == '-1') {
                     $user->package = 'TRIAL';
                 } 
-                $user->package_price = $package ? $package->Price : 0;
+                $user->package_price = $package ? '$'.number_format($package->Price,2) : '$0';
             }
 
             return datatables()->of($users)
