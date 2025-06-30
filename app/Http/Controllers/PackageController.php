@@ -38,6 +38,9 @@ class PackageController extends Controller
                         ? '<span class="badge bg-label-primary">Enable</span>' 
                         : '<span class="badge bg-label-warning">Disable</span>';
                 })
+                ->addColumn('Price', function ($package) {
+                    return '$'.number_format($package->Price, 2); 
+                })
                 ->addColumn('created_at', function ($package) {
                     return Carbon::parse($package->CreatedAt)->format('m/d/Y'); 
                 })

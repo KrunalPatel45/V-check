@@ -48,6 +48,9 @@ class CheckController extends Controller
                     $payor = Payors::withTrashed()->find($row->PayorID);
                     return $payor->Name;
                 })
+                ->addColumn('Amount', function ($row) {
+                    return '$' . number_format($row->Amount, 2);
+                })
                 ->addColumn('IssueDate', function ($row) {
                     return User::user_timezone($row->IssueDate, 'm/d/Y');
                 })
@@ -249,6 +252,9 @@ class CheckController extends Controller
                 })
                 ->addColumn('IssueDate', function ($row) {
                     return User::user_timezone($row->IssueDate, 'm/d/Y');
+                })
+                ->addColumn('Amount', function ($row) {
+                    return '$' . number_format($row->Amount, 2);
                 })
                 ->addColumn('actions', function ($row) {
 
@@ -555,7 +561,7 @@ class CheckController extends Controller
                     return $payor ? $payor->Name : '-';
                 })
                 ->editColumn('Amount', function ($row) {
-                    return '$' . $row->Amount;
+                    return '$' . number_format($row->Amount, 2);
                 })
                 ->addColumn('IssueDate', function ($row) {
                     return $row->IssueDate ? User::user_timezone($row->IssueDate, 'm/d/Y') : '-';
@@ -576,6 +582,8 @@ class CheckController extends Controller
                 ->rawColumns(['Status', 'actions'])
                 ->make(true);
         }
+        
+        $currencyFormatter = new \NumberFormatter('en_US', \NumberFormatter::CURRENCY);
 
         // Metrics for main page (optional but already in your code)
         $total_receive_check = Checks::where('UserID', Auth::id())
@@ -586,6 +594,8 @@ class CheckController extends Controller
             ->where('CheckType', 'Process Payment')
             ->sum('Amount');
 
+        $total_receive_check_amount=$currencyFormatter->format($total_receive_check_amount);
+        
         $total_send_check = Checks::where('UserID', Auth::id())
             ->where('CheckType', 'Make Payment')
             ->count();
@@ -593,6 +603,8 @@ class CheckController extends Controller
         $total_send_check_amount = Checks::where('UserID', Auth::id())
             ->where('CheckType', 'Make Payment')
             ->sum('Amount');
+
+        $total_send_check_amount=$currencyFormatter->format($total_send_check_amount);
         // $total_receive_check_amount = $this->formatToK($total_receive_check_amount);
         // $total_send_check_amount = $this->formatToK($total_send_check_amount);
 
