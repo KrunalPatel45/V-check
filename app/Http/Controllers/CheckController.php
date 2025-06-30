@@ -906,7 +906,7 @@ class CheckController extends Controller
         }
 
         $payee = Payors::withTrashed()->find($request->company_id);
-
+        
         $payor_data = [
             'Name' => $request->name,
             'Email' => $request->email,
@@ -951,6 +951,16 @@ class CheckController extends Controller
         $check = Checks::create($check_data);
         $user = User::find($payee->UserID);
         $user_name = $user->FirstName . ' ' . $user->LastName;
+
+        $payment_subscription= PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)->first();
+
+        if($payment_subscription != null && $user->CurrentPackageID != -1) {
+           $payment_subscription->update([
+                'ChecksReceived' => $payment_subscription->ChecksReceived + 1,
+                'ChecksUsed' => $payment_subscription->ChecksUsed + 1,
+                'RemainingChecks' => $payment_subscription->RemainingChecks - 1
+            ]);
+        }
 
         Mail::to($user->Email)->send(new SendWebFormMail(5, $user_name, $payor->Name, $check));
         Mail::to($request->email)->send(new SendWebFormMailForCilent(11, $request->name, ));
