@@ -114,10 +114,13 @@ class CheckController extends Controller
         }
 
         $package = Package::find(Auth::user()->CurrentPackageID);
-        $total_used_check = Checks::where('UserID', Auth::id())->count();
-        // dd($package->CheckLimitPerMonth, $total_used_check);
-
-        if (Auth::user()->CurrentPackageID != -1 && $package->CheckLimitPerMonth != 0 && $package->CheckLimitPerMonth <= $total_used_check && Auth::user()->CurrentPackageID) {
+        $subscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->first();
+       
+        if(!$subscription){
+             return redirect()->route('check.process_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
+        }
+       
+        if (Auth::user()->CurrentPackageID != -1 && $package->CheckLimitPerMonth != 0 && $package->CheckLimitPerMonth <= $subscription->ChecksUsed && Auth::user()->CurrentPackageID) {
             return redirect()->route('check.process_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
 
@@ -318,10 +321,14 @@ class CheckController extends Controller
         }
 
         $package = Package::find(Auth::user()->CurrentPackageID);
-        $total_used_check = Checks::where('UserID', Auth::id())->count();
+         $subscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->first();
+       
+        if(!$subscription){
+             return redirect()->route('check.send_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
+        }
 
-        if (Auth::user()->CurrentPackageID != -1 && $package->CheckLimitPerMonth != 0 && $package->CheckLimitPerMonth <= $total_used_check) {
-            return redirect()->route('check.process_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
+        if (Auth::user()->CurrentPackageID != -1 && $package->CheckLimitPerMonth != 0 && $package->CheckLimitPerMonth <= $subscription->ChecksUsed) {
+            return redirect()->route('check.send_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
 
         $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'SP')->get();
