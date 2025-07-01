@@ -926,6 +926,18 @@ class CheckController extends Controller
 
         $payee = Payors::withTrashed()->find($request->company_id);
         
+        $user = User::find($payee->UserID);
+        $package = Package::find($user->CurrentPackageID);
+        $subscription = PaymentSubscription::where('UserID', $user->id)->where('PackageID', $user->CurrentPackageID)->first();
+       
+        if(!$subscription){
+             return redirect()->back()->withInput()->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
+        }
+       
+        if ($user->CurrentPackageID != -1 && $package->CheckLimitPerMonth != 0 && $package->CheckLimitPerMonth <= $subscription->ChecksUsed && $user->CurrentPackageID) {
+            return redirect()->back()->withInput()->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
+        }
+
         $payor_data = [
             'Name' => $request->name,
             'Email' => $request->email,
@@ -968,7 +980,7 @@ class CheckController extends Controller
         ];
 
         $check = Checks::create($check_data);
-        $user = User::find($payee->UserID);
+        
         $user_name = $user->FirstName . ' ' . $user->LastName;
 
         $payment_subscription= PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)->first();

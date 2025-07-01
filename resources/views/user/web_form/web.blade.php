@@ -310,6 +310,11 @@
                 {{ session('success') }}
             </div>
         @endif
+         @if (session('info'))
+            <div class="alert alert-danger">
+                {{ session('info') }}
+            </div>
+        @endif
         <div class="container_area">
             <div class="content_left">
                 <form id="webForm" method="POST" action="{{ route('store_web_form_data') }}">
