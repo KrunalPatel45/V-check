@@ -24,6 +24,7 @@ use App\Mail\SendWebFormMail;
 use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use App\Mail\SendWebFormMailForCilent;
+use App\Helpers\Helpers;
 
 
 class CheckController extends Controller
@@ -112,16 +113,11 @@ class CheckController extends Controller
         if (!Auth::check()) {
             return redirect()->route('user.login');
         }
-
-        $package = Package::find(Auth::user()->CurrentPackageID);
-        $subscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->first();
+        
+        $isSubscribed = Helpers::isSubscribed(Auth::user());
        
-        if(!$subscription){
+        if(!$isSubscribed){
              return redirect()->route('check.process_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
-        }
-       
-        if (Auth::user()->CurrentPackageID != -1 && $package->CheckLimitPerMonth != 0 && $package->CheckLimitPerMonth <= $subscription->ChecksUsed && Auth::user()->CurrentPackageID) {
-            return redirect()->route('check.process_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
 
         $lastCheck = Checks::where('UserID', Auth::id())->where('CheckType', 'Process Payment')->latest('CheckID')->first();
@@ -319,16 +315,11 @@ class CheckController extends Controller
         if (!Auth::check()) {
             return redirect()->route('user.login');
         }
-
-        $package = Package::find(Auth::user()->CurrentPackageID);
-         $subscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->first();
+        
+        $isSubscribed = Helpers::isSubscribed(Auth::user());
        
-        if(!$subscription){
+        if(!$isSubscribed){
              return redirect()->route('check.send_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
-        }
-
-        if (Auth::user()->CurrentPackageID != -1 && $package->CheckLimitPerMonth != 0 && $package->CheckLimitPerMonth <= $subscription->ChecksUsed) {
-            return redirect()->route('check.send_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
 
         $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'SP')->get();
@@ -663,7 +654,12 @@ class CheckController extends Controller
     public function check_generate($id)
     {
         $check = Checks::find($id);
+        
+        $isSubscribed = Helpers::isSubscribed(Auth::user());
 
+        if (!$isSubscribed) {
+            return redirect()->back()->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
+        }
         $check_date = Carbon::parse(str_replace('/', '-', $check->ExpiryDate))->format('m/d/Y');
 
         $data = [];
@@ -703,6 +699,12 @@ class CheckController extends Controller
     {
         $check = Checks::find($id);
 
+        $isSubscribed = Helpers::isSubscribed(Auth::user());
+
+        if (!$isSubscribed) {
+            return redirect()->back()->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
+        }
+        
         $check_date = Carbon::parse(str_replace('/', '-', $check->ExpiryDate))->format('m/d/Y');
 
         $data = [];
@@ -927,15 +929,10 @@ class CheckController extends Controller
         $payee = Payors::withTrashed()->find($request->company_id);
         
         $user = User::find($payee->UserID);
-        $package = Package::find($user->CurrentPackageID);
-        $subscription = PaymentSubscription::where('UserID', $user->id)->where('PackageID', $user->CurrentPackageID)->first();
+        $isSubscribed = Helpers::isSubscribed(Auth::user());
        
-        if(!$subscription){
+        if(!$isSubscribed){
              return redirect()->back()->withInput()->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
-        }
-       
-        if ($user->CurrentPackageID != -1 && $package->CheckLimitPerMonth != 0 && $package->CheckLimitPerMonth <= $subscription->ChecksUsed && $user->CurrentPackageID) {
-            return redirect()->back()->withInput()->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
 
         $payor_data = [

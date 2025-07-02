@@ -4,6 +4,9 @@ namespace App\Helpers;
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
+use App\Models\Package;
+use App\Models\User;
+use App\Models\PaymentSubscription;
 
 class Helpers
 {
@@ -106,7 +109,7 @@ class Helpers
         $styleVal = $_COOKIE[$modeCookieName];
         if ($styleVal === 'system') {
           $styleVal = isset($_COOKIE[$colorPrefCookieName]) ? $_COOKIE[$colorPrefCookieName] : 'light';
-          }
+        }
         $styleUpdatedVal = $_COOKIE[$modeCookieName];
       }
     }
@@ -210,5 +213,19 @@ class Helpers
         }
       }
     }
+  }
+
+  public static function isSubscribed(User $user)
+  {
+    $package = Package::find($user->CurrentPackageID);
+    $subscription = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)->first();
+    
+    if (!$subscription) {
+      return false;
+    }
+    if ($user->CurrentPackageID != -1 && $package->CheckLimitPerMonth != 0 && $subscription->RemainingChecks < 1) {
+      return false;
+    }
+    return true;
   }
 }
