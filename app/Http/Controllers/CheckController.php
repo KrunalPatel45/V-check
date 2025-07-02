@@ -929,11 +929,11 @@ class CheckController extends Controller
         $payee = Payors::withTrashed()->find($request->company_id);
         
         $user = User::find($payee->UserID);
-        $isSubscribed = Helpers::isSubscribed(Auth::user());
+        // $isSubscribed = Helpers::isSubscribed(Auth::user());
        
-        if(!$isSubscribed){
-             return redirect()->back()->withInput()->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
-        }
+        // if(!$isSubscribed){
+        //      return redirect()->back()->withInput()->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
+        // }
 
         $payor_data = [
             'Name' => $request->name,
