@@ -570,9 +570,22 @@ class CheckController extends Controller
                 ->addColumn('actions', function ($row) {
                     if (!empty($row->CheckPDF)) {
                         $check_preview = asset('checks/' . $row->CheckPDF);
-                        return '<a href="' . $check_preview . '" target="_blank" class="btn">
-                                    <i class="menu-icon tf-icons ti ti-files"></i>
-                                </a>';
+                         $send_email_url = route('send_check_email', ['id' => $row->CheckID]);
+                        $send_email_lable = !empty($row->is_email_send) ? 'Resend' : 'Send';
+
+                        if($row->CheckType=='Process Payment'){
+                            return '<a href="' . $check_preview . '" target="_blank" class="btn">
+                                        <i class="menu-icon tf-icons ti ti-files"></i>
+                                    </a>';
+                        }else{
+                            return '<div class="d-flex"><a href="' . $check_preview . '" target="_blank" class="btn">
+                                            <i class="menu-icon tf-icons ti ti-files"></i> Preview
+                                    </a>
+                                    <a href="' . $send_email_url . '" class="btn">
+                                            <i class="menu-icon tf-icons ti ti-mail"></i> ' . $send_email_lable . '
+                                    </a>
+                                    </div>';
+                        }
                     } else {
                         return '-';
                     }
