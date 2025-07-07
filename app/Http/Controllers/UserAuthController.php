@@ -277,7 +277,7 @@ class UserAuthController extends Controller
             'ChecksReceived' => 0,
             'ChecksSent' => 0,
             'ChecksUsed' => 0,
-            'RemainingChecks' => 0,
+            'RemainingChecks' => $packages->CheckLimitPerMonth,
             'PaymentDate' => $paymentStartDate,
             'PaymentAttempts' => 0,
             'TransactionID' => 'Trial',
