@@ -157,7 +157,7 @@
                         </div>
                         @if ($package_id != '-1')
                             <div class="col-md-6">
-                                @if ($package_data['remainingDays'] <= 15)
+                                @if ($package_data['RemainingChecks'] <= 0)
                                     <div class="alert alert-warning mb-6" role="alert">
                                         <h5 class="alert-heading mb-1 d-flex align-items-center">
                                             <span class="alert-icon rounded"><i

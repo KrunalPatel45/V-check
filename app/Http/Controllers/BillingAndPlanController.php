@@ -44,6 +44,7 @@ class BillingAndPlanController extends Controller
                 'package_name' => $package_name,
                 'expiryDate' => $expiryDate,
                 'remainingDays' => abs((int)$remainingDays),
+                'RemainingChecks' => $paymentSubscription->RemainingChecks
             ];
             $maxPricePackage = Package::orderBy('price', 'desc')->first();
             $stander_Plan_price = $maxPricePackage->Price;
