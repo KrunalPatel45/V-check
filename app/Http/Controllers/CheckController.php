@@ -135,7 +135,7 @@ class CheckController extends Controller
 
         $validator = Validator::make($request->all(), [
             'check_date' => 'required',
-            'check_number' => 'required|numeric',
+            'check_number' => 'required',
             'amount' => 'required|numeric|min:0.01',
             'payee' => 'required|exists:Entities,EntityID',
             'payor' => 'required|exists:Entities,EntityID',

@@ -395,15 +395,13 @@
                                     $checkNumber = old('check_number');
                                 }else if(!empty($check->CheckNumber) && $check->CheckNumber){
                                     $checkNumber = $check->CheckNumber;
-                                }elseif($lastCheck){
-                                    $checkNumber = ($lastCheck->CheckNumber) ? $lastCheck->CheckNumber + 1 : '';
                                 }
                             @endphp
                             {{-- <label class="col-sm-12 col-form-label" for="check-number">Check Number:</label> --}}
                             <div class="col-sm-4 p-0">
-                                <input type="number" id="check_number" name="check_number" class="form-control no-spinner"
+                                <input type="text" id="check_number" name="check_number" class="form-control no-spinner"
                                     placeholder="Check Number" maxlength="6"
-                                    oninput="if(this.value.length > 6) this.value = this.value.slice(0, 6)"
+                                    oninput=""
                                     value="{{ $checkNumber ?? '' }}">
                                 @if ($errors->has('check_number'))
                                     <span class="text-danger">
@@ -546,7 +544,7 @@
 
                 <div class="row justify-content-center" style="margin-top: 30px">
                     <div class="col-sm-3">
-                        <input type="number" id="verify_check_number" name="verify_check_number"
+                        <input type="text" id="verify_check_number" name="verify_check_number"
                             placeholder="Check Number" class="form-control" readonly
                             value="{{ $checkNumber }}">
                     </div>
