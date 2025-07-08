@@ -120,11 +120,11 @@ class CheckController extends Controller
              return redirect()->route('check.process_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
 
-        $lastCheck = Checks::where('UserID', Auth::id())->where('CheckType', 'Process Payment')->latest('CheckID')->first();
+        // $lastCheck = Checks::where('UserID', Auth::id())->where('CheckType', 'Process Payment')->latest('CheckID')->first();
 
         $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'RP')->get();
         $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'RP')->get();
-        return view('user.check.process_payment_generate_check', compact('lastCheck', 'payees', 'payors'));
+        return view('user.check.process_payment_generate_check', compact( 'payees', 'payors'));
     }
     public function process_payment_check_generate(Request $request)
     {
@@ -325,8 +325,9 @@ class CheckController extends Controller
         $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'SP')->get();
         $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'SP')->get();
 
+         $lastCheck = Checks::where('UserID', Auth::id())->where('CheckType', 'Make Payment')->latest('CheckID')->first();
         $userSignatures = UserSignature::where('UserID', Auth::id())->get();
-        return view('user.check.send_payment_generate_check', compact('payees', 'payors', 'userSignatures'));
+        return view('user.check.send_payment_generate_check', compact('lastCheck','payees', 'payors', 'userSignatures'));
     }
     public function send_payment_check_generate(Request $request)
     {
@@ -337,7 +338,7 @@ class CheckController extends Controller
         // dd($request);
         $validator = Validator::make($request->all(), [
             'check_date' => 'required',
-            'check_number' => 'required|numeric',
+            'check_number' => 'required',
             'amount' => 'required|numeric|min:0.01',
             'payor' => 'required|exists:Entities,EntityID',
             'payee' => 'required|exists:Entities,EntityID',

@@ -17,14 +17,15 @@
 <!-- Page Scripts -->
 @section('page-script')
     @vite(['resources/assets/js/form-layouts.js'])
-    @vite(['resources/assets/js/forms-editors.js'])
+    <!-- @vite(['resources/assets/js/forms-editors.js']) -->
 
     <script>
+        let quill; 
         document.addEventListener("DOMContentLoaded", function () {
             var quillContainer = document.getElementById('editor-container');
 
             if (quillContainer) {
-                var quill = new Quill('#editor-container', {
+                quill = new Quill('#editor-container', {
                     theme: 'snow',
                     placeholder: 'Type Something...',
                     modules: {
@@ -344,6 +345,7 @@
                     errorMessage: 'The phone number field format is invalid.'
                 }
             ]).onSuccess((event) => {
+                document.getElementById('page_desc').value = quill.root.innerHTML;
                 event.target.submit();
             });
 
