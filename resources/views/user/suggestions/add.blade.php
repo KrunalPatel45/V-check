@@ -116,7 +116,7 @@
                 <h5>Send Suggestion</h5>
                 <div>
                     <button type="submit" id="add-suggestion" class="btn btn-primary" style="height: 40px !important;">
-                        <i class="fa-solid fa-paper-plane"></i> &nbsp; Send
+                         Send
                     </button>
                 </div>
             </div>
