@@ -175,6 +175,7 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\SignController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\SuggestionController;
 
 
 Route::get('/admin/login', [AdminAuthController::class, 'adminLogin'])->name('admin.login');
@@ -212,6 +213,9 @@ Route::middleware([AdminMiddleware::class])->group(function () {
     Route::get('/admin/setting', [SettingController::class, 'index'])->name('admin.setting');
     Route::post('/update-setting', [SettingController::class, 'updateSettings'])->name('admin.update_setting');
 
+    Route::get('/admin/suggestions', [SuggestionController::class, 'index'])->name('admin.suggestions.index');
+    Route::get('/admin/suggestions/list', [SuggestionController::class, 'list'])->name('admin.suggestions.list');
+    Route::get('/admin/suggestions/view/{id}', [SuggestionController::class, 'view'])->name('admin.suggestions.view');
 });
 
 Route::get('verify-email/{id}/{hash}', [UserAuthController::class, 'verify_email'])->name('user.verify_email');
@@ -299,6 +303,8 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::get('set-default/{id}', [SubscriptionController::class, 'set_default'])->name('stripe.set_default');
 
     Route::get('view-pdf/{id}', [CheckController::class, 'view_pdf'])->name('view.pdf');
+    Route::get('user/suggestion/add', [SuggestionController::class, 'add'])->name('user.suggestion.add');
+    Route::post('user/suggestion/store', [SuggestionController::class, 'store'])->name('user.suggestion.store');
 });
 
 Route::get('web-form/{slug}', [CheckController::class, 'web_form'])->name('web_form');

@@ -70,6 +70,10 @@
                         if (isset($tooltips[$menu->url])) {
                             $tooltip = $tooltips[$menu->url];
                         }
+
+                        if(in_array($menu->slug,['admin.suggestions','user.suggestion'])){
+                            $activeClass .= ' mt-auto';
+                        }
                     @endphp
 
                     <li class="menu-item {{ $activeClass }}">

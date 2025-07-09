@@ -27,6 +27,7 @@ class MenuServiceProvider extends ServiceProvider
     $horizontalMenuJson = file_get_contents(base_path('resources/menu/horizontalMenu.json'));
     $horizontalMenuData = json_decode($horizontalMenuJson);
 
+    
     // Share all menuData to all the views
     $this->app->make('view')->share('menuData', [$verticalMenuData, $horizontalMenuData]);
   }
