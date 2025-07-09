@@ -7,6 +7,7 @@ use App\Models\PaymentSubscription;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\PaymentHistory;
+use Illuminate\Support\Facades\Log;
 
 class CheckSubscriptions extends Command
 {
@@ -29,6 +30,8 @@ class CheckSubscriptions extends Command
      */
     public function handle()
     {
+        Log::info('Check Subscriptions started');
+
         $today = Carbon::today()->subDay()->toDateString();
         $subscriptions = PaymentSubscription::whereDate('PaymentStartDate', $today)->where('Status', '!=', 'Canceled')->get();
         foreach($subscriptions as $subscription){
@@ -46,5 +49,6 @@ class CheckSubscriptions extends Command
                 $paymentSubscription->save();
             }
         }
+         Log::info('Check Subscriptions ended');
     }
 }
