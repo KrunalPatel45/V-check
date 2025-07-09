@@ -404,12 +404,12 @@
                                                                                                 <div class="alignment"
                                                                                                     align="center">
                                                                                                     <!--[if mso]>
-<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="http://www.example.com" style="height:50px;width:162px;v-text-anchor:middle;" arcsize="30%" stroke="false" fillcolor="#4e6aaf">
+<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ isset($isAdmin) ? route('admin.login') : route('user.login') }}" style="height:50px;width:162px;v-text-anchor:middle;" arcsize="30%" stroke="false" fillcolor="#4e6aaf">
 <w:anchorlock/>
 <v:textbox inset="0px,0px,0px,0px">
 <center style="color:#ffffff; font-family:'Trebuchet MS', Tahoma, sans-serif; font-size:15px">
 <!
-                                    [endif]--><a href="{{ route('user.login') }}" target="_blank"
+                                    [endif]--><a href="{{ isset($isAdmin) ? route('admin.login') : route('user.login') }}" target="_blank"
                                                                                                         style="
                                         text-decoration: none;
                                         display: inline-block;

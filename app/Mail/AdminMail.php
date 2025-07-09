@@ -57,7 +57,10 @@ class AdminMail extends Mailable
 
         $mail = $this->subject($emailContent->subject)
                      ->view('user.emails.mail')
-                     ->with('emailContent', $emailContent);
+                     ->with([
+                        'emailContent' => $emailContent,
+                        'isAdmin' => 1
+                    ]);
 
         return $mail;
     }
