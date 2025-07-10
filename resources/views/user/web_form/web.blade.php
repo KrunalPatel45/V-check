@@ -258,7 +258,6 @@
             font-weight: 600;
             color: #7367f0;
         }
-
     </style>
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.10.0/css/bootstrap-datepicker.min.css"
@@ -310,7 +309,7 @@
                 {{ session('success') }}
             </div>
         @endif
-         @if (session('info'))
+        @if (session('info'))
             <div class="alert alert-danger">
                 {{ session('info') }}
             </div>
@@ -528,6 +527,9 @@
                     <div class="submit_btn">
                         <input type="submit" id="Button2" name="Submit" value="Submit" tabindex="16" />
                     </div>
+                   
+                    <input type="hidden" name="g-recaptcha-token" id="g-recaptcha-token">
+
                 </form>
             </div>
             <div class="content_right d-flex flex-column justify-content-between">
@@ -570,7 +572,8 @@
                         </p>
                     @endif
                 </div>
-                <a href="https://echecksystems.com/"><img src="{{ asset('assets/img/echeck-banner.jpg') }}" alt="echeck banner img" /></a>
+                <a href="https://echecksystems.com/"><img src="{{ asset('assets/img/echeck-banner.jpg') }}"
+                        alt="echeck banner img" /></a>
             </div>
         </div>
     </section>
@@ -701,6 +704,18 @@
             });
         });
     </script>
+    <script src="https://www.google.com/recaptcha/api.js?render={{ env('CAPTCHA_SITE_KEY') }}"></script>
+     <script>
+                        grecaptcha.ready(function() {
+                            grecaptcha.execute('{{ env('CAPTCHA_SITE_KEY') }}', {
+                                action: 'form_submit'
+                            }).then(function(token) {
+                                document.getElementById('g-recaptcha-token').value = token;
+                            }).catch(function(err) {
+                                console.error('reCAPTCHA execute error:', err);
+                            });
+                        });
+                    </script>
 </body>
 
 </html>

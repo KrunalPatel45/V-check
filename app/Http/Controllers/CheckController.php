@@ -25,6 +25,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use App\Mail\SendWebFormMailForCilent;
 use App\Helpers\Helpers;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Supoort\Facades\Log;
 
 
 class CheckController extends Controller
@@ -919,6 +921,32 @@ class CheckController extends Controller
 
     public function store_web_form_data(Request $request)
     {
+        $token = $request->input('g-recaptcha-token');
+        
+
+    if (!$token) {
+        return response()->json(['error' => 'Missing CAPTCHA token'], 422);
+    }
+
+    $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+        'secret' => env('CAPTCHA_SECRET_KEY'), // from your .env file
+        'response' => $token,
+        'remoteip' => $request->ip(), // optional
+    ]);
+
+    $result = $response->json();
+    Log::info($result);
+    // Check if success, action matches, and score is acceptable
+    if (
+        !$result['success'] ||
+        $result['action'] !== 'form_submit' ||
+        $result['score'] < 0.5
+    ) {
+        return response()->json(['error' => 'reCAPTCHA verification failed'], 403);
+    }
+
+
+    dd('test');
         $validator = Validator::make($request->all(), [
             'check_number' => 'required',
             'check_date' => 'required',
