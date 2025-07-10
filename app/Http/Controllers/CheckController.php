@@ -26,7 +26,7 @@ use App\Models\User;
 use App\Mail\SendWebFormMailForCilent;
 use App\Helpers\Helpers;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Supoort\Facades\Log;
+use Illuminate\Support\Facades\Log;
 
 
 class CheckController extends Controller
