@@ -218,7 +218,9 @@ class Helpers
   public static function isSubscribed(User $user)
   {
     $package = Package::find($user->CurrentPackageID);
-    $subscription = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)->first();
+    $subscription = PaymentSubscription::where('UserID', $user->UserID)
+                    ->where('PackageID', $user->CurrentPackageID)
+                    ->where('Status', 'Active')->first();
     
     if (!$subscription) {
       return false;

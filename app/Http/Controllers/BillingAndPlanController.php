@@ -27,7 +27,8 @@ class BillingAndPlanController extends Controller
       {
             $user = User::where('userID', Auth::user()->UserID)->first();
             $package_id = $user->CurrentPackageID;
-            $paymentSubscription = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('PackageID', $user->CurrentPackageID)->first();
+            $paymentSubscription = PaymentSubscription::where('UserID', Auth::user()->UserID)
+                ->where('Status', 'Active')->where('PackageID', $user->CurrentPackageID)->first();
             if($package_id == -1) {
                 $package = Package::whereRaw('LOWER(Name) = ?', ['trial'])->first();
             } else {
@@ -84,7 +85,9 @@ class BillingAndPlanController extends Controller
          $user = User::find($id);
          $package = Package::find($plan);
          $user_current_package = Package::find($user->CurrentPackageID);
-         $data_current_package = PaymentSubscription::where('UserId', $id)->where('PackageID', $user->CurrentPackageID)->first();
+         $data_current_package = PaymentSubscription::where('UserId', $id)
+                                ->where('PackageID', $user->CurrentPackageID)
+                                ->where('Status', 'Active')->first();
 
         if(!empty($data_current_package)) {
             // If upgrading to a higher priced plan

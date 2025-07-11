@@ -80,7 +80,8 @@ class UserAuthController extends Controller
             return redirect()->back()->withErrors(['login' => 'Please verify your email first'])->withInput();
         }
         
-        $packag_c = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)->count();
+        $packag_c = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
+                    ->where('Status', 'Active')->first()?->RemainingChecks ?? 0;
         
 
         if (!empty($user) && $packag_c == 0 && $user->CurrentPackageID != -1) {

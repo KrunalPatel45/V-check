@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'Send Suggestion')
+@section('title', 'Send A Suggestion')
 
 <!-- Vendor Styles -->
 @section('vendor-style')
@@ -88,7 +88,7 @@
         $(document).ready(function() {
             $('#section').select2({
                 tags: true, // Enables custom options
-                placeholder: "Choose or enter a section",
+                placeholder: "Specific Section or New Idea",
                 allowClear: true
             });
         });
@@ -113,7 +113,7 @@
         <form action="{{ route('user.suggestion.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5>Send Suggestion</h5>
+                <h5>Send A Suggestion</h5>
                 <div>
                     <button type="submit" id="add-suggestion" class="btn btn-primary" style="height: 40px !important;">
                          Send
@@ -135,6 +135,7 @@
                         <option value="History" @if (old('section') == 'History') selected @endif>History</option>
                         <option value="Billing & Plan" @if (old('section') == 'Billing & Plan') selected @endif>Billing & Plan
                         </option>
+                        <option value="Other Or New Suggestion" @if (old('section') == 'Other Or New Suggestion') selected @endif>Other Or New Suggestion</option>
                     </select>
                     @if ($errors->has('section'))
                         <span class="text-danger">
@@ -143,7 +144,7 @@
                     @endif
                 </div>
                 <div class="col-12 mt-5">
-                    <label class="col-form-label" for="description">Description</label>
+                    <label class="col-form-label" for="description">Please give us as many details as possible</label>
                     <div id="editor-container1">{!! old('description') !!}</div>
                     <textarea type="text" class="form-control" name="description" id="description" style="display: none"></textarea>
                     @if ($errors->has('description'))

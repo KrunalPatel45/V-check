@@ -91,21 +91,7 @@
       "slug": "admin.setting",
       "access": "admin"
     },
-    {
-      "url": "/user/logout",
-      "name": "Logout",
-      "icon": "menu-icon tf-icons ti ti-logout",
-      "slug": "logout",
-      "access": "web"
-    },
-    {
-      "url": "/admin/logout",
-      "name": "Logout",
-      "icon": "menu-icon tf-icons ti ti-logout",
-      "slug": "logout",
-      "access": "admin"
-    },
-    {
+     {
       "url": "/user/suggestion/add",
       "name": "Suggestions",
       "icon": "menu-icon tf-icons ti ti-bulb",
@@ -113,10 +99,24 @@
       "access": "web"
     },
     {
+      "url": "/user/logout",
+      "name": "Logout",
+      "icon": "menu-icon tf-icons ti ti-logout",
+      "slug": "logout",
+      "access": "web"
+    },
+     {
       "url": "/admin/suggestions",
       "name": "Suggestions",
       "icon": "menu-icon tf-icons ti ti-bulb",
       "slug": "admin.suggestions",
+      "access": "admin"
+    },
+    {
+      "url": "/admin/logout",
+      "name": "Logout",
+      "icon": "menu-icon tf-icons ti ti-logout",
+      "slug": "logout",
       "access": "admin"
     }
   ]

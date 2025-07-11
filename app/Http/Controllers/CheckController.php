@@ -208,7 +208,8 @@ class CheckController extends Controller
             ]);
 
             if (Auth::user()->CurrentPackageID != -1) {
-                $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->orderBy('PaymentSubscriptionID', 'desc')->first();
+                $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)
+                    ->where('Status', 'Active')->orderBy('PaymentSubscriptionID', 'desc')->first();
                 $paymentSubscription->ChecksReceived = $paymentSubscription->ChecksReceived + 1;
                 $paymentSubscription->ChecksUsed = $paymentSubscription->ChecksUsed + 1;
                 $paymentSubscription->RemainingChecks = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
@@ -410,7 +411,8 @@ class CheckController extends Controller
             ]);
 
             if (Auth::user()->CurrentPackageID != -1) {
-                $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)->orderBy('PaymentSubscriptionID', 'desc')->first();
+                $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)
+                    ->where('Status', 'Active')->orderBy('PaymentSubscriptionID', 'desc')->first();
                 $paymentSubscription->ChecksSent = $paymentSubscription->ChecksSent + 1;
                 $paymentSubscription->ChecksUsed = $paymentSubscription->ChecksUsed + 1;
                 $paymentSubscription->RemainingChecks = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
@@ -1019,7 +1021,9 @@ class CheckController extends Controller
         
         $user_name = $user->FirstName . ' ' . $user->LastName;
 
-        $payment_subscription= PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)->first();
+        $payment_subscription= PaymentSubscription::where('UserID', $user->UserID)
+                        ->where('PackageID', $user->CurrentPackageID)
+                        ->where('Status', 'Active')->first();
 
         if($payment_subscription != null && $user->CurrentPackageID != -1) {
            $payment_subscription->update([

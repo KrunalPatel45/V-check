@@ -30,7 +30,8 @@ class UserDashboardController extends Controller
             $package = Package::find($user->CurrentPackageID);
         }
         
-        $paymentSubscription = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('PackageID', $user->CurrentPackageID)->first();
+        $paymentSubscription = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('PackageID', $user->CurrentPackageID)
+                                ->where('Status', 'Active')->first();
         
         $total_days = $package->Duration;
         $package_name = $package->Name;
@@ -83,7 +84,8 @@ class UserDashboardController extends Controller
             ];
     
         } else {
-            $paymentSubscription = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('PackageID', $user->CurrentPackageID)->first();
+            $paymentSubscription = PaymentSubscription::where('UserID', Auth::user()->UserID)
+                ->where('Status', 'Active')->where('PackageID', $user->CurrentPackageID)->first();
             $package = Package::find($user->CurrentPackageID);
             $total_days = $package->Duration;
             $package_name = $package->Name;
