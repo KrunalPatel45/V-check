@@ -138,9 +138,9 @@ class SignController extends Controller
     public function delete($id)
     {
         $userSignature = UserSignature::find($id);
-        $userSignature->delete();
+        $userSignature?->delete();
 
-        return redirect()->route('get_web_forms')->with('sign_success', 'Sgnature deleted successfully.');
+        return redirect()->route('get_web_forms')->with('sign_success', 'Signature deleted successfully.');
     }
     
 }

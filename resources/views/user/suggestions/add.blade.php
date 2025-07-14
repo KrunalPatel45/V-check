@@ -18,7 +18,6 @@
 
     <script>
         window.onload = function() {
-            console.log("✅ All resources loaded");
 
             // Initialize the first editor
             const quillContainer1 = document.getElementById('editor-container1');
@@ -73,16 +72,16 @@
                 }
             });
 
-            // MutationObserver to replace deprecated DOM events
-            const observer = new MutationObserver(() => {
-                console.log("DOM changed");
-            });
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true
-            });
+            // // MutationObserver to replace deprecated DOM events
+            // const observer = new MutationObserver(() => {
+            //     console.log("DOM changed");
+            // });
+            // observer.observe(document.body, {
+            //     childList: true,
+            //     subtree: true
+            // });
 
-            console.log("🎯 Quill editors initialized successfully.");
+            // console.log("🎯 Quill editors initialized successfully.");
         };
 
         $(document).ready(function() {
@@ -122,7 +121,7 @@
             </div>
             <div class="card-body">
                 <div class="col-8 col-md-4">
-                    <label class="col-form-label" for="section">Section you want to suggest in</label>
+                    <label class="col-form-label" for="section">Specific Section or New Idea</label>
                     <select type="text" class="select2 form-control" name="section" id="section">
                         <option value=""></option>
                         <option value="Receive Payment" @if (old('section') == 'Receive Payment') selected @endif>Receive Payment

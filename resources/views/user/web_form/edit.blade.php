@@ -75,8 +75,10 @@
                 }
 
                 // On form submit, save Quill HTML into textarea
-                document.querySelector('form').onsubmit = function() {
+                document.querySelector('form').onsubmit = function(e) {
+                    e.preventDefault();
                     document.getElementById('page_desc').value = quill.root.innerHTML;
+                    e.target.submit();
                 };
             } else {
                 console.error(

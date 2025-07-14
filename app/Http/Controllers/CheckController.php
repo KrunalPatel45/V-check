@@ -847,7 +847,6 @@ class CheckController extends Controller
 
     public function new_web_form_store(Request $request)
     {
-
         $rules = [
             'name' => 'required',
             'address' => 'required',
@@ -861,7 +860,7 @@ class CheckController extends Controller
             $rules['logo'] = 'required';
         }
         $validator = Validator::make($request->all(), $rules);
-
+        
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
@@ -1059,7 +1058,7 @@ class CheckController extends Controller
     public function web_form_delete($id)
     {
         $webForm = WebForm::find($id);
-        $webForm->delete();
+        $webForm?->delete();
 
         return redirect()->route('get_web_forms')->with('success', 'Web Form deleted successfully');
 

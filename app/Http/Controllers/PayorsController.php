@@ -303,7 +303,7 @@ class PayorsController extends Controller
     {
         $type = 'Payors';
         $payor = Payors::find($id);
-        $payor->delete();
+        $payor?->delete();
 
         return redirect()->route('user.' . $type)->with('success', $type . ' deleted successfully');
     }
@@ -411,7 +411,7 @@ class PayorsController extends Controller
     {
         $type = 'Payee';
         $package = Payors::find($id);
-        $package->delete();
+        $package?->delete();
 
         return redirect()->route('user.' . $type)->with('success', $type . ' deleted successfully');
     }

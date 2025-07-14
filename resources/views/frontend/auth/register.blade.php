@@ -54,7 +54,7 @@
                             </a>
                         </div>
                         <!-- /Logo -->
-                        <p class="mb-6">Please sign-up to your account</p>
+                        <p class="mb-6">Please create your account</p>
 
                         <form id="formAuthentication" class="mb-6" action="{{ route('register.store') }}" method="POST">
                             @csrf
