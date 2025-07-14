@@ -480,7 +480,7 @@ class CheckController extends Controller
             // ->setPaper([0, 0, 1000, 1200])
             ->setOptions(['dpi' => 150])
             ->set_option('isHtml5ParserEnabled', true)
-            ->set_option('isRemoteEnabled', true);
+            ->set_option('isRemoteEnabled', false);
 
         // Define the file path where you want to save the PDF
         $file_name = 'check-' . $data['check_number'] . '-' . time() . '.pdf';
@@ -1251,7 +1251,7 @@ class CheckController extends Controller
         $userSignature = UserSignature::withTrashed()->find($check->SignID);
         $data['sender_name'] = $payor->Name;
         $data['clinet_name'] = $payee->Name;
-        $data['check_number'] = $check->CheckNumber;
+        $data['check_number'] = 'EC'.$check->CheckNumber;
         $data['memo'] = $check->Memo;
         $data['issued_date'] = Carbon::parse(str_replace('/', '-', $check->IssueDate))->format('m/d/Y');
         $data['amount'] = $check->Amount;
