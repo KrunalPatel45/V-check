@@ -438,7 +438,7 @@ class CheckController extends Controller
         return view('user.check.send_payment_generate_check', compact('payees', 'payors', 'check', 'old_payee', 'old_payor', 'old_sign', 'userSignatures'));
     }
 
-    public function generateAndSavePDF($data)
+    public function generateAndSavePDF($data,$send_check=0)
     {
         $directoryPath = public_path('checks');
         // Create fonts directory if it doesn't exist
@@ -476,7 +476,7 @@ class CheckController extends Controller
             File::makeDirectory($directoryPath, 0755, true);
         }
         // Generate PDF from a view
-        $pdf = PDF::loadView('user.check_formate.index', compact('data'))->setPaper('letter', 'portrait')
+        $pdf = PDF::loadView('user.check_formate.index', compact('data','send_check'))->setPaper('letter', 'portrait')
             // ->setPaper([0, 0, 1000, 1200])
             ->setOptions(['dpi' => 150])
             ->set_option('isHtml5ParserEnabled', true)
@@ -747,10 +747,11 @@ class CheckController extends Controller
         $data['signature'] = (!empty($userSignature->Sign)) ? $userSignature->Sign : '';
         $data['email'] = !empty($payee->Email) ? $payee->Email : '';
         $data['package'] = Auth::user()->CurrentPackageID;
+        $send_check = 1;
 
-        // return view('user.check_formate.index', compact('data'));
+        // return view('user.check_formate.index', compact('data','send_check'));
 
-        $check_file = $this->generateAndSavePDF($data);
+        $check_file = $this->generateAndSavePDF($data,$send_check);
 
         $check->Status = 'generated';
         $check->CheckPDF = $check_file;

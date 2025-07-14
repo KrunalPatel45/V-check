@@ -63,7 +63,7 @@
                         <td></td>
                         <td style="text-align: right; width: 350px">
                             <span
-                                style="font-size: 22px; font-weight: bold">{{ $data['check_number'] }}</span><br /><br /><span
+                                style="font-size: 22px; font-weight: bold">{{ ($send_check==1) ? 'EC'.$data['check_number'] : $data['check_number'] }}</span><br /><br /><span
                                 style="font-size: 16px">DATE: <span
                                     style="border-bottom: 1px solid #000; font-size: 22px">{{ $data['check_date'] }}</span>
                                 <br />

@@ -502,7 +502,7 @@
 
             $('#check_number').on('input', function() {
                 const check_number = $(this).val();
-                
+
                 $.ajax({
                     url: "{{ route('check.check_number_exists') }}",
                     method: 'GET',
@@ -575,37 +575,39 @@
                     <div class="col-sm-6">
                         <div class="row text-end justify-content-end">
                             {{-- <label class="col-sm-12 col-form-label" for="check-number">Check Number:</label> --}}
-                            <div class="col-sm-4 p-0">
+                            <div class="col-sm-5 p-0">
                                 @php
-                                    $checkNumber = 'EC1000';
+                                    $checkNumber = '1000';
 
-                                    if(old('check_number')){
+                                    if (old('check_number')) {
                                         $checkNumber = old('check_number');
-                                    }else if(!empty($check->CheckNumber) && $check->CheckNumber){
+                                    } elseif (!empty($check->CheckNumber) && $check->CheckNumber) {
                                         $checkNumber = $check->CheckNumber;
-                                    }elseif($lastCheck){
-                                        if(($lastCheck->CheckNumber)){
-                                            $checkNo = (int)str_replace('EC', '', $lastCheck->CheckNumber) + 1;
-                                            $checkNumber =  'EC'.$checkNo;
+                                    } elseif ($lastCheck) {
+                                        if ($lastCheck->CheckNumber) {
+                                            $checkNumber = $lastCheck->CheckNumber + 1;
                                         }
                                     }
                                 @endphp
-                                <input type="text" id="check_number" name="check_number" class="form-control no-spinner"
-                                    placeholder="Check Number" maxlength="10"
-                                    oninput=""
-                                    value="{{ $checkNumber }}" autocomplete="off">
-                                    @if ($errors->has('check_number'))
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light text-black" style="pointer-events: none; border:1px solid;">EC</span>
+                                    <input type="text" id="check_number" name="check_number"
+                                        class="form-control no-spinner" placeholder="Check Number" maxlength="10"
+                                        oninput="" value="{{ $checkNumber }}" autocomplete="off">
+                                </div>
+
+                                @if ($errors->has('check_number'))
                                     <span class="text-danger">
                                         {{ $errors->first('check_number') }}
                                     </span>
-                                    @endif
-                                </div>
+                                @endif
                             </div>
-                            <div class="row mt-1">
-                                <div class="col text-end">
-                                    <span id="check_number_error" class="text-danger"></span>
-                                </div>
+                        </div>
+                        <div class="row mt-1">
+                            <div class="col text-end">
+                                <span id="check_number_error" class="text-danger"></span>
                             </div>
+                        </div>
                     </div>
                 </div>
 
@@ -716,8 +718,9 @@
                             <label class="col-sm-4 col-form-label" for="amount"
                                 style="font-size: 15px;font-weight: bold;text-align: right;">Amount: $</label>
                             <div class="col-sm-8">
-                                <input type="text" id="amount" name="amount" style="font-size: 16px;" onkeypress="return /^[0-9.]+$/.test(event.key)"
-                                    class="form-control" autocomplete="off"
+                                <input type="text" id="amount" name="amount" style="font-size: 16px;"
+                                    onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control"
+                                    autocomplete="off"
                                     value="{{ !empty($check->Amount) && $check->Amount ? $check->Amount : old('amount') }}">
                                 @if ($errors->has('amount'))
                                     <br>
@@ -748,7 +751,8 @@
                     <div class="col-sm-6">
                         <div class="row text-end justify-content-end">
                             <div class="col-sm-8 d-flex align-items-center gap-1">
-                                <select id="signature" name="signature_id" class="form-control" style="font-size: 16px;">
+                                <select id="signature" name="signature_id" class="form-control"
+                                    style="font-size: 16px;">
                                     <option value="" selected>Select Signature</option>
                                     @foreach ($userSignatures as $userSignature)
                                         <option value="{{ $userSignature->Id }}"
@@ -761,17 +765,18 @@
                                 </select>
                                 <span id="signature-edit" class="{{ !empty($old_sign->Id) ? '' : 'd-none' }}"><i
                                         class="ti ti-pencil me-1"></i></span>
-                                    </div>
-                                    @if ($errors->has('signature_id'))
-                                        <br>
-                                        <span class="text-danger">
-                                            {{ $errors->first('signature_id') }}
-                                        </span>
-                                    @endif
+                            </div>
+                            @if ($errors->has('signature_id'))
+                                <br>
+                                <span class="text-danger">
+                                    {{ $errors->first('signature_id') }}
+                                </span>
+                            @endif
                             <div class="col-sm-12 mt-3">
-                                <div class="col-sm-12 @if(!old('signature_id')) d-none @endif" id="sign">
-                                    @if(old('signature_id'))
-                                        <img src="{{ asset('sign/' . \App\Models\UserSignature::find(old('signature_id'))->Sign) }}" alt="Sign">
+                                <div class="col-sm-12 @if (!old('signature_id')) d-none @endif" id="sign">
+                                    @if (old('signature_id'))
+                                        <img src="{{ asset('sign/' . \App\Models\UserSignature::find(old('signature_id'))->Sign) }}"
+                                            alt="Sign">
                                     @endif
                                 </div>
                                 @if (!empty($old_sign))
@@ -787,8 +792,7 @@
                 <div class="row justify-content-center" style="margin-top: 30px">
                     <div class="col-sm-3">
                         <input type="text" id="verify_check_number" name="verify_check_number"
-                            placeholder="Check Number" class="form-control" readonly
-                            value="{{ $checkNumber }}">
+                            placeholder="Check Number" class="form-control" readonly value="{{ $checkNumber }}">
                     </div>
                     <div class="col-sm-3">
                         <input type="number" id="routing_number" name="routing_number" class="form-control"
@@ -1036,7 +1040,7 @@
                                 <div class="row g-6">
                                     <div class="col-md-12">
                                         <label class="form-label" for="sign-name">Name</label>
-                                            <input type="text" name="name" id="sign-name" class="form-control"
+                                        <input type="text" name="name" id="sign-name" class="form-control"
                                             value="{{ !empty($old_sign->Name) ? $old_sign->Name : old('name') }}" />
                                         <span id="error-name" class="text-danger"></span>
                                     </div>
@@ -1065,5 +1069,5 @@
     </div>
     </form>
     </div>
-    
+
 @endsection
