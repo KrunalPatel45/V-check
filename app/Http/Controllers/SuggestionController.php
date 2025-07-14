@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Suggestion;
+use App\Mail\AdminSuggestionMail;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Str;
 
 class SuggestionController extends Controller
@@ -18,8 +20,6 @@ class SuggestionController extends Controller
 
     public function store(Request $request)
     {
-
-
         $request->validate([
             'section' => 'required',
             'description' => [
@@ -32,12 +32,13 @@ class SuggestionController extends Controller
             ],
         ]);
 
-        Suggestion::create([
+        $suggestion = Suggestion::create([
             'section' => $request->section,
             'user_id' => Auth::id(),
             'description' => $request->description
         ]);
 
+        Mail::to(env('ADMIN_EMAIL'))->send(new AdminSuggestionMail(13,$suggestion));
         return back()->with('success', 'Suggestion sent successfully');
     }
 

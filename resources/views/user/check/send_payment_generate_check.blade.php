@@ -499,6 +499,25 @@
                     }
                 });
             });
+
+            $('#check_number').on('input', function() {
+                const check_number = $(this).val();
+                
+                $.ajax({
+                    url: "{{ route('check.check_number_exists') }}",
+                    method: 'GET',
+                    data: {
+                        check_number: check_number
+                    },
+                    success: function(response) {
+                        if (response.exists) {
+                            $('#check_number_error').text('Check number already exists.');
+                        } else {
+                            $('#check_number_error').text('');
+                        }
+                    }
+                })
+            });
         });
     </script>
 @endsection
@@ -574,14 +593,19 @@
                                 <input type="text" id="check_number" name="check_number" class="form-control no-spinner"
                                     placeholder="Check Number" maxlength="10"
                                     oninput=""
-                                    value="{{ $checkNumber }}">
-                                @if ($errors->has('check_number'))
+                                    value="{{ $checkNumber }}" autocomplete="off">
+                                    @if ($errors->has('check_number'))
                                     <span class="text-danger">
                                         {{ $errors->first('check_number') }}
                                     </span>
-                                @endif
+                                    @endif
+                                </div>
                             </div>
-                        </div>
+                            <div class="row mt-1">
+                                <div class="col text-end">
+                                    <span id="check_number_error" class="text-danger"></span>
+                                </div>
+                            </div>
                     </div>
                 </div>
 

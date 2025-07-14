@@ -1295,4 +1295,12 @@ class CheckController extends Controller
         ]);
 
     }
+
+    public function isExists(Request $request){
+        $checkNumber = $request->check_number;
+
+        $isExists = Checks::where('UserID',Auth::user()->UserID)->where('CheckNumber', $checkNumber)->exists();
+
+        return response()->json(['exists' => $isExists]);
+    }
 }

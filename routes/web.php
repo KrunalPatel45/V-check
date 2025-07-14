@@ -305,6 +305,8 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::get('view-pdf/{id}', [CheckController::class, 'view_pdf'])->name('view.pdf');
     Route::get('user/suggestion/add', [SuggestionController::class, 'add'])->name('user.suggestion.add');
     Route::post('user/suggestion/store', [SuggestionController::class, 'store'])->name('user.suggestion.store');
+
+    Route::get('check/exists', [CheckController::class, 'isExists'])->name('check.check_number_exists');
 });
 
 Route::get('web-form/{slug}', [CheckController::class, 'web_form'])->name('web_form');
