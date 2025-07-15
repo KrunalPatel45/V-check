@@ -95,9 +95,13 @@ class CheckController extends Controller
                             // return '<a href="'.asset('checks/' . $row->CheckPDF).'" target="_blank" class="btn">
                             //             <i class="menu-icon tf-icons ti ti-files"></i>
                             //     </a>';
-                            return '<a href="' . route('view.pdf', $row->CheckID) . '" target="_blank" class="btn">
+                            return '<a data-url="' . route('view.pdf', $row->CheckID) . '" href="#" class="btn view_pdf">
                                         <i class="menu-icon tf-icons ti ti-files"></i>
-                                </a>';
+                                </a>
+                                <a href="' . route('download.pdf', $row->CheckID) . '" class="btn">
+                                        <i class="menu-icon tf-icons ti ti-download"></i>
+                                </a>
+                                ';
 
                         } else {
                             return '-';
@@ -294,8 +298,12 @@ class CheckController extends Controller
                             </div>';
                     } else {
                         if (!empty($row->CheckPDF)) {
-                            return '<div class="d-flex"><a href="' . route('view.pdf', $row->CheckID) . '" target="_blank" class="btn">
+                            return '<div class="d-flex">
+                                <a data-url="' . route('view.pdf', $row->CheckID) . '" href="#" class="btn view_pdf">
                                         <i class="menu-icon tf-icons ti ti-files"></i> Preview
+                                </a>
+                                 <a href="' . route('download.pdf', $row->CheckID) . '" class="btn">
+                                        <i class="menu-icon tf-icons ti ti-download"></i> Download
                                 </a>
                                 <a href="' . $send_email_url . '" class="btn">
                                         <i class="menu-icon tf-icons ti ti-mail"></i> ' . $send_email_lable . '
@@ -480,7 +488,7 @@ class CheckController extends Controller
             // ->setPaper([0, 0, 1000, 1200])
             ->setOptions(['dpi' => 150])
             ->set_option('isHtml5ParserEnabled', true)
-            ->set_option('isRemoteEnabled', true);
+            ->set_option('isRemoteEnabled', false);
 
         // Define the file path where you want to save the PDF
         $file_name = 'check-' . $data['check_number'] . '-' . time() . '.pdf';
@@ -1276,7 +1284,8 @@ class CheckController extends Controller
         $check = Checks::find($id);
 
         if (!$check) {
-            abort(404, 'Check not found.');
+             return ['status'=>false, 'message'=> 'Check not found.'];
+            // abort(404, 'Check not found.');
         }
 
         $check->update([
@@ -1286,16 +1295,41 @@ class CheckController extends Controller
         $path = public_path('checks/' . $check->CheckPDF);
 
         if (!File::exists($path)) {
-            abort(404, 'PDF not found.');
+            return ['status'=>false, 'message'=> 'PDF not found.'];
+            // abort(404, 'PDF not found.');
         }
 
-        return response()->file($path, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . basename($path) . '"'
-        ]);
+        return ['status'=>true, 'url'=> asset('checks/' . $check->CheckPDF)];
+        // return response()->file($path, [
+        //     'Content-Type' => 'application/pdf',
+        //     'Content-Disposition' => 'inline; filename="' . basename($path) . '"'
+        // ]);
 
     }
 
+    public function download_pdf($id)
+    {
+
+        $check = Checks::find($id);
+
+        if (!$check) {
+             abort(404, 'Check not found.');
+        }
+
+        $check->update([
+            'is_seen' => 1
+        ]);
+
+        $path = public_path('checks/' . $check->CheckPDF);
+
+        if (!File::exists($path)) {
+           abort(404, 'PDF not found.');
+        }
+
+        return response()->download($path);
+        // return ['status'=>true, 'url'=> asset('checks/' . $check->CheckPDF)];
+    }
+    
     public function isExists(Request $request){
         $checkNumber = $request->check_number;
 

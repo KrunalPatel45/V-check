@@ -303,6 +303,7 @@ Route::middleware([UserMiddleware::class])->group(function () {
     Route::get('set-default/{id}', [SubscriptionController::class, 'set_default'])->name('stripe.set_default');
 
     Route::get('view-pdf/{id}', [CheckController::class, 'view_pdf'])->name('view.pdf');
+    Route::get('download-pdf/{id}', [CheckController::class, 'download_pdf'])->name('download.pdf');
     Route::get('user/suggestion/add', [SuggestionController::class, 'add'])->name('user.suggestion.add');
     Route::post('user/suggestion/store', [SuggestionController::class, 'store'])->name('user.suggestion.store');
 

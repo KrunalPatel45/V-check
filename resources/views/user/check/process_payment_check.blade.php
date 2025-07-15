@@ -70,7 +70,7 @@
 @endsection
 @section('page-script')
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             receive_payment_table = $('#receive_payment_checks').DataTable({
                 processing: true,
                 serverSide: true,
@@ -80,57 +80,57 @@
                     [0, 'desc']
                 ],
                 columns: [{
-                        data: 'CheckID', // Checkbox column uses CheckID for value
-                        name: 'CheckID',
-                        orderable: false,
-                        searchable: false,
-                        render: function(data, type, row, meta) {
-                            return `<input type="checkbox" class="row-checkbox" value="${data}">`;
-                        }
+                    data: 'CheckID', // Checkbox column uses CheckID for value
+                    name: 'CheckID',
+                    orderable: false,
+                    searchable: false,
+                    render: function (data, type, row, meta) {
+                        return `<input type="checkbox" class="row-checkbox" value="${data}">`;
+                    }
 
-                    },
-                    {
-                        data: 'CheckID', // Hidden ID column for sorting
-                        name: 'CheckID',
-                        visible: false // Hides the ID column
-                    },
-                    {
-                        data: 'DT_RowIndex',
-                        name: 'DT_RowIndex',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'CheckNumber',
-                        name: 'CheckNumber'
-                    },
-                    {
-                        data: 'CompanyID',
-                        name: 'CompanyID'
-                    },
-                    {
-                        data: 'EntityID',
-                        name: 'EntityID'
-                    },
-                    {
-                        data: 'Amount',
-                        name: 'Amount',
-                    },
-                    {
-                        data: 'IssueDate',
-                        name: 'IssueDate'
-                    },
-                    {
-                        data: 'actions',
-                        name: 'actions',
-                        orderable: false,
-                        searchable: false,
-                        className: 'text-center',
-                    },
+                },
+                {
+                    data: 'CheckID', // Hidden ID column for sorting
+                    name: 'CheckID',
+                    visible: false // Hides the ID column
+                },
+                {
+                    data: 'DT_RowIndex',
+                    name: 'DT_RowIndex',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'CheckNumber',
+                    name: 'CheckNumber'
+                },
+                {
+                    data: 'CompanyID',
+                    name: 'CompanyID'
+                },
+                {
+                    data: 'EntityID',
+                    name: 'EntityID'
+                },
+                {
+                    data: 'Amount',
+                    name: 'Amount',
+                },
+                {
+                    data: 'IssueDate',
+                    name: 'IssueDate'
+                },
+                {
+                    data: 'actions',
+                    name: 'actions',
+                    orderable: false,
+                    searchable: false,
+                    className: 'text-center',
+                },
                 ]
             });
 
-            $('body').on('change', '#change_status', function() {
+            $('body').on('change', '#change_status', function () {
                 var selectedValue = $(this).val();
                 var id = $(this).data('id');
 
@@ -145,34 +145,34 @@
                         id: id,
                         page: 1
                     },
-                    success: function(response) {
+                    success: function (response) {
                         sessionStorage.setItem('success', response.message);
 
                         // Redirect to the appropriate URL
                         window.location.href = response.redirectUrl;
                     },
-                    error: function() {
+                    error: function () {
                         console.log('Error fetching data');
                     }
                 });
             });
 
-            $('#select-all').on('click', function() {
+            $('#select-all').on('click', function () {
                 let checked = this.checked;
                 $('.row-checkbox').prop('checked', checked);
             });
 
             // Handle single checkbox change to update "Select All" status
-            $(document).on('change', '.row-checkbox', function() {
+            $(document).on('change', '.row-checkbox', function () {
                 let total = $('.row-checkbox').length;
                 let checked = $('.row-checkbox:checked').length;
                 $('#select-all').prop('checked', total === checked);
             });
 
             // Optional: Function to get all selected CheckIDs
-            window.getSelectedCheckIDs = function() {
+            window.getSelectedCheckIDs = function () {
                 let selected = [];
-                $('.row-checkbox:checked').each(function() {
+                $('.row-checkbox:checked').each(function () {
                     selected.push($(this).val());
                 });
                 return selected;
@@ -189,10 +189,31 @@
                 showAlert('danger', sessionStorage.getItem('error'));
                 sessionStorage.removeItem('error');
             }
+
+            $(document).on('click', '.view_pdf', function () {
+
+                var url = $(this).data('url');
+
+                $.ajax({
+                    url: url,
+                    method: "GET",
+                    success: function (response) {
+                        if (response.status == true) {
+                            receive_payment_table.ajax.reload(null,false);
+                            window.open(response.url, '_blank');
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function (xhr) {
+                        console.log(xhr.responseText);
+                    }
+                });
+            });
         });
 
-        $('#bulk-generate-checks').on('click', function() {
-            let selected = $('.row-checkbox:checked').map(function() {
+        $('#bulk-generate-checks').on('click', function () {
+            let selected = $('.row-checkbox:checked').map(function () {
                 return $(this).val();
             }).get();
 
@@ -209,7 +230,7 @@
                     _token: "{{ csrf_token() }}",
                     check_ids: selected
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response.status == true) {
 
                         showAlert('success', 'Checks generated successfully!');
@@ -219,14 +240,14 @@
                     receive_payment_table.ajax.reload() // Reload table after processing
                     $('#select-all').prop('checked', false); // Reset "select all"
                 },
-                error: function(xhr) {
+                error: function (xhr) {
                     showAlert('danger', 'Something went wrong. Please try again.');
                 }
             });
         });
 
-        $('#bulk-download-checks').on('click', function() {
-            let selected = $('.row-checkbox:checked').map(function() {
+        $('#bulk-download-checks').on('click', function () {
+            let selected = $('.row-checkbox:checked').map(function () {
                 return $(this).val();
             }).get();
 
@@ -249,7 +270,7 @@
             }));
 
             // Add selected check IDs
-            selected.forEach(function(id) {
+            selected.forEach(function (id) {
                 form.append($('<input>', {
                     type: 'hidden',
                     name: 'check_ids[]',
@@ -265,15 +286,15 @@
 
         function showAlert(type, message) {
             let alertDiv = $(`
-            <div class="alert alert-${type}" style="margin: 10px;">
-                ${message}
-            </div>
-        `);
+                <div class="alert alert-${type}" style="margin: 10px;">
+                    ${message}
+                </div>
+            `);
             $('#alert-message').prepend(alertDiv);
 
             // Auto remove after 5 seconds
             setTimeout(() => {
-                alertDiv.fadeOut(500, function() {
+                alertDiv.fadeOut(500, function () {
                     $(this).remove();
                 });
             }, 1000);

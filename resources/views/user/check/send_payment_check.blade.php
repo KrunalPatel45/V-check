@@ -196,6 +196,27 @@
                 showAlert('danger', sessionStorage.getItem('error'));
                 sessionStorage.removeItem('error');
             }
+
+            $(document).on('click', '.view_pdf', function () {
+
+                var url = $(this).data('url');
+                
+                $.ajax({
+                    url: url,
+                    method: "GET",
+                    success: function (response) {
+                        if (response.status == true) {
+                            send_payment_table.ajax.reload(null,false);
+                            window.open(response.url, '_blank');
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function (xhr) {
+                        console.log(xhr.responseText);
+                    }
+                });
+            });
         });
 
         $('#bulk-generate-checks').on('click', function() {

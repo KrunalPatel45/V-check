@@ -532,9 +532,9 @@
 
                 </form>
             </div>
-            <div class="content_right d-flex flex-column justify-content-between">
+            <div class="content_right d-flex flex-column">
                 <img src="{{ asset('assets/img/check-sample.jpg') }}" alt="check format img" />
-                <div class="company_desc">
+                <div class="company_desc my-4">
                     @if (!empty($data->page_desc) && $data->page_desc != '<p><br></p>')
                         {!! $data->page_desc !!}
                     @else
