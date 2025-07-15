@@ -924,27 +924,27 @@ class CheckController extends Controller
     public function store_web_form_data(Request $request)
     {
         
-        $token = $request->input('g-recaptcha-token');
+        // $token = $request->input('g-recaptcha-token');
 
-        if (!$token) {
-            return response()->json(['error' => 'Missing CAPTCHA token'], 422);
-        }
+        // if (!$token) {
+        //     return response()->json(['error' => 'Missing CAPTCHA token'], 422);
+        // }
 
-        $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-            'secret' => env('CAPTCHA_SECRET_KEY'), // from your .env file
-            'response' => $token,
-            'remoteip' => $request->ip(), // optional
-        ]);
+        // $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+        //     'secret' => env('CAPTCHA_SECRET_KEY'), // from your .env file
+        //     'response' => $token,
+        //     'remoteip' => $request->ip(), // optional
+        // ]);
 
-        $result = $response->json();
+        // $result = $response->json();
 
-        if (
-            !$result['success'] ||
-            $result['action'] !== 'form_submit' ||
-            $result['score'] < 0.5
-        ) {
-            return redirect()->back()->with('error', 'Captcha verification failed.')->withInput();
-        }
+        // if (
+        //     !$result['success'] ||
+        //     $result['action'] !== 'form_submit' ||
+        //     $result['score'] < 0.5
+        // ) {
+        //     return redirect()->back()->with('error', 'Captcha verification failed.')->withInput();
+        // }
 
         $validator = Validator::make($request->all(), [
             'check_number' => 'required',
