@@ -527,8 +527,8 @@
                     <div class="submit_btn">
                         <input type="submit" id="Button2" name="Submit" value="Submit" tabindex="16" />
                     </div>
-                   
-                    <input type="hidden" name="g-recaptcha-token" id="g-recaptcha-token">
+
+                    {{-- <input type="hidden" name="g-recaptcha-token" id="g-recaptcha-token"> --}}
 
                 </form>
             </div>
@@ -704,18 +704,18 @@
             });
         });
     </script>
-    <script src="https://www.google.com/recaptcha/api.js?render={{ env('CAPTCHA_SITE_KEY') }}"></script>
-     <script>
-                        grecaptcha.ready(function() {
-                            grecaptcha.execute('{{ env('CAPTCHA_SITE_KEY') }}', {
-                                action: 'form_submit'
-                            }).then(function(token) {
-                                document.getElementById('g-recaptcha-token').value = token;
-                            }).catch(function(err) {
-                                console.error('reCAPTCHA execute error:', err);
-                            });
-                        });
-                    </script>
+    {{-- <script src="https://www.google.com/recaptcha/api.js?render={{ env('CAPTCHA_SITE_KEY') }}"></script>
+    <script>
+        grecaptcha.ready(function() {
+            grecaptcha.execute('{{ env('CAPTCHA_SITE_KEY') }}', {
+                action: 'form_submit'
+            }).then(function(token) {
+                document.getElementById('g-recaptcha-token').value = token;
+            }).catch(function(err) {
+                console.error('reCAPTCHA execute error:', err);
+            });
+        });
+    </script> --}}
 </body>
 
 </html>
