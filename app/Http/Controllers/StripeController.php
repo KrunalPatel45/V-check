@@ -37,7 +37,7 @@ class StripeController extends Controller
             }
             return datatables()->of($subscriptions)
                 ->addColumn('actions', function ($subscription) {
-                    return '<a href="/stripe/subscriptions/' . $subscription['id'] . '" class="btn btn-primary">View</a>';
+                    return '<a href="'.route('stripe.subscription.view', [$subscription['id']]).'" class="btn btn-primary">View</a>';
                 })
                 ->rawColumns(['actions'])
                 ->make(true);
