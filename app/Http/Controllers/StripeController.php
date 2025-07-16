@@ -22,7 +22,9 @@ class StripeController extends Controller
             ]);
 
         if ($response->successful()) {
+
             $subscriptions = $response->json()['data'];
+           
             foreach ($subscriptions as $key => $val) {
 
                 $customer = Http::withToken($stripeSecret)
@@ -35,11 +37,20 @@ class StripeController extends Controller
                 $subscriptions[$key]['created_at'] = Carbon::createFromTimestamp($val['created'])
                     ->format('M d, h:i A');
             }
+
             return datatables()->of($subscriptions)
                 ->addColumn('actions', function ($subscription) {
-                    return '<a href="'.route('stripe.subscription.view', [$subscription['id']]).'" class="btn btn-primary">View</a>';
+                    return '<a href="' . route('stripe.subscription.view', [$subscription['id']]) . '" class="btn btn-primary btn-sm">View</a>';
                 })
-                ->rawColumns(['actions'])
+                ->editColumn('status', function ($subscription) {
+                    if ($subscription['cancel_at']) {
+                        $status = '<span class="badge bg-danger">Cancels ' . Carbon::createFromTimestamp($subscription['cancel_at'])->format('M d') . '</span>';
+                    } else {
+                        $status = '<span class="badge bg-success">Active</span>';
+                    }
+                    return $status;
+                })
+                ->rawColumns(['status', 'actions'])
                 ->make(true);
         }
 
@@ -58,13 +69,14 @@ class StripeController extends Controller
 
         if ($response->successful()) {
             $subscription = $response->json();
-
+            
             $customer = Http::withToken($stripeSecret)
                 ->get("https://api.stripe.com/v1/customers/{$subscription['customer']}");
             $subscription['customer'] = $customer->json();
 
             $product = Http::withToken($stripeSecret)
                 ->get("https://api.stripe.com/v1/products/{$subscription['plan']['product']}");
+            
             $subscription['product'] = $product->json();
 
             $invoice = Http::withToken($stripeSecret)
@@ -74,34 +86,32 @@ class StripeController extends Controller
                     'subscription_details[proration_behavior]' => 'create_prorations',
                     'subscription_details[proration_date]' => time(),
                 ]);
-            $subscription['invoice'] = $invoice->json();
-            
-            $subscription['started_at'] = Carbon::createFromTimestamp($subscription['invoice']['period_start'])
+
+            $subscription['started_at'] = Carbon::createFromTimestamp($subscription['created'])
                 ->format('M d');
 
-            $subscription['next_invoice_at'] = Carbon::createFromTimestamp($subscription['invoice']['period_end'])
-                ->format('M d');
+            if ($invoice->successful()) {
 
-           $subscription['upcoming_start_date'] = Carbon::createFromTimestamp($subscription['invoice']['lines']['data'][0]['period']['start'])
-                ->format('M d');
-           ;
-           $subscription['upcoming_end_date'] = Carbon::createFromTimestamp($subscription['invoice']['lines']['data'][0]['period']['end'])
-                ->format('M d, Y');
-           ;
+                $subscription['invoice'] = $invoice->json();
+
+                $subscription['next_invoice_at'] = Carbon::createFromTimestamp($subscription['invoice']['period_end'])
+                    ->format('M d');
+
+                $subscription['upcoming_start_date'] = Carbon::createFromTimestamp($subscription['invoice']['lines']['data'][0]['period']['start'])
+                    ->format('M d');
+                
+                $subscription['upcoming_end_date'] = Carbon::createFromTimestamp($subscription['invoice']['lines']['data'][0]['period']['end'])
+                    ->format('M d, Y');
+                
+            }
 
             $invoices = Http::withToken($stripeSecret)
-        ->get("https://api.stripe.com/v1/invoices", [
-            'subscription' => $subscriptionId,
-            
-        ]);
+                ->get("https://api.stripe.com/v1/invoices", [
+                    'subscription' => $subscriptionId,
+                ]);
 
-        $subscription['invoices'] = $invoices->json()['data'];
-
-        // $schedule = Http::withToken($stripeSecret)
-        // ->get("https://api.stripe.com/v1/subscription_schedules/{$subscription['schedule']}");
-        
-
-        // dd($schedule->json());
+            $subscription['invoices'] = $invoices->json()['data'];
+           
             return view('stripe.subscription.view', compact('subscription'));
         }
 
@@ -114,26 +124,26 @@ class StripeController extends Controller
 
 
 
-// public function viewSubscription($subscriptionId)
+    // public function viewSubscription($subscriptionId)
 // {
 //     $stripeSecret = config('services.stripe.secret');
 //     $baseUrl = 'https://api.stripe.com/v1';
 //     $client = Http::withToken($stripeSecret);
 
-//     // Fetch Subscription
+    //     // Fetch Subscription
 //     $subscriptionResponse = $client->get("{$baseUrl}/subscriptions/{$subscriptionId}");
 
-//     if (!$subscriptionResponse->successful()) {
+    //     if (!$subscriptionResponse->successful()) {
 //         return $this->handleStripeError($subscriptionResponse, 'Failed to fetch subscription');
 //     }
 
-//     $subscription = $subscriptionResponse->json();
+    //     $subscription = $subscriptionResponse->json();
 
-//     // Fetch Customer
+    //     // Fetch Customer
 //     $customerResponse = $client->get("{$baseUrl}/customers/{$subscription['customer']}");
 //     $customer = $customerResponse->successful() ? $customerResponse->json() : null;
 
-//     // Fetch Product
+    //     // Fetch Product
 //     $productId = data_get($subscription, 'plan.product');
 //     $productResponse = $productId
 //         ? $client->get("{$baseUrl}/products/{$productId}")
@@ -142,48 +152,48 @@ class StripeController extends Controller
 //         ? $productResponse->json()
 //         : null;
 
-//     // Create Invoice Preview with proration info
+    //     // Create Invoice Preview with proration info
 //     $invoiceResponse = $client->asForm()->post("{$baseUrl}/invoices/create_preview", [
 //         'subscription' => $subscription['id'],
 //         'subscription_details[proration_behavior]' => 'create_prorations',
 //         'subscription_details[proration_date]' => time(),
 //     ]);
 
-//     $invoice = $invoiceResponse->successful() ? $invoiceResponse->json() : null;
+    //     $invoice = $invoiceResponse->successful() ? $invoiceResponse->json() : null;
 
-//     // Dates
+    //     // Dates
 //     $subscription['started_at'] = $invoice && isset($invoice['period_start'])
 //         ? Carbon::createFromTimestamp($invoice['period_start'])->format('M d')
 //         : null;
 
-//     $subscription['next_invoice_at'] = $invoice && isset($invoice['period_end'])
+    //     $subscription['next_invoice_at'] = $invoice && isset($invoice['period_end'])
 //         ? Carbon::createFromTimestamp($invoice['period_end'])->format('M d')
 //         : null;
 
-//     $firstLine = data_get($invoice, 'lines.data.0.period', []);
+    //     $firstLine = data_get($invoice, 'lines.data.0.period', []);
 //     $subscription['upcoming_start_date'] = isset($firstLine['start'])
 //         ? Carbon::createFromTimestamp($firstLine['start'])->format('M d')
 //         : null;
 
-//     $subscription['upcoming_end_date'] = isset($firstLine['end'])
+    //     $subscription['upcoming_end_date'] = isset($firstLine['end'])
 //         ? Carbon::createFromTimestamp($firstLine['end'])->format('M d, Y')
 //         : null;
 
-//     // Get Only Proration Lines
+    //     // Get Only Proration Lines
 //     $prorationLines = collect(data_get($invoice, 'lines.data', []))->filter(function ($line) {
 //         return data_get($line, 'subscription_item_details.proration') === true;
 //     });
 
-//     // Fetch Past Invoices
+    //     // Fetch Past Invoices
 //     $invoicesResponse = $client->get("{$baseUrl}/invoices", [
 //         'subscription' => $subscriptionId,
 //     ]);
 
-//     $invoices = $invoicesResponse->successful()
+    //     $invoices = $invoicesResponse->successful()
 //         ? $invoicesResponse->json()['data']
 //         : [];
 
-//     // Fetch Subscription Schedule (if available)
+    //     // Fetch Subscription Schedule (if available)
 //     $schedule = null;
 //     if (!empty($subscription['schedule'])) {
 //         $scheduleResponse = $client->get("{$baseUrl}/subscription_schedules/{$subscription['schedule']}");
@@ -192,7 +202,7 @@ class StripeController extends Controller
 //         }
 //     }
 
-//     return view('stripe.subscription.view', [
+    //     return view('stripe.subscription.view', [
 //         'subscription'    => $subscription,
 //         'customer'        => $customer,
 //         'plan'            => $product,
@@ -203,15 +213,15 @@ class StripeController extends Controller
 //     ]);
 // }
 
-private function handleStripeError($response, $defaultMessage = 'An error occurred')
-{
-    
+    private function handleStripeError($response, $defaultMessage = 'An error occurred')
+    {
 
-    return response()->json([
-        'error' => $defaultMessage,
-        'message' => $response->body(),
-    ], $response->status());
-}
+
+        return response()->json([
+            'error' => $defaultMessage,
+            'message' => $response->body(),
+        ], $response->status());
+    }
 
 
 
