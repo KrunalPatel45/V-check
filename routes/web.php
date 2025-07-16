@@ -176,6 +176,15 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\SignController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SuggestionController;
+use App\Http\Controllers\StripeController;
+
+// Stripe routes
+Route::get('/stripe/subscriptions', [StripeController::class, 'list'])->name('stripe.subscription.list');
+Route::get('/stripe/subscriptions/all', [StripeController::class, 'getSubscriptions'])->name('stripe.subscription.get');
+
+Route::get('/stripe/subscriptions/{subscription_id}', [StripeController::class, 'viewSubscription'])->name('stripe.subscription.view');
+
+// End Stripe routes
 
 
 Route::get('/admin/login', [AdminAuthController::class, 'adminLogin'])->name('admin.login');
