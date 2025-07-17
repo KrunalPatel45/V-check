@@ -97,9 +97,9 @@ class SubscriptionController extends Controller
             $user->CurrentPackageID = $plan;
             $user->save();
 
-            PaymentSubscription::where('UserID', $user->UserID)
-                ->whereIn('Status', ['Canceled', 'Pending'])
-                ->delete();
+            // PaymentSubscription::where('UserID', $user->UserID)
+            //     ->whereIn('Status', ['Canceled', 'Pending'])
+            //     ->delete();
 
             $packages = Package::findOrFail($user->CurrentPackageID);
 

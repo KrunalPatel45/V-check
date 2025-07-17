@@ -20,11 +20,11 @@ class UserMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         if (Auth::check() && User::where('Email', Auth::user()->Email)->exists()) {
-            $PaymentSubscription = PaymentSubscription::where('PackageID', Auth::user()->CurrentPackageID)->where('UserID', Auth::user()->UserID)->where('Status', 'Canceled')->first();
-            if ($PaymentSubscription) {
-                $nextRenewalDate = Carbon::parse($PaymentSubscription->NextRenewalDate);
+            $PaymentSubscription = PaymentSubscription::where('UserID', Auth::user()->UserID)->orderBy('PaymentSubscriptionID', 'desc')->first();
             
-                if ($nextRenewalDate->isPast()) {
+            if ($PaymentSubscription) {
+                // $CancelAt = Carbon::parse($PaymentSubscription->CancelAt);
+                if ($PaymentSubscription->Status == 'Canceled') {
                     return redirect()->route('expired_sub');
                 }
             }

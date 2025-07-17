@@ -116,6 +116,7 @@ class SubscriptionHelper {
             'mode' => 'subscription',
             'success_url' => route('stripe.success') . '?session_id={CHECKOUT_SESSION_ID}&user=' . md5($data['user_id']).'&plan='. $data['plan'],
             'cancel_url' => route('stripe.cancel'),
+            'subscription_data[metadata][set_default_pm]' => 'true',
         ]);
 
         if (!$session->successful()) {
@@ -125,10 +126,84 @@ class SubscriptionHelper {
         return $session->json();
     }
     
+    // public function updateSubscription($data)
+    // {
+    //     $subscriptionId = $data['subscription_id'];
+    //     $newPriceId = $data['new_price_id'];
+
+    //     $stripeSecret = config('services.stripe.secret');
+
+    //     // Step 1: Retrieve subscription
+    //     $subscriptionResponse = Http::withToken($stripeSecret)
+    //         ->get("https://api.stripe.com/v1/subscriptions/{$subscriptionId}");
+
+    //     if (!$subscriptionResponse->successful()) {
+    //         return false;
+    //     }
+
+    //     $subscription = $subscriptionResponse->json();
+    //     $items = $subscription['items']['data'];
+
+    //     if (empty($items)) {
+    //         return false;
+    //     }
+
+    //     $itemId = $items[0]['id'];
+    //     $customerId = $subscription['customer'];
+
+    //     // Step 2: Update subscription item with proration
+    //     $updateItemResponse = Http::withToken($stripeSecret)
+    //         ->asForm()
+    //         ->post("https://api.stripe.com/v1/subscription_items/{$itemId}", [
+    //             'price' => $newPriceId,
+    //             'proration_behavior' => 'create_prorations',
+    //         ]);
+
+    //     if (!$updateItemResponse->successful()) {
+    //        return false;
+    //     }
+
+    //     // Step 3: Create invoice
+    //     $invoiceResponse = Http::withToken($stripeSecret)
+    //         ->asForm()
+    //         ->post("https://api.stripe.com/v1/invoices", [
+    //             'subscription' => $subscriptionId,
+    //             'customer' => $customerId,
+    //             'auto_advance' => 'false', // Must be string
+    //         ]);
+
+    //     if (!$invoiceResponse->successful()) {
+    //        return false;
+    //     }
+
+    //     $invoiceId = $invoiceResponse->json('id');
+
+    //     // Step 4: Finalize invoice
+    //     $finalizeResponse = Http::withToken($stripeSecret)
+    //         ->asForm()
+    //         ->post("https://api.stripe.com/v1/invoices/{$invoiceId}/finalize");
+
+    //     if (!$finalizeResponse->successful()) {
+    //         return false;
+    //     }
+
+    //     // Step 5: Pay invoice
+    //     $payResponse = Http::withToken($stripeSecret)
+    //         ->asForm()
+    //         ->post("https://api.stripe.com/v1/invoices/{$invoiceId}/pay");
+
+    //     if (!$payResponse->successful()) {
+    //        return false;
+    //     }
+    //     return $payResponse->json();
+        
+    // }
+
     public function updateSubscription($data)
     {
         $subscriptionId = $data['subscription_id'];
         $newPriceId = $data['new_price_id'];
+        $upgradeAmount = $data['upgrade_amount']; // e.g. 2000 for $20
 
         $stripeSecret = config('services.stripe.secret');
 
@@ -150,34 +225,49 @@ class SubscriptionHelper {
         $itemId = $items[0]['id'];
         $customerId = $subscription['customer'];
 
-        // Step 2: Update subscription item with proration
+        // Step 2: Update subscription item without proration
         $updateItemResponse = Http::withToken($stripeSecret)
             ->asForm()
             ->post("https://api.stripe.com/v1/subscription_items/{$itemId}", [
                 'price' => $newPriceId,
-                'proration_behavior' => 'create_prorations',
+                'proration_behavior' => 'none',
             ]);
 
         if (!$updateItemResponse->successful()) {
-           return false;
+            return false;
         }
 
-        // Step 3: Create invoice
+        // Step 3: Add manual invoice item for full upgrade amount
+        $invoiceItemResponse = Http::withToken($stripeSecret)
+            ->asForm()
+            ->post('https://api.stripe.com/v1/invoiceitems', [
+                'customer' => $customerId,
+                'amount' => $upgradeAmount, // in cents
+                'currency' => 'usd',
+                'description' => 'Plan upgrade charge',
+                'subscription' => $subscriptionId, // associates with subscription
+            ]);
+
+        if (!$invoiceItemResponse->successful()) {
+            return false;
+        }
+
+        // Step 4: Create invoice
         $invoiceResponse = Http::withToken($stripeSecret)
             ->asForm()
             ->post("https://api.stripe.com/v1/invoices", [
                 'subscription' => $subscriptionId,
                 'customer' => $customerId,
-                'auto_advance' => 'false', // Must be string
+                'auto_advance' => 'false',
             ]);
 
         if (!$invoiceResponse->successful()) {
-           return false;
+            return false;
         }
 
         $invoiceId = $invoiceResponse->json('id');
 
-        // Step 4: Finalize invoice
+        // Step 5: Finalize invoice
         $finalizeResponse = Http::withToken($stripeSecret)
             ->asForm()
             ->post("https://api.stripe.com/v1/invoices/{$invoiceId}/finalize");
@@ -186,16 +276,16 @@ class SubscriptionHelper {
             return false;
         }
 
-        // Step 5: Pay invoice
+        // Step 6: Pay invoice
         $payResponse = Http::withToken($stripeSecret)
             ->asForm()
             ->post("https://api.stripe.com/v1/invoices/{$invoiceId}/pay");
 
         if (!$payResponse->successful()) {
-           return false;
+            return false;
         }
+
         return $payResponse->json();
-        
     }
 
     public function getCustomerPaymentMethods($customerId)
@@ -241,7 +331,7 @@ class SubscriptionHelper {
             ->post("https://api.stripe.com/v1/subscriptions/{$subscriptionId}", [
                 'cancel_at_period_end' => 'true',
             ]);
-
+            
         if ($response->successful()) {
             return true;
         }

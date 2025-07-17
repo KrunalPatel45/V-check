@@ -373,6 +373,7 @@ class AdminDashboardController extends Controller
             $data = [
                 'subscription_id' => $user->SubID,
                 'new_price_id' => $package->PriceID,
+                'upgrade_amount' => $price_difference * 100
             ];
             $res = $this->subscriptionHelper->updateSubscription($data);
             if(!empty($res['id'])) {
@@ -451,7 +452,7 @@ class AdminDashboardController extends Controller
                 ];
                 Mail::to($user->Email)->send(new SendDowngradeSubMail(8, $user_name, $data));   
             } else {
-                return redirect()->route('admin.user.edit',['id' => $user->UserID, 'type' => 'billing'])->with('error', 'somthing want to wrong');
+                return redirect()->route('admin.user.edit',['id' => $user->UserID, 'type' => 'billing'])->with('error', 'Something went wrong');
             }
         }
     }

@@ -52,6 +52,7 @@ class BillingAndPlanController extends Controller
             $packages = Package::where('Status', 'Active')->get();
             $cards = $this->subscriptionHelper->getCustomerPaymentMethods($user->CusID);
             $default_card = $this->subscriptionHelper->getDefaultCard($user->CusID);
+            
             return view('user.billing_and_plan.index', compact('package_data', 'stander_Plan_price', 'user', 'packages', 'package_id', 'cards', 'default_card', 'paymentSubscription'));
       }
 
@@ -99,6 +100,7 @@ class BillingAndPlanController extends Controller
                 $data = [
                     'subscription_id' => $user->SubID,
                     'new_price_id' => $package->PriceID,
+                    'upgrade_amount' => $price_difference * 100
                 ];
                 $res = $this->subscriptionHelper->updateSubscription($data);
                 if(!empty($res['id'])) {
@@ -177,7 +179,7 @@ class BillingAndPlanController extends Controller
                     ];
                     Mail::to($user->Email)->send(new SendDowngradeSubMail(8, $user_name, $data));   
                 } else {
-                    return redirect()->route('billing_and_plan')->with('error', 'somthing want to wrong');
+                    return redirect()->route('billing_and_plan')->with('error', 'Something went wrong');
                 }
             }
         }
@@ -190,20 +192,23 @@ class BillingAndPlanController extends Controller
          $user = User::find($id);
          $res = $this->subscriptionHelper->cancelAtPeriodEnd($user->SubID);
          $data_current_package = PaymentSubscription::where('UserId', $id)->where('Status', 'Active')->first();
+        
          if(!empty($res) && !empty($data_current_package)) {
-            $data_current_package->Status = 'Canceled';
+            $data_current_package->CancelAt = $data_current_package->NextRenewalDate;
+            // $data_current_package->Status = 'Canceled';
             $data_current_package->save();
-            PaymentSubscription::where('UserId', $id)->where('Status', 'Pending')->delete();
+            // PaymentSubscription::where('UserId', $id)->where('Status', 'Pending')->delete();
             $user_name = $user->FirstName . ' ' .$user->LastName;
             $package = Package::find($data_current_package->PackageID);
             $data = [
                 'plan_name' => $package->Name,
                 'end_date' => Carbon::parse($data_current_package->NextRenewalDate)->format('m/d/Y'),
             ];
-                Mail::to($user->Email)->send(new SendCancelSubMail(9, $user_name, $data));   
+             
+            Mail::to($user->Email)->send(new SendCancelSubMail(9, $user_name, $data));   
             return redirect()->route('billing_and_plan')->with('success', 'Your plan has been canceled');
          } else {
-            return redirect()->route('billing_and_plan')->with('error', 'somthing want to wrong');
+            return redirect()->route('billing_and_plan')->with('error', 'Something went wrong');
          }
 
       }

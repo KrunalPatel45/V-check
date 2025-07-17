@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\StripeCancelSubMail;
 use App\Models\PaymentHistory;
 use App\Models\PaymentSubscription;
 use Illuminate\Http\Request;
@@ -10,6 +11,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use App\Models\Package;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 class StripeWebhookController extends Controller
 {
@@ -29,7 +31,6 @@ class StripeWebhookController extends Controller
 
             $event = json_decode($payload, true);
 
-            
             if ($event['type'] === 'customer.subscription.updated') {
                 
                 Log::info('Event started : customer.subscription.updated');
@@ -37,6 +38,15 @@ class StripeWebhookController extends Controller
                 $this->hanldeDowngradeSubscription($event);
 
                 Log::info('Event finished : customer.subscription.updated');
+
+            }else if ($event['type'] === 'customer.subscription.deleted') {
+                
+                Log::info('Event started : customer.subscription.deleted');
+
+                
+                 $this->cancelSubscription($event);
+
+                Log::info('Event finished : customer.subscription.deleted');
 
             }
         }
@@ -82,8 +92,6 @@ class StripeWebhookController extends Controller
             $subscription = $event['data']['object'];
 
             $product_id = $subscription['items']['data'][0]['plan']['product'];
-            
-            
 
             $new_package = Package::where('ProductID', $product_id)->first();
 
@@ -149,8 +157,48 @@ class StripeWebhookController extends Controller
         }catch(\Exception $e) {
             
             DB::rollBack();
-            Log::info('Webhook customer.subscription.updated failed');
+            Log::info('Webhook customer.subscription.updated failed. Subscription ID: ' . $subscription['id']);
             Log::info('Webhook customer.subscription.updated error: ' . $e->getMessage() . ' on line '.$e->getLine());
+        }
+
+    }
+
+    private function cancelSubscription($event)
+    {
+
+        try {
+            
+            DB::beginTransaction();
+
+            $subscription = $event['data']['object'];
+
+            $user = User::where('CusID', $subscription['customer'])
+                ->where('SubID', $subscription['id'])->first();
+
+            PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
+            ->whereNotNull('CancelAt')->where('Status', 'Active')->update([
+                'status' => 'Canceled'
+            ]);
+
+            
+            $user_name = $user->FirstName . ' ' .$user->LastName;
+            $package = Package::find($user->CurrentPackageID);
+            $data = [
+                'plan_name' => $package->Name,
+            ];
+            $user->update([
+                'CurrentPackageID' => null
+            ]);
+
+            Mail::to($user->Email)->send(new StripeCancelSubMail(14, $user_name, $data));   
+            
+            DB::commit();
+
+        }catch(\Exception $e) {
+            
+            DB::rollBack();
+            Log::info('Webhook customer.subscription.deleted failed. Subscription ID: ' . $subscription['id']);
+            Log::info('Webhook customer.subscription.deleted error: ' . $e->getMessage() . ' on line '.$e->getLine());
         }
 
     }
