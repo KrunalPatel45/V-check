@@ -131,7 +131,8 @@ class StripeWebhookController extends Controller
 
             Log::info('New Package Product ID : ' . $product_id);
 
-            PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)->update([
+            PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
+            ->orderBy('PaymentSubscriptionID', 'desc')->first()->update([
                 'NextPackageID' => null,
                 'status' => 'InActive'
             ]);
@@ -241,16 +242,20 @@ class StripeWebhookController extends Controller
 
             $PaymentSubscription = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
                 ->orderBy('PaymentSubscriptionID', 'desc')->first();
-
+           
             if ($PaymentSubscription) {
-                PaymentHistory::create([
+                $paymentHistory = PaymentHistory::where('PaymentSubscriptionID', $PaymentSubscription->PaymentSubscriptionID)
+                                    ->where('TransactionID', $invoice['id'])->where('PaymentStatus', 'Success')->exists();
+                if(!$paymentHistory){
+                    PaymentHistory::create([
                     'PaymentSubscriptionID' => $PaymentSubscription->PaymentSubscriptionID,
                     'PaymentAmount' => $invoice['amount_paid'] / 100,
                     'PaymentDate' => Carbon::createFromTimestamp($invoice['created'])->toDateTimeString(),
                     'PaymentStatus' => 'Success',
                     'PaymentAttempts' => $invoice['attempt_count'],
                     'TransactionID' => $invoice['id'],
-                ]);
+                    ]);
+                }
 
                 $PaymentSubscription->update([
                     'Status' => 'Active'
@@ -316,7 +321,8 @@ class StripeWebhookController extends Controller
     {
 
         $res = $this->subscriptionHelper->cancelImmediately($user->SubID);
-        $data_current_package = PaymentSubscription::where('UserId', $user->UserID)->where('Status', 'Pending')->first();
+        $data_current_package = PaymentSubscription::where('UserId', $user->UserID)->where('Status', 'Pending')
+        ->orderBy('PaymentSubscriptionID', 'desc')->first();
 
         if (!empty($res) && !empty($data_current_package)) {
             $data_current_package->CancelAt = now()->toDateString();

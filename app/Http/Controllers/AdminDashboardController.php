@@ -186,7 +186,8 @@ class AdminDashboardController extends Controller
             $user_history->last_login = !empty($user_history->last_login)? Carbon::parse($user_history->last_login)->format('M, d Y h:i A'): '';
         }
         $paymentSubscription = PaymentSubscription::where('UserID', $id)
-            ->where('Status', 'Active')->where('PackageID', $user->CurrentPackageID)->first();
+            ->where('Status', 'Active')->where('PackageID', $user->CurrentPackageID)
+            ->orderBy('PaymentSubscriptionID', 'desc')->first();
         $package = Package::find($user->CurrentPackageID);
         $total_days = !empty($package->Duration) ? $package->Duration : '';
         $package_name = !empty($package->Name) ? $package->Name : '';
@@ -337,7 +338,8 @@ class AdminDashboardController extends Controller
         }
 
         $user = User::where('userID', $id)->first();
-        $paymentSubscription = PaymentSubscription::where('UserID', $id)->where('Status', 'Active')->where('PackageID', $user->CurrentPackageID)->first();
+        $paymentSubscription = PaymentSubscription::where('UserID', $id)->where('Status', 'Active')->where('PackageID', $user->CurrentPackageID)
+        ->orderBy('PaymentSubscriptionID', 'desc')->first();
         $package = Package::find($user->CurrentPackageID);
         $total_days = $package->Duration;
         $package_name = $package->Name;
@@ -361,7 +363,8 @@ class AdminDashboardController extends Controller
         $package = Package::find($plan);
         $user_current_package = Package::find($user->CurrentPackageID);
         $data_current_package = PaymentSubscription::where('UserId', $id)
-                        ->where('Status', 'Active')->where('PackageID', $user->CurrentPackageID)->first();
+                        ->where('Status', 'Active')->where('PackageID', $user->CurrentPackageID)
+                        ->orderBy('PaymentSubscriptionID', 'desc')->first();
 
     if(!empty($data_current_package)) {
         // If upgrading to a higher priced plan
@@ -411,14 +414,14 @@ class AdminDashboardController extends Controller
                 ]);
 
                 // Create payment history for the upgrade charge
-                // PaymentHistory::create([
-                //     'PaymentSubscriptionID' => $paymentSubscription->PaymentSubscriptionID,
-                //     'PaymentAmount' => $price_difference,
-                //     'PaymentDate' => now(),
-                //     'PaymentStatus' => 'Success',
-                //     'PaymentAttempts' => 0,
-                //     'TransactionID' => $res['id'],
-                // ]);
+                PaymentHistory::create([
+                    'PaymentSubscriptionID' => $paymentSubscription->PaymentSubscriptionID,
+                    'PaymentAmount' => $price_difference,
+                    'PaymentDate' => now(),
+                    'PaymentStatus' => 'Success',
+                    'PaymentAttempts' => 0,
+                    'TransactionID' => $res['id'],
+                ]);
 
                 $old_plan =  Package::find($user->CurrentPackageID);
                 $user->CurrentPackageID = $plan;

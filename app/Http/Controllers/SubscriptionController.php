@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Mail\SendNewSubMail;
 use App\Mail\RegistrationVerificationMail;
+use Illuminate\Support\Facades\Log;
 
 class SubscriptionController extends Controller
 {
@@ -125,15 +126,15 @@ class SubscriptionController extends Controller
                 'Status' => 'Active',
             ]);
 
-            // PaymentHistory::create([
-            //     'PaymentSubscriptionID' => $paymentSubscription->PaymentSubscriptionID,
-            //     'PaymentAmount' => $packages->Price,
-            //     'PaymentDate' => $paymentStartDate,
-            //     'PaymentStatus' => 'Success',
-            //     'PaymentAttempts' => 0,
-            //     'TransactionID' => $invoiceId,
-            //     'InvoiceID' => $invoiceId,
-            // ]);
+            PaymentHistory::create([
+                'PaymentSubscriptionID' => $paymentSubscription->PaymentSubscriptionID,
+                'PaymentAmount' => $packages->Price,
+                'PaymentDate' => $paymentStartDate,
+                'PaymentStatus' => 'Success',
+                'PaymentAttempts' => 0,
+                'TransactionID' => $invoiceId,
+                'InvoiceID' => $invoiceId,
+            ]);
 
              $user_name = $user->FirstName . ' ' .$user->LastName;
              $data = [

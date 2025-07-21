@@ -1031,7 +1031,8 @@ class CheckController extends Controller
 
         $payment_subscription= PaymentSubscription::where('UserID', $user->UserID)
                         ->where('PackageID', $user->CurrentPackageID)
-                        ->where('Status', 'Active')->first();
+                        ->where('Status', 'Active')
+                        ->orderBy('PaymentSubscriptionID', 'desc')->first();
 
         if($payment_subscription != null && $user->CurrentPackageID != -1) {
            $payment_subscription->update([

@@ -220,7 +220,8 @@ class Helpers
     $package = Package::find($user->CurrentPackageID);
     $subscription = PaymentSubscription::where('UserID', $user->UserID)
                     ->where('PackageID', $user->CurrentPackageID)
-                    ->where('Status', 'Active')->first();
+                    ->where('Status', 'Active')
+                    ->orderBy('PaymentSubscriptionID', 'desc')->first();
     
     if (!$subscription) {
       return false;
