@@ -138,14 +138,14 @@ class BillingAndPlanController extends Controller
                     ]);
 
                     // Create payment history for the upgrade charge
-                    PaymentHistory::create([
-                        'PaymentSubscriptionID' => $paymentSubscription->PaymentSubscriptionID,
-                        'PaymentAmount' => $price_difference,
-                        'PaymentDate' => now(),
-                        'PaymentStatus' => 'Success',
-                        'PaymentAttempts' => 0,
-                        'TransactionID' => $res['id'],
-                    ]);
+                    // PaymentHistory::create([
+                    //     'PaymentSubscriptionID' => $paymentSubscription->PaymentSubscriptionID,
+                    //     'PaymentAmount' => $price_difference,
+                    //     'PaymentDate' => now(),
+                    //     'PaymentStatus' => 'Success',
+                    //     'PaymentAttempts' => 0,
+                    //     'TransactionID' => $res['id'],
+                    // ]);
 
                     $old_plan =  Package::find($user->CurrentPackageID);
                     $user->CurrentPackageID = $plan;

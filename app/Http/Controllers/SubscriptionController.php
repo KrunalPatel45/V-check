@@ -125,15 +125,15 @@ class SubscriptionController extends Controller
                 'Status' => 'Active',
             ]);
 
-            PaymentHistory::create([
-                'PaymentSubscriptionID' => $paymentSubscription->PaymentSubscriptionID,
-                'PaymentAmount' => $packages->Price,
-                'PaymentDate' => $paymentStartDate,
-                'PaymentStatus' => 'Success',
-                'PaymentAttempts' => 0,
-                'TransactionID' => $invoiceId,
-                'InvoiceID' => $invoiceId,
-            ]);
+            // PaymentHistory::create([
+            //     'PaymentSubscriptionID' => $paymentSubscription->PaymentSubscriptionID,
+            //     'PaymentAmount' => $packages->Price,
+            //     'PaymentDate' => $paymentStartDate,
+            //     'PaymentStatus' => 'Success',
+            //     'PaymentAttempts' => 0,
+            //     'TransactionID' => $invoiceId,
+            //     'InvoiceID' => $invoiceId,
+            // ]);
 
              $user_name = $user->FirstName . ' ' .$user->LastName;
              $data = [
