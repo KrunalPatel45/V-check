@@ -20,6 +20,7 @@ class PaymentHistory extends Model
         'PaymentStatus',
         'PaymentAttempts',
         'TransactionID',
+        'PaymentUrl'
     ];
 
 }

@@ -41,8 +41,6 @@ class SubscriptionController extends Controller
             'plan' => $plan,
         ];
 
-        
-
         $res = $this->subscriptionHelper->addSubscription($data);
 
         if(!empty($res)) {

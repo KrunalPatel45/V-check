@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class SubscriptionHelper {
 
@@ -338,6 +339,21 @@ class SubscriptionHelper {
 
         return false;
     }
+
+    public function cancelImmediately($subscriptionId)
+    {
+        $response = Http::withToken(config('services.stripe.secret'))
+        ->delete("https://api.stripe.com/v1/subscriptions/{$subscriptionId}");
+        
+        Log::info('cancelImmediately');
+        Log::info($response->json());       
+        if ($response->successful()) {
+            return true;
+        }
+
+        return false;
+    }
+    
 
     public function schedulePlanDowngrade($subscriptionId, $newPriceId)
     {

@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'Plan Expired')
+@section('title', 'Payment Failed')
 
 <!-- Vendor Styles -->
 @section('vendor-style')
@@ -115,13 +115,14 @@
                         {{ session('error_card') }}
                     </div>
                 @endif
-                <h5 class="card-header">Your Subscription Expired</h5>
+                <h5 class="card-header">Payment Failed</h5>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-12 mb-4">
-                    <p>Your subscription has expired. Please renew your plan to continue enjoying our services!</p>
-                    <a class="btn btn-primary mt-2"
-                        href="{{ route('user.package', ['user_id' => Auth()->user()->UserID]) }}">Subscribe Plan</a>
+                            <p>Your last payment attempt was unsuccessful. Please complete the payment to avoid service interruption.</p>
+                            <p>If payment continues to fail, your subscription <b>will be automatically canceled</b> after 3 unsuccessful attempts.</p>
+                            
+                            <a href="{{ $PaymentHistory->PaymentUrl}}" class="btn btn-primary mt-2">Pay Now</a>
                         </div>
                     </div>
                 </div>

@@ -210,7 +210,7 @@
                             </button>
                             @if (empty($package_data['cancel_plan']) && $package_id != '-1')
                                 <a class="btn btn-label-danger "
-                                    href="{{ route('user_cancel_plan', ['id' => $user->UserID]) }}">Cancel
+                                    href="{{ route('user_cancel_plan') }}">Cancel
                                     Subscription</a>
                             @endif
                         </div>

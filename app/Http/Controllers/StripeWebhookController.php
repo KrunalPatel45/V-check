@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\SubscriptionHelper;
 use App\Mail\StripeCancelSubMail;
 use App\Models\PaymentHistory;
 use App\Models\PaymentSubscription;
@@ -15,6 +16,12 @@ use Illuminate\Support\Facades\Mail;
 
 class StripeWebhookController extends Controller
 {
+
+    protected $subscriptionHelper;
+    public function __construct(SubscriptionHelper $subscriptionHelper)
+    {
+        $this->subscriptionHelper = $subscriptionHelper;
+    }
 
     public function handle(Request $request)
     {
@@ -32,21 +39,37 @@ class StripeWebhookController extends Controller
             $event = json_decode($payload, true);
 
             if ($event['type'] === 'customer.subscription.updated') {
-                
+
                 Log::info('Event started : customer.subscription.updated');
 
                 $this->hanldeDowngradeSubscription($event);
 
                 Log::info('Event finished : customer.subscription.updated');
 
-            }else if ($event['type'] === 'customer.subscription.deleted') {
-                
+            } else if ($event['type'] === 'customer.subscription.deleted') {
+
                 Log::info('Event started : customer.subscription.deleted');
 
-                
-                 $this->cancelSubscription($event);
+
+                $this->cancelSubscription($event);
 
                 Log::info('Event finished : customer.subscription.deleted');
+
+            } else if ($event['type'] === 'invoice.payment_succeeded') {
+
+                Log::info('Event started : invoice.payment_succeeded');
+
+                $this->paymentSuccess($event);
+
+                Log::info('Event finished : invoice.payment_succeeded');
+
+            } else if ($event['type'] === 'invoice.payment_failed') {
+
+                Log::info('Event started : invoice.payment_failed');
+
+                $this->paymentFailed($event);
+
+                Log::info('Event finished : invoice.payment_failed');
 
             }
         }
@@ -86,7 +109,7 @@ class StripeWebhookController extends Controller
     {
 
         try {
-            
+
             DB::beginTransaction();
 
             $subscription = $event['data']['object'];
@@ -100,8 +123,8 @@ class StripeWebhookController extends Controller
 
             $old_package = Package::where('PackageID', $user->CurrentPackageID)->first();
 
-            
-            
+
+
             if ($new_package->Price >= $old_package->Price) {
                 return;
             }
@@ -154,11 +177,11 @@ class StripeWebhookController extends Controller
 
             DB::commit();
 
-        }catch(\Exception $e) {
-            
+        } catch (\Exception $e) {
+
             DB::rollBack();
             Log::info('Webhook customer.subscription.updated failed. Subscription ID: ' . $subscription['id']);
-            Log::info('Webhook customer.subscription.updated error: ' . $e->getMessage() . ' on line '.$e->getLine());
+            Log::info('Webhook customer.subscription.updated error: ' . $e->getMessage() . ' on line ' . $e->getLine());
         }
 
     }
@@ -167,7 +190,7 @@ class StripeWebhookController extends Controller
     {
 
         try {
-            
+
             DB::beginTransaction();
 
             $subscription = $event['data']['object'];
@@ -176,30 +199,129 @@ class StripeWebhookController extends Controller
                 ->where('SubID', $subscription['id'])->first();
 
             PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
-            ->whereNotNull('CancelAt')->where('Status', 'Active')->update([
-                'status' => 'Canceled'
-            ]);
+                ->whereNotNull('CancelAt')->where('Status', 'Active')->update([
+                        'status' => 'Canceled'
+                    ]);
 
-            
-            $user_name = $user->FirstName . ' ' .$user->LastName;
+
+            $user_name = $user->FirstName . ' ' . $user->LastName;
             $package = Package::find($user->CurrentPackageID);
             $data = [
                 'plan_name' => $package->Name,
             ];
-            $user->update([
-                'CurrentPackageID' => null
-            ]);
+            // $user->update([
+            //     'CurrentPackageID' => null
+            // ]);
 
-            Mail::to($user->Email)->send(new StripeCancelSubMail(14, $user_name, $data));   
-            
+            Mail::to($user->Email)->send(new StripeCancelSubMail(14, $user_name, $data));
+
             DB::commit();
 
-        }catch(\Exception $e) {
-            
+        } catch (\Exception $e) {
+
             DB::rollBack();
             Log::info('Webhook customer.subscription.deleted failed. Subscription ID: ' . $subscription['id']);
-            Log::info('Webhook customer.subscription.deleted error: ' . $e->getMessage() . ' on line '.$e->getLine());
+            Log::info('Webhook customer.subscription.deleted error: ' . $e->getMessage() . ' on line ' . $e->getLine());
         }
 
+    }
+
+    private function paymentSuccess($event)
+    {
+
+        try {
+
+            Log::info($event);
+
+            DB::beginTransaction();
+
+            $invoice = $event['data']['object'];
+
+            $user = User::where('CusID', $invoice['customer'])->first();
+
+            $PaymentSubscription = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
+                ->orderBy('PaymentSubscriptionID', 'desc')->first();
+
+            if ($PaymentSubscription) {
+                PaymentHistory::create([
+                    'PaymentSubscriptionID' => $PaymentSubscription->PaymentSubscriptionID,
+                    'PaymentAmount' => $invoice['amount_paid'] / 100,
+                    'PaymentDate' => Carbon::createFromTimestamp($invoice['created'])->toDateTimeString(),
+                    'PaymentStatus' => 'Success',
+                    'PaymentAttempts' => $invoice['attempt_count'],
+                    'TransactionID' => $invoice['id'],
+                ]);
+
+                $PaymentSubscription->update([
+                    'Status' => 'Active'
+                ]);
+            }
+
+            DB::commit();
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+            Log::info('Webhook invoice.payment_succeeded failed. Subscription ID: ' . $invoice['id']);
+            Log::info('Webhook invoice.payment_succeeded error: ' . $e->getMessage() . ' on line ' . $e->getLine());
+        }
+    }
+
+    private function paymentFailed($event)
+    {
+
+        try {
+            Log::info($event);
+            DB::beginTransaction();
+
+            $invoice = $event['data']['object'];
+
+            $user = User::where('CusID', $invoice['customer'])->first();
+
+
+            $PaymentSubscription = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
+                ->orderBy('PaymentSubscriptionID', 'desc')->first();
+
+            if ($PaymentSubscription) {
+                PaymentHistory::create([
+                    'PaymentSubscriptionID' => $PaymentSubscription->PaymentSubscriptionID,
+                    'PaymentAmount' => $invoice['amount_due'] / 100,
+                    'PaymentDate' => Carbon::createFromTimestamp($event['created'])->toDateTimeString(),
+                    'PaymentStatus' => 'Failed',
+                    'PaymentAttempts' => $invoice['attempt_count'],
+                    'TransactionID' => $invoice['id'],
+                    'PaymentUrl' => $invoice['hosted_invoice_url']
+                ]);
+
+
+                if ($invoice['attempt_count'] >= 3) {
+                    $this->cancelSubscriptionAfterFailedAttempts($user);
+                } else {
+                    $PaymentSubscription->update([
+                        'Status' => 'Pending'
+                    ]);
+                }
+            }
+            DB::commit();
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+            Log::info('Webhook invoice.payment_succeeded failed. Subscription ID: ' . $invoice['id']);
+            Log::info('Webhook invoice.payment_succeeded error: ' . $e->getMessage() . ' on line ' . $e->getLine());
+        }
+    }
+
+    public function cancelSubscriptionAfterFailedAttempts($user)
+    {
+
+        $res = $this->subscriptionHelper->cancelImmediately($user->SubID);
+        $data_current_package = PaymentSubscription::where('UserId', $user->UserID)->where('Status', 'Pending')->first();
+
+        if (!empty($res) && !empty($data_current_package)) {
+            $data_current_package->CancelAt = now()->toDateString();
+            $data_current_package->Status = 'Canceled';
+            $data_current_package->save();
+        }
     }
 }

@@ -187,11 +187,11 @@ class BillingAndPlanController extends Controller
          return redirect()->route('billing_and_plan')->with('success', 'Your plan has been updated successfully');
       }
 
-      public function cancel_plan($id)
+      public function cancel_plan()
       {
-         $user = User::find($id);
+         $user = Auth::user();
          $res = $this->subscriptionHelper->cancelAtPeriodEnd($user->SubID);
-         $data_current_package = PaymentSubscription::where('UserId', $id)->where('Status', 'Active')->first();
+         $data_current_package = PaymentSubscription::where('UserId', $user->UserID)->where('Status', 'Active')->first();
         
          if(!empty($res) && !empty($data_current_package)) {
             $data_current_package->CancelAt = $data_current_package->NextRenewalDate;
@@ -228,9 +228,14 @@ class BillingAndPlanController extends Controller
                     return '$'.number_format($row->PaymentAmount, 2); 
                 })
                 ->addColumn('PaymentStatus', function ($row) {
-                    return '<span class="badge ' .
-                        ($row->PaymentStatus == 'Success' ? 'bg-label-primary' : 'bg-label-warning') .
-                        '">'. ($row->PaymentStatus == 'Success' ? 'paid' : 'unpaid'). '</span>';
+                    if($row->PaymentStatus == 'Success') {
+                        return '<span class="badge bg-label-primary">Paid</span>';
+                    }else if($row->PaymentStatus == 'Failed') {
+                        return '<span class="badge bg-label-danger">Failed</span>';
+                    }
+                    // return '<span class="badge ' .
+                    //     ($row->PaymentStatus == 'Success' ? 'bg-label-primary' : 'bg-label-warning') .
+                    //     '">'. ($row->PaymentStatus == 'Success' ? 'paid' : 'unpaid'). '</span>';
                 })
                 ->rawColumns(['PaymentStatus'])
                 ->make(true);

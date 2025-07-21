@@ -30,7 +30,7 @@ class UserAuthController extends Controller
 
     public function register()
     {
-        if(Auth::check()) {
+        if (Auth::check()) {
             return redirect()->route('user.dashboard');
         }
         return view('frontend.auth.register');
@@ -38,10 +38,10 @@ class UserAuthController extends Controller
 
     public function login()
     {
-        if(Auth::check()) {
+        if (Auth::check()) {
             return redirect()->route('user.dashboard');
         }
-        if(Auth::guard('admin')->check()) {
+        if (Auth::guard('admin')->check()) {
             return redirect()->route('admin.login');
         }
         return view('frontend.auth.login');
@@ -57,20 +57,20 @@ class UserAuthController extends Controller
     public function login_action(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email'    => 'required',  
+            'email' => 'required',
             'password' => 'required|min:6',
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
-    
+
         $user = User::where('Email', $request->email)->first();
-        
-        if(empty($user)) {
+
+        if (empty($user)) {
             return redirect()->back()->withErrors(['email' => 'Invalid login credentials'])->withInput();
         }
-        
+
         if (!empty($user) && $user->Status == 'Inactive') {
             return redirect()->back()->withErrors(['login' => 'User status is not Active'])->withInput();
         }
@@ -79,10 +79,10 @@ class UserAuthController extends Controller
 
             return redirect()->back()->withErrors(['login' => 'Please verify your email first'])->withInput();
         }
-        
+
         $packag_c = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
-                    ->where('Status', 'Active')->first()?->RemainingChecks ?? 0;
-        
+            ->orderBy('PaymentSubscriptionID', 'desc')->first()?->RemainingChecks ?? 0;
+
 
         if (!empty($user) && $packag_c == 0 && $user->CurrentPackageID != -1) {
             return redirect()->route('user.package', ['user_id' => $user->UserID]);
@@ -90,10 +90,10 @@ class UserAuthController extends Controller
 
         if ($user && Hash::check($request->password, $user->PasswordHash)) {
             Auth::login($user);
-            $name = $user->FirstName . ' ' .$user->LastName;
+            $name = $user->FirstName . ' ' . $user->LastName;
             // Mail::to($user->Email)->send(new SendEmail(2, $name));
             $user_history = UserHistory::where('UserID', $user->UserID)->first();
-            if(!empty($user_history)){
+            if (!empty($user_history)) {
                 $user_history->last_login = now();
                 $user_history->ip = $request->ip();
                 $user_history->save();
@@ -123,7 +123,7 @@ class UserAuthController extends Controller
             'phone_number' => 'required|regex:/^\d{3}-\d{3}-\d{4}$/',
             'company_name' => 'required'
         ]);
-        
+
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
@@ -156,7 +156,7 @@ class UserAuthController extends Controller
         return redirect()->route('user.package', ['user_id' => $user->UserID]);
     }
 
-    public function select_package(Request $request, $id, $plan) 
+    public function select_package(Request $request, $id, $plan)
     {
         $user = User::find($id);
         $user->CurrentPackageID = $plan;
@@ -165,10 +165,9 @@ class UserAuthController extends Controller
 
         $PaymentSubscription_plan = PaymentSubscription::where('UserID', $id)->whereIn('Status', ['Canceled', 'Pending'])->delete();
 
-
         $packages = Package::find($plan);
 
-       return redirect()->route('user.login')->with('success', 'Account created successful!');
+        return redirect()->route('user.login')->with('success', 'Account created successful!');
     }
 
 
@@ -180,7 +179,49 @@ class UserAuthController extends Controller
 
     public function expired_sub()
     {
-        return view('frontend.auth.expired');
+        $PaymentSubscription = PaymentSubscription::where('UserID', Auth::user()->UserID)->orderBy('PaymentSubscriptionID', 'desc')->first();
+
+        $PaymentHistory = PaymentHistory::where('PaymentSubscriptionID', $PaymentSubscription->PaymentSubscriptionID)
+            ->orderBy('PaymentHistoryID', 'desc')->first();
+
+        if($PaymentSubscription->Status != 'Canceled'){
+            return redirect()->route('user.dashboard');
+        }
+        
+        $user = Auth::user();
+        $package_id = $user->CurrentPackageID;
+        
+        if ($package_id == -1) {
+            $package = Package::whereRaw('LOWER(Name) = ?', ['trial'])->first();
+        } else {
+            $package = Package::find($user->CurrentPackageID);
+        }
+
+        return view('frontend.auth.expired',compact('user','PaymentHistory', 'package_id','package'));
+    }
+
+    public function pending_sub()
+    {
+
+        $PaymentSubscription = PaymentSubscription::where('UserID', Auth::user()->UserID)->orderBy('PaymentSubscriptionID', 'desc')->first();
+
+        $PaymentHistory = PaymentHistory::where('PaymentSubscriptionID', $PaymentSubscription->PaymentSubscriptionID)
+            ->orderBy('PaymentHistoryID', 'desc')->first();
+
+        if($PaymentHistory?->PaymentStatus != 'Failed' || $PaymentSubscription->Status != 'Pending'){
+            return redirect()->route('user.dashboard');
+        }
+
+        $user = Auth::user();
+        $package_id = $user->CurrentPackageID;
+
+        if ($package_id == -1) {
+            $package = Package::whereRaw('LOWER(Name) = ?', ['trial'])->first();
+        } else {
+            $package = Package::find($user->CurrentPackageID);
+        }
+       
+        return view('frontend.auth.pending', compact('user','PaymentHistory', 'package_id','package'));
     }
 
     public function email()
@@ -202,15 +243,15 @@ class UserAuthController extends Controller
 
         $user = User::where('Email', $request->email)->first();
 
-        if(!empty($user)) {
+        if (!empty($user)) {
             $token = Str::random(60);
             $user->reset_token = $token;
             $user->reset_token_expiry = Carbon::now()->addMinutes(30);
             $user->save();
-    
-            $name = $user->FirstName . ' ' .$user->LastName;
-    
-            Mail::to($user->Email)->send(new SendEmail(3, $name, $token));    
+
+            $name = $user->FirstName . ' ' . $user->LastName;
+
+            Mail::to($user->Email)->send(new SendEmail(3, $name, $token));
             return back()->with('success', 'We have emailed your password reset link!');
         }
         return back()->with('error', 'The email address you entered does not exist');
@@ -219,8 +260,8 @@ class UserAuthController extends Controller
     public function showResetForm($token)
     {
         $user = User::where('reset_token', $token)
-                    ->where('reset_token_expiry', '>', Carbon::now())
-                    ->first();
+            ->where('reset_token_expiry', '>', Carbon::now())
+            ->first();
 
         if (!$user) {
             return redirect()->route('user.login')->with('error', 'Invalid or expired token!');
@@ -234,12 +275,12 @@ class UserAuthController extends Controller
         $request->validate([
             'token' => 'required',
             'password' => 'required|min:6',
-            'confirm-password' => 'required|min:6' ,
+            'confirm-password' => 'required|min:6',
         ]);
 
         $user = User::where('reset_token', $request->token)
-                    ->where('reset_token_expiry', '>', Carbon::now())
-                    ->first();
+            ->where('reset_token_expiry', '>', Carbon::now())
+            ->first();
 
         if (!$user) {
             return redirect()->route('user.login')->with('error', 'Invalid or expired token!');
@@ -264,7 +305,7 @@ class UserAuthController extends Controller
 
         $paymentStartDate = Carbon::now();
         $paymentEndDate = $paymentStartDate->copy()->addHours(24);
-        $nextRenewalDate = $paymentStartDate->copy()->addDays((int)$packages->Duration);
+        $nextRenewalDate = $paymentStartDate->copy()->addDays((int) $packages->Duration);
 
         $paymentSubscription = PaymentSubscription::create([
             'UserID' => $user->UserID,
@@ -286,22 +327,22 @@ class UserAuthController extends Controller
             'Status' => 'Active',
         ]);
 
-         $user->save();
-        
-        $name = $user->FirstName . ' ' .$user->LastName;
+        $user->save();
+
+        $name = $user->FirstName . ' ' . $user->LastName;
         Mail::to($user->Email)->send(new SendEmail(1, $name));
         Mail::to(env('ADMIN_EMAIL'))->send(new AdminMail(10, 'Trial', $name, $user->Email));
 
         return redirect()->route('user.login')->with('success', 'Account created successful!');
-    
-    
+
+
     }
 
     public function verify_email($id, $hash)
     {
         $user = User::find($id);
 
-        if($hash != sha1($user->Email)) {
+        if ($hash != sha1($user->Email)) {
             return redirect()->route('user.login')->with('error', 'Invalid token!');
         }
 
@@ -310,4 +351,4 @@ class UserAuthController extends Controller
 
         return redirect()->route('user.login')->with('success', 'Email verified successful!');
     }
-}  
+}
