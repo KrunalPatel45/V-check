@@ -13,52 +13,46 @@ class StripeController extends Controller
         return view('stripe.subscription.list');
     }
     public function getSubscriptions()
-    {
-        $stripeSecret = config('services.stripe.secret'); // or env('STRIPE_SECRET')
+{
+    $stripeSecret = config('services.stripe.secret');
 
-        $response = Http::withToken($stripeSecret)
-            ->get('https://api.stripe.com/v1/subscriptions', [
-                'limit' => 100
-            ]);
+    $response = Http::withToken($stripeSecret)
+        ->get('https://api.stripe.com/v1/subscriptions', [
+            'limit' => 100,
+            'expand' => ['data.customer', 'data.plan.product']
+        ]);
 
-        if ($response->successful()) {
+    if ($response->successful()) {
+        $subscriptions = $response->json()['data'];
 
-            $subscriptions = $response->json()['data'];
-           
-            foreach ($subscriptions as $key => $val) {
-
-                $customer = Http::withToken($stripeSecret)
-                    ->get("https://api.stripe.com/v1/customers/{$val['customer']}");
-
-                $product = Http::withToken($stripeSecret)
-                    ->get("https://api.stripe.com/v1/products/{$val['plan']['product']}");
-                $subscriptions[$key]['product'] = $product->json();
-                $subscriptions[$key]['customer'] = $customer->json();
-                $subscriptions[$key]['created_at'] = Carbon::createFromTimestamp($val['created'])
-                    ->format('M d, h:i A');
-            }
-
-            return datatables()->of($subscriptions)
-                ->addColumn('actions', function ($subscription) {
-                    return '<a href="' . route('stripe.subscription.view', [$subscription['id']]) . '" class="btn btn-primary btn-sm">View</a>';
-                })
-                ->editColumn('status', function ($subscription) {
-                    if ($subscription['cancel_at']) {
-                        $status = '<span class="badge bg-danger">Cancels ' . Carbon::createFromTimestamp($subscription['cancel_at'])->format('M d') . '</span>';
-                    } else {
-                        $status = '<span class="badge bg-success">Active</span>';
-                    }
-                    return $status;
-                })
-                ->rawColumns(['status', 'actions'])
-                ->make(true);
+        foreach ($subscriptions as $key => $val) {
+            $subscriptions[$key]['product'] = $val['plan']['product'];
+            $subscriptions[$key]['customer'] = $val['customer'];
+            $subscriptions[$key]['created_at'] = Carbon::createFromTimestamp($val['created'])
+                ->format('M d, h:i A');
         }
 
-        return response()->json([
-            'error' => 'Failed to fetch subscriptions',
-            'message' => $response->body(),
-        ], $response->status());
+        return datatables()->of($subscriptions)
+            ->addColumn('actions', function ($subscription) {
+                return '<a href="' . route('stripe.subscription.view', [$subscription['id']]) . '" class="btn btn-primary btn-sm">View</a>';
+            })
+            ->editColumn('status', function ($subscription) {
+                if ($subscription['cancel_at']) {
+                    $status = '<span class="badge bg-danger">Cancels ' . Carbon::createFromTimestamp($subscription['cancel_at'])->format('M d') . '</span>';
+                } else {
+                    $status = '<span class="badge bg-success">Active</span>';
+                }
+                return $status;
+            })
+            ->rawColumns(['status', 'actions'])
+            ->make(true);
     }
+
+    return response()->json([
+        'error' => 'Failed to fetch subscriptions',
+        'message' => $response->body(),
+    ], $response->status());
+}
 
     public function viewSubscription($subscriptionId)
     {
