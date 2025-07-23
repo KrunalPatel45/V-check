@@ -59,7 +59,10 @@ class SendNewSubMail extends Mailable
 
         $mail = $this->subject($emailContent->subject)
                      ->view('user.emails.mail')
-                     ->with('emailContent', $emailContent);
+                     ->with([
+                        'emailContent'=> $emailContent,
+                        'verify_url' => $this->data['verify_url']                    
+                    ]);
 
         return $mail;
     }

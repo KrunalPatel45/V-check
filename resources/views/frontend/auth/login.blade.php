@@ -42,8 +42,8 @@
                     </div>
                 @endif
                 @if ($errors->has('login'))
-                    <div class="alert alert-danger">
-                        {{ $errors->first('login') }}
+                    <div class="alert alert-danger d-flex justify-content-between">
+                        {!!  $errors->first('login') !!}
                     </div>
                 @endif
                 <!-- Login -->

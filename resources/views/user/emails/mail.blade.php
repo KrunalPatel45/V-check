@@ -391,6 +391,21 @@
                                                                                         </tr>
                                                                                     </tbody>
                                                                                 </table>
+                                                                                @php
+                                                                                    if(isset($isAdmin)) {
+
+                                                                                        $link = route('admin.login');
+
+                                                                                    } else {
+                                                                                    
+                                                                                        if(isset($verify_url)) {
+                                                                                            $link = $verify_url; 
+                                                                                        }else{
+                                                                                            $link = route('user.login');
+                                                                                        }
+                                                                                    }
+
+                                                                                @endphp
                                                                                 <table class="button_block block-7"
                                                                                     width="100%" border="0"
                                                                                     cellpadding="0" cellspacing="0"
@@ -404,12 +419,12 @@
                                                                                                 <div class="alignment"
                                                                                                     align="center">
                                                                                                     <!--[if mso]>
-<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ isset($isAdmin) ? route('admin.login') : route('user.login') }}" style="height:50px;width:162px;v-text-anchor:middle;" arcsize="30%" stroke="false" fillcolor="#4e6aaf">
+<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ $link }}" style="height:50px;width:162px;v-text-anchor:middle;" arcsize="30%" stroke="false" fillcolor="#4e6aaf">
 <w:anchorlock/>
 <v:textbox inset="0px,0px,0px,0px">
 <center style="color:#ffffff; font-family:'Trebuchet MS', Tahoma, sans-serif; font-size:15px">
 <!
-                                    [endif]--><a href="{{ isset($isAdmin) ? route('admin.login') : route('user.login') }}" target="_blank"
+                                    [endif]--><a href="{{ $link }}" target="_blank"
                                                                                                         style="
                                         text-decoration: none;
                                         display: inline-block;
@@ -431,7 +446,7 @@
                                         word-break: keep-all;
                                       "><span
                                                                                                             style="padding-left: 30px; padding-right: 30px; font-size: 15px; display: inline-block; letter-spacing: 1px"><span
-                                                                                                                style="word-break: break-word; line-height: 30px">LOGIN</span></span></a><!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
+                                                                                                                style="word-break: break-word; line-height: 30px">@if(isset($verify_url)) VERIFY @else LOGIN @endif</span></span></a><!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
                                                                                                 </div>
                                                                                             </td>
                                                                                         </tr>

@@ -87,7 +87,10 @@ class SendEmail extends Mailable
 
         $mail = $this->subject($emailContent->subject)
                      ->view('user.emails.mail')
-                     ->with('emailContent', $emailContent);
+                     ->with([
+                        'emailContent' => $emailContent,
+                        'verify_url' => $this->verify_url
+                    ]);
 
         return $mail;
     }

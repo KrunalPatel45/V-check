@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Mail;
 use App\Helpers\SubscriptionHelper;
 use App\Mail\AdminMail;
 use App\Mail\RegistrationVerificationMail;
+use Illuminate\Support\Facades\Crypt;
+use App\Mail\SendNewSubMail;
 
 class UserAuthController extends Controller
 {
@@ -68,31 +70,28 @@ class UserAuthController extends Controller
 
         $user = User::where('Email', $request->email)->first();
 
-        if (empty($user)) {
-            return redirect()->back()->withErrors(['email' => 'Invalid login credentials'])->withInput();
-        }
+        if (!empty($user) && Hash::check($request->password, $user->PasswordHash)) {
 
-        if (!empty($user) && $user->Status == 'Inactive') {
-            return redirect()->back()->withErrors(['login' => 'User status is not Active'])->withInput();
-        }
+            if (!empty($user) && $user->Status == 'Inactive') {
+                return redirect()->back()->withErrors(['login' => 'User status is not Active'])->withInput();
+            }
 
-        if ($user->EmailVerified == false) {
+            if ($user->EmailVerified == false) {
+                $enc_user_id = Crypt::encrypt($user->UserID);
+                $link = route('user.resend_verify_email', $enc_user_id);
+                return redirect()->back()->withErrors(['login' => 'Please verify your email first <a href="' . $link . '">Resend</a>'])->withInput();
+            }
 
-            return redirect()->back()->withErrors(['login' => 'Please verify your email first'])->withInput();
-        }
-
-        $packag_c = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
-            ->orderBy('PaymentSubscriptionID', 'desc')->first()?->RemainingChecks ?? 0;
+            $packag_c = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
+                ->orderBy('PaymentSubscriptionID', 'desc')->first()?->RemainingChecks ?? 0;
 
 
-        if (!empty($user) && $packag_c == 0 && $user->CurrentPackageID != -1) {
-            return redirect()->route('user.package', ['user_id' => $user->UserID]);
-        }
-
-        if ($user && Hash::check($request->password, $user->PasswordHash)) {
+            if ($packag_c == 0 && $user->CurrentPackageID != -1) {
+                return redirect()->route('user.package', ['user_id' => $user->UserID]);
+            }
             Auth::login($user);
             $name = $user->FirstName . ' ' . $user->LastName;
-            // Mail::to($user->Email)->send(new SendEmail(2, $name));
+
             $user_history = UserHistory::where('UserID', $user->UserID)->first();
             if (!empty($user_history)) {
                 $user_history->last_login = now();
@@ -185,20 +184,20 @@ class UserAuthController extends Controller
         $PaymentHistory = PaymentHistory::where('PaymentSubscriptionID', $PaymentSubscription->PaymentSubscriptionID)
             ->orderBy('PaymentHistoryID', 'desc')->first();
 
-        if($PaymentSubscription->Status != 'Canceled'){
+        if ($PaymentSubscription->Status != 'Canceled') {
             return redirect()->route('user.dashboard');
         }
-        
+
         $user = Auth::user();
         $package_id = $user->CurrentPackageID;
-        
+
         if ($package_id == -1) {
             $package = Package::whereRaw('LOWER(Name) = ?', ['trial'])->first();
         } else {
             $package = Package::find($user->CurrentPackageID);
         }
 
-        return view('frontend.auth.expired',compact('user','PaymentHistory', 'package_id','package'));
+        return view('frontend.auth.expired', compact('user', 'PaymentHistory', 'package_id', 'package'));
     }
 
     public function pending_sub()
@@ -209,7 +208,7 @@ class UserAuthController extends Controller
         $PaymentHistory = PaymentHistory::where('PaymentSubscriptionID', $PaymentSubscription->PaymentSubscriptionID)
             ->orderBy('PaymentHistoryID', 'desc')->first();
 
-        if($PaymentHistory?->PaymentStatus != 'Failed' || $PaymentSubscription->Status != 'Pending'){
+        if ($PaymentHistory?->PaymentStatus != 'Failed' || $PaymentSubscription->Status != 'Pending') {
             return redirect()->route('user.dashboard');
         }
 
@@ -221,8 +220,8 @@ class UserAuthController extends Controller
         } else {
             $package = Package::find($user->CurrentPackageID);
         }
-       
-        return view('frontend.auth.pending', compact('user','PaymentHistory', 'package_id','package'));
+
+        return view('frontend.auth.pending', compact('user', 'PaymentHistory', 'package_id', 'package'));
     }
 
     public function email()
@@ -332,11 +331,11 @@ class UserAuthController extends Controller
 
         $name = $user->FirstName . ' ' . $user->LastName;
 
-        $link = route('user.verify_email',[$user->UserID, sha1($user->Email)]);
-        $link_button = '<a href="'.$link.'" target="_blank">Verify Email</a>';
+        $link = route('user.verify_email', [$user->UserID, sha1($user->Email)]);
+        $link_button = '<a href="' . $link . '" target="_blank">Verify Email</a>';
 
         // Mail::to($user->Email)->send(new RegistrationVerificationMail(12, $user->FirstName.' '.$user->LastName,$link_button,$link));
-        Mail::to($user->Email)->send(new SendEmail(1, $name,null,$link_button,$link));
+        Mail::to($user->Email)->send(new SendEmail(1, $name, null, $link_button, $link));
         Mail::to(env('ADMIN_EMAIL'))->send(new AdminMail(10, 'Trial', $name, $user->Email));
 
         return redirect()->route('user.login')->with('success', 'Verification link sent to your email');
@@ -355,5 +354,55 @@ class UserAuthController extends Controller
         $user->save();
 
         return redirect()->route('user.login')->with('success', 'Email verified successful!');
+    }
+
+    public function resend_verify_email($userId)
+    {
+
+        try {
+
+            $userId = Crypt::decrypt($userId);
+
+            $user = User::findOrFail($userId);
+
+            if ($user->EmailVerified) {
+                return redirect()->route('user.login')->with('error', 'Email already verified!');
+            }
+            
+            $name = $user->FirstName . ' ' . $user->LastName;
+
+            $link = route('user.verify_email', [$user->UserID, sha1($user->Email)]);
+            $link_button = '<a href="' . $link . '" target="_blank">Verify Email</a>';
+
+            if($user->CurrentPackageID == -1){
+
+                Mail::to($user->Email)->send(new SendEmail(1, $name, null, $link_button, $link));
+
+            }else{
+             
+                $packages = Package::findOrFail($user->CurrentPackageID);
+
+                $paymentStartDate = Carbon::now();
+                $paymentEndDate = $paymentStartDate->copy()->addHours(24);
+                $nextRenewalDate = $paymentStartDate->copy()->addDays((int)$packages->Duration + 1);
+
+                $data = [
+                    'plan_name' => $packages->Name,
+                    'start_date' => $paymentStartDate->format('m/d/Y'),
+                    'next_billing_date' => $nextRenewalDate->format('m/d/Y'),
+                    'amount' => $packages->Price,
+                    'verify_url' => $link,
+                    'verify_btn'=> $link_button
+                ];
+
+                Mail::to($user->Email)->send(new SendNewSubMail(6, $name, $data));
+            }
+
+            return redirect()->route('user.login')->with('success', 'Verification link sent to your email');
+            
+        } catch (\Exception $e) {
+            return redirect()->route('user.login')->with('error', 'Something went wrong!');
+        }
+
     }
 }
