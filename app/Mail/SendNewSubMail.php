@@ -41,8 +41,10 @@ class SendNewSubMail extends Mailable
             '{{ start_date }}'  => $this->data['start_date'] ?? '',
             '{{ next_billing_date }}'  => $this->data['next_billing_date'] ?? '',
             '{{ amount }}'  => $this->data['amount'] ?? '',
+            '{{ verify_url }}'  => $this->data['verify_url'] ?? '',
+            '{{ verify_btn }}'  => $this->data['verify_btn'] ?? ''
         ];
-
+        
         $fields = ['subject', 'content', 'body1', 'body2'];
 
         foreach ($fields as $field) {

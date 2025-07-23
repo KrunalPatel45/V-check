@@ -50,7 +50,6 @@ class StripeWebhookController extends Controller
 
                 Log::info('Event started : customer.subscription.deleted');
 
-
                 $this->cancelSubscription($event);
 
                 Log::info('Event finished : customer.subscription.deleted');
@@ -70,6 +69,14 @@ class StripeWebhookController extends Controller
                 $this->paymentFailed($event);
 
                 Log::info('Event finished : invoice.payment_failed');
+
+            } else if ($event['type'] === 'customer.subscription.deleted') {
+
+                Log::info('Event started : customer.subscription.deleted');
+
+                ($event);
+
+                Log::info('Event finished : customer.subscription.deleted');
 
             }
         }
@@ -199,23 +206,44 @@ class StripeWebhookController extends Controller
             $user = User::where('CusID', $subscription['customer'])
                 ->where('SubID', $subscription['id'])->first();
 
-            PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
-                ->whereNotNull('CancelAt')->where('Status', 'Active')->update([
-                        'status' => 'Canceled'
-                    ]);
+                $atEndSubCanceled=PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
+                ->whereNotNull('CancelAt')->where('Status', 'Active')
+                ->orderBy('PaymentSubscriptionID', 'desc')->first();
+
+                $afterAttemptSubTobeCanceled = PaymentSubscription::where('UserId', $user->UserID)->where('Status', 'Pending')
+                    ->orderBy('PaymentSubscriptionID', 'desc')->first();
+
+                Log::info($atEndSubCanceled);
+                
+                Log::info($afterAttemptSubTobeCanceled);
+
+                if (!empty($afterAttemptSubTobeCanceled)) {
+                     Log::info('afterAttemptSubTobeCanceled');
+                    $afterAttemptSubTobeCanceled->CancelAt = now()->toDateString();
+                    $afterAttemptSubTobeCanceled->Status = 'Canceled';
+                    $afterAttemptSubTobeCanceled->save();
+                }
 
 
-            $user_name = $user->FirstName . ' ' . $user->LastName;
-            $package = Package::find($user->CurrentPackageID);
-            $data = [
-                'plan_name' => $package->Name,
-            ];
+                if (!empty($atEndSubCanceled)) {
+                     Log::info('atEndSuCanceled');
+                    $atEndSubCanceled->Status = 'Canceled';
+                    $atEndSubCanceled->save();
+
+                    $user_name = $user->FirstName . ' ' . $user->LastName;
+                    $package = Package::find($user->CurrentPackageID);
+                    $data = [
+                        'plan_name' => $package->Name,
+                    ];
+                    Mail::to($user->Email)->send(new StripeCancelSubMail(14, $user_name, $data));
+                }
+           
+
+
+            
             // $user->update([
             //     'CurrentPackageID' => null
             // ]);
-
-            Mail::to($user->Email)->send(new StripeCancelSubMail(14, $user_name, $data));
-
             DB::commit();
 
         } catch (\Exception $e) {
@@ -231,8 +259,6 @@ class StripeWebhookController extends Controller
     {
 
         try {
-
-            Log::info($event);
 
             DB::beginTransaction();
 
@@ -250,7 +276,7 @@ class StripeWebhookController extends Controller
                     PaymentHistory::create([
                     'PaymentSubscriptionID' => $PaymentSubscription->PaymentSubscriptionID,
                     'PaymentAmount' => $invoice['amount_paid'] / 100,
-                    'PaymentDate' => Carbon::createFromTimestamp($invoice['created'])->toDateTimeString(),
+                    'PaymentDate' => now(),
                     'PaymentStatus' => 'Success',
                     'PaymentAttempts' => $invoice['attempt_count'],
                     'TransactionID' => $invoice['id'],
@@ -276,7 +302,7 @@ class StripeWebhookController extends Controller
     {
 
         try {
-            Log::info($event);
+
             DB::beginTransaction();
 
             $invoice = $event['data']['object'];
@@ -291,7 +317,7 @@ class StripeWebhookController extends Controller
                 PaymentHistory::create([
                     'PaymentSubscriptionID' => $PaymentSubscription->PaymentSubscriptionID,
                     'PaymentAmount' => $invoice['amount_due'] / 100,
-                    'PaymentDate' => Carbon::createFromTimestamp($event['created'])->toDateTimeString(),
+                    'PaymentDate' => now(),
                     'PaymentStatus' => 'Failed',
                     'PaymentAttempts' => $invoice['attempt_count'],
                     'TransactionID' => $invoice['id'],
@@ -299,13 +325,15 @@ class StripeWebhookController extends Controller
                 ]);
 
 
-                if ($invoice['attempt_count'] >= 3) {
-                    $this->cancelSubscriptionAfterFailedAttempts($user);
-                } else {
+                // if ($invoice['attempt_count'] >= 3) {
+                //     $this->cancelSubscriptionAfterFailedAttempts($user);
+                // } else {
+                if ($invoice['attempt_count'] < 4) {
                     $PaymentSubscription->update([
                         'Status' => 'Pending'
                     ]);
                 }
+                // }
             }
             DB::commit();
 
@@ -317,17 +345,17 @@ class StripeWebhookController extends Controller
         }
     }
 
-    public function cancelSubscriptionAfterFailedAttempts($user)
-    {
+    // public function cancelSubscriptionAfterFailedAttempts($user)
+    // {
 
-        $res = $this->subscriptionHelper->cancelImmediately($user->SubID);
-        $data_current_package = PaymentSubscription::where('UserId', $user->UserID)->where('Status', 'Pending')
-        ->orderBy('PaymentSubscriptionID', 'desc')->first();
+    //     $res = $this->subscriptionHelper->cancelImmediately($user->SubID);
+    //     $data_current_package = PaymentSubscription::where('UserId', $user->UserID)->where('Status', 'Pending')
+    //     ->orderBy('PaymentSubscriptionID', 'desc')->first();
 
-        if (!empty($res) && !empty($data_current_package)) {
-            $data_current_package->CancelAt = now()->toDateString();
-            $data_current_package->Status = 'Canceled';
-            $data_current_package->save();
-        }
-    }
+    //     if (!empty($res) && !empty($data_current_package)) {
+    //         $data_current_package->CancelAt = now()->toDateString();
+    //         $data_current_package->Status = 'Canceled';
+    //         $data_current_package->save();
+    //     }
+    // }
 }

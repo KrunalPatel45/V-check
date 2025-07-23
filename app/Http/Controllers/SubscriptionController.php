@@ -137,17 +137,18 @@ class SubscriptionController extends Controller
             ]);
 
              $user_name = $user->FirstName . ' ' .$user->LastName;
+             $link = route('user.verify_email',[$user->UserID, sha1($user->Email)]);
+             
              $data = [
                 'plan_name' => $packages->Name,
                 'start_date' => $paymentStartDate->format('m/d/Y'),
                 'next_billing_date' => $nextRenewalDate->format('m/d/Y'),
                 'amount' => $packages->Price,
+                'verify_url' => $link,
+                'verify_btn'=>'<a href="'.$link.'" target="_blank">Verify Email</a>'
              ];
 
-            $link = route('user.verify_email',[$user->UserID, sha1($user->Email)]);
-            $link_button = '<a href="'.$link.'" target="_blank">Verify Email</a>';
-            
-            Mail::to($user->Email)->send(new RegistrationVerificationMail(12, $user->FirstName.' '.$user->LastName,$link_button,$link));   
+            // Mail::to($user->Email)->send(new RegistrationVerificationMail(12, $user->FirstName.' '.$user->LastName,$link_button,$link));   
             Mail::to($user->Email)->send(new SendNewSubMail(6, $user_name, $data));
             Mail::to(env('ADMIN_EMAIL'))->send(new AdminMail(10, $packages->Name, $user_name, $user->Email));      
             // Optional: redirect or show a view

@@ -19,6 +19,7 @@ use App\Mail\ResetPasswordMail;
 use Illuminate\Support\Facades\Mail;
 use App\Helpers\SubscriptionHelper;
 use App\Mail\AdminMail;
+use App\Mail\RegistrationVerificationMail;
 
 class UserAuthController extends Controller
 {
@@ -330,12 +331,16 @@ class UserAuthController extends Controller
         $user->save();
 
         $name = $user->FirstName . ' ' . $user->LastName;
-        Mail::to($user->Email)->send(new SendEmail(1, $name));
+
+        $link = route('user.verify_email',[$user->UserID, sha1($user->Email)]);
+        $link_button = '<a href="'.$link.'" target="_blank">Verify Email</a>';
+
+        // Mail::to($user->Email)->send(new RegistrationVerificationMail(12, $user->FirstName.' '.$user->LastName,$link_button,$link));
+        Mail::to($user->Email)->send(new SendEmail(1, $name,null,$link_button,$link));
         Mail::to(env('ADMIN_EMAIL'))->send(new AdminMail(10, 'Trial', $name, $user->Email));
 
-        return redirect()->route('user.login')->with('success', 'Account created successful!');
-
-
+        return redirect()->route('user.login')->with('success', 'Verification link sent to your email');
+        // return redirect()->route('user.login')->with('success', 'Account created successful!');
     }
 
     public function verify_email($id, $hash)

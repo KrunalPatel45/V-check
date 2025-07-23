@@ -122,7 +122,7 @@
                             <p>Your last payment attempt was unsuccessful. Please complete the payment to avoid service interruption.</p>
                             <p>If payment continues to fail, your subscription <b>will be automatically canceled</b> after 3 unsuccessful attempts.</p>
                             
-                            <a href="{{ $PaymentHistory->PaymentUrl}}" class="btn btn-primary mt-2">Pay Now</a>
+                            <a href="{{ $PaymentHistory->PaymentUrl}}" target="_blank" class="btn btn-primary mt-2">Pay Now</a>
                         </div>
                     </div>
                 </div>
