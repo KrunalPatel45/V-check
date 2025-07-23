@@ -76,11 +76,7 @@ class UserAuthController extends Controller
                 return redirect()->back()->withErrors(['login' => 'User status is not Active'])->withInput();
             }
 
-            if ($user->EmailVerified == false) {
-                $enc_user_id = Crypt::encrypt($user->UserID);
-                $link = route('user.resend_verify_email', $enc_user_id);
-                return redirect()->back()->withErrors(['login' => 'Please verify your email first <a href="' . $link . '">Resend</a>'])->withInput();
-            }
+            
 
             $packag_c = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
                 ->orderBy('PaymentSubscriptionID', 'desc')->first()?->RemainingChecks ?? 0;
@@ -89,6 +85,13 @@ class UserAuthController extends Controller
             if ($packag_c == 0 && $user->CurrentPackageID != -1) {
                 return redirect()->route('user.package', ['user_id' => $user->UserID]);
             }
+                
+            if ($user->EmailVerified == false) {
+                $enc_user_id = Crypt::encrypt($user->UserID);
+                $link = route('user.resend_verify_email', $enc_user_id);
+                return redirect()->back()->withErrors(['login' => 'Please verify your email first <a href="' . $link . '">Resend</a>'])->withInput();
+            }
+
             Auth::login($user);
             $name = $user->FirstName . ' ' . $user->LastName;
 
@@ -142,7 +145,7 @@ class UserAuthController extends Controller
             'Address' => $request->address,
             'PhoneNumber' => preg_replace('/\D/', '', $request->phone_number),
             'PasswordHash' => Hash::make($request->password),
-            'Status' => 'Inactive',
+            'Status' => 'Active',
             'CreatedAt' => now(),
             'UpdatedAt' => now(),
             'CusID' => !empty($cus['id']) ? $cus['id'] : NULL,
@@ -353,7 +356,7 @@ class UserAuthController extends Controller
         $user->EmailVerified = true;
         $user->save();
 
-        return redirect()->route('user.login')->with('success', 'Email verified successful!');
+        return redirect()->route('user.login')->with('success', 'Email verified successfully!');
     }
 
     public function resend_verify_email($userId)
