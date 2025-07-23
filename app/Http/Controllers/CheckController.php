@@ -488,7 +488,7 @@ class CheckController extends Controller
             // ->setPaper([0, 0, 1000, 1200])
             ->setOptions(['dpi' => 150])
             ->set_option('isHtml5ParserEnabled', true)
-            ->set_option('isRemoteEnabled', true);
+            ->set_option('isRemoteEnabled', false);
 
         // Define the file path where you want to save the PDF
         $file_name = 'check-' . $data['check_number'] . '-' . time() . '.pdf';
@@ -589,10 +589,16 @@ class CheckController extends Controller
                         if($row->CheckType=='Process Payment'){
                             return '<a href="' . $check_preview . '" target="_blank" class="btn">
                                         <i class="menu-icon tf-icons ti ti-files"></i>
+                                    </a>
+                                    <a href="' . route('download.pdf', $row->CheckID) . '" class="btn">
+                                        <i class="menu-icon tf-icons ti ti-download"></i>
                                     </a>';
                         }else{
                             return '<div class="d-flex"><a href="' . $check_preview . '" target="_blank" class="btn">
                                             <i class="menu-icon tf-icons ti ti-files"></i> Preview
+                                    </a>
+                                     <a href="' . route('download.pdf', $row->CheckID) . '" class="btn">
+                                        <i class="menu-icon tf-icons ti ti-download"></i> Download
                                     </a>
                                     <a href="' . $send_email_url . '" class="btn">
                                             <i class="menu-icon tf-icons ti ti-mail"></i> ' . $send_email_lable . '
