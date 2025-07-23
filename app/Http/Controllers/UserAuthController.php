@@ -85,7 +85,7 @@ class UserAuthController extends Controller
             if ($packag_c == 0 && $user->CurrentPackageID != -1) {
                 return redirect()->route('user.package', ['user_id' => $user->UserID]);
             }
-                
+
             if ($user->EmailVerified == false) {
                 $enc_user_id = Crypt::encrypt($user->UserID);
                 $link = route('user.resend_verify_email', $enc_user_id);
