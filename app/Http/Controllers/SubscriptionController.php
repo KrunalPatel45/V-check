@@ -34,7 +34,16 @@ class SubscriptionController extends Controller
     {
         $user = User::find($id);
         
+        // if($user != null && $user->CurrentPackageID == -1){
+        //     return redirect()->back();    
+        // }
+
         $package = Package::find($plan);
+
+        if($package != null && strtolower(trim($package->Name)) == 'trial'){
+            return redirect()->back();
+        }
+
         $data = [
             'cusID' => $user->CusID,
             'price_id' => $package->PriceID,

@@ -116,13 +116,19 @@
                 id = $(this).val();
                 const selectedValue = $(this).find('option:selected').attr(
                     'id');
+
+                    $('#address').val('');
+                    $('#city').val('');
+                    $('#state').val('');
+                    $('#zip').val('');
+
                 if (selectedValue === 'add_other_payor') {
                     $('#payor-edit').addClass('d-none');
                     $('#payorModel').modal('show');
                     $('#payor_id').val('');
                     $('#add-payor #name').val('');
                     $('#add-payor #email').val('');
-                    $('#add-payor #address').val('');
+                    $('#add-payor #address1').val('');
                     $('#add-payor #city').val('');
                     $('#add-payor #state').val('');
                     $('#add-payor #zip').val('');
@@ -141,8 +147,9 @@
 
                             $('#payor_id').val(response.payor.EntityID);
                             $('#address').val(address);
+                            $('#address1').val(address);
                             $('#city').val(response.payor.City);
-                            $('#state').val(response.payor.State);
+                            $('#state').val(response.payor.State).change();
                             $('#zip').val(response.payor.Zip);
                             $('#account_number').val(response.payor.AccountNumber);
                             $('#routing_number').val(response.payor.RoutingNumber);
@@ -282,7 +289,7 @@
             $('#payor_close').on('click', function(e) {
                 event.preventDefault();
                 $('#payorModel').modal('hide');
-                $("#payor").val("");
+                // $("#payor").val("");
             });
             $('#payor-edit').on('click', function(e) {
                 event.preventDefault();
@@ -670,10 +677,10 @@
                                                     'Wyoming',
                                                 ];
                                             @endphp
-
+                                           
                                             @foreach ($states as $state)
                                                 <option value="{{ $state }}"
-                                                    {{ !empty($old_payor->state) && $old_payor->state ? 'selected' : '' }}>
+                                                    {{ !empty($old_payor->State) && ($old_payor->State == $state)  ? 'selected' : '' }}>
                                                     {{ $state }}
                                                 </option>
                                             @endforeach

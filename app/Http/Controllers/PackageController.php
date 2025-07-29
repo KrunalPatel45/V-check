@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Package;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Helpers\SubscriptionHelper;
 
@@ -24,25 +26,26 @@ class PackageController extends Controller
         }
 
         if ($request->ajax()) {
-            $packages = Package::all(); // Adjust as needed if you want to limit the data
+            $packages = Package::where('IsVisToAdmin', 1)
+                        ->orderBy('PackageID', 'desc')->get();
 
             return datatables()->of($packages)
                 ->addIndexColumn() // This adds an index column for row numbers
                 ->addColumn('status', function ($package) {
-                    return $package->Status == 'Active' 
-                        ? '<span class="badge bg-label-primary">' . $package->Status . '</span>' 
+                    return $package->Status == 'Active'
+                        ? '<span class="badge bg-label-primary">' . $package->Status . '</span>'
                         : '<span class="badge bg-label-warning">' . $package->Status . '</span>';
                 })
                 ->addColumn('web_forms', function ($package) {
-                    return $package->web_forms == 1 
-                        ? '<span class="badge bg-label-primary">Enable</span>' 
+                    return $package->web_forms == 1
+                        ? '<span class="badge bg-label-primary">Enable</span>'
                         : '<span class="badge bg-label-warning">Disable</span>';
                 })
                 ->addColumn('Price', function ($package) {
-                    return '$'.number_format($package->Price, 2); 
+                    return '$' . number_format($package->Price, 2);
                 })
                 ->addColumn('created_at', function ($package) {
-                    return Carbon::parse($package->CreatedAt)->format('m/d/Y'); 
+                    return Carbon::parse($package->CreatedAt)->format('m/d/Y');
                 })
                 ->addColumn('updated_at', function ($package) {
                     return Carbon::parse($package->UpdatedAt)->format('m/d/Y');
@@ -96,7 +99,7 @@ class PackageController extends Controller
 
     public function create()
     {
-        if(!Auth::guard('admin')->check()) {
+        if (!Auth::guard('admin')->check()) {
             return redirect()->route('admin.login');
         }
         return view('admin.package.new');
@@ -104,7 +107,7 @@ class PackageController extends Controller
 
     public function store(Request $request)
     {
-        if(!Auth::guard('admin')->check()) {
+        if (!Auth::guard('admin')->check()) {
             return redirect()->route('admin.login');
         }
 
@@ -141,7 +144,7 @@ class PackageController extends Controller
 
         $res = $this->subscriptionHelper->addPlan($plan_data);
 
-        if(!empty($res['id'])) {
+        if (!empty($res['id'])) {
             $price_obj = $this->subscriptionHelper->addPrice($res['product'], $request->price);
             $package->PlanID = $res['id'];
             $package->ProductID = $res['product'];
@@ -157,7 +160,7 @@ class PackageController extends Controller
 
     public function edit($id)
     {
-        if(!Auth::guard('admin')->check()) {
+        if (!Auth::guard('admin')->check()) {
             return redirect()->route('admin.login');
         }
         $package = Package::find($id);
@@ -166,7 +169,7 @@ class PackageController extends Controller
 
     public function update(Request $request, $id)
     {
-        if(!Auth::guard('admin')->check()) {
+        if (!Auth::guard('admin')->check()) {
             return redirect()->route('admin.login');
         }
 
@@ -185,45 +188,70 @@ class PackageController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $package = Package::find($id);
-        $package->Name = $request->name;
-        $package->Description = $request->description;
+        try {
 
-        if($request->price != $package->Price) {
-            if(!empty($package->ProductID) && !empty($plan_data)) {
-                $this->subscriptionHelper->deleteProduct($package->ProductID);
-                $this->subscriptionHelper->deletePlan($package->PlanID);
+            DB::beginTransaction();
+
+            $is_stripe_updated = false;
+
+            $old_package = Package::find($id);
+
+            if ($request->price != $old_package->Price) {
+
+                $plan_data = [
+                    'name' => $request->name,
+                    'interval' => 'month',
+                    'price' => $request->price
+                ];
+
+                $res = $this->subscriptionHelper->addPlan($plan_data);
+
+                if (!empty($res['id'])) {
+                    $price_obj = $this->subscriptionHelper->addPrice($res['product'], $request->price);
+                    $new_package = new Package();
+
+                    $new_package->Name = $request->name;
+                    $new_package->Description = $request->description;
+                    $new_package->PlanID = $res['id'];
+                    $new_package->ProductID = $res['product'];
+                    $new_package->PriceID = $price_obj['id'];
+
+                    $new_package->Price = $request->price;
+                    $new_package->Duration = $request->duration;
+                    $new_package->CheckLimitPerMonth = $request->check_limit;
+                    $new_package->web_forms = $request->web_form;
+                    $new_package->RecurringPaymentFrequency = $request->frequency;
+                    $new_package->Status = $request->status;
+                    $new_package->save();
+
+                    $is_stripe_updated = true;
+                }
             }
 
-            $plan_data = [
-                'name' => $request->name,
-                'interval' => 'month',
-                'price' => $request->price
-            ];
-
-            $res = $this->subscriptionHelper->addPlan($plan_data);
-
-            if(!empty($res['id'])) {
-                $price_obj = $this->subscriptionHelper->addPrice($res['product'], $request->price);
-                $package->PlanID = $res['id'];
-                $package->ProductID = $res['product'];
-                $package->PriceID = $price_obj['id'];
+            if ($is_stripe_updated) {
+                $old_package->Status = 'Inactive';
+                $old_package->IsVisToAdmin = '0';
+            } else {
+                $old_package->Name = $request->name;
+                $old_package->Description = $request->description;
+                $old_package->Price = $request->price;
+                $old_package->Duration = $request->duration;
+                $old_package->CheckLimitPerMonth = $request->check_limit;
+                $old_package->web_forms = $request->web_form;
+                $old_package->RecurringPaymentFrequency = $request->frequency;
+                $old_package->Status = $request->status;
             }
+
+            $old_package->save();
+            DB::commit();
+
+            return redirect()->route('admin.package')->with('success', 'Package updated successfully');
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            return redirect()->route('admin.package')->with('error', 'Something went wrong');
         }
 
-
-        $package->Price = $request->price;
-        $package->Duration = $request->duration;
-        $package->CheckLimitPerMonth = $request->check_limit;
-        $package->web_forms = $request->web_form;
-        $package->RecurringPaymentFrequency = $request->frequency;
-        $package->Status = $request->status;
-
-        $package->save();
-
-        return redirect()->route('admin.package')->with('success', 'Package updated successfully');
-
-        return view('admin.package.new');
     }
 
     public function delete($id)

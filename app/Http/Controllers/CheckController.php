@@ -211,14 +211,14 @@ class CheckController extends Controller
                 'DigitalSignature' => (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '',
             ]);
 
-            if (Auth::user()->CurrentPackageID != -1) {
+            // if (Auth::user()->CurrentPackageID != -1) {
                 $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)
                     ->where('Status', 'Active')->orderBy('PaymentSubscriptionID', 'desc')->first();
                 $paymentSubscription->ChecksReceived = $paymentSubscription->ChecksReceived + 1;
                 $paymentSubscription->ChecksUsed = $paymentSubscription->ChecksUsed + 1;
                 $paymentSubscription->RemainingChecks = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
                 $paymentSubscription->save();
-            }
+            // }
             $message = 'Check Created successfully';
         }
 
@@ -418,14 +418,14 @@ class CheckController extends Controller
                 'SignID' => $request->signature_id,
             ]);
 
-            if (Auth::user()->CurrentPackageID != -1) {
+            // if (Auth::user()->CurrentPackageID != -1) {
                 $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)
                     ->where('Status', 'Active')->orderBy('PaymentSubscriptionID', 'desc')->first();
                 $paymentSubscription->ChecksSent = $paymentSubscription->ChecksSent + 1;
                 $paymentSubscription->ChecksUsed = $paymentSubscription->ChecksUsed + 1;
                 $paymentSubscription->RemainingChecks = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
                 $paymentSubscription->save();
-            }
+            // }
 
             $message = 'Check Created successfully';
         }

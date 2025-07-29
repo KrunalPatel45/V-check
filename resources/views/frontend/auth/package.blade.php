@@ -135,9 +135,17 @@
             @if ($package->Name == 'Trial')
                 <div class="pricing-card">
                     <h3>{{ $package->Name }}</h3>
-                    <p class="price">${{ $package->Price }} <span>monthly</span></p>
+                    @if($package->Duration < 30)
+                        <p class="price">${{ $package->Price }} <span>({{ $package->Duration }} days)</span></p>
+                    @else
+                        <p class="price">${{ $package->Price }} <span>monthly</span></p>
+                    @endif
                     <ul class="features">
-                        <li>Up to {{ $package->CheckLimitPerMonth }} checks / month</li>
+                        @if($package->Duration < 30)
+                            <li>Up to {{ $package->CheckLimitPerMonth }} checks / {{ $package->Duration }} days</li>
+                        @else
+                            <li>Up to {{ $package->CheckLimitPerMonth }} checks / month</li>
+                        @endif
                         <li>Email Support</li>
                         <li>Unlimited Users</li>
                         <li>3 mos History Storage</li>

@@ -30,25 +30,20 @@ class CheckSubscriptions extends Command
      */
     public function handle()
     {
+        
         Log::info('Check Subscriptions started');
 
-        $today = Carbon::today()->subDay()->toDateString();
-        $subscriptions = PaymentSubscription::whereDate('PaymentStartDate', $today)->where('Status', '!=', 'Canceled')->get();
-        // foreach($subscriptions as $subscription){
-        //     if($subscription->Status == 'Pending') {
-        //         $user = User::find($subscription->UserID);
-        //         $user->CurrentPackageID = $subscription->PackageID;
-        //         $subscription->Status = 'Active';
-        //         $subscription->save();
+        $today = Carbon::today()->toDateString();
+        $exp_trial_ssubscriptions = PaymentSubscription::whereDate('NextRenewalDate','<', $today)
+            ->where('PackageID', -1)->where('Status', 'Active')->get();
 
-        //         PaymentSubscription::where('UserID', $user->UserID)->where('PaymentSubscriptionID', '!=', $subscription->PaymentSubscriptionID)->delete();
+        foreach($exp_trial_ssubscriptions as $subscription){
 
-
-        //         $paymentSubscription = PaymentHistory::where('PaymentSubscriptionID', $subscription->PaymentSubscriptionID)->where('PaymentStatus','Pending')->first();
-        //         $paymentSubscription->PaymentStatus = 'Success';
-        //         $paymentSubscription->save();
-        //     }
-        // }
+            $subscription->CancelAt = now()->toDateString();
+            $subscription->Status = 'Canceled';
+            $subscription->save();
+            
+        }
          Log::info('Check Subscriptions ended');
     }
 }

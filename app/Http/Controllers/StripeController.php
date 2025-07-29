@@ -13,46 +13,46 @@ class StripeController extends Controller
         return view('stripe.subscription.list');
     }
     public function getSubscriptions()
-{
-    $stripeSecret = config('services.stripe.secret');
+    {
+        $stripeSecret = config('services.stripe.secret');
 
-    $response = Http::withToken($stripeSecret)
-        ->get('https://api.stripe.com/v1/subscriptions', [
-            'limit' => 100,
-            'expand' => ['data.customer', 'data.plan.product']
-        ]);
+        $response = Http::withToken($stripeSecret)
+            ->get('https://api.stripe.com/v1/subscriptions', [
+                'limit' => 100,
+                'expand' => ['data.customer', 'data.plan.product']
+            ]);
 
-    if ($response->successful()) {
-        $subscriptions = $response->json()['data'];
+        if ($response->successful()) {
+            $subscriptions = $response->json()['data'];
 
-        foreach ($subscriptions as $key => $val) {
-            $subscriptions[$key]['product'] = $val['plan']['product'];
-            $subscriptions[$key]['customer'] = $val['customer'];
-            $subscriptions[$key]['created_at'] = Carbon::createFromTimestamp($val['created'])
-                ->format('M d, h:i A');
+            foreach ($subscriptions as $key => $val) {
+                $subscriptions[$key]['product'] = $val['plan']['product'];
+                $subscriptions[$key]['customer'] = $val['customer'];
+                $subscriptions[$key]['created_at'] = Carbon::createFromTimestamp($val['created'])
+                    ->format('M d, h:i A');
+            }
+
+            return datatables()->of($subscriptions)
+                ->addColumn('actions', function ($subscription) {
+                    return '<a href="' . route('stripe.subscription.view', [$subscription['id']]) . '" class="btn btn-primary btn-sm">View</a>';
+                })
+                ->editColumn('status', function ($subscription) {
+                    if ($subscription['cancel_at']) {
+                        $status = '<span class="badge bg-danger">Cancels ' . Carbon::createFromTimestamp($subscription['cancel_at'])->format('M d') . '</span>';
+                    } else {
+                        $status = '<span class="badge bg-success">Active</span>';
+                    }
+                    return $status;
+                })
+                ->rawColumns(['status', 'actions'])
+                ->make(true);
         }
 
-        return datatables()->of($subscriptions)
-            ->addColumn('actions', function ($subscription) {
-                return '<a href="' . route('stripe.subscription.view', [$subscription['id']]) . '" class="btn btn-primary btn-sm">View</a>';
-            })
-            ->editColumn('status', function ($subscription) {
-                if ($subscription['cancel_at']) {
-                    $status = '<span class="badge bg-danger">Cancels ' . Carbon::createFromTimestamp($subscription['cancel_at'])->format('M d') . '</span>';
-                } else {
-                    $status = '<span class="badge bg-success">Active</span>';
-                }
-                return $status;
-            })
-            ->rawColumns(['status', 'actions'])
-            ->make(true);
+        return response()->json([
+            'error' => 'Failed to fetch subscriptions',
+            'message' => $response->body(),
+        ], $response->status());
     }
-
-    return response()->json([
-        'error' => 'Failed to fetch subscriptions',
-        'message' => $response->body(),
-    ], $response->status());
-}
 
     public function viewSubscription($subscriptionId)
     {
@@ -63,14 +63,14 @@ class StripeController extends Controller
 
         if ($response->successful()) {
             $subscription = $response->json();
-            
+
             $customer = Http::withToken($stripeSecret)
                 ->get("https://api.stripe.com/v1/customers/{$subscription['customer']}");
             $subscription['customer'] = $customer->json();
 
             $product = Http::withToken($stripeSecret)
                 ->get("https://api.stripe.com/v1/products/{$subscription['plan']['product']}");
-            
+
             $subscription['product'] = $product->json();
 
             $invoice = Http::withToken($stripeSecret)
@@ -93,10 +93,10 @@ class StripeController extends Controller
 
                 $subscription['upcoming_start_date'] = Carbon::createFromTimestamp($subscription['invoice']['lines']['data'][0]['period']['start'])
                     ->format('M d');
-                
+
                 $subscription['upcoming_end_date'] = Carbon::createFromTimestamp($subscription['invoice']['lines']['data'][0]['period']['end'])
                     ->format('M d, Y');
-                
+
             }
 
             $invoices = Http::withToken($stripeSecret)
@@ -105,7 +105,7 @@ class StripeController extends Controller
                 ]);
 
             $subscription['invoices'] = $invoices->json()['data'];
-           
+
             return view('stripe.subscription.view', compact('subscription'));
         }
 
@@ -217,6 +217,69 @@ class StripeController extends Controller
         ], $response->status());
     }
 
+    public function webhookList()
+    {
+        return view('stripe.webhook.list', );
+    }
 
+    public function getWebhooks()
+    {
+        $stripeSecret = config('services.stripe.secret');
 
+        $response = Http::withToken($stripeSecret)
+            ->get("https://api.stripe.com/v1/webhook_endpoints");
+
+        if ($response->successful()) {
+            $endpoints = $response->json()['data'];
+
+            // Flatten webhook events with reference to their endpoint URL or ID
+            $webhooks = [];
+            foreach ($endpoints as $endpoint) {
+                foreach ($endpoint['enabled_events'] as $event) {
+                    $webhooks[] = [
+                        'endpoint_id' => $endpoint['id'],
+                        'url' => $endpoint['url'],
+                        'event' => $event,
+                    ];
+                }
+            }
+
+            return datatables()->of($webhooks)
+                ->addColumn('name', function ($webhook) {
+                    return $webhook['event'];
+                })
+                ->addColumn('url', function ($webhook) {
+                    return $webhook['url'];
+                })
+                ->addColumn('endpoint_id', function ($webhook) {
+                    return $webhook['endpoint_id'];
+                })
+                ->make(true);
+        }
+
+        return response()->json([
+            'error' => 'Failed to fetch subscriptions',
+            'message' => $response->body(),
+        ], $response->status());
+    }
+
+    public function addWebhook($webhookEndpointId)
+    {
+        $stripeSecret = config('services.stripe.secret');
+
+        $response = Http::withToken($stripeSecret)->asForm()->post(
+            "https://api.stripe.com/v1/webhook_endpoints/{$webhookEndpointId}",
+            [
+                'enabled_events' => [
+                    'customer.subscription.deleted',
+                    'invoice.payment_succeeded',
+                    'invoice.payment_failed'
+                ]
+            ]
+        );
+
+        if ($response->successful()) {
+            return 'Webhook updated successfully.';
+        }
+    }
 }

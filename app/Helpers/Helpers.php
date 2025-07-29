@@ -217,16 +217,21 @@ class Helpers
 
   public static function isSubscribed(User $user)
   {
-    $package = Package::find($user->CurrentPackageID);
+    if ($user->CurrentPackageID == -1) {
+      $package = Package::whereRaw('LOWER(Name) = ?', ['trial'])->first();
+    } else {
+      $package = Package::find($user->CurrentPackageID);
+    }
+
     $subscription = PaymentSubscription::where('UserID', $user->UserID)
-                    ->where('PackageID', $user->CurrentPackageID)
-                    ->where('Status', 'Active')
-                    ->orderBy('PaymentSubscriptionID', 'desc')->first();
-    
+      ->where('PackageID', $user->CurrentPackageID)
+      ->where('Status', 'Active')
+      ->orderBy('PaymentSubscriptionID', 'desc')->first();
+      
     if (!$subscription) {
       return false;
     }
-    if ($user->CurrentPackageID != -1 && $package->CheckLimitPerMonth != 0 && $subscription->RemainingChecks < 1) {
+    if ($package->CheckLimitPerMonth != 0 && $subscription->RemainingChecks < 1) {
       return false;
     }
     return true;

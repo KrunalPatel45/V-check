@@ -150,7 +150,7 @@
         <div class="col-md-12">
             <div class="card mb-4">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="card-header">Invoice paid</h5>
+                    <h5 class="card-header">Payments</h5>
                 </div>
                 <div class="card-datatable table-responsive">
                     <table class="table" id="invoice_data">

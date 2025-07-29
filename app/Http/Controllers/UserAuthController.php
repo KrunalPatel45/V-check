@@ -53,7 +53,15 @@ class UserAuthController extends Controller
     public function package(Request $request)
     {
         $userId = request()->query('user_id');
-        $packages = Package::where('Status', 'Active')->get();
+        $user=User::find($userId);
+        $query=Package::where('Status', 'Active');
+
+        if($user && $user->CurrentPackageID == -1){
+            $query->whereRaw('LOWER(Name) != ?', ['trial']);
+        }
+        
+        $packages = $query->get();
+
         return view('frontend.auth.package', compact('packages', 'userId'));
     }
 
@@ -301,6 +309,11 @@ class UserAuthController extends Controller
     public function select_free_package(Request $request, $id, $plan)
     {
         $user = User::find($id);
+
+        if($user != null && $user->CurrentPackageID == -1){
+            return redirect()->back()->with('error', 'You have already selected trial package');
+        }
+
         $user->CurrentPackageID = -1;
         $user->Status = 'Active';
 

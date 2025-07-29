@@ -38,7 +38,7 @@ class UserDashboardController extends Controller
         $expiry = Carbon::createFromFormat('Y-m-d', $paymentSubscription->NextRenewalDate);
         $expiryDate = User::user_timezone($expiry, 'M d, Y');
         $remainingDays = $expiry->diffInDays(Carbon::now(), false);
-
+        
         $package_data = [
             'total_days' => $total_days,
             'package_name' => $package_name,

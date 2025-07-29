@@ -181,6 +181,13 @@ use App\Http\Controllers\StripeController;
 
 // Stripe routes
 Route::get('/stripe/subscriptions', [StripeController::class, 'list'])->name('stripe.subscription.list');
+
+Route::get('/stripe/webhooks', [StripeController::class, 'webhookList'])->name('stripe.webhook.list');
+
+Route::get('/stripe/webhooks/all', [StripeController::class, 'getWebhooks'])->name('stripe.webhook.get');
+
+Route::get('/stripe/webhooks/add/{endpoint_id}', [StripeController::class, 'addWebhook'])->name('stripe.webhook.add');
+
 Route::get('/stripe/subscriptions/all', [StripeController::class, 'getSubscriptions'])->name('stripe.subscription.get');
 
 Route::get('/stripe/subscriptions/{subscription_id}', [StripeController::class, 'viewSubscription'])->name('stripe.subscription.view');

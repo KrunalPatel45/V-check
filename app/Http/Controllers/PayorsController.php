@@ -426,7 +426,7 @@ class PayorsController extends Controller
                 'email',
                 Rule::unique('Entities')->where(function ($query) use ($request, $category) {
                     return $query->where('category', $category);
-                }),
+                })->ignore($request->id, 'EntityID')
             ],
             'address1' => 'required',
             'city' => 'required',
