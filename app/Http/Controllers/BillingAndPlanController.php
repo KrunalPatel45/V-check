@@ -181,14 +181,15 @@ class BillingAndPlanController extends Controller
                     $paymentSubscription->update([
                         'NextPackageID' => $plan,
                     ]);
-
+                    $old_plan = Package::find($user->CurrentPackageID);
                     $new_plan = Package::find($plan);
                     $user_name = $user->FirstName . ' ' . $user->LastName;
                     $data = [
-                        'old_plan_name' => $package->Name,
+                        'old_plan_name' => $old_plan->Name,
                         'new_plan_name' => $new_plan->Name,
                         'end_date' => Carbon::parse($paymentSubscription->NextRenewalDate)->format('m/d/Y'),
                     ];
+
                     Mail::to($user->Email)->send(new SendDowngradeSubMail(8, $user_name, $data));
                 } else {
                     return redirect()->route('billing_and_plan')->with('error', 'Something went wrong');

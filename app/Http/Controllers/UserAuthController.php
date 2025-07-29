@@ -89,8 +89,9 @@ class UserAuthController extends Controller
             $packag_c = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
                 ->orderBy('PaymentSubscriptionID', 'desc')->first()?->RemainingChecks ?? 0;
 
+            $package = Package::find($user->CurrentPackageID);
 
-            if ($packag_c == 0 && $user->CurrentPackageID != -1) {
+            if ($packag_c == 0 && $user->CurrentPackageID != -1 && $package->CheckLimitPerMonth != 0) {
                 return redirect()->route('user.package', ['user_id' => $user->UserID]);
             }
 
