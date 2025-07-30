@@ -62,7 +62,16 @@ class UserDashboardController extends Controller
                         ->count();                
         //
         $total_companies = Company::where('UserID', Auth::user()->UserID)->count();
-        return view('content.dashboard.user-dashboards-analytics', compact('checks_received', 'checks_sent', 'package_data', 'total_vendor', 'total_client', 'total_companies', 'given_checks', 'used_checks', 'remaining_checks', 'package', 'paymentSubscription'));
+
+        $query = Package::where('Status', 'Active');
+
+        if ($user && $user->CurrentPackageID == -1) {
+            $query->whereRaw('LOWER(Name) != ?', ['trial']);
+        }
+
+        $packages = $query->get();
+       
+        return view('content.dashboard.user-dashboards-analytics', compact('user','packages','checks_received', 'checks_sent', 'package_data', 'total_vendor', 'total_client', 'total_companies', 'given_checks', 'used_checks', 'remaining_checks', 'package', 'paymentSubscription'));
     }
 
     public function profile()

@@ -98,21 +98,39 @@
             $('#cardForm').on('submit', function(e) {
                 e.preventDefault(); // Prevent the form from submitting normally
 
-                stripe.createToken(card).then(function(result) {
+                // stripe.createToken(card).then(function(result) {
+                //     if (result.error) {
+                //         // If there's an error, display it
+                //         alert(result.error.message);
+                //     } else {
+                //         var stripeToken = result.token.id;
+
+                //         // If token creation is successful, append it to the form as a hidden input
+                //         $('<input>').attr({
+                //             type: 'hidden',
+                //             name: 'stripeToken',
+                //             value: stripeToken
+                //         }).appendTo('#cardForm');
+
+                //         // Submit the form with the stripeToken
+                //         $('#cardForm')[0].submit();
+                //     }
+                // });
+                stripe.createPaymentMethod({
+                    type: 'card',
+                    card: card,
+                }).then(function(result) {
                     if (result.error) {
-                        // If there's an error, display it
+                        // Show error in your UI
                         alert(result.error.message);
                     } else {
-                        var stripeToken = result.token.id;
-
-                        // If token creation is successful, append it to the form as a hidden input
+                        // Append payment method ID to form and submit
                         $('<input>').attr({
                             type: 'hidden',
-                            name: 'stripeToken',
-                            value: stripeToken
+                            name: 'payment_method', // must match server param
+                            value: result.paymentMethod.id
                         }).appendTo('#cardForm');
 
-                        // Submit the form with the stripeToken
                         $('#cardForm')[0].submit();
                     }
                 });
@@ -146,7 +164,6 @@
                             <div class="mb-6">
                                 <h6 class="mb-1">Your Current Plan is
                                     {{ $package_id == '-1' ? 'Trial' : $package_data['package_name'] }}</h6>
-                                <p>A simple start for everyone</p>
                             </div>
                             @if ($package_id != '-1')
                                 <div class="mb-6">
@@ -209,8 +226,7 @@
                                 Plan
                             </button>
                             @if (empty($package_data['cancel_plan']) && $package_id != '-1')
-                                <a class="btn btn-label-danger "
-                                    href="{{ route('user_cancel_plan') }}">Cancel
+                                <a class="btn btn-label-danger " href="{{ route('user_cancel_plan') }}">Cancel
                                     Subscription</a>
                             @endif
                         </div>
@@ -247,7 +263,7 @@
                     </div>
                     <div class="col-md-12 mt-5 mt-md-0">
                         @if (!empty($cards['data']))
-                        <h5 class="mb-6">My Cards</h5>
+                            <h5 class="mb-6">My Cards</h5>
                             <div class="added-cards">
                                 @foreach ($cards['data'] as $card)
                                     <div class="cardMaster p-6 bg-lighter rounded mb-6">
@@ -403,18 +419,18 @@
                             <div
                                 class="pricing-card {{ $package->Name == 'PRO' || $package->Name == 'ENTERPRISE' ? 'popular' : '' }}{{ $user->CurrentPackageID != '-1' && $user->CurrentPackageID == $package->PackageID ? ' selected-plan' : '' }}">
                                 <h3>{{ $package->Name }}</h3>
-                                @if($package->Duration < 30)
-                                    <p class="price">${{ $package->Price }} <span>({{ $package->Duration }} days)</span></p>
+                                @if ($package->Duration < 30)
+                                    <p class="price">${{ $package->Price }} <span>({{ $package->Duration }} days)</span>
+                                    </p>
                                 @else
                                     <p class="price">${{ $package->Price }} <span>monthly</span></p>
                                 @endif
                                 <ul class="features">
-                                    @if($package->Duration < 30)
+                                    @if ($package->Duration < 30)
                                         <li>Up to
                                             {{ $package->Name != 'UNLIMITED' ? $package->CheckLimitPerMonth : 'Unlimited ' }}
                                             checks
                                             / {{ $package->Duration }} days</li>
-
                                     @else
                                         <li>Up to
                                             {{ $package->Name != 'UNLIMITED' ? $package->CheckLimitPerMonth : 'Unlimited ' }}
@@ -443,7 +459,6 @@
                         @endforeach
                     @endif
                 </div>
-
             </div>
         </div>
     </div>

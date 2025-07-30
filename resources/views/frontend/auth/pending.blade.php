@@ -139,7 +139,6 @@
                                 <h6 class="mb-1">Your Current Plan is
                                     {{ $package_id == '-1' ? 'Trial' : $package->Name }} <span class="text-muted"> - {{ $package_id == '-1' ? 'Free' : '$'.$package->Price }}</span></h6>
                                 
-                                <p>A simple start for everyone</p>
                             </div>
                         </div>
                     </div>

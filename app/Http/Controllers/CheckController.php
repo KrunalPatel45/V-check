@@ -39,7 +39,7 @@ class CheckController extends Controller
 
         if ($request->ajax()) {
             $checks = Checks::where('UserID', Auth::id())->where('CheckType', 'Process Payment')
-                ->where('is_seen', 0)->get();
+                ->where('is_seen', 0)->orderBy('CheckID', 'desc')->get();
 
             return datatables()->of($checks)
                 ->addIndexColumn()
@@ -244,7 +244,7 @@ class CheckController extends Controller
 
         if ($request->ajax()) {
             $checks = Checks::where('UserID', Auth::id())->where('CheckType', 'Make Payment')
-                ->where('is_seen', 0)->get();
+                ->where('is_seen', 0)->orderBy('CheckID', 'desc')->get();
 
             return datatables()->of($checks)
                 ->addIndexColumn()
@@ -551,17 +551,30 @@ class CheckController extends Controller
                 $query->where('CheckType', $request->type);
             }
             
-            if (isset($request->entity_id) && $request->entity_id != null) {
-                $query->where(function ($q) use ($request) {
-                    $q->where('PayorID', $request->entity_id)
-                        ->orWhere('PayeeID', $request->entity_id);
-                });
-            }
+            // if (isset($request->entity_id) && $request->entity_id != null) {
+            //     $payor_ids = Payors::withTrashed()->where('Name','like',"%{$request->entity_id}%")->pluck('EntityID')->toArray();
+
+            //     $query->where(function ($q) use ($payor_ids) {
+            //         $q->whereIn('PayorID', $payor_ids)
+            //             ->orWhereIn('PayeeID', $payor_ids);
+            //     });
+            // }
+
+            
+            $query->orderBy('CheckID', 'desc');
 
             return datatables()->of($query)
                 ->addIndexColumn()
                 ->setRowId(function ($row) {
                     return $row->id;
+                })
+                ->filterColumn('EntityID', function ($query, $keyword) {
+                    $payor_ids = Payors::withTrashed()->where('Name','like',"%{$keyword}%")->pluck('EntityID')->toArray();
+
+                    $query->where(function ($q) use ($payor_ids) {
+                        $q->whereIn('PayorID', $payor_ids)
+                            ->orWhereIn('PayeeID', $payor_ids);
+                    });
                 })
                 ->addColumn('CompanyID', function ($row) {
                     $payee = Payors::withTrashed()->find($row->PayeeID);

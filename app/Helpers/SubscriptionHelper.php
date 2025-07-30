@@ -312,7 +312,6 @@ class SubscriptionHelper
             ->get("https://api.stripe.com/v1/customers/" . $id);
 
         $customer = $customerResponse->json();
-
         $defaultPaymentMethodId = $customer['invoice_settings']['default_payment_method'] ?? null;
 
         if ($defaultPaymentMethodId) {

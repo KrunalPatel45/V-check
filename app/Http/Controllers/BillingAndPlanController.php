@@ -54,7 +54,7 @@ class BillingAndPlanController extends Controller
         $stander_Plan_price = $maxPricePackage->Price;
         $cards = $this->subscriptionHelper->getCustomerPaymentMethods($user->CusID);
         $default_card = $this->subscriptionHelper->getDefaultCard($user->CusID);
-
+        // dd($default_card);
         $query = Package::where('Status', 'Active');
 
         if ($user && $user->CurrentPackageID == -1) {

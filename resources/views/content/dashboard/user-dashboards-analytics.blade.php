@@ -46,7 +46,6 @@
                             <div class="mb-4">
                                 <h6 class="mb-1">Your Current Plan is
                                     {{ $package == '-1' ? 'Trial' : $package_data['package_name'] }}</h6>
-                                <p>A simple start for everyone</p>
                             </div>
                             @if ($package != '-1')
                                 <div class="mb-4">
@@ -54,21 +53,29 @@
                                     <!-- <p>We will send you a notification upon Subscription expiration</p> -->
                                 </div>
                             @endif
+                            <button class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#onboardingHorizontalSlideModal">
+                                Upgrade Plan
+                            </button>
                         </div>
                         @if ($package != '-1')
                             <div class="col-xl-6 order-0 order-xl-0">
                                 <div class="plan-statistics">
                                     <div class="d-flex justify-content-between">
-                                        <h6 class="mb-1">Days</h6>
+                                        <!-- <h6 class="mb-1">Days</h6>
                                         <h6 class="mb-1">{{ $package_data['remainingDays'] }} of
-                                            {{ $package_data['total_days'] }} Days</h6>
+                                            {{ $package_data['total_days'] }} Days</h6> -->
+                                             <h6 class="mb-1"></h6>
+                                        <h6 class="mb-1"> {{ $package_data['remainingDays'] }} days left until new billing cycle</h6>
+                                            <!-- <h6 class="mb-1">{{ $package_data['remainingDays'] }} of
+                                                {{ $package_data['total_days'] }} Days</h6> -->
                                     </div>
                                     <div class="progress mb-1 bg-label-primary" style="height: 10px;">
                                         <div class="progress-bar" role="progressbar" aria-valuenow="75" aria-valuemin="0"
                                             aria-valuemax="100" style="width: {{ $progress }}%"></div>
                                     </div>
-                                    <small>Your plan requires update</small>
-
+                                    @if($remaining_checks <= 0)
+                                        <small class="text-danger">Your plan requires update</small>
+                                    @endif
                                     @if (!empty($paymentSubscription->NextPackageID))
                                         <div class="alert alert-warning mt-3" role="alert">
                                             Your subscription plan downgrade has been scheduled. The change will take effect
@@ -141,6 +148,63 @@
                     <h5 class="mb-3 card-title">Pay To</h5>
                     <p class="mb-0 text-body">Total Number of Payees</p>
                     <h4 class="mb-0">{{ $total_client }}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-onboarding modal fade animate__animated" id="onboardingHorizontalSlideModal" tabindex="-1"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content text-center">
+                <div class="modal-header border-0">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    </button>
+                </div>
+                <div class="pricing-table">
+                    @if (count($packages) > 0)
+                        @foreach ($packages as $package)
+                            <div
+                                class="pricing-card {{ $package->Name == 'PRO' || $package->Name == 'ENTERPRISE' ? 'popular' : '' }}{{ $user->CurrentPackageID != '-1' && $user->CurrentPackageID == $package->PackageID ? ' selected-plan' : '' }}">
+                                <h3>{{ $package->Name }}</h3>
+                                @if ($package->Duration < 30)
+                                    <p class="price">${{ $package->Price }} <span>({{ $package->Duration }} days)</span>
+                                    </p>
+                                @else
+                                    <p class="price">${{ $package->Price }} <span>monthly</span></p>
+                                @endif
+                                <ul class="features">
+                                    @if ($package->Duration < 30)
+                                        <li>Up to
+                                            {{ $package->Name != 'UNLIMITED' ? $package->CheckLimitPerMonth : 'Unlimited ' }}
+                                            checks
+                                            / {{ $package->Duration }} days</li>
+                                    @else
+                                        <li>Up to
+                                            {{ $package->Name != 'UNLIMITED' ? $package->CheckLimitPerMonth : 'Unlimited ' }}
+                                            checks
+                                            / month</li>
+                                    @endif
+                                    <li>Email Support</li>
+                                    <li>Unlimited Users</li>
+                                    @if ($package->Name != 'BASIC')
+                                        <li>Custom Webform*</li>
+                                    @endif
+                                    <li>3 mos History Storage</li>
+                                </ul>
+                                @if ($user->CurrentPackageID != '-1' && $user->CurrentPackageID == $package->PackageID)
+                                    <p class="current-plan">Current Plan</p>
+                                @else
+                                    @if ($user->CurrentPackageID != '-1')
+                                        <a href="{{ route('user.select-package', ['id' => $user->UserID, 'plan' => $package->PackageID]) }}"
+                                            class="plan-button">Select Plan</a>
+                                    @else
+                                        <a href="{{ route('user-select-package', ['id' => $user->UserID, 'plan' => $package->PackageID]) }}"
+                                            class="plan-button">Select Plan</a>
+                                    @endif
+                                @endif
+                            </div>
+                        @endforeach
+                    @endif
                 </div>
             </div>
         </div>
