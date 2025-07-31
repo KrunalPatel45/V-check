@@ -73,7 +73,7 @@
                                         <div class="progress-bar" role="progressbar" aria-valuenow="75" aria-valuemin="0"
                                             aria-valuemax="100" style="width: {{ $progress }}%"></div>
                                     </div>
-                                    @if($remaining_checks <= 0)
+                                    @if($remaining_checks <= 0 && $package->CheckLimitPerMonth != 0)
                                         <small class="text-danger">Your plan requires update</small>
                                     @endif
                                     @if (!empty($paymentSubscription->NextPackageID))
