@@ -78,7 +78,7 @@
                 document.querySelector('form').onsubmit = function(e) {
                     e.preventDefault();
                     document.getElementById('page_desc').value = quill.root.innerHTML;
-                    e.target.submit();
+                    // e.target.submit();
                 };
             } else {
                 console.error(
@@ -295,53 +295,211 @@
                                     @endif
                                 </div>
                             </div>
+                        </div>
+                        <div class="row mb-6">
+                            <label class="col-sm-2 col-form-label" for="page_desc">Service Fees</label>
+                            <div class="col-sm-10">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row g-2 align-items-center">
+                                            <div class="col-md-12 col-lg-12 d-flex align-items-center gap-2">
+                                                <select name="service_fees_type" id="service_fees_type"
+                                                    class="form-select" onchange="toggleFeeSymbol()">
+                                                    <option value="">-- Select Service Fees --</option>
+                                                    <option value="percentage"
+                                                        @if ($webform->service_fees_type == 'percentage') selected @endif>Percentage
+                                                    </option>
+                                                    <option value="amount"
+                                                        @if ($webform->service_fees_type == 'amount') selected @endif>Amount</option>
+                                                </select>
 
+                                                <span id="dollar_icon"
+                                                    class="ms-2 @if ($webform->service_fees_type != 'amount') d-none @endif">$</span>
+
+                                                <input type="text" name="service_fees" id="service_fees"
+                                                    class="form-control text-center @if (!$webform->service_fees_type) d-none @endif"
+                                                    value="{{ $webform->service_fees }}" autocomplete="off"
+                                                    onkeypress="return /^[0-9.]+$/.test(event.key)">
+
+                                                <!-- Symbols -->
+                                                <span id="per_icon"
+                                                    class="ms-2 @if ($webform->service_fees_type != 'percentage') d-none @endif">%</span>
+                                            </div>
+                                            @if ($errors->has('service_fees_type'))
+                                                <span class="text-danger">
+                                                    {{ $errors->first('service_fees_type') }}
+                                                </span>
+                                            @endif
+                                            @if ($errors->has('service_fees'))
+                                                <span class="text-danger">
+                                                    {{ $errors->first('service_fees') }}
+                                                </span>
+                                            @endif
+                                            <div class="text-danger" id="error_service_fees_type"></div>
+                                            <div class="text-danger" id="error_service_fees"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
         </form>
     </div>
-     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.9/jquery.inputmask.min.js" integrity="sha512-F5Ul1uuyFlGnIT1dk2c4kB4DBdi5wnBJjVhL7gQlGh46Xn0VhvD8kgxLtjdZ5YN83gybk/aASUAlpdoWUjRR3g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.9/jquery.inputmask.min.js"
+        integrity="sha512-F5Ul1uuyFlGnIT1dk2c4kB4DBdi5wnBJjVhL7gQlGh46Xn0VhvD8kgxLtjdZ5YN83gybk/aASUAlpdoWUjRR3g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script>
         Inputmask({
             mask: "999-999-9999",
-            placeholder: "",             // No placeholders
-            showMaskOnHover: false,      // Don't show mask on hover
-            showMaskOnFocus: false,      // Don't show mask on focus
+            placeholder: "", // No placeholders
+            showMaskOnHover: false, // Don't show mask on hover
+            showMaskOnFocus: false, // Don't show mask on focus
         }).mask("#phone_number");
+
+        function toggleFeeSymbol() {
+            const type = document.getElementById('service_fees_type').value;
+            const percentIcon = document.getElementById('per_icon');
+            const dollarIcon = document.getElementById('dollar_icon');
+            const serviceFees = document.getElementById('service_fees');
+            // Hide both by default
+            percentIcon.classList.add('d-none');
+            dollarIcon.classList.add('d-none');
+            serviceFees.classList.add('d-none');
+
+            if (type != '') {
+                serviceFees.classList.remove('d-none');
+            }else{
+                serviceFees.value = '';
+            }
+
+            if (type === 'percentage') {
+                percentIcon.classList.remove('d-none');
+            } else if (type === 'amount') {
+                dollarIcon.classList.remove('d-none');
+            }
+        }
     </script>
-     <script src="https://cdn.jsdelivr.net/npm/just-validate@3.3.3/dist/just-validate.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/just-validate@3.3.3/dist/just-validate.production.min.js"></script>
     <script>
         const validation = new JustValidate('#webForm', {
             errorLabelCssClass: 'text-danger'
         });
 
         validation
-            .addField('[name="name"]', [
-                { rule: 'required', errorMessage: 'Please enter name' }
-            ])
-            .addField('[name="address"]', [
-                { rule: 'required', errorMessage: 'Please enter address' }
-            ])
-            .addField('[name="city"]', [
-                { rule: 'required', errorMessage: 'Please enter city' }
-            ])
-            .addField('[name="state"]', [
-                { rule: 'required', errorMessage: 'Please enter state' }
-            ])
-            .addField('[name="zip"]', [
-                { rule: 'required', errorMessage: 'Please enter zip' }
-            ])
-            .addField('[name="phone_number"]', [
-                {
-                    rule: 'customRegexp',
-                    value: /^\d{3}-\d{3}-\d{4}$/,
-                    errorMessage: 'The phone number field format is invalid.'
+            .addField('[name="name"]', [{
+                rule: 'required',
+                errorMessage: 'Please enter name'
+            }])
+            .addField('[name="address"]', [{
+                rule: 'required',
+                errorMessage: 'Please enter address'
+            }])
+            .addField('[name="city"]', [{
+                rule: 'required',
+                errorMessage: 'Please enter city'
+            }])
+            .addField('[name="state"]', [{
+                rule: 'required',
+                errorMessage: 'Please enter state'
+            }])
+            .addField('[name="zip"]', [{
+                rule: 'required',
+                errorMessage: 'Please enter zip'
+            }])
+            .addField('[name="phone_number"]', [{
+                rule: 'customRegexp',
+                value: /^\d{3}-\d{3}-\d{4}$/,
+                errorMessage: 'The phone number field format is invalid.'
+            }])
+            .addField('[name="service_fees_type"]', [{
+                rule: 'customRegexp',
+                value: /^(percentage|amount)?$/,
+                errorMessage: 'Invalid service fees type'
+            }], {
+                // Hide the default error for just this field
+                errorLabelStyle: {
+                    display: 'none', // Prevent default error message from being displayed
                 }
-            ]).onSuccess((event) => {
+            })
+            .addField('[name="service_fees"]', [{
+                    validator: (value, fields) => {
+                        const type = document.querySelector('[name="service_fees_type"]').value;
+                        if (type === 'percentage' || type === 'amount') {
+                            return value.trim() !== ''; // must be filled
+                        }
+                        return true; // allow empty if type is not set
+                    },
+                    errorMessage: 'Please enter service fees'
+                },
+                {
+                    validator: (value, fields) => {
+                        const type = document.querySelector('[name="service_fees_type"]').value;
+                        if (type === 'percentage' || type === 'amount') {
+                            // First validation: Check if the value is a number
+                            return !isNaN(value);
+                        }
+                        return true; // Skip if not 'percentage' or 'amount'
+                    },
+                    errorMessage: 'Service fee must be a number',
+                },
+                {
+                    validator: (value, fields) => {
+                        const type = document.querySelector('[name="service_fees_type"]').value;
+                        if ((type === 'percentage' || type === 'amount') && !isNaN(value)) {
+                            // Second validation: Check if the value is greater than 0
+                            return parseFloat(value) > 0;
+                        }
+                        return true; // Skip if the first check fails or type is not 'percentage' or 'amount'
+                    },
+                    errorMessage: 'Service fee must be greater than 0',
+                }
+            ], {
+                // Hide the default error for just this field
+                errorLabelStyle: {
+                    display: 'none', // Prevent default error message from being displayed
+                }
+            })
+            .onFail((fields) => {
+
+                // Get the specific field object
+                const error_service_fees_type = fields['[name="service_fees_type"]'];
+                const error_service_fees = fields['[name="service_fees"]'];
+
+                if (error_service_fees_type) {
+                    const error_service_fees_type_container = document.querySelector('#error_service_fees_type');
+                    if (error_service_fees_type_container) {
+                        error_service_fees_type_container.textContent = error_service_fees_type.errorMessage;
+                    }
+                }
+                if (error_service_fees) {
+                    const error_service_fees_container = document.querySelector('#error_service_fees');
+                    if (error_service_fees_container) {
+                        error_service_fees_container.textContent = error_service_fees.errorMessage;
+                    }
+                }
+
+                Object.keys(fields).forEach((fieldName) => {
+                    const obj = fields[fieldName];
+                    if (obj && obj.isValid === true) {
+
+                        const match = fieldName.match(/\[name=['"]?([^'"\]]+)['"]?\]/);
+                        const error_element = match ? match[1] : null;
+
+                        if (error_element) {
+                            const fieldContainer = document.querySelector(`#error_${error_element}`);
+                            if (fieldContainer) {
+                                fieldContainer.textContent = ''; // Remove the error message
+                            }
+                        }
+                    }
+
+                });
+            })
+            .onSuccess((event) => {
+                console.log('succeeded');
                 event.target.submit();
             });
-
     </script>
 @endsection

@@ -58,6 +58,8 @@
                         <th>Payee</th>
                         <th>Payor</th>
                         <th>Amount</th>
+                        <th>Service Fee</th>
+                        <th>Total</th>
                         <th>Print Date</th>
                         <th>Actions</th>
                     </tr>
@@ -115,6 +117,14 @@
                 {
                     data: 'Amount',
                     name: 'Amount',
+                },
+                 {
+                    data: 'ServiceFee',
+                    name: 'ServiceFee',
+                },
+                 {
+                    data: 'Total',
+                    name: 'Total',
                 },
                 {
                     data: 'IssueDate',

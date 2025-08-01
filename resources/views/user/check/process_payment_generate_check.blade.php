@@ -520,7 +520,7 @@
                             <div class="col-sm-8">
                                 <input type="text" id="amount" name="amount" style="font-size: 16px;"
                                     class="form-control" placeholder="Amount" autocomplete="off" onkeypress="return /^[0-9.]+$/.test(event.key)" 
-                                    value="{{ !empty($check->Amount) && $check->Amount ? $check->Amount : old('amount') }}">
+                                    value="{{ !empty($check->Total) && $check->Total ? $check->Total : old('amount') }}">
                                 @if ($errors->has('amount'))
                                     <br>
                                     <span class="text-danger">

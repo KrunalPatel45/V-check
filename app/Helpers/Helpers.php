@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use App\Models\Package;
 use App\Models\User;
 use App\Models\PaymentSubscription;
+use App\Models\WebForm;
 
 class Helpers
 {
@@ -227,7 +228,7 @@ class Helpers
       ->where('PackageID', $user->CurrentPackageID)
       ->where('Status', 'Active')
       ->orderBy('PaymentSubscriptionID', 'desc')->first();
-      
+
     if (!$subscription) {
       return false;
     }
@@ -235,5 +236,28 @@ class Helpers
       return false;
     }
     return true;
+  }
+
+  public static function getWebFormServiceFeeAndTotal($EntityID, $amount)
+  {
+    $webform = WebForm::where('PayeeID', $EntityID)->first();
+
+    $service_fees = 0;
+    $total = $amount;
+
+    if ($webform) {
+      if ($webform->service_fees_type == 'amount') {
+        $service_fees = $webform->service_fees;
+        $total = $amount + $service_fees;
+      } else if ($webform->service_fees_type == 'percentage') {
+        $service_fees = $amount * $webform->service_fees / 100;
+        $total = $amount + $service_fees;
+      }
+    }
+
+    return [
+      'service_fees' => $service_fees,
+      'total' => $total
+    ];
   }
 }

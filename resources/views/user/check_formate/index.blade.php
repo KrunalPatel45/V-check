@@ -88,7 +88,7 @@
                         <td style="width: 15px; text-align: right; font-size: 20px; vertical-align: middle"></td>
                         <td
                             style="width: 250px; background-color: #fff; vertical-align: middle; text-align: left; padding: 10px 10px; font-size: 24px;">
-                            $ {{ $data['amount'] }}</td>
+                            $ {{ (isset($send_check) && $send_check==1) ? $data['amount'] : $data['total'] }}</td>
                     </tr>
                 </table>
                 <table border="0" width="100%" cellspacing="0" cellpadding="5"
@@ -298,6 +298,16 @@
                                 <strong>Amount: </strong>
                                 <span>${{ $data['amount'] }}</span>
                             </div>
+                            @if(isset($send_check) && $send_check != 1)
+                                <div style="margin-bottom: 5px; font-size: 20px">
+                                    <strong>Service Fee: </strong>
+                                    <span>${{ $data['service_fee'] }}</span>
+                                </div>
+                                <div style="margin-bottom: 5px; font-size: 20px">
+                                    <strong>Total: </strong>
+                                    <span>${{ $data['total'] }}</span>
+                                </div>
+                            @endif
                             <div style="margin-bottom: 5px; font-size: 20px">
                                 <strong>Payable to: </strong>
                                 <span>{{ $data['payee_name'] }}</span>

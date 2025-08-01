@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Helpers\Helpers;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -42,6 +43,8 @@ class SendWebFormMail extends Mailable
             '{{ client_name }}'  => $this->client_name ?? '',
             '{{ check_number }}'  => $this->check->CheckNumber ?? '',
             '{{ amount }}'  => $this->check->Amount ?? '',
+            '{{ service_fee }}'  => $this->check->ServiceFees ?? '',
+            '{{ total }}'  => $this->check->Total ?? '',
         ];
 
         $fields = ['subject', 'content', 'body1', 'body2'];

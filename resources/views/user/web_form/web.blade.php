@@ -349,6 +349,45 @@
                         @enderror
                     </div>
 
+                    @if($data->service_fees_type != null)
+                        
+                        @php
+                            $service_fee = '';
+
+                            if($data->service_fees_type == 'percentage'){
+                                $service_fee = $data->service_fees.' %';
+                            }else if($data->service_fees_type == 'amount'){
+                                $service_fee = '$ '.$data->service_fees;
+                            }
+
+                        @endphp
+
+                        <div class="row input_row text-end">
+                                <div class="col-8 align-content-center">
+                                    <label for="service_fee">
+                                        Service Fee
+                                        @if($data->service_fees_type == 'percentage')
+                                            ( {{ $service_fee }} )
+                                        @endif
+                                    </label>
+                                </div>
+                                <div class="col-4">
+                                    <input type="text" style="background-color: #F4F4F4;" disabled id="service_fee" name="service_fee" 
+                                    value="{{ ($data->service_fees_type == 'percentage') ? '$ 0' :$data->service_fees }}">
+                                </div>
+                        </div>
+
+                        <div class="row input_row text-end">
+                                <div class="col-8 align-content-center">
+                                    <label for="total">Total</label>
+                                </div>
+                                <div class="col-4 d-flex align-items-center">
+                                    <input type="text" style="background-color: #F4F4F4;" disabled id="total" name="total" value="$ 0">
+                                </div>
+                        </div>
+                        
+                    @endif
+
                     <div class="pay_to">Pay To: {{ $company->Name }}</div>
 
                     <div class="pay_from">Pay From:</div>
@@ -625,6 +664,33 @@
                 autoclose: true,
                 todayHighlight: true
             });
+
+            @if($data->service_fees > 0)
+                $('#amount').on('input', function() {
+                    let amount = $(this).val();
+                    let service_fee = "{{ $data->service_fees ?? 0 }}";
+                    let service_fee_type = "{{ $data->service_fees_type }}";
+                    let total = $('#total');
+                    let service_fee_input = $('#service_fee');
+                    let service_fee_amount = 0;
+
+                    if(amount > 0){
+                        amount = parseFloat(amount) || 0;
+                        service_fee = parseFloat(service_fee) || 0;
+
+                        if(service_fee_type == 'percentage'){
+                            service_fee_amount = (amount * service_fee) / 100;
+                            amount = amount + service_fee_amount;
+                        }else if(service_fee_type == 'amount'){
+                            service_fee_amount = service_fee;
+                            amount = amount + service_fee;
+                        }
+
+                        total.val('$ '+Number(amount).toFixed(2));
+                        service_fee_input.val('$ '+Number(service_fee_amount).toFixed(2));
+                    }
+                });
+            @endif
         });
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.9/jquery.inputmask.min.js"

@@ -18,6 +18,8 @@ class Checks extends Model
         'PayeeID',
         'CheckType',
         'Amount',
+        'ServiceFees',
+        'Total',
         'PayorID',
         'CheckNumber',
         'IssueDate',

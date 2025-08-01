@@ -19,5 +19,7 @@ class WebForm extends Model
         'Logo',
         'page_url',
         'page_desc',
+        'service_fees',
+        'service_fees_type',
     ];
 }

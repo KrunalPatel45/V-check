@@ -54,6 +54,12 @@ class CheckController extends Controller
                 ->addColumn('Amount', function ($row) {
                     return '$' . number_format($row->Amount, 2);
                 })
+                ->addColumn('ServiceFee', function ($row) {
+                    return '$' . number_format($row->ServiceFees, 2);
+                })
+                ->addColumn('Total', function ($row) {
+                    return '$' . number_format($row->Total, 2);
+                })
                 ->addColumn('IssueDate', function ($row) {
                     return User::user_timezone($row->IssueDate, 'm/d/Y');
                 })
@@ -64,7 +70,7 @@ class CheckController extends Controller
                     $check_generate = route('check_generate', ['id' => $row->CheckID]);
 
                     if ($row->Status == 'draft') {
-                        return '<div class="d-flex">
+                        return '<div class="d-flex gap-3">
                                 <a href="' . $editUrl . '" class="dropdown-item">
                                         <i class="ti ti-pencil me-1"></i> Edit
                                 </a>
@@ -181,6 +187,8 @@ class CheckController extends Controller
                     'PayeeID' => $request->payee,
                     'CheckType' => 'Process Payment',
                     'Amount' => $request->amount,
+                    'ServiceFees' => 0,
+                    'Total' => $request->amount,
                     'PayorID' => $request->payor,
                     'CheckNumber' => $request->check_number,
                     'IssueDate' => now(),
@@ -200,6 +208,8 @@ class CheckController extends Controller
                 'PayeeID' => $request->payee,
                 'CheckType' => 'Process Payment',
                 'Amount' => $request->amount,
+                'ServiceFees' => 0,
+                'Total' => $request->amount,
                 'PayorID' => $request->payor,
                 'CheckNumber' => $request->check_number,
                 'IssueDate' => now(),
@@ -391,6 +401,8 @@ class CheckController extends Controller
                     'CompanyID' => $request->payor,
                     'CheckType' => 'Make Payment',
                     'Amount' => $request->amount,
+                    'ServiceFees' => 0,
+                    'Total' => $request->amount,
                     'EntityID' => $request->payee,
                     'CheckNumber' => $request->check_number,
                     'IssueDate' => now(),
@@ -408,6 +420,8 @@ class CheckController extends Controller
                 'PayorID' => $request->payor,
                 'CheckType' => 'Make Payment',
                 'Amount' => $request->amount,
+                'ServiceFees' => 0,
+                'Total' => $request->amount,
                 'PayeeID' => $request->payee,
                 'CheckNumber' => $request->check_number,
                 'IssueDate' => now(),
@@ -448,6 +462,7 @@ class CheckController extends Controller
 
     public function generateAndSavePDF($data,$send_check=0)
     {
+
         $directoryPath = public_path('checks');
         // Create fonts directory if it doesn't exist
         $fontPath = storage_path('fonts');
@@ -488,7 +503,7 @@ class CheckController extends Controller
             // ->setPaper([0, 0, 1000, 1200])
             ->setOptions(['dpi' => 150])
             ->set_option('isHtml5ParserEnabled', true)
-            ->set_option('isRemoteEnabled', true);
+            ->set_option('isRemoteEnabled', false);
 
         // Define the file path where you want to save the PDF
         $file_name = 'check-' . $data['check_number'] . '-' . time() . '.pdf';
@@ -586,6 +601,12 @@ class CheckController extends Controller
                 })
                 ->editColumn('Amount', function ($row) {
                     return '$' . number_format($row->Amount, 2);
+                })
+                ->editColumn('ServiceFees', function ($row) {
+                    return '$' . number_format($row->ServiceFees, 2);
+                })
+                ->editColumn('Total', function ($row) {
+                    return '$' . number_format($row->Total, 2);
                 })
                 ->addColumn('IssueDate', function ($row) {
                     return $row->IssueDate ? User::user_timezone($row->IssueDate, 'm/d/Y') : '-';
@@ -720,7 +741,9 @@ class CheckController extends Controller
         $data['check_date'] = $check_date;
         $data['payee_name'] = $payee->Name;
         $data['amount'] = $check->Amount;
-        $data['amount_word'] = $this->numberToWords($check->Amount);
+        $data['service_fee'] = $check->ServiceFees;
+        $data['total'] = $check->Total;
+        $data['amount_word'] = $this->numberToWords($check->Total);
         $data['memo'] = $check->Memo;
         $data['routing_number'] = $payor->RoutingNumber;
         $data['account_number'] = $payor->AccountNumber;
@@ -728,7 +751,7 @@ class CheckController extends Controller
         $data['signature'] = (!empty($check->DigitalSignatureRequired)) ? $check->DigitalSignature : '';
         $data['email'] = !empty($payee->Email) ? $payee->Email : '';
         $data['package'] = Auth::user()->CurrentPackageID;
-        // return view('user.check_formate.index', compact('data'));
+
 
         $check_file = $this->generateAndSavePDF($data);
 
@@ -883,16 +906,30 @@ class CheckController extends Controller
             'state' => 'required',
             'zip' => 'required',
             'page_desc' => 'required',
+            'service_fees_type' => 'nullable|in:percentage,amount',
+            'service_fees' => [
+                'nullable',
+                'required_if:service_fees_type,percentage,amount',
+                'numeric',
+                'gt:0'
+            ],
+        ];
+        $messages = [
+            'service_fees_type.in' => 'Service Fees Type is invalid.',
+            'service_fees.numeric' => 'Service Fees must be a number.',
+            'service_fees.gt' => 'Service Fees must be greater than 0.',
+            'service_fees.required_if' => 'Service Fees is required.',
         ];
         if (empty($request->web_form_id)) {
             $rules['logo'] = 'required';
         }
-        $validator = Validator::make($request->all(), $rules);
+        $validator = Validator::make($request->all(), $rules,$messages);
         
         if ($validator->fails()) {
+            // dd($validator->errors());
             return redirect()->back()->withErrors($validator)->withInput();
         }
-
+        
         if (!empty($request->web_form_id)) {
             $webform = WebForm::find($request->web_form_id);
             $payee = Payors::withTrashed()->find($webform->PayeeID);
@@ -941,7 +978,8 @@ class CheckController extends Controller
         $webform->Logo = $logoPath;
         $webform->page_url = $slug;
         $webform->page_desc = $request->page_desc;
-
+        $webform->service_fees_type = $request->service_fees_type;
+        $webform->service_fees = ($request->service_fees_type != null) ? $request->service_fees : null;
 
         $webform->save();
 
@@ -950,7 +988,7 @@ class CheckController extends Controller
 
     public function store_web_form_data(Request $request)
     {
-        
+        // dd($request->all());
         // $token = $request->input('g-recaptcha-token');
 
         // if (!$token) {
@@ -1029,11 +1067,29 @@ class CheckController extends Controller
 
         $check_date = Carbon::parse(str_replace('-', '/', $request->check_date));
 
+        $result = Helpers::getWebFormServiceFeeAndTotal($payee->EntityID, $request->amount);
+        // $webform =WebForm::where('PayeeID', $payee->EntityID)->first();
+        
+        // $service_fees = 0;
+        // $total = $request->amount;
+
+        // if($webform){
+        //     if($webform->service_fees_type == 'amount'){
+        //         $service_fees = $webform->service_fees;
+        //         $total = $request->amount + $service_fees;
+        //     }else if($webform->service_fees_type == 'percentage'){
+        //         $service_fees = $request->amount * $webform->service_fees / 100;
+        //         $total = $request->amount + $service_fees;
+        //     }
+        // }
+
         $check_data = [
             'UserID' => $payee->UserID,
             'PayeeID' => $request->company_id,
             'CheckType' => 'Process Payment',
             'Amount' => $request->amount,
+            'ServiceFees' => $result['service_fees'],
+            'Total' => $result['total'],
             'PayorID' => $payor->EntityID,
             'CheckNumber' => $request->check_number,
             'IssueDate' => now(),
@@ -1060,7 +1116,7 @@ class CheckController extends Controller
                 'RemainingChecks' => $payment_subscription->RemainingChecks - 1
             ]);
         }
-
+        
         Mail::to($user->Email)->send(new SendWebFormMail(5, $user_name, $payor->Name, $check));
         Mail::to($request->email)->send(new SendWebFormMailForCilent(11, $request->name, ));
         return redirect()->back()->with('success', 'Check form successfully submitted.');
@@ -1286,7 +1342,6 @@ class CheckController extends Controller
         $check_pdf = public_path('checks/' . $check->CheckPDF);
 
         try {
-
             Mail::to($payee->Email)->send(new SendCheckMail(4, $data, $check_pdf));
 
             $check->is_email_send = 1;
@@ -1294,6 +1349,7 @@ class CheckController extends Controller
 
             return redirect()->back()->with('success', 'Email sent successfully.');
         } catch (\Exception $e) {
+            dd($e->getMessage());
             return redirect()->back()->with('fail', 'Email not sent.');
         }
     }
