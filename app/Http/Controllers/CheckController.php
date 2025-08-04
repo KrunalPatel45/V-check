@@ -1220,7 +1220,14 @@ class CheckController extends Controller
                 $data['check_date'] = $check_date;
                 $data['payee_name'] = $payee->Name;
                 $data['amount'] = $check->Amount;
-                $data['amount_word'] = $this->numberToWords($check->Amount);
+                $data['service_fee'] = $check->ServiceFees;
+                $data['total'] = $check->Total;
+
+                if($check->CheckType == 'Process Payment'){
+                    $data['amount_word'] = $this->numberToWords($check->Total);
+                }else if($check->CheckType == 'Make Payment'){
+                    $data['amount_word'] = $this->numberToWords($check->Amount);
+                }
                 $data['memo'] = $check->Memo;
                 $data['routing_number'] = $payor->RoutingNumber;
                 $data['account_number'] = $payor->AccountNumber;
