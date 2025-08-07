@@ -171,19 +171,76 @@ class SubscriptionController extends Controller
         return redirect()->route('user.login')->with('error', 'Something went wrong');
     }
 
-    public function add_card(Request $request) 
-    {
+    // public function add_card(Request $request) 
+    // {
     
+    //     $stripeSecretKey = env('STRIPE_SECRET');
+    //     $stripeToken = $request->stripeToken; 
+    //     $customerId =Auth::user()->CusID;
+
+    //     try {
+    //         $response = Http::withBasicAuth($stripeSecretKey, '')
+    //         ->asForm()
+    //         ->post("https://api.stripe.com/v1/customers/{$customerId}/sources", [
+    //             'source' => $stripeToken
+    //         ]);
+
+    //         $data = $response->json();
+
+    //         if ($response->failed() || isset($data['error'])) {
+    //             $message = $data['error']['message'] ?? 'Something went wrong';
+    //             return redirect()->back()->with('error_card', $message);
+    //         }
+
+    //         return redirect()->back()->with('success_card', 'Card added successfully');
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()->with('error_card', 'Something went wrong');
+    //     }
+    // }
+    public function add_card(Request $request)
+    {
         $stripeSecretKey = env('STRIPE_SECRET');
-        $stripeToken = $request->stripeToken; 
-        $customerId =Auth::user()->CusID;
+        $paymentMethodId = $request->payment_method;
+        $customerId = Auth::user()->CusID;
 
         try {
+            // Step 1: List existing payment methods
+            $existing = Http::withBasicAuth($stripeSecretKey, '')
+                ->get("https://api.stripe.com/v1/payment_methods", [
+                    'customer' => $customerId,
+                    'type' => 'card',
+                ]);
+
+            $existingMethods = $existing->json()['data'] ?? [];
+
+            // Step 2: Check if this payment method is already attached
+            foreach ($existingMethods as $method) {
+                if ($method['id'] === $paymentMethodId) {
+                    return redirect()->back()->with('info_card', 'This card is already added.');
+                }
+            }
+
+            // Get the fingerprint of the new payment method
+            $newPm = Http::withBasicAuth($stripeSecretKey, '')
+                ->get("https://api.stripe.com/v1/payment_methods/{$paymentMethodId}")
+                ->json();
+
+            $newFingerprint = $newPm['card']['fingerprint'] ?? null;
+
+            foreach ($existingMethods as $method) {
+                if (
+                    isset($method['card']['fingerprint']) &&
+                    $method['card']['fingerprint'] === $newFingerprint
+                ) {
+                    return redirect()->back()->with('error_card', 'This card already exists.');
+                }
+            }
+            // Step 3: Attach if not already present
             $response = Http::withBasicAuth($stripeSecretKey, '')
-            ->asForm()
-            ->post("https://api.stripe.com/v1/customers/{$customerId}/sources", [
-                'source' => $stripeToken
-            ]);
+                ->asForm()
+                ->post("https://api.stripe.com/v1/payment_methods/{$paymentMethodId}/attach", [
+                    'customer' => $customerId,
+                ]);
 
             $data = $response->json();
 
@@ -193,21 +250,58 @@ class SubscriptionController extends Controller
             }
 
             return redirect()->back()->with('success_card', 'Card added successfully');
+
         } catch (\Exception $e) {
             return redirect()->back()->with('error_card', 'Something went wrong');
         }
     }
 
+    // public function delete_card($id)
+    // {
+    //     $stripeSecretKey = env('STRIPE_SECRET');
+    //     $customerId =Auth::user()->CusID;
+
+    //     try {
+    //         $response = Http::withBasicAuth($stripeSecretKey, '')
+    //             ->delete("https://api.stripe.com/v1/customers/{$customerId}/sources/{$id}");
+
+    //         $data = $response->json();
+
+    //         if ($response->failed() || isset($data['error'])) {
+    //             $message = $data['error']['message'] ?? 'Failed to delete card';
+    //             return redirect()->back()->with('error_card', $message);
+    //         }
+
+    //         return back()->with('success_card', 'Card deleted successfully!');
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()->with('error_card', 'Failed to delete card');
+    //     }
+    // }
     public function delete_card($id)
     {
         $stripeSecretKey = env('STRIPE_SECRET');
-        $customerId =Auth::user()->CusID;
+        $customerId = Auth::user()->CusID;
 
         try {
-            $response = Http::withBasicAuth($stripeSecretKey, '')
-                ->delete("https://api.stripe.com/v1/customers/{$customerId}/sources/{$id}");
+            $paymentMethods = Http::withToken($stripeSecretKey)
+                ->get("https://api.stripe.com/v1/payment_methods", [
+                    'customer' => $customerId,
+                    'type' => 'card',
+                ])
+                ->json()['data'] ?? [];
 
-            $data = $response->json();
+            if (!empty($paymentMethods)) {
+                // If only one card, do not delete
+                if (count($paymentMethods) <= 1) {
+                    return redirect()->back()->with('error_card', 'At least one card is required.');
+                }
+
+                // Delete (detach) this payment method
+                $response = Http::withToken($stripeSecretKey)
+                    ->asForm()
+                    ->post("https://api.stripe.com/v1/payment_methods/{$id}/detach");
+
+            }
 
             if ($response->failed() || isset($data['error'])) {
                 $message = $data['error']['message'] ?? 'Failed to delete card';
@@ -219,6 +313,7 @@ class SubscriptionController extends Controller
             return redirect()->back()->with('error_card', 'Failed to delete card');
         }
     }
+
 
     public function set_default($id)
     {

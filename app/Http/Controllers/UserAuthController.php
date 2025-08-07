@@ -56,9 +56,9 @@ class UserAuthController extends Controller
         $user=User::find($userId);
         $query=Package::where('Status', 'Active');
 
-        if($user && $user->CurrentPackageID == -1){
+        // if($user && $user->CurrentPackageID == -1){
             $query->whereRaw('LOWER(Name) != ?', ['trial']);
-        }
+        // }
         
         $packages = $query->get();
 
@@ -315,10 +315,12 @@ class UserAuthController extends Controller
     {
         $user = User::find($id);
 
-        if($user != null && $user->CurrentPackageID == -1){
-            return redirect()->back()->with('error', 'You have already selected trial package');
-        }
+        $alreadySubscribed = PaymentSubscription::where('UserID', $user->UserID)->exists();
 
+        if($user != null && $alreadySubscribed){
+            return redirect()->back();
+        }
+        
         $user->CurrentPackageID = -1;
         $user->Status = 'Active';
 

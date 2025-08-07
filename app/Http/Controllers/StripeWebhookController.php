@@ -239,12 +239,13 @@ class StripeWebhookController extends Controller
             $invoice = $event['data']['object'];
 
             $user = User::where('CusID', $invoice['customer'])->first();
-
+            
             $PaymentSubscription = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
-                ->orderBy('PaymentSubscriptionID', 'desc')->first();
-           
+                ->whereNot('Status','Canceled')->orderBy('PaymentSubscriptionID', 'desc')->first();
+            
             $renew = false;
             $is_downgraded = false;
+            $is_upgraded = false;
 
             if ($PaymentSubscription) {
 
@@ -289,6 +290,8 @@ class StripeWebhookController extends Controller
                         $this->hanldeDowngradeSubscription($invoice);
                         $is_downgraded = true;
                     }
+                }elseif($invoice['amount_paid'] > $current_amount){
+                        $is_upgraded = true;
                 }
                 
 
@@ -301,15 +304,24 @@ class StripeWebhookController extends Controller
                     }else{
                         $payment_sub_id=$PaymentSubscription->PaymentSubscriptionID;
                     }
-                    if($is_downgraded != true){
+                    if($is_downgraded != true && $is_upgraded != true){
+                        
                         PaymentHistory::create([
-                        'PaymentSubscriptionID' => $payment_sub_id,
-                        'PaymentAmount' => $invoice['amount_paid'] / 100,
-                        'PaymentDate' => now(),
-                        'PaymentStatus' => 'Success',
-                        'PaymentAttempts' => $invoice['attempt_count'],
-                        'TransactionID' => $invoice['id'],
+                            'PaymentSubscriptionID' => $payment_sub_id,
+                            'PaymentAmount' => $invoice['amount_paid']/100,
+                            'PaymentDate' => now(),
+                            'PaymentStatus' => 'Success',
+                            'PaymentAttempts' => $invoice['attempt_count'],
+                            'TransactionID' => $invoice['id'],
                         ]);
+                        // PaymentHistory::create([
+                        // 'PaymentSubscriptionID' => $payment_sub_id,
+                        // 'PaymentAmount' => (isset($newPaymentSubscription)) ? $newPaymentSubscription->PaymentAmount : $PaymentSubscription->PaymentAmount,
+                        // 'PaymentDate' => now(),
+                        // 'PaymentStatus' => 'Success',
+                        // 'PaymentAttempts' => $invoice['attempt_count'],
+                        // 'TransactionID' => (isset($newPaymentSubscription)) ? $newPaymentSubscription->TransactionID : $PaymentSubscription->TransactionID,
+                        // ]);
                     }
                 }
 
@@ -346,6 +358,7 @@ class StripeWebhookController extends Controller
 
 
             $PaymentSubscription = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
+                ->whereNot('Status', 'Canceled')
                 ->orderBy('PaymentSubscriptionID', 'desc')->first();
 
             if ($PaymentSubscription) {
@@ -358,7 +371,6 @@ class StripeWebhookController extends Controller
                     'TransactionID' => $invoice['id'],
                     'PaymentUrl' => $invoice['hosted_invoice_url']
                 ]);
-
 
                 // if ($invoice['attempt_count'] >= 3) {
                 //     $this->cancelSubscriptionAfterFailedAttempts($user);

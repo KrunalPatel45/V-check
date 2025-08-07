@@ -98,21 +98,39 @@
             $('#cardForm').on('submit', function(e) {
                 e.preventDefault(); // Prevent the form from submitting normally
 
-                stripe.createToken(card).then(function(result) {
+                // stripe.createToken(card).then(function(result) {
+                //     if (result.error) {
+                //         // If there's an error, display it
+                //         alert(result.error.message);
+                //     } else {
+                //         var stripeToken = result.token.id;
+
+                //         // If token creation is successful, append it to the form as a hidden input
+                //         $('<input>').attr({
+                //             type: 'hidden',
+                //             name: 'stripeToken',
+                //             value: stripeToken
+                //         }).appendTo('#cardForm');
+
+                //         // Submit the form with the stripeToken
+                //         $('#cardForm')[0].submit();
+                //     }
+                // });
+                stripe.createPaymentMethod({
+                    type: 'card',
+                    card: card,
+                }).then(function(result) {
                     if (result.error) {
-                        // If there's an error, display it
+                        // Show error in your UI
                         alert(result.error.message);
                     } else {
-                        var stripeToken = result.token.id;
-
-                        // If token creation is successful, append it to the form as a hidden input
+                        // Append payment method ID to form and submit
                         $('<input>').attr({
                             type: 'hidden',
-                            name: 'stripeToken',
-                            value: stripeToken
+                            name: 'payment_method', // must match server param
+                            value: result.paymentMethod.id
                         }).appendTo('#cardForm');
 
-                        // Submit the form with the stripeToken
                         $('#cardForm')[0].submit();
                     }
                 });
