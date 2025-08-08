@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Grid;
+use App\Models\GridHistory;
+use App\Models\GridItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Company;
@@ -27,6 +30,8 @@ use App\Mail\SendWebFormMailForCilent;
 use App\Helpers\Helpers;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Exception;
 
 
 class CheckController extends Controller
@@ -125,18 +130,18 @@ class CheckController extends Controller
         if (!Auth::check()) {
             return redirect()->route('user.login');
         }
-        
+
         $isSubscribed = Helpers::isSubscribed(Auth::user());
-       
-        if(!$isSubscribed){
-             return redirect()->route('check.process_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
+
+        if (!$isSubscribed) {
+            return redirect()->route('check.process_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
 
         // $lastCheck = Checks::where('UserID', Auth::id())->where('CheckType', 'Process Payment')->latest('CheckID')->first();
 
         $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'RP')->get();
         $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'RP')->get();
-        return view('user.check.process_payment_generate_check', compact( 'payees', 'payors'));
+        return view('user.check.process_payment_generate_check', compact('payees', 'payors'));
     }
     public function process_payment_check_generate(Request $request)
     {
@@ -222,12 +227,12 @@ class CheckController extends Controller
             ]);
 
             // if (Auth::user()->CurrentPackageID != -1) {
-                $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)
-                    ->where('Status', 'Active')->orderBy('PaymentSubscriptionID', 'desc')->first();
-                $paymentSubscription->ChecksReceived = $paymentSubscription->ChecksReceived + 1;
-                $paymentSubscription->ChecksUsed = $paymentSubscription->ChecksUsed + 1;
-                $paymentSubscription->RemainingChecks = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
-                $paymentSubscription->save();
+            $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)
+                ->where('Status', 'Active')->orderBy('PaymentSubscriptionID', 'desc')->first();
+            $paymentSubscription->ChecksReceived = $paymentSubscription->ChecksReceived + 1;
+            $paymentSubscription->ChecksUsed = $paymentSubscription->ChecksUsed + 1;
+            $paymentSubscription->RemainingChecks = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
+            $paymentSubscription->save();
             // }
             $message = 'Check Created successfully';
         }
@@ -336,22 +341,31 @@ class CheckController extends Controller
         if (!Auth::check()) {
             return redirect()->route('user.login');
         }
-        
+
         $isSubscribed = Helpers::isSubscribed(Auth::user());
-       
-        if(!$isSubscribed){
-             return redirect()->route('check.send_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
+
+        if (!$isSubscribed) {
+            return redirect()->route('check.send_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
 
         $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'SP')->get();
         $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'SP')->get();
 
-         $lastCheck = Checks::where('UserID', Auth::id())->where('CheckType', 'Make Payment')->latest('CheckID')->first();
+        $lastCheck = Checks::where('UserID', Auth::id())->where('CheckType', 'Make Payment')->latest('CheckID')->first();
         $userSignatures = UserSignature::where('UserID', Auth::id())->get();
-        return view('user.check.send_payment_generate_check', compact('lastCheck','payees', 'payors', 'userSignatures'));
+
+        $grid_histories = GridHistory::where('UserID', Auth::user()->UserID)
+            ->where('Status', 1)
+            ->get();
+
+        $grid_history_ids = $grid_histories->pluck('id')->toArray();
+
+        return view('user.check.send_payment_generate_check', compact('grid_history_ids', 'grid_histories', 'lastCheck', 'payees', 'payors', 'userSignatures'));
     }
     public function send_payment_check_generate(Request $request)
     {
+
+        DB::beginTransaction();
         if (!Auth::check()) {
             return redirect()->route('user.login');
         }
@@ -371,6 +385,7 @@ class CheckController extends Controller
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
+
 
         // if(!empty($request->signed)) {
         //     $folderPath = public_path('sign/');
@@ -413,8 +428,35 @@ class CheckController extends Controller
                     'SignID' => $request->signature_id,
                 ]);
             }
+
+            if (isset($request->itemization) && $request->itemization == 1) {
+                GridItem::where('CheckID', $checks->CheckID)->delete();
+
+                foreach ($request->grid_items as $id => $item) {
+
+                    $row = 1;
+
+                    foreach ($item as $key => $value) {
+                        $grid_history = GridHistory::find($id);
+                        if ($value == null || $value == '') {
+                            DB::rollBack();
+                            return redirect()->back()->with('grid_error', 'Value for ' . $grid_history->Title . ' is required.')->withInput();
+                        }
+                        GridItem::create([
+                            'CheckID' => $checks->CheckID,
+                            'Row' => $row,
+                            'GridHistoryID' => $id,
+                            'Value' => $value
+                        ]);
+                        $row++;
+                    }
+                }
+            }
+
+            // dd($request->all());
             $message = 'Check Updated successfully';
         } else {
+
             $checks = Checks::create([
                 'UserID' => Auth::id(),
                 'PayorID' => $request->payor,
@@ -433,17 +475,43 @@ class CheckController extends Controller
             ]);
 
             // if (Auth::user()->CurrentPackageID != -1) {
-                $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)
-                    ->where('Status', 'Active')->orderBy('PaymentSubscriptionID', 'desc')->first();
-                $paymentSubscription->ChecksSent = $paymentSubscription->ChecksSent + 1;
-                $paymentSubscription->ChecksUsed = $paymentSubscription->ChecksUsed + 1;
-                $paymentSubscription->RemainingChecks = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
-                $paymentSubscription->save();
+            $paymentSubscription = PaymentSubscription::where('UserID', Auth::id())->where('PackageID', Auth::user()->CurrentPackageID)
+                ->where('Status', 'Active')->orderBy('PaymentSubscriptionID', 'desc')->first();
+            $paymentSubscription->ChecksSent = $paymentSubscription->ChecksSent + 1;
+            $paymentSubscription->ChecksUsed = $paymentSubscription->ChecksUsed + 1;
+            $paymentSubscription->RemainingChecks = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
+            $paymentSubscription->save();
             // }
+            if (isset($request->itemization) && $request->itemization == 1) {
+
+                if (isset($request->grid_items) && !empty($request->grid_items)) {
+                    foreach ($request->grid_items as $id => $item) {
+                        $row = 1;
+
+                        foreach ($item as $key => $value) {
+
+                            if ($value == null || $value == '') {
+                                $grid_history = GridHistory::find($id);
+                                DB::rollBack();
+                                return redirect()->back()->with('grid_error', 'Value for ' . $grid_history->Title . ' is required.')->withInput();
+                            }
+
+                            GridItem::create([
+                                'CheckID' => $checks->CheckID,
+                                'Row' => $row,
+                                'GridHistoryID' => $id,
+                                'Value' => $value
+                            ]);
+                            $row++;
+                        }
+                    }
+                }
+            }
 
             $message = 'Check Created successfully';
         }
 
+        DB::commit();
         return redirect()->route('check.send_payment')->with('success', $message);
     }
 
@@ -457,10 +525,33 @@ class CheckController extends Controller
         $old_payor = Payors::find($check->PayorID);
         $old_sign = UserSignature::find($check->SignID);
         $userSignatures = UserSignature::where('UserID', Auth::id())->get();
-        return view('user.check.send_payment_generate_check', compact('payees', 'payors', 'check', 'old_payee', 'old_payor', 'old_sign', 'userSignatures'));
+
+        $grid_items = GridItem::where('CheckID', $id)
+            ->get();
+        $grid_history_ids = $grid_items->pluck('GridHistoryID')->unique()->toArray();
+
+        $grid_items = $grid_items->groupBy('Row');
+        // $grid_items = $grid_items
+        //     ->groupBy('Row')
+        //     ->map(function ($items) {
+        //         return $items->map(fn($item) => $item->toArray());
+        //     })
+        //     ->toArray();
+
+
+        if (empty($grid_items)) {
+            $grid_histories = GridHistory::where('UserID', Auth::user()->UserID)
+                ->where('Status', 1)->get();
+        } else {
+            // $grid_history_ids = $grid_items->pluck('GridHistoryID')->toArray();
+            $grid_histories = GridHistory::where('UserID', Auth::user()->UserID)
+                ->whereIn('id', $grid_history_ids)->get();
+        }
+
+        return view('user.check.send_payment_generate_check', compact('grid_history_ids', 'grid_histories', 'grid_items', 'payees', 'payors', 'check', 'old_payee', 'old_payor', 'old_sign', 'userSignatures'));
     }
 
-    public function generateAndSavePDF($data,$send_check=0)
+    public function generateAndSavePDF($data, $send_check = 0)
     {
 
         $directoryPath = public_path('checks');
@@ -499,7 +590,7 @@ class CheckController extends Controller
             File::makeDirectory($directoryPath, 0755, true);
         }
         // Generate PDF from a view
-        $pdf = PDF::loadView('user.check_formate.index', compact('data','send_check'))->setPaper('letter', 'portrait')
+        $pdf = PDF::loadView('user.check_formate.index', compact('data', 'send_check'))->setPaper('letter', 'portrait')
             // ->setPaper([0, 0, 1000, 1200])
             ->setOptions(['dpi' => 150])
             ->set_option('isHtml5ParserEnabled', true)
@@ -565,7 +656,7 @@ class CheckController extends Controller
             if ($request->has('type') && !empty($request->type)) {
                 $query->where('CheckType', $request->type);
             }
-            
+
             // if (isset($request->entity_id) && $request->entity_id != null) {
             //     $payor_ids = Payors::withTrashed()->where('Name','like',"%{$request->entity_id}%")->pluck('EntityID')->toArray();
 
@@ -575,7 +666,7 @@ class CheckController extends Controller
             //     });
             // }
 
-            
+
             $query->orderBy('CheckID', 'desc');
 
             return datatables()->of($query)
@@ -584,7 +675,7 @@ class CheckController extends Controller
                     return $row->id;
                 })
                 ->filterColumn('EntityID', function ($query, $keyword) {
-                    $payor_ids = Payors::withTrashed()->where('Name','like',"%{$keyword}%")->pluck('EntityID')->toArray();
+                    $payor_ids = Payors::withTrashed()->where('Name', 'like', "%{$keyword}%")->pluck('EntityID')->toArray();
 
                     $query->where(function ($q) use ($payor_ids) {
                         $q->whereIn('PayorID', $payor_ids)
@@ -617,17 +708,17 @@ class CheckController extends Controller
                 ->addColumn('actions', function ($row) {
                     if (!empty($row->CheckPDF)) {
                         $check_preview = asset('checks/' . $row->CheckPDF);
-                         $send_email_url = route('send_check_email', ['id' => $row->CheckID]);
+                        $send_email_url = route('send_check_email', ['id' => $row->CheckID]);
                         $send_email_lable = !empty($row->is_email_send) ? 'Resend' : 'Send';
 
-                        if($row->CheckType=='Process Payment'){
+                        if ($row->CheckType == 'Process Payment') {
                             return '<a href="' . $check_preview . '" target="_blank" class="btn">
                                         <i class="menu-icon tf-icons ti ti-files"></i>
                                     </a>
                                     <a href="' . route('download.pdf', $row->CheckID) . '" class="btn">
                                         <i class="menu-icon tf-icons ti ti-download"></i>
                                     </a>';
-                        }else{
+                        } else {
                             return '<div class="d-flex"><a href="' . $check_preview . '" target="_blank" class="btn">
                                             <i class="menu-icon tf-icons ti ti-files"></i> Preview
                                     </a>
@@ -646,7 +737,7 @@ class CheckController extends Controller
                 ->rawColumns(['Status', 'actions'])
                 ->make(true);
         }
-        
+
         $currencyFormatter = new \NumberFormatter('en_US', \NumberFormatter::CURRENCY);
 
         // Metrics for main page (optional but already in your code)
@@ -658,8 +749,8 @@ class CheckController extends Controller
             ->where('CheckType', 'Process Payment')
             ->sum('Amount');
 
-        $total_receive_check_amount=$currencyFormatter->format($total_receive_check_amount);
-        
+        $total_receive_check_amount = $currencyFormatter->format($total_receive_check_amount);
+
         $total_send_check = Checks::where('UserID', Auth::id())
             ->where('CheckType', 'Make Payment')
             ->count();
@@ -668,7 +759,7 @@ class CheckController extends Controller
             ->where('CheckType', 'Make Payment')
             ->sum('Amount');
 
-        $total_send_check_amount=$currencyFormatter->format($total_send_check_amount);
+        $total_send_check_amount = $currencyFormatter->format($total_send_check_amount);
         // $total_receive_check_amount = $this->formatToK($total_receive_check_amount);
         // $total_send_check_amount = $this->formatToK($total_send_check_amount);
 
@@ -720,7 +811,7 @@ class CheckController extends Controller
     public function check_generate($id)
     {
         $check = Checks::find($id);
-        
+
         $isSubscribed = Helpers::isSubscribed(Auth::user());
 
         if (!$isSubscribed) {
@@ -772,7 +863,7 @@ class CheckController extends Controller
         if (!$isSubscribed) {
             return redirect()->back()->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
-        
+
         $check_date = Carbon::parse(str_replace('/', '-', $check->ExpiryDate))->format('m/d/Y');
 
         $data = [];
@@ -799,9 +890,26 @@ class CheckController extends Controller
         $data['package'] = Auth::user()->CurrentPackageID;
         $send_check = 1;
 
+        $grid_items = GridItem::select('Row', 'Value')->where('CheckID', $id)
+            ->groupBy('CheckID', 'Row', 'GridHistoryID', 'Value')
+            ->get();
+
+        $grid_history_ids = GridItem::where('CheckID', $id)->pluck('GridHistoryID')
+            ->unique()->toArray();
+
+        $grid_headers = GridHistory::whereIn('id', $grid_history_ids)->pluck('Title')->toArray();
+
+        if ($grid_items->isNotEmpty()) {
+            foreach ($grid_items as $item) {
+                $ItemsArr[$item->Row][] = ($item->Value);
+            }
+            $data['grid_items'] = $ItemsArr;
+            $data['grid_headers'] = $grid_headers;
+        }
+
         // return view('user.check_formate.index', compact('data','send_check'));
 
-        $check_file = $this->generateAndSavePDF($data,$send_check);
+        $check_file = $this->generateAndSavePDF($data, $send_check);
 
         $check->Status = 'generated';
         $check->CheckPDF = $check_file;
@@ -888,7 +996,10 @@ class CheckController extends Controller
 
         $package = Package::find(Auth::user()->CurrentPackageID);
         $is_web_form = (Auth::user()->CurrentPackageID != -1) ? $package->web_forms : 0;
-        return view('user.web_form.index', compact('is_web_form'));
+
+        $grids = Grid::where('UserID', Auth::id())->get();
+
+        return view('user.web_form.index', compact('is_web_form', 'grids'));
     }
 
     public function new_web_form()
@@ -898,92 +1009,98 @@ class CheckController extends Controller
 
     public function new_web_form_store(Request $request)
     {
-        $rules = [
-            'name' => 'required',
-            'address' => 'required',
-            'phone_number' => 'nullable|regex:/^\d{3}-\d{3}-\d{4}$/',
-            'city' => 'required',
-            'state' => 'required',
-            'zip' => 'required',
-            'page_desc' => 'required',
-            'service_fees_type' => 'nullable|in:percentage,amount',
-            'service_fees' => [
-                'nullable',
-                'required_if:service_fees_type,percentage,amount',
-                'numeric',
-                'gt:0'
-            ],
-        ];
-        $messages = [
-            'service_fees_type.in' => 'Service Fees Type is invalid.',
-            'service_fees.numeric' => 'Service Fees must be a number.',
-            'service_fees.gt' => 'Service Fees must be greater than 0.',
-            'service_fees.required_if' => 'Service Fees is required.',
-        ];
-        if (empty($request->web_form_id)) {
-            $rules['logo'] = 'required';
-        }
-        $validator = Validator::make($request->all(), $rules,$messages);
-        
-        if ($validator->fails()) {
-            // dd($validator->errors());
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-        
-        if (!empty($request->web_form_id)) {
-            $webform = WebForm::find($request->web_form_id);
-            $payee = Payors::withTrashed()->find($webform->PayeeID);
-            if ($payee->Name != $request->name) {
+        try {
+            $rules = [
+                'name' => 'required',
+                'address' => 'required',
+                'phone_number' => 'nullable|regex:/^\d{3}-\d{3}-\d{4}$/',
+                'city' => 'required',
+                'state' => 'required',
+                'zip' => 'required',
+                'page_desc' => 'required',
+                'service_fees_type' => 'nullable|in:percentage,amount',
+                'service_fees' => [
+                    'nullable',
+                    'required_if:service_fees_type,percentage,amount',
+                    'numeric',
+                    'gt:0'
+                ],
+            ];
+            $messages = [
+                'service_fees_type.in' => 'Service Fees Type is invalid.',
+                'service_fees.numeric' => 'Service Fees must be a number.',
+                'service_fees.gt' => 'Service Fees must be greater than 0.',
+                'service_fees.required_if' => 'Service Fees is required.',
+            ];
+            if (empty($request->web_form_id)) {
+                $rules['logo'] = 'required';
+            }
+            $validator = Validator::make($request->all(), $rules, $messages);
+
+            if ($validator->fails()) {
+                // dd($validator->errors());
+                return redirect()->back()->withErrors($validator)->withInput();
+            }
+
+            if (!empty($request->web_form_id)) {
+                $webform = WebForm::find($request->web_form_id);
+                $payee = Payors::withTrashed()->find($webform->PayeeID);
+                if ($payee->Name != $request->name) {
+                    $slug = $this->generateUniqueSlug($request->name);
+                }
+                $slug = $webform->page_url;
+            } else {
+                $webform = new WebForm();
+                $payee = new Payors();
                 $slug = $this->generateUniqueSlug($request->name);
             }
-            $slug = $webform->page_url;
-        } else {
-            $webform = new WebForm();
+
             $payee = new Payors();
-            $slug = $this->generateUniqueSlug($request->name);
-        }
 
-        $payee = new Payors();
+            $payee->UserID = Auth::id();
+            $payee->Name = $request->name;
+            $payee->Address1 = $request->address;
+            $payee->City = $request->city;
+            $payee->State = $request->state;
+            $payee->Zip = $request->zip;
+            $payee->Type = 'Payee';
+            $payee->Category = 'RP';
+            $payee->PhoneNumber = preg_replace('/\D/', '', $request->phone_number);
+            $payee->ServiceFeeType = $request->service_fees_type;
+            $payee->ServiceFee = ($request->service_fees_type != null) ? $request->service_fees : null;
+            $payee->save();
 
-        $payee->UserID = Auth::id();
-        $payee->Name = $request->name;
-        $payee->Address1 = $request->address;
-        $payee->City = $request->city;
-        $payee->State = $request->state;
-        $payee->Zip = $request->zip;
-        $payee->Type = 'Payee';
-        $payee->Category = 'RP';
-        $payee->PhoneNumber = preg_replace('/\D/', '', $request->phone_number);
+            if ($request->hasFile('logo')) {
+                $file = $request->file('logo');
+                $uniqueName = Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $destinationPath = public_path('logos');
 
-        $payee->save();
+                if (!file_exists($destinationPath)) {
+                    mkdir($destinationPath, 0755, true);
+                }
 
-        if ($request->hasFile('logo')) {
-            $file = $request->file('logo');
-            $uniqueName = Str::uuid() . '.' . $file->getClientOriginalExtension();
-            $destinationPath = public_path('logos');
-
-            if (!file_exists($destinationPath)) {
-                mkdir($destinationPath, 0755, true);
+                $file->move($destinationPath, $uniqueName);
+                $logoPath = 'logos/' . $uniqueName;
+            } else {
+                // Keep existing logo if no new file uploaded
+                $logoPath = $webform->Logo ?? null;
             }
 
-            $file->move($destinationPath, $uniqueName);
-            $logoPath = 'logos/' . $uniqueName;
-        } else {
-            // Keep existing logo if no new file uploaded
-            $logoPath = $webform->Logo ?? null;
+            $webform->UserID = Auth::id();
+            $webform->PayeeID = $payee->EntityID;
+            $webform->Logo = $logoPath;
+            $webform->page_url = $slug;
+            $webform->page_desc = $request->page_desc;
+            $webform->service_fees_type = $request->service_fees_type;
+            $webform->service_fees = ($request->service_fees_type != null) ? $request->service_fees : null;
+
+            $webform->save();
+
+            return redirect()->route('get_web_forms')->with('success', 'Web form generated successfully');
+        } catch (Exception $e) {
+            return redirect()->back()->with('fail', 'Web form not generated.');
         }
 
-        $webform->UserID = Auth::id();
-        $webform->PayeeID = $payee->EntityID;
-        $webform->Logo = $logoPath;
-        $webform->page_url = $slug;
-        $webform->page_desc = $request->page_desc;
-        $webform->service_fees_type = $request->service_fees_type;
-        $webform->service_fees = ($request->service_fees_type != null) ? $request->service_fees : null;
-
-        $webform->save();
-
-        return redirect()->route('get_web_forms')->with('success', 'Web form generated successfully');
     }
 
     public function store_web_form_data(Request $request)
@@ -1010,113 +1127,124 @@ class CheckController extends Controller
         // ) {
         //     return redirect()->back()->with('error', 'Captcha verification failed.')->withInput();
         // }
+        try {
 
-        $validator = Validator::make($request->all(), [
-            'check_number' => 'required',
-            'check_date' => 'required',
-            'amount' => 'required|numeric',
-            'name' => 'required',
-            'email' => 'required|email',
-            'address' => 'required',
-            'phone_number' => 'required|regex:/^\d{3}-\d{3}-\d{4}$/',
-            'city' => 'required',
-            'state' => 'required',
-            'zip' => 'required',
-            'bank_name' => 'required',
-            'routing_number' => 'required',
-            'account_number' => 'required',
-            'account_number_verify' => 'required|same:account_number',
-        ]);
+            DB::beginTransaction();
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
-        $payee = Payors::withTrashed()->find($request->company_id);
-        
-        $user = User::find($payee->UserID);
-        // $isSubscribed = Helpers::isSubscribed(Auth::user());
-       
-        // if(!$isSubscribed){
-        //      return redirect()->back()->withInput()->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
-        // }
-
-        $payor_data = [
-            'Name' => $request->name,
-            'Email' => $request->email,
-            'Address1' => $request->address,
-            'PhoneNumber' => preg_replace('/\D/', '', $request->phone_number),
-            'City' => $request->city,
-            'State' => $request->state,
-            'Zip' => $request->zip,
-            'UserID' => $payee->UserID,
-            'BankName' => $request->bank_name,
-            'RoutingNumber' => $request->routing_number,
-            'AccountNumber' => $request->account_number_verify,
-            'Type' => 'Payor',
-            'Category' => 'RP',
-        ];
-
-        $payor = Payors::where('Email', $request->email)->first();
-
-        if (!empty($payor)) {
-            $payor->update($payor_data);
-        } else {
-            $payor = Payors::create($payor_data);
-        }
-
-        $check_date = Carbon::parse(str_replace('-', '/', $request->check_date));
-
-        $result = Helpers::getWebFormServiceFeeAndTotal($payee->EntityID, $request->amount);
-        // $webform =WebForm::where('PayeeID', $payee->EntityID)->first();
-        
-        // $service_fees = 0;
-        // $total = $request->amount;
-
-        // if($webform){
-        //     if($webform->service_fees_type == 'amount'){
-        //         $service_fees = $webform->service_fees;
-        //         $total = $request->amount + $service_fees;
-        //     }else if($webform->service_fees_type == 'percentage'){
-        //         $service_fees = $request->amount * $webform->service_fees / 100;
-        //         $total = $request->amount + $service_fees;
-        //     }
-        // }
-
-        $check_data = [
-            'UserID' => $payee->UserID,
-            'PayeeID' => $request->company_id,
-            'CheckType' => 'Process Payment',
-            'Amount' => $request->amount,
-            'ServiceFees' => $result['service_fees'],
-            'Total' => $result['total'],
-            'PayorID' => $payor->EntityID,
-            'CheckNumber' => $request->check_number,
-            'IssueDate' => now(),
-            'ExpiryDate' => $check_date,
-            'Status' => 'draft',
-            // 'Memo' => $request->Memo, 
-            'CheckPDF' => null,
-            'DigitalSignatureRequired' => 0,
-        ];
-
-        $check = Checks::create($check_data);
-        
-        $user_name = $user->FirstName . ' ' . $user->LastName;
-
-        $payment_subscription= PaymentSubscription::where('UserID', $user->UserID)
-                        ->where('PackageID', $user->CurrentPackageID)
-                        ->where('Status', 'Active')
-                        ->orderBy('PaymentSubscriptionID', 'desc')->first();
-
-        if($payment_subscription != null && $user->CurrentPackageID != -1) {
-           $payment_subscription->update([
-                'ChecksReceived' => $payment_subscription->ChecksReceived + 1,
-                'ChecksUsed' => $payment_subscription->ChecksUsed + 1,
-                'RemainingChecks' => $payment_subscription->RemainingChecks - 1
+            $validator = Validator::make($request->all(), [
+                'check_number' => 'required',
+                'check_date' => 'required',
+                'amount' => 'required|numeric',
+                'name' => 'required',
+                'email' => 'required|email',
+                'address' => 'required',
+                'phone_number' => 'required|regex:/^\d{3}-\d{3}-\d{4}$/',
+                'city' => 'required',
+                'state' => 'required',
+                'zip' => 'required',
+                'bank_name' => 'required',
+                'routing_number' => 'required',
+                'account_number' => 'required',
+                'account_number_verify' => 'required|same:account_number',
             ]);
+
+            if ($validator->fails()) {
+                return redirect()->back()->withErrors($validator)->withInput();
+            }
+
+            $payee = Payors::withTrashed()->find($request->company_id);
+
+            $user = User::find($payee->UserID);
+            // $isSubscribed = Helpers::isSubscribed(Auth::user());
+
+            // if(!$isSubscribed){
+            //      return redirect()->back()->withInput()->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
+            // }
+
+            $payor_data = [
+                'Name' => $request->name,
+                'Email' => $request->email,
+                'Address1' => $request->address,
+                'PhoneNumber' => preg_replace('/\D/', '', $request->phone_number),
+                'City' => $request->city,
+                'State' => $request->state,
+                'Zip' => $request->zip,
+                'UserID' => $payee->UserID,
+                'BankName' => $request->bank_name,
+                'RoutingNumber' => $request->routing_number,
+                'AccountNumber' => $request->account_number_verify,
+                'Type' => 'Payor',
+                'Category' => 'RP',
+            ];
+
+            $payor = Payors::where('Email', $request->email)->first();
+
+            if (!empty($payor)) {
+                $payor->update($payor_data);
+            } else {
+                $payor = Payors::create($payor_data);
+            }
+
+            $check_date = Carbon::parse(str_replace('-', '/', $request->check_date));
+
+            $result = Helpers::getWebFormServiceFeeAndTotal($payee->EntityID, $request->amount);
+
+            // $webform =WebForm::where('PayeeID', $payee->EntityID)->first();
+
+            // $service_fees = 0;
+            // $total = $request->amount;
+
+            // if($webform){
+            //     if($webform->service_fees_type == 'amount'){
+            //         $service_fees = $webform->service_fees;
+            //         $total = $request->amount + $service_fees;
+            //     }else if($webform->service_fees_type == 'percentage'){
+            //         $service_fees = $request->amount * $webform->service_fees / 100;
+            //         $total = $request->amount + $service_fees;
+            //     }
+            // }
+
+            $check_data = [
+                'UserID' => $payee->UserID,
+                'PayeeID' => $request->company_id,
+                'CheckType' => 'Process Payment',
+                'Amount' => $request->amount,
+                'ServiceFees' => $result['service_fees'],
+                'Total' => $result['total'],
+                'PayorID' => $payor->EntityID,
+                'CheckNumber' => $request->check_number,
+                'IssueDate' => now(),
+                'ExpiryDate' => $check_date,
+                'Status' => 'draft',
+                // 'Memo' => $request->Memo, 
+                'CheckPDF' => null,
+                'DigitalSignatureRequired' => 0,
+            ];
+
+            $check = Checks::create($check_data);
+
+            $user_name = $user->FirstName . ' ' . $user->LastName;
+
+            $payment_subscription = PaymentSubscription::where('UserID', $user->UserID)
+                ->where('PackageID', $user->CurrentPackageID)
+                ->where('Status', 'Active')
+                ->orderBy('PaymentSubscriptionID', 'desc')->first();
+
+            if ($payment_subscription != null && $user->CurrentPackageID != -1) {
+                $payment_subscription->update([
+                    'ChecksReceived' => $payment_subscription->ChecksReceived + 1,
+                    'ChecksUsed' => $payment_subscription->ChecksUsed + 1,
+                    'RemainingChecks' => $payment_subscription->RemainingChecks - 1
+                ]);
+            }
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Something went wrong.');
         }
-        
+
+
         Mail::to($user->Email)->send(new SendWebFormMail(5, $user_name, $payor->Name, $check));
         Mail::to($request->email)->send(new SendWebFormMailForCilent(11, $request->name, ));
         return redirect()->back()->with('success', 'Check form successfully submitted.');
@@ -1223,9 +1351,9 @@ class CheckController extends Controller
                 $data['service_fee'] = $check->ServiceFees;
                 $data['total'] = $check->Total;
 
-                if($check->CheckType == 'Process Payment'){
+                if ($check->CheckType == 'Process Payment') {
                     $data['amount_word'] = $this->numberToWords($check->Total);
-                }else if($check->CheckType == 'Make Payment'){
+                } else if ($check->CheckType == 'Make Payment') {
                     $data['amount_word'] = $this->numberToWords($check->Amount);
                 }
                 $data['memo'] = $check->Memo;
@@ -1342,7 +1470,7 @@ class CheckController extends Controller
         $userSignature = UserSignature::withTrashed()->find($check->SignID);
         $data['sender_name'] = $payor->Name;
         $data['clinet_name'] = $payee->Name;
-        $data['check_number'] = 'EC'.$check->CheckNumber;
+        $data['check_number'] = 'EC' . $check->CheckNumber;
         $data['memo'] = $check->Memo;
         $data['issued_date'] = Carbon::parse(str_replace('/', '-', $check->IssueDate))->format('m/d/Y');
         $data['amount'] = $check->Amount;
@@ -1356,7 +1484,7 @@ class CheckController extends Controller
 
             return redirect()->back()->with('success', 'Email sent successfully.');
         } catch (\Exception $e) {
-            dd($e->getMessage());
+            // dd($e->getMessage());
             return redirect()->back()->with('fail', 'Email not sent.');
         }
     }
@@ -1367,7 +1495,7 @@ class CheckController extends Controller
         $check = Checks::find($id);
 
         if (!$check) {
-             return ['status'=>false, 'message'=> 'Check not found.'];
+            return ['status' => false, 'message' => 'Check not found.'];
             // abort(404, 'Check not found.');
         }
 
@@ -1378,11 +1506,11 @@ class CheckController extends Controller
         $path = public_path('checks/' . $check->CheckPDF);
 
         if (!File::exists($path)) {
-            return ['status'=>false, 'message'=> 'PDF not found.'];
+            return ['status' => false, 'message' => 'PDF not found.'];
             // abort(404, 'PDF not found.');
         }
 
-        return ['status'=>true, 'url'=> asset('checks/' . $check->CheckPDF)];
+        return ['status' => true, 'url' => asset('checks/' . $check->CheckPDF)];
         // return response()->file($path, [
         //     'Content-Type' => 'application/pdf',
         //     'Content-Disposition' => 'inline; filename="' . basename($path) . '"'
@@ -1396,7 +1524,7 @@ class CheckController extends Controller
         $check = Checks::find($id);
 
         if (!$check) {
-             abort(404, 'Check not found.');
+            abort(404, 'Check not found.');
         }
 
         $check->update([
@@ -1406,18 +1534,180 @@ class CheckController extends Controller
         $path = public_path('checks/' . $check->CheckPDF);
 
         if (!File::exists($path)) {
-           abort(404, 'PDF not found.');
+            abort(404, 'PDF not found.');
         }
 
         return response()->download($path);
         // return ['status'=>true, 'url'=> asset('checks/' . $check->CheckPDF)];
     }
-    
-    public function isExists(Request $request){
+
+    public function isExists(Request $request)
+    {
         $checkNumber = $request->check_number;
 
-        $isExists = Checks::where('UserID',Auth::user()->UserID)->where('CheckNumber', $checkNumber)->exists();
+        $isExists = Checks::where('UserID', Auth::user()->UserID)->where('CheckNumber', $checkNumber)->exists();
 
         return response()->json(['exists' => $isExists]);
     }
+
+    public function saveGrid(Request $request)
+    {
+
+        $input = $request->all();
+
+        $gridItem['UserID'] = Auth::user()->UserID;
+        $row = [];
+
+        GridHistory::where('UserID', Auth::user()->UserID)->update([
+            'Status' => 0
+        ]);
+
+        if (!isset($input['grid'])) {
+
+            foreach ($input['name'] as $key => $val) {
+
+                $row[$key]['name'] = $input['name'][$key];
+                $row[$key]['type'] = $input['type'][$key];
+                $row[$key]['status'] = ($input['status'][$key] == '1') ? 1 : 0;
+
+                if ($row[$key]['status'] == 1 && $row[$key]['name'] == '') {
+                    return redirect()->back()->with('grid_error', 'Title is required.')->withInput();
+                }
+                if ($row[$key]['status'] == 1 && $row[$key]['type'] == '') {
+                    return redirect()->back()->with('grid_error', 'Type is required.')->withInput();
+                }
+
+                $grid = Grid::create([
+                    'UserID' => Auth::user()->UserID,
+                    'Title' => $row[$key]['name'],
+                    'Type' => $row[$key]['type'],
+                    'Status' => $row[$key]['status']
+                ]);
+
+                if ($row[$key]['status'] == 1) {
+                    GridHistory::create([
+                        'UserID' => Auth::user()->UserID,
+                        'GridID' => $grid->id,
+                        'Title' => $row[$key]['name'],
+                        'Type' => $row[$key]['type'],
+                        'Status' => $row[$key]['status']
+                    ]);
+                }
+            }
+
+            $message = 'Dynamic fields saved successfully.';
+        } else {
+
+            foreach ($input['grid'] as $key => $val) {
+
+                if ($val['status'] == 1 && $val['name'] == '') {
+                    return redirect()->back()->with('grid_error', 'Title is required.')->withInput();
+                }
+                if ($val['status'] == 1 && $val['type'] == '') {
+                    return redirect()->back()->with('grid_error', 'Type is required.')->withInput();
+                }
+
+                Grid::find($key)->update([
+                    'Title' => $val['name'],
+                    'Type' => $val['type'],
+                    'Status' => $val['status']
+                ]);
+
+                if ($val['status'] == 1) {
+                    GridHistory::create([
+                        'UserID' => Auth::user()->UserID,
+                        'Title' => $val['name'],
+                        'Type' => $val['type'],
+                        'Status' => $val['status']
+                    ]);
+                }
+            }
+
+            $message = 'Dynamic fields updated successfully.';
+        }
+
+
+
+        return redirect()->back()->with('grid_success', $message);
+    }
+
+    public function getGrids(Request $request)
+    {
+
+        $user_input = $request->all();
+        $row = $user_input['grid_row_count'] + 1;
+
+        $grid_history_ids = explode(',', $user_input['grid_history_ids']);
+
+        $grid_histories = GridHistory::where('UserID', Auth::user()->UserID)
+            ->whereIn('id', $grid_history_ids)->get();
+
+        $result = [];
+        $html = '<tr>';
+        if ($grid_histories != null) {
+            foreach ($grid_histories as $key => $grid_history) {
+                // if ($grid_history->Status == 1) {
+                $inputTd = '<td>';
+
+                if ($grid_history->Type == 'text') {
+                    $inputContent = 'name="grid_items[' . $grid_history->id . '][]" type="text" class="form-control"';
+                } else if ($grid_history->Type == 'number') {
+                    $inputContent = 'name="grid_items[' . $grid_history->id . '][]" type="text" class="form-control" onkeypress="return /^[0-9.]+$/.test(event.key)"';
+                } else if ($grid_history->Type == 'date') {
+                    $inputContent = 'name="grid_items[' . $grid_history->id . '][]" type="text" class="form-control mydatepicker"';
+                    $date = true;
+                }
+
+                $input = $inputTd . '<input ' . $inputContent . ' autocomplete="off"></td>';
+                $html = $html . $input;
+                // }
+            }
+        }
+        $html = $html . '
+            <td class="text-center"> 
+            <button type="button" class="btn btn-sm btn-primary" onclick="addRow(`' . $user_input['grid_history_ids'] . '`)"><i class="fa fa-plus"></i></button>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="removeRow()"><i class="fa fa-minus"></i></button>
+                    </td>
+                </tr>';
+        return response()->json(['status' => true, 'html' => $html]);
+    }
+
+    // public function getDefaultGrids(Request $request)
+    // {
+
+    //     $user_input = $request->all();
+    //     $row = $user_input['grid_row_count'] + 1;
+
+    //     $grid_history_ids = explode(',', $user_input['grid_history_ids']);
+
+    //     $grid_histories = GridHistory::where('UserID', Auth::user()->UserID)
+    //         ->where('Status',1)->get();
+
+    //     $result = [];
+    //     $html = '<tr>';
+    //     if ($grid_histories != null) {
+    //         foreach ($grid_histories as $key => $grid_history) {
+    //                 $inputTd = '<td>';
+
+    //                 if ($grid_history->Type == 'text') {
+    //                     $inputContent = 'name="grid_items[' . $grid_history->id . '][]" type="text" class="form-control"';
+    //                 } else if ($grid_history->Type == 'number') {
+    //                     $inputContent = 'name="grid_items[' . $grid_history->id . '][]" type="text" class="form-control" onkeypress="return /^[0-9.]+$/.test(event.key)"';
+    //                 } else if ($grid_history->Type == 'date') {
+    //                     $inputContent = 'name="grid_items[' . $grid_history->id . '][]" type="text" class="form-control mydatepicker"';
+    //                     $date = true;
+    //                 }
+
+    //                 $input = $inputTd . '<input ' . $inputContent . ' autocomplete="off"></td>';
+    //                 $html = $html . $input;
+    //         }
+    //     }
+    //     $html = $html . '
+    //         <td class="text-center"> 
+    //         <button type="button" class="btn btn-sm btn-primary" onclick="addRow(`' . $user_input['grid_history_ids'] . '`)"><i class="fa fa-plus"></i></button>
+    //                     <button type="button" class="btn btn-sm btn-danger" onclick="removeRow()"><i class="fa fa-minus"></i></button>
+    //                 </td>
+    //             </tr>';
+    //     return response()->json(['status' => true, 'html' => $html]);
+    // }
 }

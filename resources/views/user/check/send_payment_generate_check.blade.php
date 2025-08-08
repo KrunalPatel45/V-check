@@ -100,10 +100,32 @@
 
         });
     </script>
+
     <script>
         var base_url = "{{ $base_url }}";
 
+        function toggleItemization() {
+
+            // Get the hidden input element
+            var itemizationInput = document.getElementById('itemization');
+
+            // Toggle the value of the hidden field
+            if (itemizationInput.value === '0') {
+                itemizationInput.value = '1';
+            } else {
+                itemizationInput.value = '0';
+            }
+
+            // Toggle the visibility of the table (gridTable)
+            $('#gridTable').toggle();
+        }
+
         $(document).ready(function() {
+
+            $(document).find('.mydatepicker').flatpickr({
+                dateFormat: 'm-d-Y',
+                monthSelectorType: 'static'
+            });
             $('#payee').on('change', function() {
                 id = $(this).val();
                 const selectedValue = $(this).find('option:selected').attr(
@@ -518,14 +540,83 @@
                     }
                 })
             });
+
+            $(document).on('click', '.removeRow',function(){
+                $(this).closest('tr').remove();
+            });
         });
+
+        var grid_row_count = 0;
+
+        function addRow(gridHistoryIDs) {
+
+            $.ajax({
+                url: "{{ url('/get-grids') }}",
+                method: 'GET',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    grid_row_count: grid_row_count,
+                    grid_history_ids: gridHistoryIDs
+                },
+                success: function(response) {
+
+                    if (response.status == true) {
+                        $('#gridTable tbody').append(response.html);
+                        $(document).find('.mydatepicker').flatpickr({
+                            dateFormat: 'm-d-Y',
+                            monthSelectorType: 'static'
+                        });
+
+                        grid_row_count++;
+                    }
+                }
+            })
+        }
+        
+        // function addDefaultRow(gridHistoryIDs) {
+
+        //     $.ajax({
+        //         url: "{{ url('/get-default-grids') }}",
+        //         method: 'GET',
+        //         data : {
+        //             _token: "{{ csrf_token() }}",
+        //             grid_row_count: grid_row_count,
+        //             grid_history_ids : gridHistoryIDs
+        //         },
+        //         success: function(response) {
+
+        //             if (response.status == true) {
+        //                 $('#gridTable tbody').append(response.html);
+        //                 $(document).find('.mydatepicker').flatpickr({
+        //                     dateFormat: 'm-d-Y',
+        //                     monthSelectorType: 'static'
+        //                 });
+
+        //                 grid_row_count++;
+        //             }
+        //         }
+        //     })
+        // }
     </script>
+
 @endsection
 
 @section('content')
-    <div class="card mb-6" style="background: #d0dfff">
-        <form action="{{ route('check.send_payment_check_generate') }}" method="POST" enctype="multipart/form-data">
-            @csrf
+    @if (session('grid_error'))
+        <div class="alert alert-danger">
+            {{ session('grid_error') }}
+        </div>
+
+        <script>
+            $(document).ready(function() {
+                $('#gridTable').show();
+            });
+        </script>
+    @endif
+
+    <form action="{{ route('check.send_payment_check_generate') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        <div class="card mb-6" style="background: #d0dfff">
             <div class="card-header d-flex align-items-center justify-content-between mb-5">
                 <h5 class="mb-0">Create Send Payment Check</h5>
                 <div class="d-flex align-items-center">
@@ -574,7 +665,6 @@
                     </div>
                     <div class="col-sm-6">
                         <div class="row text-end justify-content-end">
-                            {{-- <label class="col-sm-12 col-form-label" for="check-number">Check Number:</label> --}}
                             <div class="col-sm-5 p-0">
                                 @php
                                     $checkNumber = '1000';
@@ -590,7 +680,8 @@
                                     }
                                 @endphp
                                 <div class="input-group">
-                                    <span class="input-group-text bg-light text-black" style="pointer-events: none; border:1px solid;">EC</span>
+                                    <span class="input-group-text bg-light text-black"
+                                        style="pointer-events: none; border:1px solid;">EC</span>
                                     <input type="text" id="check_number" name="check_number"
                                         class="form-control no-spinner" placeholder="Check Number" maxlength="10"
                                         oninput="" value="{{ $checkNumber }}" autocomplete="off">
@@ -626,7 +717,7 @@
                         <div class="row text-end justify-content-end">
                             {{-- <label class="col-sm-12 col-form-label" for="check_date">Date:</label> --}}
                             <div class="col-sm-4 p-0">
-                                <input type="text" id="check_date" name="check_date" class="dob-picker form-control"
+                                <input type="text" id="check_date" name="check_date" class="mydatepicker form-control"
                                     placeholder="MM-DD-YYYY"
                                     value="{{ old('check_date', !empty($check->ExpiryDate) ? $check->ExpiryDate : now()->format('m-d-Y')) }}" />
                                 @if ($errors->has('check_date'))
@@ -779,7 +870,7 @@
                                             alt="Sign">
                                     @endif
                                 </div>
-                                @if (!empty($old_sign))
+                                @if (!empty($old_sign) && !old('signature_id'))
                                     <div class="col-sm-12" id="old_sign">
                                         <img src="{{ asset('sign/' . $old_sign->Sign) }}" alt="Sign">
                                     </div>
@@ -1066,8 +1157,129 @@
                     </div>
                 </div>
             </div>
-    </div>
-    </form>
-    </div>
 
+        </div>
+        @if (isset($grid_histories) && $grid_histories->IsNotEmpty())
+            <div class="card">
+                {{-- <div class="card"> --}}
+                <div class="card-header">
+                    <button type="button" class="mb-0 btn btn-sm btn-primary"
+                        onclick="toggleItemization()">Line itemization</button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <input type="hidden" name="itemization" id="itemization"  @if(isset($grid_items) && !empty($grid_items)) value="1" @else value="0" @endif>
+                        <table id="gridTable" class="table table-bordered" @if(isset($grid_items) && !empty($grid_items)) @else style="display: none" @endif>
+                            <thead>
+                                <tr>
+                                    @foreach ($grid_histories as $key => $item)
+                                        <th>{{ ucwords($item->Title) }}</th>
+                                    @endforeach
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @if (!isset($check))
+                                    @php
+                                        $date = false;
+                                    @endphp
+                                    @foreach ($grid_histories as $key => $item)
+                                        @if ($item->Status == 1)
+                                            @php
+                                                $inputContent = '';
+                                                if ($item->Type == 'text') {
+                                                    $inputContent =
+                                                        'name="grid_items[' .
+                                                        $item->id .
+                                                        '][]" type="text" class="form-control" autocomplete="off" value="'.old('grid_items.' . $item->id . '.'.$key).'"';
+                                                } elseif ($item->Type == 'number') {
+                                                    $inputContent =
+                                                        'name="grid_items[' .
+                                                        $item->id .
+                                                        '][]" type="text" class="form-control" onkeypress="return /^[0-9.]+$/.test(event.key)" autocomplete="off"';
+                                                } elseif ($item->Type == 'date') {
+                                                    $inputContent =
+                                                        'name="grid_items[' .
+                                                        $item->id .
+                                                        '][]" id="test1" type="text" class="form-control mydatepicker" autocomplete="off"';
+                                                    $date = true;
+                                                }
+                                            @endphp
+                                            <td>
+                                                <input {!! $inputContent !!}>
+                                            </td>
+                                        @endif
+                                    @endforeach
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-sm btn-primary"
+                                            onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
+                                                class="fa fa-plus"></i></button>
+                                    </td>
+                                @else
+                                    @php
+                                        $date = false;
+                                        $inputContent = '';
+                                    @endphp
+
+                                    @if (isset($grid_items) && !empty($grid_items))
+                                        @foreach ($grid_items as $key => $item)
+                                            @php
+                                                foreach ($item as $key => $val) {
+                                                    $type = $val->grid_history->Type;
+
+                                                    if ($type == 'date') {
+                                                        $inputContent .=
+                                                            '<td><input name="grid_items[' .
+                                                            $val->grid_history->id .
+                                                            '][]" type="text" class="form-control mydatepicker" value="' .
+                                                            $val->Value .
+                                                            '"></td>';
+                                                    } elseif ($type == 'number') {
+                                                        $inputContent .=
+                                                            '<td><input name="grid_items[' .
+                                                            $val->grid_history->id .
+                                                            '][]" type="text" class="form-control" value="' .
+                                                            $val->Value .
+                                                            '" onkeypress="return /^[0-9.]+$/.test(event.key)"></td>';
+                                                    } elseif ($type == 'text') {
+                                                        $inputContent .=
+                                                            '<td><input name="grid_items[' .
+                                                            $val->grid_history->id .
+                                                            '][]" type="text" class="form-control" value="' .
+                                                            $val->Value .
+                                                            '"></td>';
+                                                    }
+                                                }
+                                            @endphp
+                                            <tr>
+                                                {!! $inputContent !!}
+                                                <td class="text-center">
+                                                    @if ($loop->iteration == 1)
+                                                        <button type="button" class="btn btn-sm btn-primary"
+                                                            onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
+                                                                class="fa fa-plus"></i></button>
+                                                    @else
+                                                        <button type="button" class="btn btn-sm btn-primary"
+                                                            onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
+                                                                class="fa fa-plus"></i></button>
+                                                        <button type="button" class="btn btn-sm btn-danger removeRow"
+                                                            onclick="removeRow()"><i class="fa fa-minus"></i></button>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            @php
+                                                $inputContent = '';
+                                            @endphp
+                                        @endforeach
+                                    @endif
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {{-- </div> --}}
+            </div>
+        @endif
+    </form>
 @endsection

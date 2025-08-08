@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\Payors;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
 use App\Models\Package;
@@ -240,17 +241,17 @@ class Helpers
 
   public static function getWebFormServiceFeeAndTotal($EntityID, $amount)
   {
-    $webform = WebForm::where('PayeeID', $EntityID)->first();
+    $entity = Payors::where('EntityID', $EntityID)->first();
 
     $service_fees = 0;
     $total = $amount;
 
-    if ($webform) {
-      if ($webform->service_fees_type == 'amount') {
-        $service_fees = $webform->service_fees;
+    if ($entity) {
+      if ($entity->ServiceFeeType == 'amount') {
+        $service_fees = $entity->ServiceFee;
         $total = $amount + $service_fees;
-      } else if ($webform->service_fees_type == 'percentage') {
-        $service_fees = $amount * $webform->service_fees / 100;
+      } else if ($entity->ServiceFeeType == 'percentage') {
+        $service_fees = $amount * $entity->ServiceFee / 100;
         $total = $amount + $service_fees;
       }
     }

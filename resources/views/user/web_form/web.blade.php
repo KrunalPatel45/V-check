@@ -354,11 +354,24 @@
                         @php
                             $service_fee = '';
 
+                            if(old('amount')){
+                                $amount = old('amount');
+                                if($data->service_fees_type == 'percentage'){
+                                    $fees = $amount * $data->service_fees / 100;
+                                    $service_fee_amount =  '$ '.$fees;
+                                }else if($data->service_fees_type == 'amount'){
+                                    $fees = $data->service_fees;
+                                    $service_fee_amount = '$ '.$fees;
+                                }
+                                 $total = $amount + $fees;
+                            }
+
                             if($data->service_fees_type == 'percentage'){
                                 $service_fee = $data->service_fees.' %';
                             }else if($data->service_fees_type == 'amount'){
                                 $service_fee = '$ '.$data->service_fees;
                             }
+                            
 
                         @endphp
 
@@ -371,9 +384,9 @@
                                         @endif
                                     </label>
                                 </div>
-                                <div class="col-4">
+                                <div class="col-4"> 
                                     <input type="text" style="background-color: #F4F4F4;" disabled id="service_fee" name="service_fee" 
-                                    value="{{ ($data->service_fees_type == 'percentage') ? '$ 0' :$data->service_fees }}">
+                                    value="{{ isset($service_fee_amount) ? $service_fee_amount : (($data->service_fees_type == 'percentage') ? '$ 0' : $data->service_fees) }}">
                                 </div>
                         </div>
 
@@ -382,7 +395,7 @@
                                     <label for="total">Total</label>
                                 </div>
                                 <div class="col-4 d-flex align-items-center">
-                                    <input type="text" style="background-color: #F4F4F4;" disabled id="total" name="total" value="$ 0">
+                                    <input type="text" style="background-color: #F4F4F4;" disabled id="total" name="total" value="{{ isset($total) ? '$ '.$total : '$ 0'}}">
                                 </div>
                         </div>
                         

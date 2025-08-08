@@ -22,6 +22,7 @@
                     {{ session('success') }}
                 </div>
             @endif
+
             <div class="card mb-3">
                 <h5 class="card-header">Genral Settings</h5>
                 <div class="row">
@@ -201,6 +202,16 @@
                 {{ session('sign_success') }}
             </div>
         @endif
+        @if (session('grid_success'))
+            <div class="alert alert-success">
+                {{ session('grid_success') }}
+            </div>
+        @endif
+        @if (session('grid_error'))
+            <div class="alert alert-danger">
+                {{ session('grid_error') }}
+            </div>
+        @endif
         <div class="d-flex justify-content-between align-items-center">
             <h5 class="card-header">Signatures</h5>
             <a href="{{ route('add_sign') }}" class="btn btn-primary mr-4"
@@ -251,6 +262,82 @@
             </div>
         </div>
     @endif
+
+    <div class="card mt-5">
+
+        <form action="{{ route('save_grid') }}" method="POST">
+            @csrf
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-header">Dynamic fields for Send Payment</h5>
+                <button type="submit" class="btn btn-primary mr-4"
+                    style="height: 40px !important;margin-right: 25px !important;">Save</button>
+            </div>
+            <div class="card-datatable table-responsive pt-0">
+                <table id="gridTable" class="table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox"></th>
+                            <th>#</th>
+                            <th>Title</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if ($grids->isEmpty())
+                            @for ($i = 0; $i <= 7; $i++)
+                                <tr>
+                                    <td>
+                                        <input type="hidden" name="status[{{ $i }}]" value="0">
+                                        <input type="checkbox" name="status[{{ $i }}]" value="1"
+                                            @if (old('status.' . $i)) checked @endif>
+                                    </td>
+                                    <td>{{ $i + 1 }}</td>
+                                    <td>
+                                        <input class="form-control" name="name[]" type="text"
+                                            value="{{ old('name.' . $i) }}" autocomplete="off">
+                                    </td>
+                                    <td>
+                                        <select name="type[]" class="form-select">
+                                            <option value="text">Text</option>
+                                            <option value="number">Number</option>
+                                            <option value="date">Date</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            @endfor
+                        @else
+                            @forelse($grids as $key => $grid)
+                                <tr>
+                                    <td>
+                                        <input type="hidden" name="grid_id" value="{{ $grid->id }}">
+                                        <input type="hidden" name="grid[{{ $grid->id }}][status]" value="0">
+                                        <input name="grid[{{ $grid->id }}][status]" type="checkbox" value="1"
+                                            @if (@old('status.' . $grid->id) == 1 || $grid->Status == 1) checked @endif>
+                                    </td>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>
+                                        <input class="form-control" name="grid[{{ $grid->id }}][name]"
+                                            type="text" value="{{ old('name.' . $grid->id) ?? $grid->Title }}"
+                                            autocomplete="off">
+                                    </td>
+                                    <td>
+                                        <select name="grid[{{ $grid->id }}][type]" class="form-select">
+                                            <option @if (@old('type.' . $grid->id) == 'text' || $grid->Type == 'text') selected1 @endif value="text">Text
+                                            </option>
+                                            <option @if (@old('type.' . $grid->id) == 'number' || $grid->Type == 'number') selected @endif value="number">
+                                                Number</option>
+                                            <option @if (@old('type.' . $grid->id) == 'date' || $grid->Type == 'date') selected @endif value="date">Date
+                                            </option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
 @endsection
 @section('page-script')
     <script>
@@ -330,4 +417,5 @@
             });
         });
     </script>
+
 @endsection

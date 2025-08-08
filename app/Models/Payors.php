@@ -35,6 +35,8 @@ class Payors extends Model
         'CreatedAt',
         'UpdatedAt',
         'Category',
+        'ServiceFeeType',
+        'ServiceFee'
     ];
 
     protected $dates = ['deleted_at'];
