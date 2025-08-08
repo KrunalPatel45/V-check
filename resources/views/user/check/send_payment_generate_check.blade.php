@@ -1163,7 +1163,7 @@
             <div class="card">
                 {{-- <div class="card"> --}}
                 <div class="card-header">
-                    <button type="button" class="mb-0 btn btn-sm btn-primary"
+                    <button type="button" class="mb-0 btn btn-primary"
                         onclick="toggleItemization()">Line itemization</button>
                 </div>
                 <div class="card-body">
