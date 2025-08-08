@@ -1214,7 +1214,7 @@
                                     <td class="text-center">
                                         <button type="button" class="btn btn-sm btn-primary"
                                             onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
-                                                class="fa fa-plus"></i></button>
+                                                class="ti ti-plus"></i></button>
                                     </td>
                                 @else
                                     @php
@@ -1258,13 +1258,13 @@
                                                     @if ($loop->iteration == 1)
                                                         <button type="button" class="btn btn-sm btn-primary"
                                                             onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
-                                                                class="fa fa-plus"></i></button>
+                                                                class="ti ti-plus"></i></button>
                                                     @else
                                                         <button type="button" class="btn btn-sm btn-primary"
                                                             onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
-                                                                class="fa fa-plus"></i></button>
+                                                                class="ti ti-plus"></i></button>
                                                         <button type="button" class="btn btn-sm btn-danger removeRow"
-                                                            onclick="removeRow()"><i class="fa fa-minus"></i></button>
+                                                            onclick="removeRow()"><i class="ti ti-trash"></i></button>
                                                     @endif
                                                 </td>
                                             </tr>

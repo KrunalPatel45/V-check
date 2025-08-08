@@ -1665,8 +1665,8 @@ class CheckController extends Controller
         }
         $html = $html . '
             <td class="text-center"> 
-            <button type="button" class="btn btn-sm btn-primary" onclick="addRow(`' . $user_input['grid_history_ids'] . '`)"><i class="fa fa-plus"></i></button>
-                        <button type="button" class="btn btn-sm btn-danger" onclick="removeRow()"><i class="fa fa-minus"></i></button>
+            <button type="button" class="btn btn-sm btn-primary" onclick="addRow(`' . $user_input['grid_history_ids'] . '`)"><i class="ti ti-plus"></i></button>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="removeRow()"><i class="ti ti-trash"></i></button>
                     </td>
                 </tr>';
         return response()->json(['status' => true, 'html' => $html]);
@@ -1704,8 +1704,8 @@ class CheckController extends Controller
     //     }
     //     $html = $html . '
     //         <td class="text-center"> 
-    //         <button type="button" class="btn btn-sm btn-primary" onclick="addRow(`' . $user_input['grid_history_ids'] . '`)"><i class="fa fa-plus"></i></button>
-    //                     <button type="button" class="btn btn-sm btn-danger" onclick="removeRow()"><i class="fa fa-minus"></i></button>
+    //         <button type="button" class="btn btn-sm btn-primary" onclick="addRow(`' . $user_input['grid_history_ids'] . '`)"><i class="ti ti-plus"></i></button>
+    //                     <button type="button" class="btn btn-sm btn-danger" onclick="removeRow()"><i class="ti ti-trash"></i></button>
     //                 </td>
     //             </tr>';
     //     return response()->json(['status' => true, 'html' => $html]);
