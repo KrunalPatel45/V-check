@@ -276,7 +276,7 @@
                 <table id="gridTable" class="table">
                     <thead>
                         <tr>
-                            <th><input type="checkbox"></th>
+                            <th><input type="checkbox" id="select-all"></th>
                             <th>#</th>
                             <th>Title</th>
                             <th>Type</th>
@@ -342,6 +342,21 @@
 @section('page-script')
     <script>
         $(document).ready(function() {
+
+              // Total number of checkboxes except the "select all"
+            let total = $('input[type="checkbox"]').not('#select-all').length;
+            // Number of checked checkboxes except the "select all"
+            let checked = $('input[type="checkbox"]').not('#select-all').filter(':checked').length;
+
+            // If all are checked, check "select all", else uncheck it
+            $('#select-all').prop('checked', total === checked);
+
+            $('#select-all').click(function() {
+               $('input[type="checkbox"]').prop('checked', this.checked).trigger('change'); 
+            });
+
+              
+
             $('#webFormTable').DataTable({
                 processing: true,
                 serverSide: true,
