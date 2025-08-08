@@ -1264,7 +1264,7 @@
                                                             onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
                                                                 class="ti ti-plus"></i></button>
                                                         <button type="button" class="btn btn-sm btn-danger removeRow"
-                                                            onclick="removeRow()"><i class="ti ti-trash"></i></button>
+                                                            ><i class="ti ti-trash"></i></button>
                                                     @endif
                                                 </td>
                                             </tr>
