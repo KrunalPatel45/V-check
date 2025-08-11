@@ -285,6 +285,25 @@
                     <tbody>
                         @if ($grids->isEmpty())
                             @for ($i = 0; $i <= 7; $i++)
+                                @php
+                                    $title='';
+                                    $number='';
+                                    
+                                    if($i==0){
+                                        $title = 'SrNo';
+                                        $type = 'number';
+                                    }else if($i==1){
+                                        $title = 'Name';
+                                        $type = 'text';
+                                    }else if($i==2){
+                                        $title = 'Date';
+                                        $type = 'date';
+                                    }else if($i==3){
+                                        $title = 'Amount';
+                                        $type = 'number';
+                                    }
+                                
+                                @endphp
                                 <tr>
                                     <td>
                                         <input type="hidden" name="status[{{ $i }}]" value="0">
@@ -294,13 +313,13 @@
                                     <td>{{ $i + 1 }}</td>
                                     <td>
                                         <input class="form-control" name="name[]" type="text"
-                                            value="{{ old('name.' . $i) }}" autocomplete="off">
+                                            value="{{ old('name.' . $i) ?? $title }}" autocomplete="off">
                                     </td>
                                     <td>
                                         <select name="type[]" class="form-select">
-                                            <option value="text">Text</option>
-                                            <option value="number">Number</option>
-                                            <option value="date">Date</option>
+                                            <option value="text" @if (old('type.' . $i) == 'text' || $type == 'text') selected @endif>Text</option>
+                                            <option value="number" @if (old('type.' . $i) == 'number' || $type == 'number') selected @endif>Number</option>
+                                            <option value="date" @if (old('type.' . $i) == 'date' || $type == 'date') selected @endif>Date</option>
                                         </select>
                                     </td>
                                 </tr>
