@@ -156,7 +156,7 @@ class StripeWebhookController extends Controller
             PaymentHistory::create([
                 'PaymentSubscriptionID' => $newPaymentSubscription->PaymentSubscriptionID,
                 'PaymentAmount' => $new_package->Price,
-                'PaymentDate' => $PaymentDate,
+                'PaymentDate' => now(),
                 'TransactionID' => $invoice['id'],
                 'PaymentStatus' => 'Success'
             ]);

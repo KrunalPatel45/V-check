@@ -8,10 +8,8 @@ use Carbon\Carbon;
 
 class SubscriptionHelper
 {
-
     public function addPlan($data)
     {
-
         $product = $this->addProduct($data['name']);
 
         if (!empty($product['id'])) {
@@ -50,7 +48,6 @@ class SubscriptionHelper
 
     public function deleteProduct($productId)
     {
-
         $response = Http::withBasicAuth(config('services.stripe.secret'), '')
             ->delete("https://api.stripe.com/v1/products/{$productId}");
 
@@ -129,79 +126,6 @@ class SubscriptionHelper
         return $session->json();
     }
 
-    // public function updateSubscription($data)
-    // {
-    //     $subscriptionId = $data['subscription_id'];
-    //     $newPriceId = $data['new_price_id'];
-
-    //     $stripeSecret = config('services.stripe.secret');
-
-    //     // Step 1: Retrieve subscription
-    //     $subscriptionResponse = Http::withToken($stripeSecret)
-    //         ->get("https://api.stripe.com/v1/subscriptions/{$subscriptionId}");
-
-    //     if (!$subscriptionResponse->successful()) {
-    //         return false;
-    //     }
-
-    //     $subscription = $subscriptionResponse->json();
-    //     $items = $subscription['items']['data'];
-
-    //     if (empty($items)) {
-    //         return false;
-    //     }
-
-    //     $itemId = $items[0]['id'];
-    //     $customerId = $subscription['customer'];
-
-    //     // Step 2: Update subscription item with proration
-    //     $updateItemResponse = Http::withToken($stripeSecret)
-    //         ->asForm()
-    //         ->post("https://api.stripe.com/v1/subscription_items/{$itemId}", [
-    //             'price' => $newPriceId,
-    //             'proration_behavior' => 'create_prorations',
-    //         ]);
-
-    //     if (!$updateItemResponse->successful()) {
-    //        return false;
-    //     }
-
-    //     // Step 3: Create invoice
-    //     $invoiceResponse = Http::withToken($stripeSecret)
-    //         ->asForm()
-    //         ->post("https://api.stripe.com/v1/invoices", [
-    //             'subscription' => $subscriptionId,
-    //             'customer' => $customerId,
-    //             'auto_advance' => 'false', // Must be string
-    //         ]);
-
-    //     if (!$invoiceResponse->successful()) {
-    //        return false;
-    //     }
-
-    //     $invoiceId = $invoiceResponse->json('id');
-
-    //     // Step 4: Finalize invoice
-    //     $finalizeResponse = Http::withToken($stripeSecret)
-    //         ->asForm()
-    //         ->post("https://api.stripe.com/v1/invoices/{$invoiceId}/finalize");
-
-    //     if (!$finalizeResponse->successful()) {
-    //         return false;
-    //     }
-
-    //     // Step 5: Pay invoice
-    //     $payResponse = Http::withToken($stripeSecret)
-    //         ->asForm()
-    //         ->post("https://api.stripe.com/v1/invoices/{$invoiceId}/pay");
-
-    //     if (!$payResponse->successful()) {
-    //        return false;
-    //     }
-    //     return $payResponse->json();
-
-    // }
-
     public function updateSubscription($data)
     {
         $subscriptionId = $data['subscription_id'];
@@ -219,6 +143,17 @@ class SubscriptionHelper
         }
 
         $subscription = $subscriptionResponse->json();
+        
+        $scheduleId = $data['schedule'] ?? null;
+
+        if($scheduleId) {
+            $reponse =$this->releaseSchedule($scheduleId);
+
+            if(!$reponse){
+                return false;
+            }
+        }
+
         $items = $subscription['items']['data'];
 
         if (empty($items)) {
@@ -302,7 +237,6 @@ class SubscriptionHelper
         if ($response->successful()) {
             return $response->json();
         }
-
         return false;
     }
 
@@ -336,6 +270,22 @@ class SubscriptionHelper
 
         if ($response->successful()) {
             return true;
+        } else {
+            
+            $response = Http::withToken(config('services.stripe.secret'))
+                ->get("https://api.stripe.com/v1/subscriptions/{$subscriptionId}");
+
+            $data = $response->json();
+
+            $scheduleId = $data['schedule'] ?? null;
+
+            if($scheduleId) {
+                $reponse =$this->releaseSchedule($scheduleId);
+
+                if($reponse){
+                    return $this->cancelAtPeriodEnd($subscriptionId);
+                }
+            }
         }
 
         return false;
@@ -355,65 +305,6 @@ class SubscriptionHelper
         return false;
     }
 
-
-    // public function schedulePlanDowngrade($subscriptionId, $newPriceId)
-    // {
-    //     $stripeSecret = config('services.stripe.secret');
-
-    //     // Step 1: Retrieve the current subscription with expanded items.price (optional but recommended)
-    //     $subscriptionResponse = Http::withToken($stripeSecret)
-    //         ->get("https://api.stripe.com/v1/subscriptions/{$subscriptionId}?expand[]=items.data.price");
-    //         if (!$subscriptionResponse->successful()) {
-    //             return false;
-    //         }
-
-    //         $subscription = $subscriptionResponse->json();
-
-    //         // Correctly fetch current price ID and period end from subscription items data
-    //         $currentPriceId = $subscription['items']['data'][0]['price']['id'] ?? null;
-    //         $currentPeriodEnd = $subscription['items']['data'][0]['current_period_end'] ?? null;
-    //         $startDate = $subscription['start_date'] ?? null;
-
-    //         if (!$currentPriceId || !$currentPeriodEnd || !$startDate) {
-    //             return false;
-    //         }
-
-    //         // Step 2: Create Subscription Schedule from current subscription
-    //         $scheduleResponse = Http::withToken($stripeSecret)
-    //         ->asForm()
-    //         ->post("https://api.stripe.com/v1/subscription_schedules", [
-    //             'from_subscription' => $subscriptionId,
-    //         ]);
-
-    //         if (!$scheduleResponse->successful()) {
-    //             return false;
-    //         }
-
-
-    //     $scheduleId = $scheduleResponse->json()['id'];
-
-    //     // Step 3: Update schedule with phases (current plan till period end, then downgrade)
-    //     $updateResponse = Http::withToken($stripeSecret)
-    //         ->asForm()
-    //         ->post("https://api.stripe.com/v1/subscription_schedules/{$scheduleId}", [
-    //             'phases[0][start_date]' => $startDate,
-    //             'phases[0][end_date]' => $currentPeriodEnd,
-    //             'phases[0][items][0][price]' => $currentPriceId,
-    //             'phases[0][items][0][quantity]' => 1,
-
-    //             'phases[1][start_date]' => $currentPeriodEnd,
-    //             'phases[1][items][0][price]' => $newPriceId,
-    //             'phases[1][items][0][quantity]' => 1,
-    //             'phases[1][iterations]' => 1,
-    //         ]);
-
-    //     if (!$updateResponse->successful()) {
-    //         return false;
-    //     }
-
-    //     return true;
-    // }
-
     public function schedulePlanDowngrade($subscriptionId, $newPriceId)
     {
         $stripeSecret = config('services.stripe.secret');
@@ -430,29 +321,32 @@ class SubscriptionHelper
         // Correctly fetch current price ID and period end from subscription items data
         $currentPriceId = $subscription['items']['data'][0]['price']['id'] ?? null;
         $currentPeriodEnd = $subscription['items']['data'][0]['current_period_end'] ?? null;
-        $startDate = $subscription['start_date'] ?? null;
+        // $startDate = $subscription['start_date'] ?? null;
+        $startDate = $subscription['items']['data'][0]['current_period_start'] ?? null;
 
-        
+
         if (!$currentPriceId || !$currentPeriodEnd || !$startDate) {
             return false;
         }
-        
+
+       
         if (empty($subscription['schedule'])) {
 
             Log::info('Create schedule');
             Log::info(Carbon::createFromTimestamp($startDate)->toDateTimeString());
             Log::info(Carbon::createFromTimestamp($currentPeriodEnd)->toDateTimeString());
+
             // Step 3: Create Subscription Schedule from current subscription
             $scheduleResponse = Http::withToken($stripeSecret)
                 ->asForm()
                 ->post("https://api.stripe.com/v1/subscription_schedules", [
                     'from_subscription' => $subscriptionId,
                 ]);
-
+            
             if (!$scheduleResponse->successful()) {
                 return false;
             }
-           
+
             $scheduleId = $scheduleResponse->json()['id'];
 
             // Step 3: Update schedule with phases (current plan till period end, then downgrade)
@@ -468,41 +362,44 @@ class SubscriptionHelper
                     'phases[1][items][0][price]' => $newPriceId,
                     'phases[1][items][0][quantity]' => 1,
                     'phases[1][iterations]' => 1,
+                    'end_behavior' => 'release',
                 ]);
+            Log::info($updateResponse->json());
             if (!$updateResponse->successful()) {
                 return false;
             }
 
         } else {
-            Log::info('Update schedule');
+
+            Log::info('Release schedule');
 
             $scheduleId = $subscription['schedule'];
 
-            $currentPeriodStart = $subscription['items']['data'][0]['current_period_start'] ?? null;
+            $response = $this->releaseSchedule($scheduleId);
             
-            Log::info(Carbon::createFromTimestamp($currentPeriodStart)->toDateTimeString());
-            Log::info(Carbon::createFromTimestamp($currentPeriodEnd)->toDateTimeString());
-            // Step 3: Update schedule with phases (current plan till period end, then downgrade)
-             $updateResponse = Http::withToken($stripeSecret)
-                ->asForm()
-                ->post("https://api.stripe.com/v1/subscription_schedules/{$scheduleId}", [
-                    'phases[0][start_date]' => $currentPeriodStart,
-                    'phases[0][end_date]' => $currentPeriodEnd,
-                    'phases[0][items][0][price]' => $currentPriceId,
-                    'phases[0][items][0][quantity]' => 1,
+            if(empty($response)){
+                return false;
+            }
 
-                    'phases[1][start_date]' => $currentPeriodEnd,
-                    'phases[1][items][0][price]' => $newPriceId,
-                    'phases[1][items][0][quantity]' => 1,
-                    'phases[1][iterations]' => 1,
-                ]);
-               
-            if (!$updateResponse->successful()) {
+            $response =$this->schedulePlanDowngrade($subscriptionId, $newPriceId);
+
+            if(empty($response)){
                 return false;
             }
         }
 
-
         return true;
+    }
+
+    public function releaseSchedule($scheduleId)
+    {
+        $stripeSecret = config('services.stripe.secret');
+        $response = Http::withToken($stripeSecret)
+            ->asForm()
+            ->post("https://api.stripe.com/v1/subscription_schedules/{$scheduleId}/release");
+        if (!$response->successful()) {
+            return false;
+        }
+        return $response->json();
     }
 }

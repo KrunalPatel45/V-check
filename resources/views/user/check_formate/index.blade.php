@@ -312,7 +312,7 @@
                             </div>
                             <div style="margin-bottom: 5px; font-size: 20px">
                                 <strong>Check number: </strong>
-                                <span>{{ $data['check_number'] }}</span>
+                                <span>{{ (isset($send_check) && $send_check==1) ? 'EC'.$data['check_number'] : $data['check_number'] }}</span>
                             </div>
                             <div style="margin-bottom: 5px; font-size: 20px">
                                 <strong>From: </strong>

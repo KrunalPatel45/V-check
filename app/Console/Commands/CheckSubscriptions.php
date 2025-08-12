@@ -33,17 +33,17 @@ class CheckSubscriptions extends Command
         
         Log::info('Check Subscriptions started');
 
-        $today = Carbon::today()->toDateString();
-        $exp_trial_ssubscriptions = PaymentSubscription::whereDate('NextRenewalDate','<', $today)
-            ->where('PackageID', -1)->where('Status', 'Active')->get();
+        // $today = Carbon::today()->toDateString();
+        // $exp_trial_ssubscriptions = PaymentSubscription::whereDate('NextRenewalDate','<', $today)
+        //     ->where('PackageID', -1)->where('Status', 'Active')->get();
 
-        foreach($exp_trial_ssubscriptions as $subscription){
+        // foreach($exp_trial_ssubscriptions as $subscription){
 
-            $subscription->CancelAt = now()->toDateString();
-            $subscription->Status = 'Canceled';
-            $subscription->save();
+        //     $subscription->CancelAt = now()->toDateString();
+        //     $subscription->Status = 'Canceled';
+        //     $subscription->save();
             
-        }
+        // }
          Log::info('Check Subscriptions ended');
     }
 }
