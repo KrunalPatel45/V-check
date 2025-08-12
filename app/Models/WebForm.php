@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Payors;
 
 class WebForm extends Model
 {
@@ -22,4 +23,9 @@ class WebForm extends Model
         'service_fees',
         'service_fees_type',
     ];
+
+    public function payee()
+    {
+        return $this->belongsTo(Payors::class, 'PayeeID', 'EntityID');
+    }
 }

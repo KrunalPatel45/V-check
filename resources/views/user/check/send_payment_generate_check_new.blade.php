@@ -415,6 +415,11 @@
                 id = $(this).val();
                 const selectedValue = $(this).find('option:selected').attr(
                     'id');
+                if(selectedValue == '') {
+                    $('#sign').addClass('d-none');
+                    $('#sign').html('');
+                    return;
+                }
                 if (selectedValue == 'add_new_signature') {
                     $('#signature-edit').addClass('d-none');
                     $('#signModel').modal('show');
@@ -703,10 +708,15 @@
                 .then(data => {
                     console.log(data);
                     if (data.success) {
+                        $('#sign').html('');
                         $('#signature').append(
                             `<option value="${data.signature.Id}" selected>${data.signature.Name}</option>`
                         );
-                        
+                        $('#sign').append(
+                            `<img src="${base_url}/sign/${data.signature.Sign}" alt="sign" />`
+                        );
+                        $('#signature option#add_new_signature').appendTo('#signature');
+                        $('#sign').removeClass('d-none');
                         $('#fontSizeModal').modal('hide');
                         $('#signModel').modal('hide');
                         $('html, body').scrollTop(0);

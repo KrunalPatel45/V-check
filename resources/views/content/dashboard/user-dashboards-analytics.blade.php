@@ -9,6 +9,11 @@
 @section('page-style')
     <!-- Page -->
     @vite(['resources/assets/vendor/scss/pages/cards-advance.scss'])
+    <style>
+        .ti-copy {
+            cursor: pointer;
+        }
+    </style>
 @endsection
 
 @section('vendor-script')
@@ -18,6 +23,61 @@
 @section('page-script')
     @vite(['resources/assets/js/dashboards-analytics.js'])
     @vite('resources/assets/js/app-academy-dashboard.js')
+
+    <script>
+        $(document).ready(function() {
+            $('#webFormTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('get_web_forms') }}",
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'company_name',
+                        name: 'company_name'
+                    },
+                    {
+                        data: 'page_url',
+                        name: 'page_url'
+                    },
+                    {
+                        render: function(data, type, row) {
+                            return `<div class="d-flex gap-2">
+                                        <i class="ti ti-copy copyButton" data-url="' `+ row.page_url +`
+                                        '" onclick="copyToClipboard(this)"></i></div>`;
+                        }
+                    }
+                ]
+            });
+        });
+
+        function copyToClipboard(element) {
+            document.querySelectorAll('.copyButton').forEach(btn => {
+                // btn.innerHTML = '<i class="ti ti-copy"></i>';
+                btn.classList.remove('ti-check');
+                btn.classList.remove('text-success');
+                btn.classList.add('ti-copy');
+                if (btn.nextElementSibling) {
+                    btn.nextElementSibling.remove();
+                }
+                // btn.classList.remove('ti-check');
+            });
+
+            const text = element.getAttribute('data-url');
+            navigator.clipboard.writeText(text).then(() => {
+                element.classList.remove('ti-copy');
+                element.classList.add('ti-check');
+                element.classList.add('text-success');
+                element.insertAdjacentHTML('afterend', '<label class="text-success">Copied!</label>');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+    </script>
 @endsection
 
 @section('content')
@@ -37,7 +97,7 @@
                 </div>
             </div>
         </div> --}}
-       <div class="col-xxl-12">
+        <div class="col-xxl-12">
             <div class="card mb-6">
                 <h5 class="card-header">Current Plan</h5>
                 <div class="card-body">
@@ -53,7 +113,8 @@
                                     <!-- <p>We will send you a notification upon Subscription expiration</p> -->
                                 </div>
                             @endif
-                            <button class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal" data-bs-target="#onboardingHorizontalSlideModal">
+                            <button class="btn btn-primary waves-effect waves-light" data-bs-toggle="modal"
+                                data-bs-target="#onboardingHorizontalSlideModal">
                                 Upgrade Plan
                             </button>
                         </div>
@@ -62,18 +123,19 @@
                                 <div class="plan-statistics">
                                     <div class="d-flex justify-content-between">
                                         <!-- <h6 class="mb-1">Days</h6>
-                                        <h6 class="mb-1">{{ $package_data['remainingDays'] }} of
-                                            {{ $package_data['total_days'] }} Days</h6> -->
-                                             <h6 class="mb-1"></h6>
-                                        <h6 class="mb-1"> {{ $package_data['remainingDays'] }} days left until new billing cycle</h6>
-                                            <!-- <h6 class="mb-1">{{ $package_data['remainingDays'] }} of
-                                                {{ $package_data['total_days'] }} Days</h6> -->
+                                                <h6 class="mb-1">{{ $package_data['remainingDays'] }} of
+                                                    {{ $package_data['total_days'] }} Days</h6> -->
+                                        <h6 class="mb-1"></h6>
+                                        <h6 class="mb-1"> {{ $package_data['remainingDays'] }} days left until new billing
+                                            cycle</h6>
+                                        <!-- <h6 class="mb-1">{{ $package_data['remainingDays'] }} of
+                                                        {{ $package_data['total_days'] }} Days</h6> -->
                                     </div>
                                     <div class="progress mb-1 bg-label-primary" style="height: 10px;">
                                         <div class="progress-bar" role="progressbar" aria-valuenow="75" aria-valuemin="0"
                                             aria-valuemax="100" style="width: {{ $progress }}%"></div>
                                     </div>
-                                    @if($remaining_checks <= 0 && $package->CheckLimitPerMonth != 0)
+                                    @if ($remaining_checks <= 0 && $package->CheckLimitPerMonth != 0)
                                         <small class="text-danger">Your plan requires update</small>
                                     @endif
                                     @if (!empty($paymentSubscription->NextPackageID))
@@ -133,7 +195,7 @@
                 </div>
             </div>
         </div>
-         <div class="col-xl-6 col-sm-6">
+        <div class="col-xl-6 col-sm-6">
             <div class="card">
                 <div class="card-header pb-0">
                     <h5 class="mb-3 card-title">Pay From</h5>
@@ -206,6 +268,25 @@
                         @endforeach
                     @endif
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="card mt-5">
+        <div class="card-header">
+            <h5 class="card-title">Webforms</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="webFormTable" class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">SrNo</th>
+                            <th scope="col">Company Name</th>
+                            <th scope="col">Page URL</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
         </div>
     </div>
