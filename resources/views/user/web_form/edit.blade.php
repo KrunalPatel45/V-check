@@ -310,7 +310,7 @@
                                                         @if ($webform->service_fees_type == 'percentage') selected @endif>Percentage
                                                     </option>
                                                     <option value="amount"
-                                                        @if ($webform->service_fees_type == 'amount') selected @endif>Amount</option>
+                                                        @if ($webform->service_fees_type == 'amount') selected @endif>Fix Amount</option>
                                                 </select>
 
                                                 <span id="dollar_icon"
