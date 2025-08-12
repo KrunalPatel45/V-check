@@ -47,8 +47,8 @@
                     {
                         render: function(data, type, row) {
                             return `<div class="d-flex gap-2">
-                                        <i class="ti ti-copy copyButton" data-url="' `+ row.page_url +`
-                                        '" onclick="copyToClipboard(this)"></i></div>`;
+                                        <i class="ti ti-copy copyButton" data-url=" `+ row.page_url +`
+                                        " onclick="copyToClipboard(this)"></i></div>`;
                         }
                     }
                 ]
