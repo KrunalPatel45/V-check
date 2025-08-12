@@ -332,6 +332,8 @@ Route::middleware([UserMiddleware::class])->group(function () {
         Route::post('/save-grid', [CheckController::class, 'saveGrid'])->name('save_grid');
         Route::get('/get-grids', [CheckController::class, 'getGrids'])->name('get_grids');
         // Route::get('/get-default-grids', [CheckController::class, 'getDefaultGrids'])->name('get_default_grids');
+
+        Route::get('new-signature', [CheckController::class, 'new_signature'])->name('new_signature');
     });
     
     Route::get('/invoice', [BillingAndPlanController::class, 'invoice'])->name('user_invoice');

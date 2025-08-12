@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Exception;
+use Illuminate\Support\Facades\Storage;
 
 
 class CheckController extends Controller
@@ -1710,4 +1711,5 @@ class CheckController extends Controller
     //             </tr>';
     //     return response()->json(['status' => true, 'html' => $html]);
     // }
+
 }
