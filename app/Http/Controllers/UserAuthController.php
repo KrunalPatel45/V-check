@@ -56,9 +56,10 @@ class UserAuthController extends Controller
         $user=User::find($userId);
         $query=Package::where('Status', 'Active');
 
-        // if($user && $user->CurrentPackageID == -1){
+        $PaymentSubscription = PaymentSubscription::where('UserID', $user->UserID)->exists();
+        if($PaymentSubscription){
             $query->whereRaw('LOWER(Name) != ?', ['trial']);
-        // }
+        }
         
         $packages = $query->get();
 
