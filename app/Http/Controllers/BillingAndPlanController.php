@@ -54,12 +54,8 @@ class BillingAndPlanController extends Controller
         $stander_Plan_price = $maxPricePackage->Price;
         $cards = $this->subscriptionHelper->getCustomerPaymentMethods($user->CusID);
         $default_card = $this->subscriptionHelper->getDefaultCard($user->CusID);
-        // dd($default_card);
-        $query = Package::where('Status', 'Active');
 
-        if ($user && $user->CurrentPackageID == -1) {
-            $query->whereRaw('LOWER(Name) != ?', ['trial']);
-        }
+        $query = Package::where('Status', 'Active')->whereRaw('LOWER(Name) != ?', ['trial']);
 
         $packages = $query->get();
 
@@ -101,6 +97,10 @@ class BillingAndPlanController extends Controller
             ->where('PackageID', $user->CurrentPackageID)
             ->where('Status', 'Active')
             ->orderBy('PaymentSubscriptionID', 'desc')->first();
+
+        if(trim(strtolower($package->Name)) == 'trial' ){
+            return redirect()->back();
+        }
 
         if (!empty($data_current_package)) {
             // If upgrading to a higher priced plan

@@ -171,19 +171,19 @@ class SubscriptionController extends Controller
         return redirect()->route('user.login')->with('error', 'Something went wrong');
     }
 
-    // public function add_card(Request $request)
+    // public function add_card(Request $request) 
     // {
-    //     // dd($request->all());
+    
     //     $stripeSecretKey = env('STRIPE_SECRET');
-    //     $stripeToken = $request->stripeToken;
-    //     $customerId = Auth::user()->CusID;
+    //     $stripeToken = $request->stripeToken; 
+    //     $customerId =Auth::user()->CusID;
 
     //     try {
     //         $response = Http::withBasicAuth($stripeSecretKey, '')
-    //             ->asForm()
-    //             ->post("https://api.stripe.com/v1/customers/{$customerId}/sources", [
-    //                 'source' => $stripeToken
-    //             ]);
+    //         ->asForm()
+    //         ->post("https://api.stripe.com/v1/customers/{$customerId}/sources", [
+    //             'source' => $stripeToken
+    //         ]);
 
     //         $data = $response->json();
 
@@ -197,33 +197,6 @@ class SubscriptionController extends Controller
     //         return redirect()->back()->with('error_card', 'Something went wrong');
     //     }
     // }
-    // public function add_card(Request $request)
-    // {
-
-    //     $stripeSecretKey = env('STRIPE_SECRET');
-    //     $paymentMethodId  = $request->payment_method;
-    //     $customerId = Auth::user()->CusID;
-
-    //     try {
-    //         $response = Http::withBasicAuth($stripeSecretKey, '')
-    //             ->asForm()
-    //             ->post("https://api.stripe.com/v1/payment_methods/{$paymentMethodId}/attach", [
-    //                 'customer' => $customerId,
-    //             ]);
-
-    //         $data = $response->json();
-
-    //         if ($response->failed() || isset($data['error'])) {
-    //             $message = $data['error']['message'] ?? 'Something went wrong';
-    //             return redirect()->back()->with('error_card', $message);
-    //         }
-
-    //         return redirect()->back()->with('success_card', 'Card added successfully');
-    //     } catch (\Exception $e) {
-    //         return redirect()->back()->with('error_card', 'Something went wrong');
-    //     }
-    // }
-
     public function add_card(Request $request)
     {
         $stripeSecretKey = env('STRIPE_SECRET');
@@ -283,7 +256,6 @@ class SubscriptionController extends Controller
         }
     }
 
-
     // public function delete_card($id)
     // {
     //     $stripeSecretKey = env('STRIPE_SECRET');
@@ -305,7 +277,6 @@ class SubscriptionController extends Controller
     //         return redirect()->back()->with('error_card', 'Failed to delete card');
     //     }
     // }
-
     public function delete_card($id)
     {
         $stripeSecretKey = env('STRIPE_SECRET');
@@ -342,6 +313,8 @@ class SubscriptionController extends Controller
             return redirect()->back()->with('error_card', 'Failed to delete card');
         }
     }
+
+
     public function set_default($id)
     {
         $stripeSecretKey = env('STRIPE_SECRET');

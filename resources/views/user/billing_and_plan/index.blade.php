@@ -449,10 +449,10 @@
                                 @else
                                     @if ($user->CurrentPackageID != '-1')
                                         <a href="{{ route('user.select-package', ['id' => $user->UserID, 'plan' => $package->PackageID]) }}"
-                                            class="plan-button">Select Plan</a>
+                                            class="plan-button" onclick="$('#payment-loader').show();">Select Plan</a>
                                     @else
                                         <a href="{{ route('user-select-package', ['id' => $user->UserID, 'plan' => $package->PackageID]) }}"
-                                            class="plan-button">Select Plan</a>
+                                            class="plan-button" onclick="$('#payment-loader').show();">Select Plan</a>
                                     @endif
                                 @endif
                             </div>
