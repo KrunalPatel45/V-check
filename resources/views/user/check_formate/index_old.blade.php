@@ -63,9 +63,9 @@
                         <td></td>
                         <td style="text-align: right; width: 350px">
                             <span
-                                style="font-size: 22px; font-weight: bold">{{ (isset($send_check) && $send_check==1) ? 'EC'.$data['check_number'] : $data['check_number'] }}</span><br /><br /><span
+                                style="font-size: 22px; font-weight: bold">{{ ($send_check==1) ? 'EC'.$data['check_number'] : $data['check_number'] }}</span><br /><br /><span
                                 style="font-size: 16px">DATE: <span
-                                    style="border-bottom: 1px solid #000; font-size: 22px; font-weight: 500;">{{ $data['check_date'] }}</span>
+                                    style="border-bottom: 1px solid #000; font-size: 22px">{{ $data['check_date'] }}</span>
                                 <br />
                                 void after 90 days</span>
                         </td>
@@ -83,11 +83,11 @@
                                 style="font-size: 16px; line-height: 17px">TO THE ORDER OF</span></td>
                         <td
                             style="border-bottom: 1px solid black; padding: 0; font-size: 22px; padding: 2px 10px 7px 10px; vertical-align: bottom">
-                            <span style="font-weight: 500;">{{ $data['payee_name'] }}</span>
+                            <span>{{ $data['payee_name'] }}</span>
                         </td>
                         <td style="width: 15px; text-align: right; font-size: 20px; vertical-align: middle"></td>
                         <td
-                            style="width: 250px; background-color: #fff; vertical-align: middle; text-align: left; padding: 10px 10px; font-size: 24px; font-weight: 500;">
+                            style="width: 250px; background-color: #fff; vertical-align: middle; text-align: left; padding: 10px 10px; font-size: 24px;">
                             $ {{ $data['amount'] }}</td>
                     </tr>
                 </table>
@@ -95,7 +95,7 @@
                     style="border-collapse: collapse; font-family: Arial, sans-serif; font-size: 12px; line-height: 1.5">
                     <tr>
                         <td
-                            style="border-bottom: 1px solid black; padding: 20px 0 7px 5px; font-size: 22px; line-height: 25px; vertical-align: bottom; height: 45px; font-weight: 500;">
+                            style="border-bottom: 1px solid black; padding: 20px 0 7px 5px; font-size: 22px; line-height: 25px; vertical-align: bottom; height: 45px">
                             {{ $data['amount_word'] }}</td>
                         <td
                             style="padding: 0; font-size: 17px; width: 65px; text-align: right; vertical-align: bottom; height: 45px">
