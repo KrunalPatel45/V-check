@@ -308,7 +308,7 @@
                                                         @if (old('service_fees_type') == 'percentage') selected @endif>Percentage
                                                     </option>
                                                     <option value="amount"
-                                                        @if (old('service_fees_type') == 'amount') selected @endif>Fix Amount</option>
+                                                        @if (old('service_fees_type') == 'amount') selected @endif>Fixed Amount</option>
                                                 </select>
 
                                                 <span id="dollar_icon"

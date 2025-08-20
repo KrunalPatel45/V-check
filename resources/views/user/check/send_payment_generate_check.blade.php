@@ -541,7 +541,7 @@
                 })
             });
 
-            $(document).on('click', '.removeRow',function(){
+            $(document).on('click', '.removeRow', function() {
                 $(this).closest('tr').remove();
             });
         });
@@ -572,7 +572,7 @@
                 }
             })
         }
-        
+
         // function addDefaultRow(gridHistoryIDs) {
 
         //     $.ajax({
@@ -613,7 +613,13 @@
             });
         </script>
     @endif
-
+    @if (old('itemization') == 1)
+        <script>
+            $(document).ready(function() {
+                $('#gridTable').show();
+            });
+        </script>
+    @endif
     <form action="{{ route('check.send_payment_check_generate') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="card mb-6" style="background: #d0dfff">
@@ -633,7 +639,8 @@
                 <div class="row">
                     <div class="col-sm-6">
                         <div class="row">
-                            {{-- <label class="col-sm-12 col-form-label" for="account-name">Account Holder's Name:</label> --}}
+                            {{-- <label class="col-sm-12 col-form-label" for="account-name">Account Holder's Name:</label>
+                            --}}
                             <div class="col-sm-8 d-flex align-items-center gap-1">
                                 <select id="payor" name="payor" class="form-control">
                                     <option value="" selected>Select Pay From</option>
@@ -705,7 +712,8 @@
                 <div class="row mt-2">
                     <div class="col-sm-6">
                         <div class="row">
-                            {{-- <label class="col-sm-12 col-form-label" for="street-address">Your Street Address:</label> --}}
+                            {{-- <label class="col-sm-12 col-form-label" for="street-address">Your Street Address:</label>
+                            --}}
                             <div class="col-sm-8">
                                 <input type="text" id="address" name="address" class="form-control"
                                     placeholder="Your Street Address" readonly
@@ -1163,13 +1171,15 @@
             <div class="card">
                 {{-- <div class="card"> --}}
                 <div class="card-header">
-                    <button type="button" class="mb-0 btn btn-primary"
-                        onclick="toggleItemization()">Line itemization</button>
+                    <button type="button" class="mb-0 btn btn-primary" onclick="toggleItemization()">Line
+                        itemization</button>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <input type="hidden" name="itemization" id="itemization"  @if(isset($grid_items) && !empty($grid_items)) value="1" @else value="0" @endif>
-                        <table id="gridTable" class="table table-bordered" @if(isset($grid_items) && !empty($grid_items)) @else style="display: none" @endif>
+                        <input type="hidden" name="itemization" id="itemization"
+                            @if ((isset($grid_items) && $grid_items->IsNotEmpty()) || session('grid_error') || old('itemization')) value="1" @else value="0" @endif>
+                        <table id="gridTable" class="table table-bordered"
+                            @if (isset($grid_items) && $grid_items->IsNotEmpty()) @else style="display: none" @endif>
                             <thead>
                                 <tr>
                                     @foreach ($grid_histories as $key => $item)
@@ -1184,45 +1194,116 @@
                                     @php
                                         $date = false;
                                     @endphp
-                                    @foreach ($grid_histories as $key => $item)
-                                        @if ($item->Status == 1)
+
+                                    @if (old('itemization'))
+                                        @php
+                                            $old_items = old('grid_items');
+                                            $old_items = reset($old_items);
+
+                                        @endphp
+
+                                        @foreach ($old_items as $key => $item)
                                             @php
-                                                $inputContent = '';
-                                                if ($item->Type == 'text') {
-                                                    $inputContent =
-                                                        'name="grid_items[' .
-                                                        $item->id .
-                                                        '][]" type="text" class="form-control" autocomplete="off" value="'.old('grid_items.' . $item->id . '.'.$key).'"';
-                                                } elseif ($item->Type == 'number') {
-                                                    $inputContent =
-                                                        'name="grid_items[' .
-                                                        $item->id .
-                                                        '][]" type="text" class="form-control" onkeypress="return /^[0-9.]+$/.test(event.key)" autocomplete="off"';
-                                                } elseif ($item->Type == 'date') {
-                                                    $inputContent =
-                                                        'name="grid_items[' .
-                                                        $item->id .
-                                                        '][]" id="test1" type="text" class="form-control mydatepicker" autocomplete="off"';
-                                                    $date = true;
-                                                }
+                                                $loop_index = $loop->iteration;
                                             @endphp
-                                            <td>
-                                                <input {!! $inputContent !!}>
-                                            </td>
-                                        @endif
-                                    @endforeach
-                                    <td class="text-center">
-                                        <button type="button" class="btn btn-sm btn-primary"
-                                            onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
-                                                class="ti ti-plus"></i></button>
-                                    </td>
+                                            <tr>
+                                                @foreach ($grid_histories as $row_key => $val)
+                                                    @if ($val->Status == 1)
+                                                        @php
+
+                                                            if ($val->Type == 'text') {
+                                                                $inputContent =
+                                                                    'name="grid_items[' .
+                                                                    $val->id .
+                                                                    '][]" type="text" class="form-control" autocomplete="off" value="' .
+                                                                    old('grid_items.' . $val->id . '.' . $key) .
+                                                                    '"';
+                                                            } elseif ($val->Type == 'number') {
+                                                                $inputContent =
+                                                                    'name="grid_items[' .
+                                                                    $val->id .
+                                                                    '][]" type="text" class="form-control" onkeypress="return /^[0-9.]+$/.test(event.key)" autocomplete="off" value="' .
+                                                                    old('grid_items.' . $val->id . '.' . $key) .
+                                                                    '"';
+                                                            } elseif ($val->Type == 'date') {
+                                                                $inputContent =
+                                                                    'name="grid_items[' .
+                                                                    $val->id .
+                                                                    '][]" id="test1" type="text" class="form-control mydatepicker" autocomplete="off" value="' .
+                                                                    old('grid_items.' . $val->id . '.' . $key) .
+                                                                    '"';
+                                                                $date = true;
+                                                            }
+
+                                                        @endphp
+                                                        <td>
+                                                            <input {!! $inputContent !!}>
+                                                        </td>
+                                                    @endif
+                                                @endforeach
+                                                @if ($loop_index == 1)
+                                                    <td class="text-center">
+                                                        <button type="button" class="btn btn-sm btn-primary"
+                                                            onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
+                                                                class="ti ti-plus"></i></button>
+                                                    </td>
+                                                @else
+                                                    <td class="text-center">
+                                                        <button type="button" class="btn btn-sm btn-primary"
+                                                            onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
+                                                                class="ti ti-plus"></i></button>
+                                                        <button type="button" class="btn btn-sm btn-danger removeRow"><i
+                                                                class="ti ti-trash"></i></button>
+                                                    </td>
+                                                @endif
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        @foreach ($grid_histories as $key => $item)
+                                            @if ($item->Status == 1)
+                                                @php
+                                                    $inputContent = '';
+                                                    if ($item->Type == 'text') {
+                                                        $inputContent =
+                                                            'name="grid_items[' .
+                                                            $item->id .
+                                                            '][]" type="text" class="form-control" autocomplete="off" value="' .
+                                                            old('grid_items.' . $item->id . '.' . $key) .
+                                                            '"';
+                                                    } elseif ($item->Type == 'number') {
+                                                        $inputContent =
+                                                            'name="grid_items[' .
+                                                            $item->id .
+                                                            '][]" type="text" class="form-control" onkeypress="return /^[0-9.]+$/.test(event.key)" autocomplete="off" value="' .
+                                                            old('grid_items.' . $item->id . '.' . $key) .
+                                                            '"';
+                                                    } elseif ($item->Type == 'date') {
+                                                        $inputContent =
+                                                            'name="grid_items[' .
+                                                            $item->id .
+                                                            '][]" id="test1" type="text" class="form-control mydatepicker" autocomplete="off" value="' .
+                                                            old('grid_items.' . $item->id . '.' . $key) .
+                                                            '"';
+                                                        $date = true;
+                                                    }
+                                                @endphp
+                                                <td>
+                                                    <input {!! $inputContent !!}>
+                                                </td>
+                                            @endif
+                                        @endforeach
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-primary"
+                                                onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
+                                                    class="ti ti-plus"></i></button>
+                                        </td>
+                                    @endif
                                 @else
                                     @php
                                         $date = false;
                                         $inputContent = '';
                                     @endphp
-
-                                    @if (isset($grid_items) && !empty($grid_items))
+                                    @if (isset($grid_items) && $grid_items->IsNotEmpty())
                                         @foreach ($grid_items as $key => $item)
                                             @php
                                                 foreach ($item as $key => $val) {
@@ -1263,8 +1344,8 @@
                                                         <button type="button" class="btn btn-sm btn-primary"
                                                             onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
                                                                 class="ti ti-plus"></i></button>
-                                                        <button type="button" class="btn btn-sm btn-danger removeRow"
-                                                            ><i class="ti ti-trash"></i></button>
+                                                        <button type="button" class="btn btn-sm btn-danger removeRow"><i
+                                                                class="ti ti-trash"></i></button>
                                                     @endif
                                                 </td>
                                             </tr>
@@ -1272,13 +1353,53 @@
                                                 $inputContent = '';
                                             @endphp
                                         @endforeach
+                                    @else
+                                          @foreach ($grid_histories as $key => $item)
+                                            @if ($item->Status == 1)
+                                                @php
+                                                    $inputContent = '';
+                                                    if ($item->Type == 'text') {
+                                                        $inputContent =
+                                                            'name="grid_items[' .
+                                                            $item->id .
+                                                            '][]" type="text" class="form-control" autocomplete="off" value="' .
+                                                            old('grid_items.' . $item->id . '.' . $key) .
+                                                            '"';
+                                                    } elseif ($item->Type == 'number') {
+                                                        $inputContent =
+                                                            'name="grid_items[' .
+                                                            $item->id .
+                                                            '][]" type="text" class="form-control" onkeypress="return /^[0-9.]+$/.test(event.key)" autocomplete="off" value="' .
+                                                            old('grid_items.' . $item->id . '.' . $key) .
+                                                            '"';
+                                                    } elseif ($item->Type == 'date') {
+                                                        $inputContent =
+                                                            'name="grid_items[' .
+                                                            $item->id .
+                                                            '][]" id="test1" type="text" class="form-control mydatepicker" autocomplete="off" value="' .
+                                                            old('grid_items.' . $item->id . '.' . $key) .
+                                                            '"';
+                                                        $date = true;
+                                                    }
+                                                @endphp
+                                                <td>
+                                                    <input {!! $inputContent !!}>
+                                                </td>
+                                            @endif
+                                        @endforeach
+                                        <td class="text-center">
+                                            <button type="button" class="btn btn-sm btn-primary"
+                                                onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
+                                                    class="ti ti-plus"></i></button>
+                                        </td>  
                                     @endif
                                 @endif
                             </tbody>
                         </table>
                     </div>
                 </div>
-                {{-- </div> --}}
+                {{--
+                </div> --}}
             </div>
         @endif
     </form>

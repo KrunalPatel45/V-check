@@ -12,6 +12,19 @@
 <!-- Vendor Scripts -->
 @section('vendor-script')
     @vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
+    <script>
+        const videoModal = document.getElementById('videoModal');
+        const myVideo = document.getElementById('myVideo');
+
+        videoModal.addEventListener('shown.bs.modal', function() {
+            myVideo.play();
+        });
+
+        videoModal.addEventListener('hidden.bs.modal', function() {
+            myVideo.pause();
+            myVideo.currentTime = 0; // reset video
+        });
+    </script>
 @endsection
 
 @section('content')
@@ -264,11 +277,30 @@
     @endif
 
     <div class="card mt-5">
-
+        <!-- Video Modal -->
+        <div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-body p-0">
+                        <video id="myVideo" width="100%" controls>
+                            <source src="{{ asset('videos/check-stub-custom-itemization-fields.mp4') }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </div>
         <form action="{{ route('save_grid') }}" method="POST">
             @csrf
             <div class="d-flex justify-content-between align-items-center">
-                <h5 class="card-header">Dynamic fields for Send Payment</h5>
+                <h5 class="card-header">
+                    Check Stub Custom Itemization Fields
+                    <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#videoModal"
+                        class="ms-2 text-muted fs-6">
+                        <i class="ti ti-help-circle"></i> Click to see how it works?
+                    </a>
+                </h5>
+
                 <button type="submit" class="btn btn-primary mr-4"
                     style="height: 40px !important;margin-right: 25px !important;">Save</button>
             </div>
@@ -286,23 +318,23 @@
                         @if ($grids->isEmpty())
                             @for ($i = 0; $i <= 7; $i++)
                                 @php
-                                    $title='';
-                                    $number='';
-                                    
-                                    if($i==0){
+                                    $title = '';
+                                    $number = '';
+
+                                    if ($i == 0) {
                                         $title = 'SrNo';
                                         $type = 'number';
-                                    }else if($i==1){
+                                    } elseif ($i == 1) {
                                         $title = 'Name';
                                         $type = 'text';
-                                    }else if($i==2){
+                                    } elseif ($i == 2) {
                                         $title = 'Date';
                                         $type = 'date';
-                                    }else if($i==3){
+                                    } elseif ($i == 3) {
                                         $title = 'Amount';
                                         $type = 'number';
                                     }
-                                
+
                                 @endphp
                                 <tr>
                                     <td>
@@ -317,9 +349,12 @@
                                     </td>
                                     <td>
                                         <select name="type[]" class="form-select">
-                                            <option value="text" @if (old('type.' . $i) == 'text' || $type == 'text') selected @endif>Text</option>
-                                            <option value="number" @if (old('type.' . $i) == 'number' || $type == 'number') selected @endif>Number</option>
-                                            <option value="date" @if (old('type.' . $i) == 'date' || $type == 'date') selected @endif>Date</option>
+                                            <option value="text" @if (old('type.' . $i) == 'text' || $type == 'text') selected @endif>Text
+                                            </option>
+                                            <option value="number" @if (old('type.' . $i) == 'number' || $type == 'number') selected @endif>
+                                                Number</option>
+                                            <option value="date" @if (old('type.' . $i) == 'date' || $type == 'date') selected @endif>Date
+                                            </option>
                                         </select>
                                     </td>
                                 </tr>
@@ -362,7 +397,7 @@
     <script>
         $(document).ready(function() {
 
-              // Total number of checkboxes except the "select all"
+            // Total number of checkboxes except the "select all"
             let total = $('input[type="checkbox"]').not('#select-all').length;
             // Number of checked checkboxes except the "select all"
             let checked = $('input[type="checkbox"]').not('#select-all').filter(':checked').length;
@@ -371,10 +406,10 @@
             $('#select-all').prop('checked', total === checked);
 
             $('#select-all').click(function() {
-               $('input[type="checkbox"]').prop('checked', this.checked).trigger('change'); 
+                $('input[type="checkbox"]').prop('checked', this.checked).trigger('change');
             });
 
-              
+
 
             $('#webFormTable').DataTable({
                 processing: true,
