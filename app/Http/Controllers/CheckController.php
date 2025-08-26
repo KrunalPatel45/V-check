@@ -358,14 +358,14 @@ class CheckController extends Controller
         $grid_histories = GridHistory::where('UserID', Auth::user()->UserID)
             ->where('Status', 1)
             ->get();
-
+       
         $grid_history_ids = $grid_histories->pluck('id')->toArray();
 
         return view('user.check.send_payment_generate_check', compact('grid_history_ids', 'grid_histories', 'lastCheck', 'payees', 'payors', 'userSignatures'));
     }
     public function send_payment_check_generate(Request $request)
     {
-
+        
         DB::beginTransaction();
         if (!Auth::check()) {
             return redirect()->route('user.login');
@@ -429,9 +429,10 @@ class CheckController extends Controller
                     'SignID' => $request->signature_id,
                 ]);
             }
+           
+            GridItem::where('CheckID', $checks->CheckID)->delete();
 
             if (isset($request->itemization) && $request->itemization == 1) {
-                GridItem::where('CheckID', $checks->CheckID)->delete();
 
                 foreach ($request->grid_items as $id => $item) {
 
@@ -483,6 +484,7 @@ class CheckController extends Controller
             $paymentSubscription->RemainingChecks = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
             $paymentSubscription->save();
             // }
+            
             if (isset($request->itemization) && $request->itemization == 1) {
 
                 if (isset($request->grid_items) && !empty($request->grid_items)) {
@@ -539,16 +541,15 @@ class CheckController extends Controller
         //     })
         //     ->toArray();
 
-
-        if (empty($grid_items)) {
+        if ($grid_items->isEmpty()) {
             $grid_histories = GridHistory::where('UserID', Auth::user()->UserID)
                 ->where('Status', 1)->get();
+                
         } else {
             // $grid_history_ids = $grid_items->pluck('GridHistoryID')->toArray();
             $grid_histories = GridHistory::where('UserID', Auth::user()->UserID)
                 ->whereIn('id', $grid_history_ids)->get();
         }
-
         return view('user.check.send_payment_generate_check', compact('grid_history_ids', 'grid_histories', 'grid_items', 'payees', 'payors', 'check', 'old_payee', 'old_payor', 'old_sign', 'userSignatures'));
     }
 
@@ -955,7 +956,7 @@ class CheckController extends Controller
                 })
                 ->editColumn('page_url', function ($row) {
                     $Preview = route('web_form', ['slug' => $row->page_url]);
-                    return $Preview;
+                    return '<a href="' . $Preview . '" target="_blank">' . $Preview . '</a>';
                 })
                 ->addColumn('actions', function ($row) {
                     $editUrl = route('web_form.edit', ['id' => $row->Id]);
@@ -991,7 +992,7 @@ class CheckController extends Controller
                                 </div>
                             </div>';
                 })
-                ->rawColumns(['logo', 'actions'])
+                ->rawColumns(['page_url','logo', 'actions'])
                 ->make(true);
         }
 
@@ -1596,7 +1597,7 @@ class CheckController extends Controller
                 }
             }
 
-            $message = 'Dynamic fields saved successfully.';
+            $message = 'Check Stub Custom Itemization Fields saved successfully.';
         } else {
 
             foreach ($input['grid'] as $key => $val) {
@@ -1624,7 +1625,7 @@ class CheckController extends Controller
                 }
             }
 
-            $message = 'Dynamic fields updated successfully.';
+            $message = 'Check Stub Custom Itemization Fields updated successfully.';
         }
 
 

@@ -66,9 +66,9 @@ class UserDashboardController extends Controller
 
         $query = Package::where('Status', 'Active');
 
-        if ($user && $user->CurrentPackageID == -1) {
+        // if ($user && $user->CurrentPackageID == -1) {
             $query->whereRaw('LOWER(Name) != ?', ['trial']);
-        }
+        // }
 
         $packages = $query->get();
        
