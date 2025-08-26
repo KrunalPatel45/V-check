@@ -481,11 +481,11 @@ class PayorsController extends Controller
 
         if (empty($request->email)) {
             $rules['name'][] = Rule::unique('Entities', 'Name')->where(function ($query) use ($category) {
-                $query->where('Type', 'Payee')->where('Category', $category);
+                $query->where('Type', 'Payee')->where('UserID', Auth::id())->where('Category', $category);
             });
         } else {
             $rules['email'][] = Rule::unique('Entities', 'Email')->where(function ($query) use ($category) {
-                $query->where('Type', 'Payee')->where('Category', $category);
+                $query->where('Type', 'Payee')->where('UserID', Auth::id())->where('Category', $category);
             });
         }
 
@@ -494,7 +494,7 @@ class PayorsController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()]);
         }
-
+        
         // Create a new Payee entry (optional)
         if (!empty($request->id)) {
             $payor = Payors::find($request->id);

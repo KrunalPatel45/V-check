@@ -183,6 +183,34 @@
             border: 1px solid green;
             padding: 10px;
         }
+
+        #payment-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255,255,255,0.7);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #3498db;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
     </style>
 
 </head>
@@ -198,7 +226,10 @@
     <!-- Include Scripts -->
     <!-- $isFront is used to append the front layout scripts only on the front layout otherwise the variable will be blank -->
     @include('layouts/sections/scripts' . $isFront)
-
+    <div id="payment-loader" style="display:none;">
+        <div class="spinner"></div>
+         <p class="m-0 text-dark fs-5" style="margin-left: 20px !important;">Please hold on while we complete your transaction. Do not refresh or close the page.</p>
+    </div>
 </body>
 
 </html>
