@@ -230,41 +230,48 @@
                             </div>
                         </div>
                     </div>
-                    <div class="d-flex flex-wrap my-6 gap-0 gap-md-3 gap-lg-4">
-                        <div class="d-flex align-items-center me-5 gap-4">
-                            <div class="avatar">
-                                <div class="avatar-initial bg-label-primary rounded">
-                                    <i class='ti ti-layout-sidebar ti-lg'></i>
+                    @if($paymentSubscription)
+                        <div class="d-flex flex-wrap my-6 gap-0 gap-md-3 gap-lg-4">
+                            <div class="d-flex align-items-center me-5 gap-4">
+                                <div class="avatar">
+                                    <div class="avatar-initial bg-label-primary rounded">
+                                        <i class='ti ti-layout-sidebar ti-lg'></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h5 class="mb-0">{{ !empty($package->Name) ? $package->Name : '-' }}</h5>
+                                    <span>Package</span>
                                 </div>
                             </div>
-                            <div>
-                                <h5 class="mb-0">{{ !empty($package->Name) ? $package->Name : '-' }}</h5>
-                                <span>Package</span>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center me-5 gap-4">
-                            <div class="avatar">
-                                <div class="avatar-initial bg-label-primary rounded">
-                                    <i class='ti ti-checkbox ti-lg'></i>
+                            <div class="d-flex align-items-center me-5 gap-4">
+                                <div class="avatar">
+                                    <div class="avatar-initial bg-label-primary rounded">
+                                        <i class='ti ti-checkbox ti-lg'></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h5 class="mb-0">{{ $check_used }}</h5>
+                                    <span>Checks Used</span>
                                 </div>
                             </div>
-                            <div>
-                                <h5 class="mb-0">{{ $check_used }}</h5>
-                                <span>Checks Used</span>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center gap-4">
-                            <div class="avatar">
-                                <div class="avatar-initial bg-label-primary rounded">
-                                    <i class='ti ti-briefcase ti-lg'></i>
+                            <div class="d-flex align-items-center gap-4">
+                                <div class="avatar">
+                                    <div class="avatar-initial bg-label-primary rounded">
+                                        <i class='ti ti-briefcase ti-lg'></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h5 class="mb-0">{{ $remaining_checks }}</h5>
+                                    <span>Checks Unused</span>
                                 </div>
                             </div>
-                            <div>
-                                <h5 class="mb-0">{{ $remaining_checks }}</h5>
-                                <span>Checks Unused</span>
-                            </div>
                         </div>
-                    </div>
+                    @else
+                        <div class="my-6 text-center">
+                            <label
+                                    class="text-danger">No active plan has been found</label>
+                        </div>
+                    @endif
                     <h5 class="pb-4 border-bottom mb-4">Details</h5>
                     <div class="info-container">
                         <ul class="list-unstyled mb-6">
@@ -466,63 +473,74 @@
                 @endif
             @endif
             @if ($type == 'billing')
-                <div class="card mb-6 border border-2 border-primary rounded primary-shadow">
-                    @php
-                        $progress =
-                            $currentPackage != -1
-                                ? ($package_data['remainingDays'] * 100) / $package_data['total_days']
-                                : 0;
-                    @endphp
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <span
-                                class="badge bg-label-primary">{{ $currentPackage != '-1' ? $package->Name : 'Trial' }}</span>
+                @if($paymentSubscription)
+                    <div class="card mb-6 border border-2 border-primary rounded primary-shadow">
+                        @php
+                            $progress =
+                                $currentPackage != -1
+                                    ? ($package_data['remainingDays'] * 100) / $package_data['total_days']
+                                    : 0;
+                        @endphp
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <span
+                                    class="badge bg-label-primary">{{ $currentPackage != '-1' ? $package->Name : 'Trial' }}</span>
+                                @if ($currentPackage != '-1')
+                                    <div class="d-flex justify-content-center">
+                                        <sub class="h5 pricing-currency mb-auto mt-1 text-primary">$</sub>
+                                        <h1 class="mb-0 text-primary">{{ $package->Price }}</h1>
+                                        <sub class="h6 pricing-duration mt-auto mb-3 fw-normal">month</sub>
+                                    </div>
+                                @endif
+                            </div>
                             @if ($currentPackage != '-1')
-                                <div class="d-flex justify-content-center">
-                                    <sub class="h5 pricing-currency mb-auto mt-1 text-primary">$</sub>
-                                    <h1 class="mb-0 text-primary">{{ $package->Price }}</h1>
-                                    <sub class="h6 pricing-duration mt-auto mb-3 fw-normal">month</sub>
+                                <p>
+                                    {{ $package->Description }}
+                                </p>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="h6 mb-0">Days</span>
+                                    <span class="h6 mb-0">{{ $package_data['remainingDays'] }} of
+                                        {{ $package_data['total_days'] }}
+                                        Days</span>
+                                </div>
+                                <div class="progress mb-1 bg-label-primary" style="height: 6px;">
+                                    <div class="progress-bar" role="progressbar" style="width: {{ $progress }}%;"
+                                        aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                <small>{{ $package_data['remainingDays'] }} days remaining</small>
+                                @if (!empty($paymentSubscription->NextPackageID))
+                                    <div class="alert alert-warning mt-3" role="alert">
+                                        Your subscription plan downgrade has been scheduled. The change will take effect on
+                                        after your current plan expires. You can continue to enjoy your current plan benefits
+                                        until
+                                        then
+                                    </div>
+                                @endif
+                                @if ($paymentSubscription->Status == 'Canceled')
+                                    <div class="alert alert-danger mt-3" role="alert">
+                                        Your subscription cancellation has been scheduled. The change will take effect after
+                                        your current plan ends. You will continue to enjoy your current plan benefits until
+                                        then.
+                                    </div>
+                                @endif
+                                <div class="d-grid w-100 mt-6">
+                                    <button class="btn btn-primary" data-bs-toggle="modal"
+                                        data-bs-target="#onboardingHorizontalSlideModal">Change
+                                        Plan</button>
                                 </div>
                             @endif
                         </div>
-                        @if ($currentPackage != '-1')
-                            <p>
-                                {{ $package->Description }}
-                            </p>
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="h6 mb-0">Days</span>
-                                <span class="h6 mb-0">{{ $package_data['remainingDays'] }} of
-                                    {{ $package_data['total_days'] }}
-                                    Days</span>
-                            </div>
-                            <div class="progress mb-1 bg-label-primary" style="height: 6px;">
-                                <div class="progress-bar" role="progressbar" style="width: {{ $progress }}%;"
-                                    aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <small>{{ $package_data['remainingDays'] }} days remaining</small>
-                            @if (!empty($paymentSubscription->NextPackageID))
-                                <div class="alert alert-warning mt-3" role="alert">
-                                    Your subscription plan downgrade has been scheduled. The change will take effect on
-                                    after your current plan expires. You can continue to enjoy your current plan benefits
-                                    until
-                                    then
-                                </div>
-                            @endif
-                            @if ($paymentSubscription->Status == 'Canceled')
-                                <div class="alert alert-danger mt-3" role="alert">
-                                    Your subscription cancellation has been scheduled. The change will take effect after
-                                    your current plan ends. You will continue to enjoy your current plan benefits until
-                                    then.
-                                </div>
-                            @endif
-                            <div class="d-grid w-100 mt-6">
-                                <button class="btn btn-primary" data-bs-toggle="modal"
-                                    data-bs-target="#onboardingHorizontalSlideModal">Change
-                                    Plan</button>
-                            </div>
-                        @endif
                     </div>
-                </div>
+                @else
+                    <div class="card mb-6 border border-2 border-primary rounded primary-shadow">
+                        <div class="card-body">
+                            <div class="text-center">
+                                <label
+                                    class="text-danger fs-5">No active plan has been found</label>
+                            </div>
+                        </div>
+                    </div>
+                @endif
                 @if (false)
                     <div class="card card-action mb-6">
                         <div class="card-header align-items-center">

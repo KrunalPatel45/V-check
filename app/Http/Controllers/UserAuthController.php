@@ -206,12 +206,12 @@ class UserAuthController extends Controller
         }
 
         $user = Auth::user();
-        $package_id = $user->CurrentPackageID;
+        $package_id = $PaymentSubscription->PackageID;
 
         if ($package_id == -1) {
             $package = Package::whereRaw('LOWER(Name) = ?', ['trial'])->first();
         } else {
-            $package = Package::find($user->CurrentPackageID);
+            $package = Package::find($package_id);
         }
 
         return view('frontend.auth.expired', compact('user', 'PaymentHistory', 'package_id', 'package'));

@@ -161,7 +161,11 @@ class SubscriptionController extends Controller
             Mail::to($user->Email)->send(new SendNewSubMail(6, $user_name, $data));
             Mail::to(env('ADMIN_EMAIL'))->send(new AdminMail(10, $packages->Name, $user_name, $user->Email));      
             // Optional: redirect or show a view
-            return redirect()->route('user.login')->with('success', 'Verification link sent to your email');
+             if($user->EmailVerified == 1){
+                return redirect()->route('user.login');
+             }else{
+                 return redirect()->route('user.login')->with('success', 'Verification link sent to your email');
+             }
         }
          return redirect()->route('user.login')->with('error', 'Something want to wrong');
     }

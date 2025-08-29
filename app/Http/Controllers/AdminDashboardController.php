@@ -29,23 +29,23 @@ class AdminDashboardController extends Controller
     public function __construct(SubscriptionHelper $subscriptionHelper)
     {
         $this->subscriptionHelper = $subscriptionHelper;
-    }    
+    }
 
     public function index()
     {
-        if(!Auth::guard('admin')->check()) {
+        if (!Auth::guard('admin')->check()) {
             return redirect()->route('admin.login');
         }
         $total_users = User::count();
         $total_checks = PaymentSubscription::sum('ChecksGiven');
         $total_revanue = PaymentHistory::where('PaymentStatus', 'Success')->sum('PaymentAmount');
         $month_revanue = PaymentHistory::where('PaymentStatus', 'Success')
-                        ->whereMonth('PaymentDate', Carbon::now()->month)
-                        ->whereYear('PaymentDate', Carbon::now()->year)
-                        ->sum('PaymentAmount');
-                      
+            ->whereMonth('PaymentDate', Carbon::now()->month)
+            ->whereYear('PaymentDate', Carbon::now()->year)
+            ->sum('PaymentAmount');
+
         $month_revanue = number_format($month_revanue, 2);
-        $total_revanue = number_format($total_revanue, 2); 
+        $total_revanue = number_format($total_revanue, 2);
 
         $total_used_checks = PaymentSubscription::sum('ChecksUsed');
         $total_unused_checks = abs($total_checks - $total_used_checks);
@@ -53,22 +53,22 @@ class AdminDashboardController extends Controller
         $package_selected_user = User::whereNotNull('CurrentPackageID')->count();
         $package_data = [];
         $packages = Package::where('Status', 'Active')->get();
-        $total_package_count=0;
-        foreach($packages as $key => $package) {
+        $total_package_count = 0;
+        foreach ($packages as $key => $package) {
             $package_data[$key]['name'] = $package->Name;
-            if(strtolower($package->Name) == 'trial') {
+            if (strtolower($package->Name) == 'trial') {
                 $package_data[$key]['total_count'] = PaymentSubscription::select('PaymentSubscriptionID')->where('Status', 'Active')->where('PackageID', '-1')->distinct('UserID')->count();
             } else {
                 $package_data[$key]['total_count'] = PaymentSubscription::select('PaymentSubscriptionID')->where('Status', 'Active')->where('PackageID', $package->PackageID)->distinct('UserID')->count();
             }
             $total_package_count += $package_data[$key]['total_count'];
         }
-        return view('content.dashboard.dashboards-analytics', compact('total_package_count','total_users', 'total_checks', 'total_revanue', 'total_used_checks', 'total_unused_checks', 'package_data', 'package_selected_user', 'month_revanue'));
+        return view('content.dashboard.dashboards-analytics', compact('total_package_count', 'total_users', 'total_checks', 'total_revanue', 'total_used_checks', 'total_unused_checks', 'package_data', 'package_selected_user', 'month_revanue'));
     }
 
     public function profile()
     {
-        if(!Auth::guard('admin')->check()) {
+        if (!Auth::guard('admin')->check()) {
             return redirect()->route('admin.login');
         }
 
@@ -126,15 +126,17 @@ class AdminDashboardController extends Controller
                 $query->where('status', $request->status);
             }
 
-            $users=$query->get();
+            $users = $query->get();
 
             foreach ($users as $user) {
                 $package = Package::find($user->CurrentPackageID);
+               
                 $user->package = $package ? $package->Name : 'N/A';
-                if($user->CurrentPackageID == '-1') {
+                if ($user->CurrentPackageID == '-1') {
                     $user->package = 'TRIAL';
-                } 
-                $user->package_price = $package ? '$'.number_format($package->Price,2) : '$0';
+                }
+                $user->package_price = $package ? '$' . number_format($package->Price, 2) : '$0';
+
             }
 
             return datatables()->of($users)
@@ -143,8 +145,8 @@ class AdminDashboardController extends Controller
                     return $this->formatPhoneNumber($user->PhoneNumber);
                 })
                 ->addColumn('status', function ($user) {
-                    return $user->Status == 'Active' 
-                        ? '<span class="badge bg-label-primary">' . $user->Status . '</span>' 
+                    return $user->Status == 'Active'
+                        ? '<span class="badge bg-label-primary">' . $user->Status . '</span>'
                         : '<span class="badge bg-label-warning">' . $user->Status . '</span>';
                 })
                 ->addColumn('created_at', function ($user) {
@@ -175,15 +177,15 @@ class AdminDashboardController extends Controller
 
     public function user_edit(Request $request, $id)
     {
-        if(!Auth::guard('admin')->check()) {
+        if (!Auth::guard('admin')->check()) {
             return redirect()->route('admin.login');
         }
 
-        
+
         $user = User::where('userID', $id)->first();
         $user_history = UserHistory::where('UserID', $id)->first();
-        if(!empty($user_history)) {
-            $user_history->last_login = !empty($user_history->last_login)? Carbon::parse($user_history->last_login)->format('M, d Y h:i A'): '';
+        if (!empty($user_history)) {
+            $user_history->last_login = !empty($user_history->last_login) ? Carbon::parse($user_history->last_login)->format('M, d Y h:i A') : '';
         }
         $paymentSubscription = PaymentSubscription::where('UserID', $id)
             ->where('Status', 'Active')->where('PackageID', $user->CurrentPackageID)
@@ -197,9 +199,9 @@ class AdminDashboardController extends Controller
         $packages = Package::where('Status', 'Active')->get();
         $check_used = '-';
         $remaining_checks = '-';
-        if(!empty($paymentSubscription)) {
-            $check_used = ($paymentSubscription->ChecksGiven == 0) ? '-' :$paymentSubscription->ChecksUsed;
-            $remaining_checks =($paymentSubscription->ChecksGiven == 0) ? '-'  : $paymentSubscription->RemainingChecks;    
+        if (!empty($paymentSubscription)) {
+            $check_used = ($paymentSubscription->ChecksGiven == 0) ? '-' : $paymentSubscription->ChecksUsed;
+            $remaining_checks = ($paymentSubscription->ChecksGiven == 0) ? '-' : $paymentSubscription->RemainingChecks;
         }
 
         $package_data = [
@@ -208,14 +210,19 @@ class AdminDashboardController extends Controller
             'expiryDate' => $expiryDate,
             'remainingDays' => !empty($remainingDays) ? abs(round($remainingDays)) : '',
         ];
-       $type = 'default';
-        if(!empty($request->type)) {
+        $type = 'default';
+        if (!empty($request->type)) {
             $type = $request->type;
         }
         $maxPricePackage = Package::orderBy('price', 'desc')->first();
         $stander_Plan_price = $maxPricePackage->Price;
         $currentPackage = $user->CurrentPackageID;
-        return view('admin.user.user_detail_page', compact('user', 'package_data', 'packages', 'check_used', 'remaining_checks', 'package', 'type', 'stander_Plan_price', 'currentPackage', 'user_history', 'paymentSubscription'));
+
+        $lastPaymentSubscription = PaymentSubscription::where('UserID', $id)
+            ->where('PackageID', $user->CurrentPackageID)
+            ->orderBy('PaymentSubscriptionID', 'desc')->first();
+
+        return view('admin.user.user_detail_page', compact('lastPaymentSubscription', 'user', 'package_data', 'packages', 'check_used', 'remaining_checks', 'package', 'type', 'stander_Plan_price', 'currentPackage', 'user_history', 'paymentSubscription'));
     }
 
     public function updateUserProfile(Request $request)
@@ -264,7 +271,7 @@ class AdminDashboardController extends Controller
 
     public function user_delete($id)
     {
-        if(!Auth::guard('admin')->check()) {
+        if (!Auth::guard('admin')->check()) {
             return redirect()->route('admin.login');
         }
 
@@ -287,17 +294,17 @@ class AdminDashboardController extends Controller
     //         $user->CurrentPackageID = $request->plan;
     //         $user->Status = 'Active';
     //         $user->save();
-    
-    
+
+
     //         $packages = Package::find($plan);
-    
+
     //         $paymentStartDate = Carbon::now();
-    
+
     //         $paymentEndDate = $paymentStartDate->copy()->addHours(24);
-    
+
     //         $nextRenewalDate = $paymentStartDate->copy()->addDays($packages->Duration);
     //         $paymentSubscription = PaymentSubscription::where('UserID', $request->user_id)->where('PackageID', $request->old_plan)->first();
-    
+
     //         if(!empty($paymentSubscription)) {
     //             $paymentSubscription->update([
     //                 'UserID' => $request->user_id,
@@ -322,7 +329,7 @@ class AdminDashboardController extends Controller
 
     public function user_profile_edit($id)
     {
-        if(!Auth::guard('admin')->check()) {
+        if (!Auth::guard('admin')->check()) {
             return redirect()->route('admin.login');
         }
 
@@ -333,13 +340,13 @@ class AdminDashboardController extends Controller
 
     public function upgragde_plan($id)
     {
-        if(!Auth::guard('admin')->check()) {
+        if (!Auth::guard('admin')->check()) {
             return redirect()->route('admin.login');
         }
 
         $user = User::where('userID', $id)->first();
         $paymentSubscription = PaymentSubscription::where('UserID', $id)->where('Status', 'Active')->where('PackageID', $user->CurrentPackageID)
-        ->orderBy('PaymentSubscriptionID', 'desc')->first();
+            ->orderBy('PaymentSubscriptionID', 'desc')->first();
         $package = Package::find($user->CurrentPackageID);
         $total_days = $package->Duration;
         $package_name = $package->Name;
@@ -353,7 +360,7 @@ class AdminDashboardController extends Controller
             'expiryDate' => $expiryDate,
             'remainingDays' => abs(round($remainingDays)),
         ];
-        
+
         return view('admin.user.plan_change', compact('user', 'package_data', 'packages'));
     }
 
@@ -363,104 +370,104 @@ class AdminDashboardController extends Controller
         $package = Package::find($plan);
         $user_current_package = Package::find($user->CurrentPackageID);
         $data_current_package = PaymentSubscription::where('UserId', $id)
-                        ->where('Status', 'Active')->where('PackageID', $user->CurrentPackageID)
-                        ->orderBy('PaymentSubscriptionID', 'desc')->first();
+            ->where('Status', 'Active')->where('PackageID', $user->CurrentPackageID)
+            ->orderBy('PaymentSubscriptionID', 'desc')->first();
+       
+        if (!empty($data_current_package)) {
+            // If upgrading to a higher priced plan
+            if ($package->Price > $user_current_package->Price) {
+                // Calculate price difference
+                $price_difference = $package->Price - $user_current_package->Price;
 
-    if(!empty($data_current_package)) {
-        // If upgrading to a higher priced plan
-        if($package->Price > $user_current_package->Price) {
-            // Calculate price difference
-            $price_difference = $package->Price - $user_current_package->Price;
-            
-            // Update subscription in Stripe
-            $data = [
-                'subscription_id' => $user->SubID,
-                'new_price_id' => $package->PriceID,
-                'upgrade_amount' => $price_difference * 100
-            ];
-            $res = $this->subscriptionHelper->updateSubscription($data);
-            if(!empty($res['id'])) {
-                // Delete any pending or canceled subscriptions
-                $cancel_or_pending_query = PaymentSubscription::where('UserId', $id)
-                    ->whereIn('Status', ['Pending', 'Canceled']);
-                
-                $subscriptionIds = $cancel_or_pending_query->pluck('PaymentSubscriptionID')->toArray();
-                
-                if (!empty($subscriptionIds)) {
-                    PaymentHistory::whereIn('PaymentSubscriptionID', $subscriptionIds)->delete();
+                // Update subscription in Stripe
+                $data = [
+                    'subscription_id' => $user->SubID,
+                    'new_price_id' => $package->PriceID,
+                    'upgrade_amount' => $price_difference * 100
+                ];
+                $res = $this->subscriptionHelper->updateSubscription($data);
+                if (!empty($res['id'])) {
+                    // Delete any pending or canceled subscriptions
+                    $cancel_or_pending_query = PaymentSubscription::where('UserId', $id)
+                        ->whereIn('Status', ['Pending', 'Canceled']);
+
+                    $subscriptionIds = $cancel_or_pending_query->pluck('PaymentSubscriptionID')->toArray();
+
+                    if (!empty($subscriptionIds)) {
+                        PaymentHistory::whereIn('PaymentSubscriptionID', $subscriptionIds)->delete();
+                    }
+
+                    $cancel_or_pending_query->delete();
+
+                    // Update current subscription
+                    $paymentSubscription = PaymentSubscription::find($data_current_package->PaymentSubscriptionID);
+                    $paymentSubscription->update([
+                        'UserID' => $id,
+                        'PackageID' => $plan,
+                        'PaymentMethodID' => 1,
+                        'PaymentAmount' => $price_difference,
+                        'PaymentStartDate' => $data_current_package->PaymentStartDate,
+                        'PaymentEndDate' => $data_current_package->PaymentEndDate,
+                        'NextRenewalDate' => $data_current_package->NextRenewalDate,
+                        'ChecksGiven' => $package->CheckLimitPerMonth,
+                        'RemainingChecks' => $package->CheckLimitPerMonth - $data_current_package->ChecksUsed,
+                        'ChecksReceived' => $data_current_package->ChecksReceived,
+                        'ChecksSent' => $data_current_package->ChecksSent,
+                        'ChecksUsed' => $data_current_package->ChecksUsed,
+                        'PaymentDate' => $data_current_package->PaymentDate,
+                        'PaymentAttempts' => 0,
+                        'TransactionID' => $res['id'],
+                        'Status' => 'Active',
+                    ]);
+
+                    // Create payment history for the upgrade charge
+                    PaymentHistory::create([
+                        'PaymentSubscriptionID' => $paymentSubscription->PaymentSubscriptionID,
+                        'PaymentAmount' => $price_difference,
+                        'PaymentDate' => now(),
+                        'PaymentStatus' => 'Success',
+                        'PaymentAttempts' => 0,
+                        'TransactionID' => $res['id'],
+                    ]);
+
+                    $old_plan = Package::find($user->CurrentPackageID);
+                    $user->CurrentPackageID = $plan;
+                    $user->save();
+
+                    $paymentStartDate = Carbon::now();
+
+                    $user_name = $user->FirstName . ' ' . $user->LastName;
+                    $data = [
+                        'old_plan_name' => $old_plan->Name,
+                        'new_plan_name' => $package->Name,
+                        'upgrade_date' => $paymentStartDate->format('m/d/Y'),
+                    ];
+                    Mail::to($user->Email)->send(new SendUpgradeSubMail(7, $user_name, $data));
                 }
-                
-                $cancel_or_pending_query->delete();
-
-                // Update current subscription
-                $paymentSubscription = PaymentSubscription::find($data_current_package->PaymentSubscriptionID);
-                $paymentSubscription->update([
-                    'UserID' => $id,
-                    'PackageID' => $plan,
-                    'PaymentMethodID' => 1,
-                    'PaymentAmount' => $price_difference,
-                    'PaymentStartDate' => $data_current_package->PaymentStartDate,
-                    'PaymentEndDate' => $data_current_package->PaymentEndDate,
-                    'NextRenewalDate' => $data_current_package->NextRenewalDate,
-                    'ChecksGiven' => $package->CheckLimitPerMonth,
-                    'RemainingChecks' => $package->CheckLimitPerMonth - $data_current_package->ChecksUsed,
-                    'ChecksReceived' => $data_current_package->ChecksReceived,
-                    'ChecksSent' => $data_current_package->ChecksSent,
-                    'ChecksUsed' => $data_current_package->ChecksUsed,
-                    'PaymentDate' => $data_current_package->PaymentDate,
-                    'PaymentAttempts' => 0,
-                    'TransactionID' => $res['id'],
-                    'Status' => 'Active',
-                ]);
-
-                // Create payment history for the upgrade charge
-                PaymentHistory::create([
-                    'PaymentSubscriptionID' => $paymentSubscription->PaymentSubscriptionID,
-                    'PaymentAmount' => $price_difference,
-                    'PaymentDate' => now(),
-                    'PaymentStatus' => 'Success',
-                    'PaymentAttempts' => 0,
-                    'TransactionID' => $res['id'],
-                ]);
-
-                $old_plan =  Package::find($user->CurrentPackageID);
-                $user->CurrentPackageID = $plan;
-                $user->save();
-
-                $paymentStartDate = Carbon::now();
-
-                $user_name = $user->FirstName . ' ' .$user->LastName;
-                $data = [
-                    'old_plan_name' => $old_plan->Name,
-                    'new_plan_name' => $package->Name,
-                    'upgrade_date' => $paymentStartDate->format('m/d/Y'),
-                ];
-                Mail::to($user->Email)->send(new SendUpgradeSubMail(7, $user_name, $data));   
-            }
-        } else {
-
-            $res = $this->subscriptionHelper->schedulePlanDowngrade($user->SubID, $package->PriceID);
-            if(!empty($res)) {
-                $paymentSubscription = PaymentSubscription::find($data_current_package->PaymentSubscriptionID);
-                $paymentSubscription->update([
-                    'NextPackageID' => $plan,
-                ]);
-
-                $new_plan =  Package::find($plan);
-                $user_name = $user->FirstName . ' ' .$user->LastName;
-                $data = [
-                    'old_plan_name' =>$package->Name,
-                    'new_plan_name' => $new_plan->Name,
-                    'end_date' => Carbon::parse($paymentSubscription->NextRenewalDate)->format('m/d/Y'),
-                ];
-                Mail::to($user->Email)->send(new SendDowngradeSubMail(8, $user_name, $data));   
             } else {
-                return redirect()->route('admin.user.edit',['id' => $user->UserID, 'type' => 'billing'])->with('error', 'Something went wrong');
+
+                $res = $this->subscriptionHelper->schedulePlanDowngrade($user->SubID, $package->PriceID);
+                if (!empty($res)) {
+                    $paymentSubscription = PaymentSubscription::find($data_current_package->PaymentSubscriptionID);
+                    $paymentSubscription->update([
+                        'NextPackageID' => $plan,
+                    ]);
+
+                    $new_plan = Package::find($plan);
+                    $user_name = $user->FirstName . ' ' . $user->LastName;
+                    $data = [
+                        'old_plan_name' => $package->Name,
+                        'new_plan_name' => $new_plan->Name,
+                        'end_date' => Carbon::parse($paymentSubscription->NextRenewalDate)->format('m/d/Y'),
+                    ];
+                    Mail::to($user->Email)->send(new SendDowngradeSubMail(8, $user_name, $data));
+                } else {
+                    return redirect()->route('admin.user.edit', ['id' => $user->UserID, 'type' => 'billing'])->with('error', 'Something went wrong');
+                }
             }
         }
-    }
-        
-        return redirect()->route('admin.user.edit',['id' => $user->UserID, 'type' => 'billing'])->with('success', 'Your plan has been updated successfully');
+
+        return redirect()->route('admin.user.edit', ['id' => $user->UserID, 'type' => 'billing'])->with('success', 'Your plan has been updated successfully');
     }
 
 
@@ -472,14 +479,14 @@ class AdminDashboardController extends Controller
             return datatables()->of($companies)
                 ->addIndexColumn()
                 ->addColumn('logo', function ($row) {
-                    if(!empty($row->Logo)) {
+                    if (!empty($row->Logo)) {
                         return '<img src="' . asset('storage/' . $row->Logo) . '" alt="Company Logo" style="width: 50px;">';
                     } else {
                         return '<img src="' . asset('assets/img/empty.jpg') . '" alt="Company Logo" style="width: 50px;">';
                     }
                 })
                 ->addColumn('CreatedAt', function ($row) {
-                    return Carbon::parse($row->CreatedAt)->format('m/d/Y'); 
+                    return Carbon::parse($row->CreatedAt)->format('m/d/Y');
                 })
                 ->addColumn('status', function ($row) {
                     return '<span class="badge ' .
@@ -495,17 +502,17 @@ class AdminDashboardController extends Controller
     {
         if ($request->ajax()) {
             $paymentSubscriptionIds = PaymentSubscription::where('UserID', $id)->pluck('PaymentSubscriptionID')->toArray();
-            $invoice = PaymentHistory::whereIn('PaymentSubscriptionID', $paymentSubscriptionIds);
+            $invoice = PaymentHistory::whereIn('PaymentSubscriptionID', $paymentSubscriptionIds)->where('PaymentStatus', 'Success');
 
             return datatables()->of($invoice)
                 ->addIndexColumn()
                 ->addColumn('PaymentDate', function ($row) {
-                    return Carbon::parse($row->PaymentDate)->format('m/d/Y'); 
+                    return Carbon::parse($row->PaymentDate)->format('m/d/Y');
                 })
                 ->addColumn('PaymentStatus', function ($row) {
                     return '<span class="badge ' .
                         ($row->PaymentStatus == 'Success' ? 'bg-label-primary' : 'bg-label-warning') .
-                        '">'. ($row->PaymentStatus == 'Success' ? 'paid' : 'unpaid'). '</span>';
+                        '">' . ($row->PaymentStatus == 'Success' ? 'paid' : 'unpaid') . '</span>';
                 })
                 ->rawColumns(['PaymentStatus'])
                 ->make(true);
@@ -523,11 +530,11 @@ class AdminDashboardController extends Controller
             return datatables()->of($payors)
                 ->addIndexColumn()
                 ->addColumn('CreatedAt', function ($row) {
-                    return Carbon::parse($row->CreatedAt)->format('m/d/Y'); 
+                    return Carbon::parse($row->CreatedAt)->format('m/d/Y');
                 })
                 ->addColumn('Status', function ($row) {
-                    return '<span class="badge ' . 
-                        ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') . 
+                    return '<span class="badge ' .
+                        ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') .
                         '">' . $row->Status . '</span>';
                 })
                 ->rawColumns(['Status'])
@@ -545,11 +552,11 @@ class AdminDashboardController extends Controller
             return datatables()->of($payors)
                 ->addIndexColumn()
                 ->addColumn('CreatedAt', function ($row) {
-                    return Carbon::parse($row->CreatedAt)->format('m/d/Y'); 
+                    return Carbon::parse($row->CreatedAt)->format('m/d/Y');
                 })
                 ->addColumn('Status', function ($row) {
-                    return '<span class="badge ' . 
-                        ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') . 
+                    return '<span class="badge ' .
+                        ($row->Status == 'Active' ? 'bg-label-primary' : 'bg-label-warning') .
                         '">' . $row->Status . '</span>';
                 })
                 ->rawColumns(['Status'])
@@ -557,7 +564,8 @@ class AdminDashboardController extends Controller
         }
     }
 
-    public function formatPhoneNumber($number) {
+    public function formatPhoneNumber($number)
+    {
         // Remove all non-digit characters
         $number = preg_replace('/\D/', '', $number);
 
@@ -575,5 +583,5 @@ class AdminDashboardController extends Controller
         $user->save();
         return response()->json(['message' => 'Status updated successfully.']);
     }
-        
+
 }

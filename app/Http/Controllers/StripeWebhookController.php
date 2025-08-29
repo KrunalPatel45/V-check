@@ -39,7 +39,7 @@ class StripeWebhookController extends Controller
 
             $event = json_decode($payload, true);
 
-           if ($event['type'] === 'customer.subscription.deleted') {
+            if ($event['type'] === 'customer.subscription.deleted') {
 
                 Log::info('Event started : customer.subscription.deleted');
 
@@ -107,7 +107,7 @@ class StripeWebhookController extends Controller
             $product_id = $invoice['lines']['data'][0]['pricing']['price_details']['product'];
 
             $new_package = Package::where('ProductID', $product_id)->first();
-            $sub_id=$invoice['parent']['subscription_details']['subscription'];
+            $sub_id = $invoice['parent']['subscription_details']['subscription'];
 
             $user = User::where('CusID', $invoice['customer'])
                 ->where('SubID', $sub_id)->first();
@@ -119,10 +119,10 @@ class StripeWebhookController extends Controller
             // }
 
             PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
-            ->orderBy('PaymentSubscriptionID', 'desc')->first()->update([
-                'NextPackageID' => null,
-                'Status' => 'Inactive'
-            ]);
+                ->orderBy('PaymentSubscriptionID', 'desc')->first()->update([
+                        'NextPackageID' => null,
+                        'Status' => 'Inactive'
+                    ]);
 
             // $current_period_start = $invoice['period_start'];
             // $current_period_end = $invoice['period_end'];
@@ -187,38 +187,36 @@ class StripeWebhookController extends Controller
             $user = User::where('CusID', $subscription['customer'])
                 ->where('SubID', $subscription['id'])->first();
 
-                $atEndSubCanceled=PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
+            $atEndSubCanceled = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
                 ->whereNotNull('CancelAt')->where('Status', 'Active')
                 ->orderBy('PaymentSubscriptionID', 'desc')->first();
 
-                $afterAttemptSubTobeCanceled = PaymentSubscription::where('UserId', $user->UserID)->where('Status', 'Pending')
-                    ->orderBy('PaymentSubscriptionID', 'desc')->first();
+            $afterAttemptSubTobeCanceled = PaymentSubscription::where('UserId', $user->UserID)->where('Status', 'Pending')
+                ->orderBy('PaymentSubscriptionID', 'desc')->first();
 
-                if (!empty($afterAttemptSubTobeCanceled)) {
-                    $afterAttemptSubTobeCanceled->CancelAt = now()->toDateString();
-                    $afterAttemptSubTobeCanceled->Status = 'Canceled';
-                    $afterAttemptSubTobeCanceled->save();
-                }
-
-
-                if (!empty($atEndSubCanceled)) {
-                    $atEndSubCanceled->Status = 'Canceled';
-                    $atEndSubCanceled->save();
-
-                    $user_name = $user->FirstName . ' ' . $user->LastName;
-                    $package = Package::find($user->CurrentPackageID);
-                    $data = [
-                        'plan_name' => $package->Name,
-                    ];
-                    Mail::to($user->Email)->send(new StripeCancelSubMail(14, $user_name, $data));
-                }
-           
+            if (!empty($afterAttemptSubTobeCanceled)) {
+                $afterAttemptSubTobeCanceled->CancelAt = now()->toDateString();
+                $afterAttemptSubTobeCanceled->Status = 'Canceled';
+                $afterAttemptSubTobeCanceled->save();
+            }
 
 
-            
-            // $user->update([
-            //     'CurrentPackageID' => null
-            // ]);
+            if (!empty($atEndSubCanceled)) {
+                $atEndSubCanceled->Status = 'Canceled';
+                $atEndSubCanceled->save();
+
+                $user_name = $user->FirstName . ' ' . $user->LastName;
+                $package = Package::find($user->CurrentPackageID);
+                $data = [
+                    'plan_name' => $package->Name,
+                ];
+                Mail::to($user->Email)->send(new StripeCancelSubMail(14, $user_name, $data));
+            }
+
+            $user->update([
+                'CurrentPackageID' => null
+            ]);
+
             DB::commit();
 
         } catch (\Exception $e) {
@@ -239,10 +237,10 @@ class StripeWebhookController extends Controller
             $invoice = $event['data']['object'];
 
             $user = User::where('CusID', $invoice['customer'])->first();
-            
+
             $PaymentSubscription = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
-                ->whereNot('Status','Canceled')->orderBy('PaymentSubscriptionID', 'desc')->first();
-            
+                ->whereNot('Status', 'Canceled')->orderBy('PaymentSubscriptionID', 'desc')->first();
+
             $renew = false;
             $is_downgraded = false;
             $is_upgraded = false;
@@ -250,9 +248,9 @@ class StripeWebhookController extends Controller
             if ($PaymentSubscription) {
 
                 $amount_paid = $invoice['amount_paid'];
-                $current_amount = bcmul((string)$PaymentSubscription->PaymentAmount, '100', 0);
-                
-                if($invoice['amount_paid'] == $current_amount){
+                $current_amount = bcmul((string) $PaymentSubscription->PaymentAmount, '100', 0);
+
+                if ($invoice['amount_paid'] == $current_amount) {
 
                     $start_date = $invoice['lines']['data'][0]['period']['start'];
                     $end_date = $invoice['lines']['data'][0]['period']['end'];
@@ -266,7 +264,7 @@ class StripeWebhookController extends Controller
                         'UserID' => $user->UserID,
                         'PackageID' => $PaymentSubscription->PackageID,
                         'PaymentMethodID' => 1,
-                        'PaymentAmount' => $invoice['amount_paid']/100,
+                        'PaymentAmount' => $invoice['amount_paid'] / 100,
                         'PaymentStartDate' => $PaymentStartDate,
                         'PaymentEndDate' => $PaymentEndDate,
                         'NextRenewalDate' => $NextRenewalDate,
@@ -282,33 +280,33 @@ class StripeWebhookController extends Controller
                     ]);
                     $renew = true;
 
-                }elseif($invoice['amount_paid'] < $current_amount){
+                } elseif ($invoice['amount_paid'] < $current_amount) {
 
                     //Handle downgrade plan payments
-                    if($invoice['billing_reason'] == 'subscription_cycle'){
-                        
+                    if ($invoice['billing_reason'] == 'subscription_cycle') {
+
                         $this->hanldeDowngradeSubscription($invoice);
                         $is_downgraded = true;
                     }
-                }elseif($invoice['amount_paid'] > $current_amount){
-                        $is_upgraded = true;
+                } elseif ($invoice['amount_paid'] > $current_amount) {
+                    $is_upgraded = true;
                 }
-                
+
 
                 $paymentHistory = PaymentHistory::where('PaymentSubscriptionID', $PaymentSubscription->PaymentSubscriptionID)
-                                    ->where('TransactionID', $invoice['id'])->where('PaymentStatus', 'Success')->exists();
-                if(!$paymentHistory){
+                    ->where('TransactionID', $invoice['id'])->where('PaymentStatus', 'Success')->exists();
+                if (!$paymentHistory) {
 
-                    if($renew){
-                        $payment_sub_id=$newPaymentSubscription->PaymentSubscriptionID;
-                    }else{
-                        $payment_sub_id=$PaymentSubscription->PaymentSubscriptionID;
+                    if ($renew) {
+                        $payment_sub_id = $newPaymentSubscription->PaymentSubscriptionID;
+                    } else {
+                        $payment_sub_id = $PaymentSubscription->PaymentSubscriptionID;
                     }
-                    if($is_downgraded != true && $is_upgraded != true){
-                        
+                    if ($is_downgraded != true && $is_upgraded != true) {
+
                         PaymentHistory::create([
                             'PaymentSubscriptionID' => $payment_sub_id,
-                            'PaymentAmount' => $invoice['amount_paid']/100,
+                            'PaymentAmount' => $invoice['amount_paid'] / 100,
                             'PaymentDate' => now(),
                             'PaymentStatus' => 'Success',
                             'PaymentAttempts' => $invoice['attempt_count'],
@@ -325,11 +323,11 @@ class StripeWebhookController extends Controller
                     }
                 }
 
-                if($renew){
+                if ($renew) {
                     $PaymentSubscription->update([
                         'Status' => 'Inactive'
                     ]);
-                }else{
+                } else {
                     $PaymentSubscription->update([
                         'Status' => 'Active'
                     ]);
