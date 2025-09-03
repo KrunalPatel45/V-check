@@ -8,6 +8,9 @@
 
 <!-- Vendor Styles -->
 @section('vendor-style')
+    <link
+        href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Dancing+Script&family=Allura&family=Pacifico&family=Sacramento&family=Alex+Brush&family=Parisienne&family=Marck+Script&family=Tangerine&family=Pinyon+Script&family=Courgette&family=Kaushan+Script&family=Yellowtail&family=Satisfy&family=Italianno&family=Arizonia&family=Cookie&family=Meddon&family=Bilbo&family=Norican&family=Herr+Von+Muellerhoff&family=Rochester&family=Fondamento&family=Euphoria+Script&family=Bad+Script&family=Over+the+Rainbow&family=Calligraffitti&family=Homemade+Apple&family=Patrick+Hand&family=Indie+Flower&family=Gloria+Hallelujah&family=Reenie+Beanie&family=La+Belle+Aurore&family=Rock+Salt&family=Waiting+for+the+Sunrise&family=Allan&family=Shadows+Into+Light&family=Shadows+Into+Light+Two&family=Loved+by+the+King&family=Give+You+Glory&family=Mr+Dafoe&family=Mr+De+Haviland&family=Mrs+Saint+Delafield&family=Petit+Formal+Script&family=Rouge+Script&family=Ruthie&family=Seaweed+Script&family=Stalemate&family=Nanum+Pen+Script&family=Caveat&family=Covered+By+Your+Grace&family=Amatic+SC&family=Architects+Daughter&family=Patrick+Hand+SC&family=Chewy&family=Sue+Ellen+Francisco&family=Just+Another+Hand&family=Pangolin&family=Kalam&family=Cedarville+Cursive&family=Zeyada&family=Nothing+You+Could+Do&family=Just+Me+Again+Down+Here&family=The+Girl+Next+Door&family=Square+Peg&family=Charmonman&family=Dekko&family=Gaegu&family=Birthstone+Bounce&family=Comforter+Brush&family=Yomogi&family=Moon+Dance&family=Swanky+and+Moo+Moo&family=Delius+Swash+Caps&family=Sunshiney&family=Edu+SA+Beginner&family=Water+Brush&family=Twinkle+Star&family=Ms+Madi&family=Grand+Hotel&family=Send+Flowers&family=Playwrite&family=Niconne&family=Kristi&display=swap"
+        rel="stylesheet">
     <style>
         .kbw-signature {
             width: 350px;
@@ -74,7 +77,7 @@
             img.crossOrigin = "Anonymous"; // Prevent CORS issues when converting to Base64
             img.src = existingSignature;
 
-            img.onload = function() {
+            img.onload = function () {
                 var canvas = $('#sig canvas')[0];
                 var ctx = canvas.getContext("2d");
 
@@ -90,7 +93,7 @@
         }
 
 
-        $('#clear').click(function(e) {
+        $('#clear').click(function (e) {
 
             e.preventDefault();
 
@@ -120,13 +123,13 @@
             $('#gridTable').toggle();
         }
 
-        $(document).ready(function() {
+        $(document).ready(function () {
 
             $(document).find('.mydatepicker').flatpickr({
                 dateFormat: 'm-d-Y',
                 monthSelectorType: 'static'
             });
-            $('#payee').on('change', function() {
+            $('#payee').on('change', function () {
                 id = $(this).val();
                 const selectedValue = $(this).find('option:selected').attr(
                     'id');
@@ -141,7 +144,7 @@
                     $.ajax({
                         url: "{{ route('get_payee', ':id') }}".replace(':id', id) + '?type=SP',
                         method: 'GET',
-                        success: function(response) {
+                        success: function (response) {
                             $('#payee-edit').removeClass('d-none');
 
                             $('#payee_id').val(response.payee.EntityID);
@@ -153,7 +156,7 @@
             });
 
 
-            $('#add-payee-btn').on('click', function(event) {
+            $('#add-payee-btn').on('click', function (event) {
                 event.preventDefault();
                 var id = $('#payee_id').val();
 
@@ -176,10 +179,10 @@
                     url: "{{ route('user.add-payee') }}",
                     method: 'POST',
                     data: formData,
-                    success: function(response) {
+                    success: function (response) {
                         if (response.errors) {
                             // Display validation errors
-                            $.each(response.errors, function(key, value) {
+                            $.each(response.errors, function (key, value) {
                                 console.log('#add-payee #' + key);
 
                                 $('#payee-' + key).closest('.col-md-6').append(
@@ -200,7 +203,7 @@
                             }
                         }
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         // Log the error for debugging
                         console.error('Error:', error);
                         console.error('Status:', status);
@@ -210,7 +213,7 @@
                 });
             });
 
-            $('#payor').on('change', function() {
+            $('#payor').on('change', function () {
                 id = $(this).val();
                 const selectedValue = $(this).find('option:selected').attr(
                     'id');
@@ -232,7 +235,7 @@
                     $.ajax({
                         url: "{{ route('get_payor', ':id') }}".replace(':id', id) + '?type=SP',
                         method: 'GET',
-                        success: function(response) {
+                        success: function (response) {
                             $('#payor-edit').removeClass('d-none');
 
                             var address = response.payor.Address1;
@@ -260,7 +263,7 @@
                 }
             });
 
-            $('#add-payor-btn').on('click', function(event) {
+            $('#add-payor-btn').on('click', function (event) {
                 event.preventDefault();
                 var id = $('#payor_id').val();
 
@@ -289,10 +292,10 @@
                     url: "{{ route('user.add-payor') }}",
                     method: 'POST',
                     data: formData,
-                    success: function(response) {
+                    success: function (response) {
                         if (response.errors) {
                             // Display validation errors
-                            $.each(response.errors, function(key, value) {
+                            $.each(response.errors, function (key, value) {
                                 $('#add-payor #' + key).closest('.col-md-6').append(
                                     '<span class="text-danger">' + value[0] +
                                     '</span>'
@@ -334,7 +337,7 @@
                             $('#add-payor')[0].reset(); // Reset form
                         }
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         // Log the error for debugging
                         console.error('Error:', error);
                         console.error('Status:', status);
@@ -345,17 +348,17 @@
             });
 
             //Print value on check
-            $("#check_date").on("change", function() {
+            $("#check_date").on("change", function () {
                 const selectedDate = $(this).val();
                 $("#c_check_date").text(selectedDate || "XX-XX-XXXX");
             });
 
-            $("#check_number").on("input", function() {
+            $("#check_number").on("input", function () {
                 const check_number = $(this).val();
                 $("#verify_check_number").val(check_number);
             });
 
-            $("#amount").on("input", function() {
+            $("#amount").on("input", function () {
                 const amount = $(this).val();
 
                 $.ajax({
@@ -365,41 +368,41 @@
                         _token: "{{ csrf_token() }}",
                         amount: amount,
                     },
-                    success: function(response) {
+                    success: function (response) {
                         $("#c_amount").text(amount || "XXXX.XX");
                         $("#c_amount_word").text(response.word || "XXXXX XXXX XXXX");
                     }
                 });
             });
 
-            $("#memo").on("input", function() {
+            $("#memo").on("input", function () {
                 const memo = $(this).val();
                 $("#c_memo").text(memo || "XXXXXXX XXXX XXXX XX");
             });
 
-            $('#payor_close').on('click', function(e) {
+            $('#payor_close').on('click', function (e) {
                 event.preventDefault();
                 $('#payorModel').modal('hide');
                 $("#payor").val("");
             });
-            $('#payor-edit').on('click', function(e) {
+            $('#payor-edit').on('click', function (e) {
                 event.preventDefault();
                 $('#payorModel').modal('show');
                 $('#payor_h').text('Edit');
             });
-            $('#signature-edit').on('click', function(e) {
+            $('#signature-edit').on('click', function (e) {
                 event.preventDefault();
                 $('#signModel').modal('show');
                 $('.sign_h').text('Edit');
             });
 
-            $('#payee-edit').on('click', function(e) {
+            $('#payee-edit').on('click', function (e) {
                 event.preventDefault();
                 $('#payeeModel').modal('show');
                 $('#payee_h').text('Edit');
             });
 
-            $('#is_sign').change(function(e) {
+            $('#is_sign').change(function (e) {
                 e.preventDefault();
                 if ($(this).is(':checked')) {
                     $('.sing-box').removeClass('d-none'); // Show the signature field
@@ -408,10 +411,15 @@
                 }
             });
 
-            $('#signature').on('change', function() {
+            $('#signature').on('change', function () {
                 id = $(this).val();
                 const selectedValue = $(this).find('option:selected').attr(
                     'id');
+                if(selectedValue == '') {
+                    $('#sign').addClass('d-none');
+                    $('#sign').html('');
+                    return;
+                }
                 if (selectedValue == 'add_new_signature') {
                     $('#signature-edit').addClass('d-none');
                     $('#signModel').modal('show');
@@ -422,7 +430,7 @@
                     $.ajax({
                         url: "{{ route('get_signature', ':id') }}".replace(':id', id),
                         method: 'GET',
-                        success: function(response) {
+                        success: function (response) {
                             $('#signature-edit').removeClass('d-none');
                             $('#sign').html('');
                             var existingSignature = base_url + '/sign/' + response.signature
@@ -443,7 +451,7 @@
                                     "Anonymous"; // Prevent CORS issues when converting to Base64
                                 img.src = existingSignature;
 
-                                img.onload = function() {
+                                img.onload = function () {
                                     var canvas = $('#sig canvas')[0];
                                     var ctx = canvas.getContext("2d");
 
@@ -463,7 +471,7 @@
                 }
             });
 
-            $('#add-sign-btn').on('click', function(event) {
+            $('#add-sign-btn').on('click', function (event) {
                 event.preventDefault();
                 var id = $('#sign_id').val();
 
@@ -484,9 +492,9 @@
                     url: "{{ route('store_sign') }}",
                     method: 'POST',
                     data: formData,
-                    success: function(response) {
+                    success: function (response) {
                         if (response.errors) {
-                            $.each(response.errors, function(key, value) {
+                            $.each(response.errors, function (key, value) {
                                 $('#error-' + key).text(value[0]);
                             });
                         } else if (response.success) {
@@ -512,7 +520,7 @@
                                 '<img src="' + existingSignature + '" alt="sign" />');
                         }
                     },
-                    error: function(xhr, status, error) {
+                    error: function (xhr, status, error) {
                         // Log the error for debugging
                         console.error('Error:', error);
                         console.error('Status:', status);
@@ -522,7 +530,7 @@
                 });
             });
 
-            $('#check_number').on('input', function() {
+            $('#check_number').on('input', function () {
                 const check_number = $(this).val();
 
                 $.ajax({
@@ -531,7 +539,7 @@
                     data: {
                         check_number: check_number
                     },
-                    success: function(response) {
+                    success: function (response) {
                         if (response.exists) {
                             $('#check_number_error').text('Check number already exists.');
                         } else {
@@ -541,7 +549,7 @@
                 })
             });
 
-            $(document).on('click', '.removeRow', function() {
+            $(document).on('click', '.removeRow', function () {
                 $(this).closest('tr').remove();
             });
         });
@@ -558,7 +566,7 @@
                     grid_row_count: grid_row_count,
                     grid_history_ids: gridHistoryIDs
                 },
-                success: function(response) {
+                success: function (response) {
 
                     if (response.status == true) {
                         $('#gridTable tbody').append(response.html);
@@ -573,30 +581,150 @@
             })
         }
 
-        // function addDefaultRow(gridHistoryIDs) {
+        const fonts = [
+            'Great Vibes', 'Dancing Script', 'Allura', 'Pacifico', 'Sacramento', 'Alex Brush', 'Parisienne',
+            'Marck Script', 'Tangerine', 'Pinyon Script', 'Courgette', 'Kaushan Script', 'Yellowtail',
+            'Satisfy', 'Italianno', 'Arizonia', 'Cookie', 'Meddon', 'Bilbo', 'Norican',
+            'Herr Von Muellerhoff', 'Rochester', 'Fondamento', 'Euphoria Script', 'Bad Script',
+            'Over the Rainbow', 'Calligraffitti', 'Homemade Apple', 'Patrick Hand', 'Indie Flower',
+            'Gloria Hallelujah', 'Reenie Beanie', 'La Belle Aurore', 'Rock Salt', 'Waiting for the Sunrise',
+            'Allan', 'Shadows Into Light', 'Shadows Into Light Two', 'Loved by the King', 'Give You Glory',
+            'Mr Dafoe', 'Mr De Haviland', 'Mrs Saint Delafield', 'Petit Formal Script', 'Rouge Script',
+            'Ruthie', 'Seaweed Script', 'Stalemate', 'Nanum Pen Script', 'Caveat', 'Covered By Your Grace',
+            'Amatic SC', 'Architects Daughter', 'Patrick Hand SC', 'Covered By Your Grace', 'Chewy',
+            'Sue Ellen Francisco', 'Just Another Hand', 'Pangolin', 'Kalam', 'Cedarville Cursive', 'Zeyada',
+            'Nothing You Could Do', 'Just Me Again Down Here', 'The Girl Next Door', 'Square Peg',
+            'Charmonman', 'Dekko', 'Gaegu', 'Birthstone Bounce', 'Comforter Brush', 'Yomogi', 'Moon Dance',
+            'Swanky and Moo Moo', 'Delius Swash Caps', 'Sunshiney', 'Edu SA Beginner', 'Water Brush',
+            'Twinkle Star', 'Ms Madi', 'Grand Hotel', 'Send Flowers', 'Playwrite', 'Niconne', 'Kristi'
+        ];
 
-        //     $.ajax({
-        //         url: "{{ url('/get-default-grids') }}",
-        //         method: 'GET',
-        //         data : {
-        //             _token: "{{ csrf_token() }}",
-        //             grid_row_count: grid_row_count,
-        //             grid_history_ids : gridHistoryIDs
-        //         },
-        //         success: function(response) {
+        let selectedSignature = null;
+        let nameInput = '';
 
-        //             if (response.status == true) {
-        //                 $('#gridTable tbody').append(response.html);
-        //                 $(document).find('.mydatepicker').flatpickr({
-        //                     dateFormat: 'm-d-Y',
-        //                     monthSelectorType: 'static'
-        //                 });
+        function generatePreviews() {
 
-        //                 grid_row_count++;
-        //             }
-        //         }
-        //     })
-        // }
+            const name = document.getElementById('nameInput').value.trim();
+            const container = document.getElementById('previewContainer');
+
+            if (!name) {
+                $('.alert-danger').text('Please enter name').fadeIn().delay(4000).fadeOut();
+                return;
+            }
+
+            selectedSignature = null;
+            container.innerHTML = '';
+            container.classList.add('row', 'g-2');
+
+            fonts.forEach(font => {
+                const col = document.createElement('div');
+                col.classList.add('col-md-4', 'col-sm-6', 'col-12', 'd-flex');
+
+                const card = document.createElement('div');
+                card.classList.add('card', 'signature-preview', 'shadow', 'mb-2', 'h-100', 'w-100');
+                card.style.cursor = 'pointer';
+
+                const cardBody = document.createElement('div');
+                cardBody.classList.add('card-body', 'p-2', 'd-flex', 'align-items-center', 'justify-content-center');
+                card.appendChild(cardBody);
+
+                const div = document.createElement('div');
+                div.classList.add('text-center');
+                div.style.fontFamily = font;
+                div.style.fontSize = '60px';
+                div.style.lineHeight = 'normal';
+                div.style.overflowWrap = 'anywhere';
+                div.innerText = name;
+
+                card.onclick = () => {
+                    selectedSignature = { text: name, font: font, size: 45 };
+
+                    // Draw initial canvas preview
+                    drawModalCanvas();
+
+                    // Initialize slider and value text
+                    document.getElementById('fontSizeSlider').value = selectedSignature.size;
+                    document.getElementById('fontSizeValue').innerText = selectedSignature.size + 'px';
+
+                    // Show modal
+                    const myModal = new bootstrap.Modal(document.getElementById('fontSizeModal'));
+                    myModal.show();
+                };
+
+                cardBody.appendChild(div);
+                col.appendChild(card);
+                container.appendChild(col);
+            });
+        }
+
+        document.getElementById('fontSizeSlider').addEventListener('input', function () {
+            selectedSignature.size = parseInt(this.value);
+            document.getElementById('fontSizeValue').innerText = this.value + 'px';
+            drawModalCanvas();
+        });
+
+        function drawModalCanvas() {
+            const canvas = document.getElementById('signaturePreviewModalCanvas');
+            const ctx = canvas.getContext('2d');
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // White background
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw the signature text
+            ctx.font = `${selectedSignature.size}px '${selectedSignature.font}'`;
+            ctx.fillStyle = '#000';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(selectedSignature.text, canvas.width / 2, canvas.height / 2);
+        }
+
+        document.getElementById('confirmSaveBtn').addEventListener('click', function () {
+            nameInput = document.getElementById('nameInput').value.trim();
+
+            if (!selectedSignature) {
+                $('.alert-danger').text('Please select signature').fadeIn().delay(4000).fadeOut();
+                return;
+            }
+
+            const canvas = document.getElementById('signaturePreviewModalCanvas');
+            const dataUrl = canvas.toDataURL('image/png');
+
+            fetch("{{ route('store_sign') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({
+                    signature: dataUrl,
+                    name: nameInput
+                })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data);
+                    if (data.success) {
+                        $('#sign').html('');
+                        $('#signature').append(
+                            `<option value="${data.signature.Id}" selected>${data.signature.Name}</option>`
+                        );
+                        $('#sign').append(
+                            `<img src="${base_url}/sign/${data.signature.Sign}" alt="sign" />`
+                        );
+                        $('#signature option#add_new_signature').appendTo('#signature');
+                        $('#sign').removeClass('d-none');
+                        $('#fontSizeModal').modal('hide');
+                        $('#signModel').modal('hide');
+                        $('html, body').scrollTop(0);
+                        $('.alert-success').text('Signature saved successfully!').fadeIn().delay(4000).fadeOut();
+                        
+                    }
+                });
+        });
     </script>
 
 @endsection
@@ -608,18 +736,13 @@
         </div>
 
         <script>
-            $(document).ready(function() {
+            $(document).ready(function () {
                 $('#gridTable').show();
             });
         </script>
     @endif
-    @if (old('itemization') == 1)
-        <script>
-            $(document).ready(function() {
-                $('#gridTable').show();
-            });
-        </script>
-    @endif
+    <div class="alert alert-danger" style="display: none;"></div>
+    <div class="alert alert-success" style="display: none;"></div>
     <form action="{{ route('check.send_payment_check_generate') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="card mb-6" style="background: #d0dfff">
@@ -634,8 +757,7 @@
                 </div>
             </div>
             <div class="card-body">
-                <input type="hidden" id="id" name="id"
-                    value="{{ !empty($check->CheckID) ? $check->CheckID : '' }}">
+                <input type="hidden" id="id" name="id" value="{{ !empty($check->CheckID) ? $check->CheckID : '' }}">
                 <div class="row">
                     <div class="col-sm-6">
                         <div class="row">
@@ -652,8 +774,7 @@
                                                 $name = $payor->Name;
                                             }
                                         @endphp
-                                        <option value="{{ $payor->EntityID }}"
-                                            {{ old('payor', $check->PayorID ?? '') == $payor->EntityID ? 'selected' : '' }}>
+                                        <option value="{{ $payor->EntityID }}" {{ old('payor', $check->PayorID ?? '') == $payor->EntityID ? 'selected' : '' }}>
                                             {{ $name }}
                                         </option>
                                     @endforeach
@@ -689,9 +810,9 @@
                                 <div class="input-group">
                                     <span class="input-group-text bg-light text-black"
                                         style="pointer-events: none; border:1px solid;">EC</span>
-                                    <input type="text" id="check_number" name="check_number"
-                                        class="form-control no-spinner" placeholder="Check Number" maxlength="10"
-                                        oninput="" value="{{ $checkNumber }}" autocomplete="off">
+                                    <input type="text" id="check_number" name="check_number" class="form-control no-spinner"
+                                        placeholder="Check Number" maxlength="10" oninput="" value="{{ $checkNumber }}"
+                                        autocomplete="off">
                                 </div>
 
                                 @if ($errors->has('check_number'))
@@ -744,8 +865,8 @@
                             <div class="col-sm-4">
                                 <div class="row">
                                     <div class="col-sm-12" style="padding-right: 0">
-                                        <input type="text" id="city" name="city" class="form-control"
-                                            placeholder="City" readonly
+                                        <input type="text" id="city" name="city" class="form-control" placeholder="City"
+                                            readonly
                                             value="{{ !empty($old_payor->City) && $old_payor->City ? $old_payor->City : old('city') }}">
                                     </div>
                                 </div>
@@ -753,8 +874,8 @@
                             <div class="col-sm-4">
                                 <div class="row">
                                     <div class="col-sm-12" style="padding-right: 0">
-                                        <input type="text" id="state" name="state" class="form-control"
-                                            placeholder="State" readonly
+                                        <input type="text" id="state" name="state" class="form-control" placeholder="State"
+                                            readonly
                                             value="{{ !empty($old_payor->State) && $old_payor->State ? $old_payor->State : old('state') }}">
                                     </div>
                                 </div>
@@ -762,8 +883,8 @@
                             <div class="col-sm-4">
                                 <div class="row">
                                     <div class="col-sm-12" style="padding-right: 0">
-                                        <input type="text" id="zip" name="zip" class="form-control"
-                                            placeholder="Zip" readonly
+                                        <input type="text" id="zip" name="zip" class="form-control" placeholder="Zip"
+                                            readonly
                                             value="{{ !empty($old_payor->Zip) && $old_payor->Zip ? $old_payor->Zip : old('zip') }}">
                                     </div>
                                 </div>
@@ -792,8 +913,7 @@
                                         @endphp
                                         @if (!empty($payee->Email))
                                         @endif
-                                        <option value="{{ $payee->EntityID }}"
-                                            {{ old('payee', $check->PayeeID ?? '') == $payee->EntityID ? 'selected' : '' }}>
+                                        <option value="{{ $payee->EntityID }}" {{ old('payee', $check->PayeeID ?? '') == $payee->EntityID ? 'selected' : '' }}>
                                             {{ $name }}
                                         </option>
                                     @endforeach
@@ -818,8 +938,7 @@
                                 style="font-size: 15px;font-weight: bold;text-align: right;">Amount: $</label>
                             <div class="col-sm-8">
                                 <input type="text" id="amount" name="amount" style="font-size: 16px;"
-                                    onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control"
-                                    autocomplete="off"
+                                    onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control" autocomplete="off"
                                     value="{{ !empty($check->Amount) && $check->Amount ? $check->Amount : old('amount') }}">
                                 @if ($errors->has('amount'))
                                     <br>
@@ -836,8 +955,7 @@
                     <div class="col-sm-6">
                         <div class="row">
                             <div class="col-sm-8">
-                                <input type="text" id="memo" name="memo" placeholder="Memo"
-                                    class="form-control"
+                                <input type="text" id="memo" name="memo" placeholder="Memo" class="form-control"
                                     value="{{ !empty($check->Memo) && $check->Memo ? $check->Memo : old('memo') }}">
                                 @if ($errors->has('memo'))
                                     <span class="text-danger">
@@ -850,12 +968,10 @@
                     <div class="col-sm-6">
                         <div class="row text-end justify-content-end">
                             <div class="col-sm-8 d-flex align-items-center gap-1">
-                                <select id="signature" name="signature_id" class="form-control"
-                                    style="font-size: 16px;">
+                                <select id="signature" name="signature_id" class="form-control" style="font-size: 16px;">
                                     <option value="" selected>Select Signature</option>
                                     @foreach ($userSignatures as $userSignature)
-                                        <option value="{{ $userSignature->Id }}"
-                                            {{ old('signature_id', $old_sign?->Id ?? '') == $userSignature->Id ? 'selected' : '' }}>
+                                        <option value="{{ $userSignature->Id }}" {{ old('signature_id', $old_sign?->Id ?? '') == $userSignature->Id ? 'selected' : '' }}>
                                             {{ $userSignature->Name }}
                                         </option>
                                     @endforeach
@@ -890,8 +1006,8 @@
 
                 <div class="row justify-content-center" style="margin-top: 30px">
                     <div class="col-sm-3">
-                        <input type="text" id="verify_check_number" name="verify_check_number"
-                            placeholder="Check Number" class="form-control" readonly value="{{ $checkNumber }}">
+                        <input type="text" id="verify_check_number" name="verify_check_number" placeholder="Check Number"
+                            class="form-control" readonly value="{{ $checkNumber }}">
                     </div>
                     <div class="col-sm-3">
                         <input type="number" id="routing_number" name="routing_number" class="form-control"
@@ -914,8 +1030,7 @@
                                 <button type="button" class="btn-close" id="payor_close" data-bs-dismiss="modal"
                                     aria-label="Close"></button>
                             </div>
-                            <input type="hidden" name="payor_id" id="payor_id"
-                                value={{ !empty($old_payor->EntityID) ? $old_payor->EntityID : '' }} />
+                            <input type="hidden" name="payor_id" id="payor_id" value={{ !empty($old_payor->EntityID) ? $old_payor->EntityID : '' }} />
                             <div class="modal-body">
                                 <div class="row g-6" id="add-payor">
                                     <div class="col-md-6">
@@ -940,7 +1055,8 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label" for="address1">Address</label>
-                                        <textarea id="address1" name="address1" class="form-control">{{ !empty($old_payor->Address1) ? $old_payor->Address1 : old('address1') }}</textarea>
+                                        <textarea id="address1" name="address1"
+                                            class="form-control">{{ !empty($old_payor->Address1) ? $old_payor->Address1 : old('address1') }}</textarea>
                                         @if ($errors->has('address1'))
                                             <span class="text-danger">
                                                 {{ $errors->first('address1') }}
@@ -1017,8 +1133,7 @@
                                             @endphp
 
                                             @foreach ($states as $state)
-                                                <option value="{{ $state }}"
-                                                    {{ !empty($old_payor->state) && $old_payor->state ? 'selected' : '' }}>
+                                                <option value="{{ $state }}" {{ !empty($old_payor->state) && $old_payor->state ? 'selected' : '' }}>
                                                     {{ $state }}
                                                 </option>
                                             @endforeach
@@ -1057,8 +1172,7 @@
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label" for="routing_number">Routing Number</label>
-                                        <input type="text" name="routing_number" id="routing_number"
-                                            class="form-control"
+                                        <input type="text" name="routing_number" id="routing_number" class="form-control"
                                             value="{{ !empty($old_payor->RoutingNumber) ? $old_payor->RoutingNumber : old('routing_number') }}"
                                             maxlength="9"
                                             oninput="this.value = this.value.replace(/\D/g, '').slice(0,9);" />
@@ -1072,8 +1186,7 @@
                                 <input type="hidden" name="type" id="type" value="Payor" />
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-label-secondary"
-                                    data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
                                 <button id="add-payor-btn" type="button" class="btn btn-primary">Save</button>
                             </div>
                         </div>
@@ -1086,8 +1199,7 @@
                                 <h5 class="modal-title" id="exampleModalLabel1"><span class="payee_h">Add</span>
                                     Payee
                                 </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <input type="hidden" name="payee_id" id="payee_id"
                                 value="{{ !empty($old_payee->EntityID) ? $old_payee->EntityID : '' }}">
@@ -1117,148 +1229,108 @@
                                 <input type="hidden" name="type" id="type" value="Payee" />
                             </div>
                             <div class="modal-footer">
-                                <button type="button" class="btn btn-label-secondary"
-                                    data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
                                 <button id="add-payee-btn" type="button" class="btn btn-primary">Save</button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal fade" id="signModel" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
+                <div class="modal fade" id="signModel" tabindex="-1" aria-hidden="true" style="z-index: 1100;">
+                    <div class="modal-dialog modal-xl" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="exampleModalLabel1"><span class="sign_h">Add </span>Signature
                                 </h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <input type="hidden" name="sign_id" id="sign_id"
                                 value="{{ !empty($old_sign->Id) ? $old_sign->Id : '' }}">
                             <div class="modal-body">
-                                <div class="row g-6">
-                                    <div class="col-md-12">
-                                        <label class="form-label" for="sign-name">Name</label>
-                                        <input type="text" name="name" id="sign-name" class="form-control"
-                                            value="{{ !empty($old_sign->Name) ? $old_sign->Name : old('name') }}" />
-                                        <span id="error-name" class="text-danger"></span>
-                                    </div>
-                                    <div class="col-md-12">
-                                        <label class="form-label" for="signature">Signature</label>
-                                        <div class="col-sm-10">
-                                            <div id="sig"></div>
-                                            <br />
-                                            <button id="clear" class="btn btn-sm btn-danger">Clear</button>
-                                            <input type="hidden" name="signature" id="signature64">
-                                            <br>
-                                            <span id="error-signature" class="text-danger"></span>
+                                <div class="card mb-6">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-8">
+                                                <input type="text" id="nameInput" class="form-control"
+                                                    placeholder="Enter your name" autocomplete="off">
+                                            </div>
+                                            <div class="col-4">
+                                                <button type="button" class="btn btn-primary"
+                                                    onclick="generatePreviews()">Generate</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="preview-container text-center" id="previewContainer">
+                                            Enter your name and click Generate to preview
+                                        </div>
+                                    </div>
+                                </div>
+
+
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-label-secondary"
-                                    data-bs-dismiss="modal">Close</button>
+                            <!-- <div class="modal-footer">
+                                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
                                 <button id="add-sign-btn" type="button" class="btn btn-primary">Save</button>
-                            </div>
+                            </div> -->
                         </div>
                     </div>
                 </div>
             </div>
 
         </div>
+        <!-- Font Size Modal -->
+        <div class="modal fade" id="fontSizeModal" tabindex="-1" aria-hidden="true" style="z-index: 1200; display:none;">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Adjust Font Size</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <canvas id="signaturePreviewModalCanvas" width="350" height="100"
+                            style="border:1px solid #ccc;"></canvas>
+                        <div class="mt-3">
+                            <input type="range" id="fontSizeSlider" min="20" max="100" value="45" class="form-range">
+                            <div class="mt-1">Font Size: <span id="fontSizeValue">45px</span></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="confirmSaveBtn">Confirm &
+                            Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         @if (isset($grid_histories) && $grid_histories->IsNotEmpty())
             <div class="card">
                 {{-- <div class="card"> --}}
-                <div class="card-header">
-                    <button type="button" class="mb-0 btn btn-primary" onclick="toggleItemization()">Line
-                        itemization</button>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <input type="hidden" name="itemization" id="itemization"
-                            @if ((isset($grid_items) && $grid_items->IsNotEmpty()) || session('grid_error') || old('itemization')) value="1" @else value="0" @endif>
-                        <table id="gridTable" class="table table-bordered"
-                            @if (isset($grid_items) && $grid_items->IsNotEmpty()) @else style="display: none" @endif>
-                            <thead>
-                                <tr>
-                                    @foreach ($grid_histories as $key => $item)
-                                        <th>{{ ucwords($item->Title) }}</th>
-                                    @endforeach
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                                @if (!isset($check))
-                                    @php
-                                        $date = false;
-                                    @endphp
-
-                                    @if (old('itemization'))
-                                        @php
-                                            $old_items = old('grid_items');
-                                            $old_items = reset($old_items);
-
-                                        @endphp
-
-                                        @foreach ($old_items as $key => $item)
-                                            @php
-                                                $loop_index = $loop->iteration;
-                                            @endphp
-                                            <tr>
-                                                @foreach ($grid_histories as $row_key => $val)
-                                                    @if ($val->Status == 1)
-                                                        @php
-
-                                                            if ($val->Type == 'text') {
-                                                                $inputContent =
-                                                                    'name="grid_items[' .
-                                                                    $val->id .
-                                                                    '][]" type="text" class="form-control" autocomplete="off" value="' .
-                                                                    old('grid_items.' . $val->id . '.' . $key) .
-                                                                    '"';
-                                                            } elseif ($val->Type == 'number') {
-                                                                $inputContent =
-                                                                    'name="grid_items[' .
-                                                                    $val->id .
-                                                                    '][]" type="text" class="form-control" onkeypress="return /^[0-9.]+$/.test(event.key)" autocomplete="off" value="' .
-                                                                    old('grid_items.' . $val->id . '.' . $key) .
-                                                                    '"';
-                                                            } elseif ($val->Type == 'date') {
-                                                                $inputContent =
-                                                                    'name="grid_items[' .
-                                                                    $val->id .
-                                                                    '][]" id="test1" type="text" class="form-control mydatepicker" autocomplete="off" value="' .
-                                                                    old('grid_items.' . $val->id . '.' . $key) .
-                                                                    '"';
-                                                                $date = true;
-                                                            }
-
-                                                        @endphp
-                                                        <td>
-                                                            <input {!! $inputContent !!}>
-                                                        </td>
-                                                    @endif
-                                                @endforeach
-                                                @if ($loop_index == 1)
-                                                    <td class="text-center">
-                                                        <button type="button" class="btn btn-sm btn-primary"
-                                                            onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
-                                                                class="ti ti-plus"></i></button>
-                                                    </td>
-                                                @else
-                                                    <td class="text-center">
-                                                        <button type="button" class="btn btn-sm btn-primary"
-                                                            onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
-                                                                class="ti ti-plus"></i></button>
-                                                        <button type="button" class="btn btn-sm btn-danger removeRow"><i
-                                                                class="ti ti-trash"></i></button>
-                                                    </td>
-                                                @endif
-                                            </tr>
+                    <div class="card-header">
+                        <button type="button" class="mb-0 btn btn-primary" onclick="toggleItemization()">Line
+                            itemization</button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <input type="hidden" name="itemization" id="itemization" @if(isset($grid_items) && !empty($grid_items)) value="1" @else value="0" @endif>
+                            <table id="gridTable" class="table table-bordered" @if(isset($grid_items) && !empty($grid_items))
+                            @else style="display: none" @endif>
+                                <thead>
+                                    <tr>
+                                        @foreach ($grid_histories as $key => $item)
+                                            <th>{{ ucwords($item->Title) }}</th>
                                         @endforeach
-                                    @else
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    @if (!isset($check))
+                                        @php
+                                            $date = false;
+                                        @endphp
                                         @foreach ($grid_histories as $key => $item)
                                             @if ($item->Status == 1)
                                                 @php
@@ -1267,23 +1339,17 @@
                                                         $inputContent =
                                                             'name="grid_items[' .
                                                             $item->id .
-                                                            '][]" type="text" class="form-control" autocomplete="off" value="' .
-                                                            old('grid_items.' . $item->id . '.' . $key) .
-                                                            '"';
+                                                            '][]" type="text" class="form-control" autocomplete="off" value="' . old('grid_items.' . $item->id . '.' . $key) . '"';
                                                     } elseif ($item->Type == 'number') {
                                                         $inputContent =
                                                             'name="grid_items[' .
                                                             $item->id .
-                                                            '][]" type="text" class="form-control" onkeypress="return /^[0-9.]+$/.test(event.key)" autocomplete="off" value="' .
-                                                            old('grid_items.' . $item->id . '.' . $key) .
-                                                            '"';
+                                                            '][]" type="text" class="form-control" onkeypress="return /^[0-9.]+$/.test(event.key)" autocomplete="off"';
                                                     } elseif ($item->Type == 'date') {
                                                         $inputContent =
                                                             'name="grid_items[' .
                                                             $item->id .
-                                                            '][]" id="test1" type="text" class="form-control mydatepicker" autocomplete="off" value="' .
-                                                            old('grid_items.' . $item->id . '.' . $key) .
-                                                            '"';
+                                                            '][]" id="test1" type="text" class="form-control mydatepicker" autocomplete="off"';
                                                         $date = true;
                                                     }
                                                 @endphp
@@ -1297,108 +1363,69 @@
                                                 onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
                                                     class="ti ti-plus"></i></button>
                                         </td>
-                                    @endif
-                                @else
-                                    @php
-                                        $date = false;
-                                        $inputContent = '';
-                                    @endphp
-                                    @if (isset($grid_items) && $grid_items->IsNotEmpty())
-                                        @foreach ($grid_items as $key => $item)
-                                            @php
-                                                foreach ($item as $key => $val) {
-                                                    $type = $val->grid_history->Type;
-
-                                                    if ($type == 'date') {
-                                                        $inputContent .=
-                                                            '<td><input name="grid_items[' .
-                                                            $val->grid_history->id .
-                                                            '][]" type="text" class="form-control mydatepicker" value="' .
-                                                            $val->Value .
-                                                            '"></td>';
-                                                    } elseif ($type == 'number') {
-                                                        $inputContent .=
-                                                            '<td><input name="grid_items[' .
-                                                            $val->grid_history->id .
-                                                            '][]" type="text" class="form-control" value="' .
-                                                            $val->Value .
-                                                            '" onkeypress="return /^[0-9.]+$/.test(event.key)"></td>';
-                                                    } elseif ($type == 'text') {
-                                                        $inputContent .=
-                                                            '<td><input name="grid_items[' .
-                                                            $val->grid_history->id .
-                                                            '][]" type="text" class="form-control" value="' .
-                                                            $val->Value .
-                                                            '"></td>';
-                                                    }
-                                                }
-                                            @endphp
-                                            <tr>
-                                                {!! $inputContent !!}
-                                                <td class="text-center">
-                                                    @if ($loop->iteration == 1)
-                                                        <button type="button" class="btn btn-sm btn-primary"
-                                                            onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
-                                                                class="ti ti-plus"></i></button>
-                                                    @else
-                                                        <button type="button" class="btn btn-sm btn-primary"
-                                                            onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
-                                                                class="ti ti-plus"></i></button>
-                                                        <button type="button" class="btn btn-sm btn-danger removeRow"><i
-                                                                class="ti ti-trash"></i></button>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            @php
-                                                $inputContent = '';
-                                            @endphp
-                                        @endforeach
                                     @else
-                                          @foreach ($grid_histories as $key => $item)
-                                            @if ($item->Status == 1)
+                                        @php
+                                            $date = false;
+                                            $inputContent = '';
+                                        @endphp
+
+                                        @if (isset($grid_items) && !empty($grid_items))
+                                            @foreach ($grid_items as $key => $item)
                                                 @php
-                                                    $inputContent = '';
-                                                    if ($item->Type == 'text') {
-                                                        $inputContent =
-                                                            'name="grid_items[' .
-                                                            $item->id .
-                                                            '][]" type="text" class="form-control" autocomplete="off" value="' .
-                                                            old('grid_items.' . $item->id . '.' . $key) .
-                                                            '"';
-                                                    } elseif ($item->Type == 'number') {
-                                                        $inputContent =
-                                                            'name="grid_items[' .
-                                                            $item->id .
-                                                            '][]" type="text" class="form-control" onkeypress="return /^[0-9.]+$/.test(event.key)" autocomplete="off" value="' .
-                                                            old('grid_items.' . $item->id . '.' . $key) .
-                                                            '"';
-                                                    } elseif ($item->Type == 'date') {
-                                                        $inputContent =
-                                                            'name="grid_items[' .
-                                                            $item->id .
-                                                            '][]" id="test1" type="text" class="form-control mydatepicker" autocomplete="off" value="' .
-                                                            old('grid_items.' . $item->id . '.' . $key) .
-                                                            '"';
-                                                        $date = true;
+                                                    foreach ($item as $key => $val) {
+                                                        $type = $val->grid_history->Type;
+
+                                                        if ($type == 'date') {
+                                                            $inputContent .=
+                                                                '<td><input name="grid_items[' .
+                                                                $val->grid_history->id .
+                                                                '][]" type="text" class="form-control mydatepicker" value="' .
+                                                                $val->Value .
+                                                                '"></td>';
+                                                        } elseif ($type == 'number') {
+                                                            $inputContent .=
+                                                                '<td><input name="grid_items[' .
+                                                                $val->grid_history->id .
+                                                                '][]" type="text" class="form-control" value="' .
+                                                                $val->Value .
+                                                                '" onkeypress="return /^[0-9.]+$/.test(event.key)"></td>';
+                                                        } elseif ($type == 'text') {
+                                                            $inputContent .=
+                                                                '<td><input name="grid_items[' .
+                                                                $val->grid_history->id .
+                                                                '][]" type="text" class="form-control" value="' .
+                                                                $val->Value .
+                                                                '"></td>';
+                                                        }
                                                     }
                                                 @endphp
-                                                <td>
-                                                    <input {!! $inputContent !!}>
-                                                </td>
-                                            @endif
-                                        @endforeach
-                                        <td class="text-center">
-                                            <button type="button" class="btn btn-sm btn-primary"
-                                                onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
-                                                    class="ti ti-plus"></i></button>
-                                        </td>  
+                                                <tr>
+                                                    {!! $inputContent !!}
+                                                    <td class="text-center">
+                                                        @if ($loop->iteration == 1)
+                                                            <button type="button" class="btn btn-sm btn-primary"
+                                                                onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
+                                                                    class="ti ti-plus"></i></button>
+                                                        @else
+                                                            <button type="button" class="btn btn-sm btn-primary"
+                                                                onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
+                                                                    class="ti ti-plus"></i></button>
+                                                            <button type="button" class="btn btn-sm btn-danger removeRow"><i
+                                                                    class="ti ti-trash"></i></button>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                                @php
+                                                    $inputContent = '';
+                                                @endphp
+                                            @endforeach
+                                        @endif
                                     @endif
-                                @endif
-                            </tbody>
-                        </table>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
-                {{--
+                    {{--
                 </div> --}}
             </div>
         @endif

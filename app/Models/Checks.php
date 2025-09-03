@@ -18,6 +18,8 @@ class Checks extends Model
         'PayeeID',
         'CheckType',
         'Amount',
+        'ServiceFees',
+        'Total',
         'PayorID',
         'CheckNumber',
         'IssueDate',
@@ -30,7 +32,9 @@ class Checks extends Model
         'signed',
         'SignID',
         'is_email_send',
-        'is_seen'
+        'is_seen',
+        'GridSchemaHistoryID',
+        'GridItems'
     ];
 
 }

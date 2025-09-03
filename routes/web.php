@@ -178,6 +178,7 @@ use App\Http\Controllers\SignController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SuggestionController;
 use App\Http\Controllers\StripeController;
+use App\Http\Controllers\QuickBooksController;
 
 // Stripe routes
 Route::get('/stripe/subscriptions', [StripeController::class, 'list'])->name('stripe.subscription.list');
@@ -194,6 +195,13 @@ Route::get('/stripe/subscriptions/{subscription_id}', [StripeController::class, 
 
 // End Stripe routes
 
+//Quickbook routes
+
+Route::get('/quickbooks/connect', [QuickBooksController::class, 'connect'])->name('qbo.connect');
+Route::get('/quickbooks/callback', [QuickBooksController::class, 'callback'])->name('qbo.callback');
+
+
+// End Quickbook routes
 
 Route::get('/admin/login', [AdminAuthController::class, 'adminLogin'])->name('admin.login');
 Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login-action');
@@ -328,6 +336,16 @@ Route::middleware([UserMiddleware::class])->group(function () {
         Route::post('user/suggestion/store', [SuggestionController::class, 'store'])->name('user.suggestion.store');
         
         Route::get('check/exists', [CheckController::class, 'isExists'])->name('check.check_number_exists');
+
+        Route::post('/save-grid', [CheckController::class, 'saveGrid'])->name('save_grid');
+        Route::get('/get-grids', [CheckController::class, 'getGrids'])->name('get_grids');
+        // Route::get('/get-default-grids', [CheckController::class, 'getDefaultGrids'])->name('get_default_grids');
+
+        Route::get('new-signature', [CheckController::class, 'new_signature'])->name('new_signature');
+
+        Route::get('/quickbooks/companies', [QuickBooksController::class, 'getCompanies'])->name('qbo.getCompanies');
+        Route::get('/quickbooks/companies/connect/{id}', [QuickBooksController::class, 'connectCompany'])->name('qbo.connect.company');
+        Route::get('//quickbooks/sync/{qbo_company_id}', [QuickBooksController::class, 'sync'])->name('qbo.sync');
     });
     
     Route::get('/invoice', [BillingAndPlanController::class, 'invoice'])->name('user_invoice');

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\QBOCompany;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -85,8 +86,6 @@ class UserAuthController extends Controller
                 return redirect()->back()->withErrors(['login' => 'User status is not Active'])->withInput();
             }
 
-            
-
             $packag_c = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
                 ->orderBy('PaymentSubscriptionID', 'desc')->first()?->RemainingChecks ?? 0;
 
@@ -121,6 +120,11 @@ class UserAuthController extends Controller
                     'ip' => $request->ip(),
                 ]);
             }
+            
+            QBOCompany::where('user_id', $user->UserID)->update([
+                'status' => 'not connected'
+            ]);
+
             return redirect()->route('user.dashboard');
         }
 

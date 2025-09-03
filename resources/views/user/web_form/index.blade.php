@@ -12,6 +12,19 @@
 <!-- Vendor Scripts -->
 @section('vendor-script')
     @vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
+    <script>
+        const videoModal = document.getElementById('videoModal');
+        const myVideo = document.getElementById('myVideo');
+
+        videoModal.addEventListener('shown.bs.modal', function() {
+            myVideo.play();
+        });
+
+        videoModal.addEventListener('hidden.bs.modal', function() {
+            myVideo.pause();
+            myVideo.currentTime = 0; // reset video
+        });
+    </script>
 @endsection
 
 @section('content')
@@ -22,6 +35,7 @@
                     {{ session('success') }}
                 </div>
             @endif
+
             <div class="card mb-3">
                 <h5 class="card-header">Genral Settings</h5>
                 <div class="row">
@@ -201,6 +215,16 @@
                 {{ session('sign_success') }}
             </div>
         @endif
+        @if (session('grid_success'))
+            <div class="alert alert-success">
+                {{ session('grid_success') }}
+            </div>
+        @endif
+        @if (session('grid_error'))
+            <div class="alert alert-danger">
+                {{ session('grid_error') }}
+            </div>
+        @endif
         <div class="d-flex justify-content-between align-items-center">
             <h5 class="card-header">Signatures</h5>
             <a href="{{ route('add_sign') }}" class="btn btn-primary mr-4"
@@ -251,10 +275,142 @@
             </div>
         </div>
     @endif
+
+    <div class="card mt-5">
+        <!-- Video Modal -->
+        <div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-body p-0">
+                        <video id="myVideo" width="100%" controls>
+                            <source src="{{ asset('videos/check-stub-custom-itemization-fields.mp4') }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <form action="{{ route('save_grid') }}" method="POST">
+            @csrf
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-header">
+                    Check Stub Custom Itemization Fields
+                    <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#videoModal"
+                        class="ms-2 text-muted fs-6">
+                        <i class="ti ti-help-circle"></i> Click to see how it works?
+                    </a>
+                </h5>
+
+                <button type="submit" class="btn btn-primary mr-4"
+                    style="height: 40px !important;margin-right: 25px !important;">Save</button>
+            </div>
+            <div class="card-datatable table-responsive pt-0">
+                <table id="gridTable" class="table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="select-all"></th>
+                            <th>#</th>
+                            <th>Title</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if ($grids->isEmpty())
+                            @for ($i = 0; $i <= 7; $i++)
+                                @php
+                                    $title = '';
+                                    $number = '';
+
+                                    if ($i == 0) {
+                                        $title = 'SrNo';
+                                        $type = 'number';
+                                    } elseif ($i == 1) {
+                                        $title = 'Name';
+                                        $type = 'text';
+                                    } elseif ($i == 2) {
+                                        $title = 'Date';
+                                        $type = 'date';
+                                    } elseif ($i == 3) {
+                                        $title = 'Amount';
+                                        $type = 'number';
+                                    }
+
+                                @endphp
+                                <tr>
+                                    <td>
+                                        <input type="hidden" name="status[{{ $i }}]" value="0">
+                                        <input type="checkbox" name="status[{{ $i }}]" value="1"
+                                            @if (old('status.' . $i)) checked @endif>
+                                    </td>
+                                    <td>{{ $i + 1 }}</td>
+                                    <td>
+                                        <input class="form-control" name="name[]" type="text"
+                                            value="{{ old('name.' . $i) ?? $title }}" autocomplete="off">
+                                    </td>
+                                    <td>
+                                        <select name="type[]" class="form-select">
+                                            <option value="text" @if (old('type.' . $i) == 'text' || $type == 'text') selected @endif>Text
+                                            </option>
+                                            <option value="number" @if (old('type.' . $i) == 'number' || $type == 'number') selected @endif>
+                                                Number</option>
+                                            <option value="date" @if (old('type.' . $i) == 'date' || $type == 'date') selected @endif>Date
+                                            </option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            @endfor
+                        @else
+                            @forelse($grids as $key => $grid)
+                                <tr>
+                                    <td>
+                                        <input type="hidden" name="grid_id" value="{{ $grid->id }}">
+                                        <input type="hidden" name="grid[{{ $grid->id }}][status]" value="0">
+                                        <input name="grid[{{ $grid->id }}][status]" type="checkbox" value="1"
+                                            @if (@old('status.' . $grid->id) == 1 || $grid->Status == 1) checked @endif>
+                                    </td>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>
+                                        <input class="form-control" name="grid[{{ $grid->id }}][name]"
+                                            type="text" value="{{ old('name.' . $grid->id) ?? $grid->Title }}"
+                                            autocomplete="off">
+                                    </td>
+                                    <td>
+                                        <select name="grid[{{ $grid->id }}][type]" class="form-select">
+                                            <option @if (@old('type.' . $grid->id) == 'text' || $grid->Type == 'text') selected1 @endif value="text">Text
+                                            </option>
+                                            <option @if (@old('type.' . $grid->id) == 'number' || $grid->Type == 'number') selected @endif value="number">
+                                                Number</option>
+                                            <option @if (@old('type.' . $grid->id) == 'date' || $grid->Type == 'date') selected @endif value="date">Date
+                                            </option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endif
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
 @endsection
 @section('page-script')
     <script>
         $(document).ready(function() {
+
+            // Total number of checkboxes except the "select all"
+            let total = $('input[type="checkbox"]').not('#select-all').length;
+            // Number of checked checkboxes except the "select all"
+            let checked = $('input[type="checkbox"]').not('#select-all').filter(':checked').length;
+
+            // If all are checked, check "select all", else uncheck it
+            $('#select-all').prop('checked', total === checked);
+
+            $('#select-all').click(function() {
+                $('input[type="checkbox"]').prop('checked', this.checked).trigger('change');
+            });
+
+
+
             $('#webFormTable').DataTable({
                 processing: true,
                 serverSide: true,
@@ -330,4 +486,5 @@
             });
         });
     </script>
+
 @endsection

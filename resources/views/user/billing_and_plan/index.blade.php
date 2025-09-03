@@ -164,7 +164,6 @@
                             <div class="mb-6">
                                 <h6 class="mb-1">Your Current Plan is
                                     {{ $package_id == '-1' ? 'Trial' : $package_data['package_name'] }}</h6>
-                                <p>A simple start for everyone</p>
                             </div>
                             @if ($package_id != '-1')
                                 <div class="mb-6">
@@ -227,8 +226,7 @@
                                 Plan
                             </button>
                             @if (empty($package_data['cancel_plan']) && $package_id != '-1')
-                                <a class="btn btn-label-danger "
-                                    href="{{ route('user_cancel_plan') }}">Cancel
+                                <a class="btn btn-label-danger " href="{{ route('user_cancel_plan') }}">Cancel
                                     Subscription</a>
                             @endif
                         </div>
@@ -265,7 +263,7 @@
                     </div>
                     <div class="col-md-12 mt-5 mt-md-0">
                         @if (!empty($cards['data']))
-                        <h5 class="mb-6">My Cards</h5>
+                            <h5 class="mb-6">My Cards</h5>
                             <div class="added-cards">
                                 @foreach ($cards['data'] as $card)
                                     <div class="cardMaster p-6 bg-lighter rounded mb-6">
@@ -421,18 +419,18 @@
                             <div
                                 class="pricing-card {{ $package->Name == 'PRO' || $package->Name == 'ENTERPRISE' ? 'popular' : '' }}{{ $user->CurrentPackageID != '-1' && $user->CurrentPackageID == $package->PackageID ? ' selected-plan' : '' }}">
                                 <h3>{{ $package->Name }}</h3>
-                                @if($package->Duration < 30)
-                                    <p class="price">${{ $package->Price }} <span>({{ $package->Duration }} days)</span></p>
+                                @if ($package->Duration < 30)
+                                    <p class="price">${{ $package->Price }} <span>({{ $package->Duration }} days)</span>
+                                    </p>
                                 @else
                                     <p class="price">${{ $package->Price }} <span>monthly</span></p>
                                 @endif
                                 <ul class="features">
-                                    @if($package->Duration < 30)
+                                    @if ($package->Duration < 30)
                                         <li>Up to
                                             {{ $package->Name != 'UNLIMITED' ? $package->CheckLimitPerMonth : 'Unlimited ' }}
                                             checks
                                             / {{ $package->Duration }} days</li>
-
                                     @else
                                         <li>Up to
                                             {{ $package->Name != 'UNLIMITED' ? $package->CheckLimitPerMonth : 'Unlimited ' }}
@@ -461,7 +459,6 @@
                         @endforeach
                     @endif
                 </div>
-
             </div>
         </div>
     </div>

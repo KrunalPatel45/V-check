@@ -20,8 +20,8 @@
     <!-- @vite(['resources/assets/js/forms-editors.js']) -->
 
     <script>
-        let quill; 
-        document.addEventListener("DOMContentLoaded", function () {
+        let quill;
+        document.addEventListener("DOMContentLoaded", function() {
             var quillContainer = document.getElementById('editor-container');
 
             if (quillContainer) {
@@ -70,7 +70,7 @@
                 });
 
                 // Save Quill content in hidden textarea before submitting form
-                document.querySelector('form').onsubmit = function () {
+                document.querySelector('form').onsubmit = function() {
                     document.getElementById('page_desc').value = quill.root.innerHTML;
                 };
 
@@ -86,14 +86,14 @@
     </script>
 
     <script>
-        document.getElementById('logo').addEventListener('change', function (event) {
+        document.getElementById('logo').addEventListener('change', function(event) {
             const file = event.target.files[0];
             const preview = document.getElementById('preview');
 
             if (file) {
                 const reader = new FileReader();
 
-                reader.onload = function (e) {
+                reader.onload = function(e) {
                     preview.src = e.target.result;
                     preview.style.display = 'block'; // Show the image
                 };
@@ -128,7 +128,8 @@
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="name">Name</label>
                             <div class="col-sm-10">
-                                <input type="text" name="name" id="name" class="form-control" value="{{ old('name') }}" />
+                                <input type="text" name="name" id="name" class="form-control"
+                                    value="{{ old('name') }}" />
                                 @if ($errors->has('name'))
                                     <span class="text-danger">
                                         {{ $errors->first('name') }}
@@ -139,7 +140,8 @@
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="name">LOGO</label>
                             <div class="col-sm-10">
-                                <input type="file" name="logo" id="logo" class="form-control" value="{{ old('logo') }}" />
+                                <input type="file" name="logo" id="logo" class="form-control"
+                                    value="{{ old('logo') }}" />
                                 @if ($errors->has('logo'))
                                     <span class="text-danger">
                                         {{ $errors->first('logo') }}
@@ -168,7 +170,8 @@
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="city">City</label>
                             <div class="col-sm-10">
-                                <input type="text" name="city" id="city" class="form-control" value="{{ old('city') }}" />
+                                <input type="text" name="city" id="city" class="form-control"
+                                    value="{{ old('city') }}" />
                                 @if ($errors->has('city'))
                                     <span class="text-danger">
                                         {{ $errors->first('city') }}
@@ -237,7 +240,8 @@
                                     @endphp
 
                                     @foreach ($states as $state)
-                                        <option value="{{ $state }}" {{ old('state') == $state ? 'selected' : '' }}>
+                                        <option value="{{ $state }}"
+                                            {{ old('state') == $state ? 'selected' : '' }}>
                                             {{ $state }}
                                         </option>
                                     @endforeach
@@ -252,7 +256,8 @@
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="zip">Zip</label>
                             <div class="col-sm-10">
-                                <input type="text" name="zip" id="zip" class="form-control" value="{{ old('zip') }}" />
+                                <input type="text" name="zip" id="zip" class="form-control"
+                                    value="{{ old('zip') }}" />
                                 @if ($errors->has('zip'))
                                     <span class="text-danger">
                                         {{ $errors->first('zip') }}
@@ -279,8 +284,7 @@
                                     <div class="card-body">
                                         <div id="editor-container">
                                         </div>
-                                        <textarea name="page_desc" id="page_desc"
-                                            style="display:none;">{{ old('page_desc') ?? '' }}</textarea>
+                                        <textarea name="page_desc" id="page_desc" style="display:none;">{{ old('page_desc') ?? '' }}</textarea>
                                     </div>
                                     @if ($errors->has('page_desc'))
                                         <span class="text-danger">
@@ -289,7 +293,53 @@
                                     @endif
                                 </div>
                             </div>
+                        </div>
+                        <div class="row mb-6">
+                            <label class="col-sm-2 col-form-label" for="page_desc">Service Fees</label>
+                            <div class="col-sm-10">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="row g-2 align-items-center">
+                                            <div class="col-md-12 col-lg-12 d-flex align-items-center gap-2">
+                                                <select name="service_fees_type" id="service_fees_type"
+                                                    class="form-select" onchange="toggleFeeSymbol()">
+                                                    <option value="">-- Select Service Fees --</option>
+                                                    <option value="percentage"
+                                                        @if (old('service_fees_type') == 'percentage') selected @endif>Percentage
+                                                    </option>
+                                                    <option value="amount"
+                                                        @if (old('service_fees_type') == 'amount') selected @endif>Fixed Amount</option>
+                                                </select>
 
+                                                <span id="dollar_icon"
+                                                    class="ms-2 @if (old('service_fees_type') != 'amount') d-none @endif">$</span>
+
+                                                <input type="text" name="service_fees" id="service_fees"
+                                                    class="form-control text-center @if (!old('service_fees_type')) d-none @endif"
+                                                    value="{{ old('service_fees') }}" autocomplete="off"
+                                                    onkeypress="return /^[0-9.]+$/.test(event.key)"
+                                                    >
+
+                                                <!-- Symbols -->
+                                                <span id="per_icon"
+                                                    class="ms-2 @if (old('service_fees_type') != 'percentage') d-none @endif">%</span>
+                                            </div>
+                                            @if ($errors->has('service_fees_type'))
+                                                <span class="text-danger">
+                                                    {{ $errors->first('service_fees_type') }}
+                                                </span>
+                                            @endif
+                                            @if ($errors->has('service_fees'))
+                                                <span class="text-danger">
+                                                    {{ $errors->first('service_fees') }}
+                                                </span>
+                                            @endif
+                                            <div class="text-danger" id="error_service_fees_type"></div>
+                                            <div class="text-danger" id="error_service_fees"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -302,13 +352,36 @@
     <script>
         Inputmask({
             mask: "999-999-9999",
-            placeholder: "",             // No placeholders
-            showMaskOnHover: false,      // Don't show mask on hover
-            showMaskOnFocus: false,      // Don't show mask on focus
+            placeholder: "", // No placeholders
+            showMaskOnHover: false, // Don't show mask on hover
+            showMaskOnFocus: false, // Don't show mask on focus
         }).mask("#phone_number");
+
+        function toggleFeeSymbol() {
+            const type = document.getElementById('service_fees_type').value;
+            const percentIcon = document.getElementById('per_icon');
+            const dollarIcon = document.getElementById('dollar_icon');
+            const serviceFees = document.getElementById('service_fees');
+            // Hide both by default
+            percentIcon.classList.add('d-none');
+            dollarIcon.classList.add('d-none');
+            serviceFees.classList.add('d-none');
+
+            if (type != '') {
+                serviceFees.classList.remove('d-none');
+            }else{
+                serviceFees.value = '';
+            }
+            
+            if (type === 'percentage') {
+                percentIcon.classList.remove('d-none');
+            } else if (type === 'amount') {
+                dollarIcon.classList.remove('d-none');
+            }
+        }
     </script>
 
-   
+
     <script src="https://cdn.jsdelivr.net/npm/just-validate@3.3.3/dist/just-validate.production.min.js"></script>
     <script>
         const validation = new JustValidate('#webForm', {
@@ -316,39 +389,123 @@
         });
 
         validation
-            .addField('[name="name"]', [
-                { rule: 'required', errorMessage: 'Please enter name' }
-            ])
-            .addField('[name="logo"]', [
-                {
-                    rule: 'minFilesCount',
-                    value: 1,
-                    errorMessage: 'Please upload a logo'
+            .addField('[name="name"]', [{
+                rule: 'required',
+                errorMessage: 'Please enter name'
+            }])
+            .addField('[name="logo"]', [{
+                rule: 'minFilesCount',
+                value: 1,
+                errorMessage: 'Please upload a logo'
+            }])
+            .addField('[name="address"]', [{
+                rule: 'required',
+                errorMessage: 'Please enter address'
+            }])
+            .addField('[name="city"]', [{
+                rule: 'required',
+                errorMessage: 'Please enter city'
+            }])
+            .addField('[name="state"]', [{
+                rule: 'required',
+                errorMessage: 'Please enter state'
+            }])
+            .addField('[name="zip"]', [{
+                rule: 'required',
+                errorMessage: 'Please enter zip'
+            }])
+            .addField('[name="phone_number"]', [{
+                rule: 'customRegexp',
+                value: /^\d{3}-\d{3}-\d{4}$/,
+                errorMessage: 'The phone number field format is invalid.'
+            }])
+            .addField('[name="service_fees_type"]', [{
+                rule: 'customRegexp',
+                value: /^(percentage|amount)?$/,
+                errorMessage: 'Invalid service fees type'
+            }], {
+                // Hide the default error for just this field
+                errorLabelStyle: {
+                    display: 'none', // Prevent default error message from being displayed
                 }
-            ])
-            .addField('[name="address"]', [
-                { rule: 'required', errorMessage: 'Please enter address' }
-            ])
-            .addField('[name="city"]', [
-                { rule: 'required', errorMessage: 'Please enter city' }
-            ])
-            .addField('[name="state"]', [
-                { rule: 'required', errorMessage: 'Please enter state' }
-            ])
-            .addField('[name="zip"]', [
-                { rule: 'required', errorMessage: 'Please enter zip' }
-            ])
-            .addField('[name="phone_number"]', [
+            })
+            .addField('[name="service_fees"]', [{
+                    validator: (value, fields) => {
+                        const type = document.querySelector('[name="service_fees_type"]').value;
+                        if (type === 'percentage' || type === 'amount') {
+                            return value.trim() !== ''; // must be filled
+                        }
+                        return true; // allow empty if type is not set
+                    },
+                    errorMessage: 'Please enter service fees'
+                },
                 {
-                    rule: 'customRegexp',
-                    value: /^\d{3}-\d{3}-\d{4}$/,
-                    errorMessage: 'The phone number field format is invalid.'
+                    validator: (value, fields) => {
+                        const type = document.querySelector('[name="service_fees_type"]').value;
+                        if (type === 'percentage' || type === 'amount') {
+                            // First validation: Check if the value is a number
+                            return !isNaN(value);
+                        }
+                        return true; // Skip if not 'percentage' or 'amount'
+                    },
+                    errorMessage: 'Service fee must be a number',
+                },
+                {
+                    validator: (value, fields) => {
+                        const type = document.querySelector('[name="service_fees_type"]').value;
+                        if ((type === 'percentage' || type === 'amount') && !isNaN(value)) {
+                            // Second validation: Check if the value is greater than 0
+                            return parseFloat(value) > 0;
+                        }
+                        return true; // Skip if the first check fails or type is not 'percentage' or 'amount'
+                    },
+                    errorMessage: 'Service fee must be greater than 0',
                 }
-            ]).onSuccess((event) => {
+            ], {
+                // Hide the default error for just this field
+                errorLabelStyle: {
+                    display: 'none', // Prevent default error message from being displayed
+                }
+            })
+            .onFail((fields) => {
+                // Get the specific field object
+                const error_service_fees_type = fields['[name="service_fees_type"]'];
+                const error_service_fees = fields['[name="service_fees"]'];
+
+                if (error_service_fees_type) {
+                    const error_service_fees_type_container = document.querySelector('#error_service_fees_type');
+                    if (error_service_fees_type_container) {
+                        error_service_fees_type_container.textContent = error_service_fees_type.errorMessage;
+                    }
+                }
+                if (error_service_fees) {
+                    const error_service_fees_container = document.querySelector('#error_service_fees');
+                    if (error_service_fees_container) {
+                        error_service_fees_container.textContent = error_service_fees.errorMessage;
+                    }
+                }
+
+                Object.keys(fields).forEach((fieldName) => {
+                    const obj = fields[fieldName];
+                    if (obj && obj.isValid === true) {
+
+                        const match = fieldName.match(/\[name=['"]?([^'"\]]+)['"]?\]/);
+                        const error_element = match ? match[1] : null;
+
+                        if (error_element) {
+                            const fieldContainer = document.querySelector(`#error_${error_element}`);
+                            if (fieldContainer) {
+                                fieldContainer.textContent = ''; // Remove the error message
+                            }
+                        }
+                    }
+
+                });
+            })
+            .onSuccess((event) => {
                 document.getElementById('page_desc').value = quill.root.innerHTML;
                 event.target.submit();
             });
-
     </script>
 
 @endsection

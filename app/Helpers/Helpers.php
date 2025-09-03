@@ -2,11 +2,13 @@
 
 namespace App\Helpers;
 
+use App\Models\Payors;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
 use App\Models\Package;
 use App\Models\User;
 use App\Models\PaymentSubscription;
+use App\Models\WebForm;
 
 class Helpers
 {
@@ -227,7 +229,7 @@ class Helpers
       ->where('PackageID', $user->CurrentPackageID)
       ->where('Status', 'Active')
       ->orderBy('PaymentSubscriptionID', 'desc')->first();
-      
+
     if (!$subscription) {
       return false;
     }
@@ -235,5 +237,28 @@ class Helpers
       return false;
     }
     return true;
+  }
+
+  public static function getWebFormServiceFeeAndTotal($EntityID, $amount)
+  {
+    $entity = Payors::where('EntityID', $EntityID)->first();
+
+    $service_fees = 0;
+    $total = $amount;
+
+    if ($entity) {
+      if ($entity->ServiceFeeType == 'amount') {
+        $service_fees = $entity->ServiceFee;
+        $total = $amount + $service_fees;
+      } else if ($entity->ServiceFeeType == 'percentage') {
+        $service_fees = $amount * $entity->ServiceFee / 100;
+        $total = $amount + $service_fees;
+      }
+    }
+
+    return [
+      'service_fees' => $service_fees,
+      'total' => $total
+    ];
   }
 }

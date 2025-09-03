@@ -30,17 +30,17 @@ class SubscriptionController extends Controller
         $this->subscriptionHelper = $subscriptionHelper;
     }
 
-    public function checkout($id, $plan) 
+    public function checkout($id, $plan)
     {
         $user = User::find($id);
-        
+
         // if($user != null && $user->CurrentPackageID == -1){
         //     return redirect()->back();    
         // }
 
         $package = Package::find($plan);
 
-        if($package != null && strtolower(trim($package->Name)) == 'trial'){
+        if ($package != null && strtolower(trim($package->Name)) == 'trial') {
             return redirect()->back();
         }
 
@@ -53,7 +53,7 @@ class SubscriptionController extends Controller
 
         $res = $this->subscriptionHelper->addSubscription($data);
 
-        if(!empty($res)) {
+        if (!empty($res)) {
 
             return redirect($res['url']);
         }
@@ -98,7 +98,7 @@ class SubscriptionController extends Controller
 
         $invoiceId = $invoiceData['id'] ?? null;
 
-        if(!empty($invoiceId)) {
+        if (!empty($invoiceId)) {
             // 3. Update user and create subscription record
             $user->Status = 'Active';
             $user->SubID = $subscriptionId;
@@ -113,7 +113,7 @@ class SubscriptionController extends Controller
 
             $paymentStartDate = Carbon::now();
             $paymentEndDate = $paymentStartDate->copy()->addHours(24);
-            $nextRenewalDate = $paymentStartDate->copy()->addDays((int)$packages->Duration + 1);
+            $nextRenewalDate = $paymentStartDate->copy()->addDays((int) $packages->Duration + 1);
 
             $paymentSubscription = PaymentSubscription::create([
                 'UserID' => $user->UserID,
@@ -145,21 +145,21 @@ class SubscriptionController extends Controller
                 'InvoiceID' => $invoiceId,
             ]);
 
-             $user_name = $user->FirstName . ' ' .$user->LastName;
-             $link = route('user.verify_email',[$user->UserID, sha1($user->Email)]);
-             
-             $data = [
+            $user_name = $user->FirstName . ' ' . $user->LastName;
+            $link = route('user.verify_email', [$user->UserID, sha1($user->Email)]);
+
+            $data = [
                 'plan_name' => $packages->Name,
                 'start_date' => $paymentStartDate->format('m/d/Y'),
                 'next_billing_date' => $nextRenewalDate->format('m/d/Y'),
                 'amount' => $packages->Price,
                 'verify_url' => $link,
-                'verify_btn'=>'<a href="'.$link.'" target="_blank">Verify Email</a>'
-             ];
+                'verify_btn' => '<a href="' . $link . '" target="_blank">Verify Email</a>'
+            ];
 
             // Mail::to($user->Email)->send(new RegistrationVerificationMail(12, $user->FirstName.' '.$user->LastName,$link_button,$link));   
             Mail::to($user->Email)->send(new SendNewSubMail(6, $user_name, $data));
-            Mail::to(env('ADMIN_EMAIL'))->send(new AdminMail(10, $packages->Name, $user_name, $user->Email));      
+            Mail::to(env('ADMIN_EMAIL'))->send(new AdminMail(10, $packages->Name, $user_name, $user->Email));
             // Optional: redirect or show a view
              if($user->EmailVerified == 1){
                 return redirect()->route('user.login');
@@ -167,7 +167,7 @@ class SubscriptionController extends Controller
                  return redirect()->route('user.login')->with('success', 'Verification link sent to your email');
              }
         }
-         return redirect()->route('user.login')->with('error', 'Something want to wrong');
+        return redirect()->route('user.login')->with('error', 'Something want to wrong');
     }
 
     public function cancel()

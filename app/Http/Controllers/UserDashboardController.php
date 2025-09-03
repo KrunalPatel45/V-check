@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\WebForm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
@@ -62,7 +63,18 @@ class UserDashboardController extends Controller
                         ->count();                
         //
         $total_companies = Company::where('UserID', Auth::user()->UserID)->count();
-        return view('content.dashboard.user-dashboards-analytics', compact('checks_received', 'checks_sent', 'package_data', 'total_vendor', 'total_client', 'total_companies', 'given_checks', 'used_checks', 'remaining_checks', 'package', 'paymentSubscription'));
+
+        $query = Package::where('Status', 'Active');
+
+        // if ($user && $user->CurrentPackageID == -1) {
+            $query->whereRaw('LOWER(Name) != ?', ['trial']);
+        // }
+
+        $packages = $query->get();
+       
+        $webforms = WebForm::where('UserID', Auth::user()->UserID)->get();
+
+        return view('content.dashboard.user-dashboards-analytics', compact('webforms','user','packages','checks_received', 'checks_sent', 'package_data', 'total_vendor', 'total_client', 'total_companies', 'given_checks', 'used_checks', 'remaining_checks', 'package', 'paymentSubscription'));
     }
 
     public function profile()
