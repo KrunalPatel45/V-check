@@ -958,6 +958,10 @@ class CheckController extends Controller
                     $Preview = route('web_form', ['slug' => $row->page_url]);
                     return '<a href="' . $Preview . '" target="_blank">' . $Preview . '</a>';
                 })
+                ->editColumn('url', function ($row) {
+                    $Preview = route('web_form', ['slug' => $row->page_url]);
+                    return $Preview;
+                })
                 ->addColumn('actions', function ($row) {
                     $editUrl = route('web_form.edit', ['id' => $row->Id]);
                     $deleteUrl = route('web_form.delete', ['id' => $row->Id]);
