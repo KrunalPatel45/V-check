@@ -59,14 +59,15 @@
                     <table class="table" id="active-users-table">
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th style="width:20%">First Name</th>
-                                <th style="width:20%">Last Name</th>
-                                <th style="width:20%">Phone Number</th>
-                                <th style="width:25%">Subscription Plan</th>
-                                <th style="width:20%">Plan Price</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th style="width: 5% !important;">#</th>
+                                <th style="width: 10% !important;">First Name</th>
+                                <th style="width: 10% !important;">Last Name</th>
+                                <th style="width: 10% !important;">Sign Up Date</th>
+                                <th style="width: 10% !important;">Phone Number</th>
+                                <th style="width: 10% !important;">Subscription Plan</th>
+                                <th style="width: 8% !important;">Plan Price</th>
+                                <th style="width: 7% !important;">Status</th>
+                                <th style="width: 8% !important;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -77,14 +78,15 @@
                     <table class="table" id="inactive-users-table">
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th style="width:20%">First Name</th>
-                                <th style="width:20%">Last Name</th>
-                                <th style="width:20%">Phone Number</th>
-                                <th style="width:25%">Subscription Plan</th>
-                                <th style="width:20%">Plan Price</th>
-                                <th>Status</th>
-                                <th>Actions</th>
+                                <th style="width: 5% !important;">#</th>
+                                <th style="width: 10% !important;">First Name</th>
+                                <th style="width: 10% !important;">Last Name</th>
+                                <th style="width: 10% !important;">Sign Up Date</th>
+                                <th style="width: 10% !important;">Phone Number</th>
+                                <th style="width: 10% !important;">Subscription Plan</th>
+                                <th style="width: 8% !important;">Plan Price</th>
+                                <th style="width: 7% !important;">Status</th>
+                                <th style="width: 8% !important;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -101,6 +103,7 @@
     <script>
         $(document).ready(function() {
             $('#active-users-table').DataTable({
+                autoWidth: false,
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -115,23 +118,27 @@
                     }, // Automatically generated index column
                     {
                         data: 'FirstName',
-                        name: 'FirstName'
+                        name: 'FirstName',
                     },
                     {
                         data: 'LastName',
-                        name: 'LastName'
+                        name: 'LastName',
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at',
                     },
                     {
                         data: 'PhoneNumber',
-                        name: 'PhoneNumber'
+                        name: 'PhoneNumber',
                     },
                     {
                         data: 'package',
-                        name: 'package'
+                        name: 'package',
                     },
                     {
                         data: 'package_price',
-                        name: 'package_price'
+                        name: 'package_price',
                     },
                     {
                         data: 'status',
@@ -153,6 +160,7 @@
             });
 
             $('#inactive-users-table').DataTable({
+                autoWidth: false,
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -167,23 +175,27 @@
                     }, // Automatically generated index column
                     {
                         data: 'FirstName',
-                        name: 'FirstName'
+                        name: 'FirstName',
                     },
                     {
                         data: 'LastName',
-                        name: 'LastName'
+                        name: 'LastName',
+                    },
+                    {
+                        data: 'created_at',
+                        name: 'created_at',
                     },
                     {
                         data: 'PhoneNumber',
-                        name: 'PhoneNumber'
+                        name: 'PhoneNumber',
                     },
                     {
                         data: 'package',
-                        name: 'package'
+                        name: 'package',
                     },
                     {
                         data: 'package_price',
-                        name: 'package_price'
+                        name: 'package_price',
                     },
                     {
                         data: 'status',

@@ -150,12 +150,8 @@ class AdminDashboardController extends Controller
                         : '<span class="badge bg-label-warning">' . $user->Status . '</span>';
                 })
                 ->addColumn('created_at', function ($user) {
-                    return Carbon::parse($user->CreatedAt)->format('m/d/Y'); // Convert to MM/DD/YYYY
+                    return Carbon::parse($user->CreatedAt)->format('m-d-Y'); // Convert to MM/DD/YYYY
                 })
-                ->addColumn('updated_at', function ($user) {
-                    return Carbon::parse($user->UpdatedAt)->format('m/d/Y'); // Convert to MM/DD/YYYY
-                })
-                ->rawColumns(['status', 'created_at', 'updated_at']) // Allow raw HTML content
                 ->addColumn('actions', function ($user) {
                     // Dynamically build URLs for the edit and delete actions
                     $editUrl = route('admin.user.edit', ['id' => $user->UserID]);
@@ -168,7 +164,7 @@ class AdminDashboardController extends Controller
                             </a>
                         </div>';
                 })
-                ->rawColumns(['status', 'created_at', 'updated_at', 'actions'])
+                ->rawColumns(['status', 'created_at','actions'])
                 ->make(true);
         }
 

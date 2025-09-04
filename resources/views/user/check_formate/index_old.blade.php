@@ -312,7 +312,7 @@
                             </div>
                         </td>
                         <td style="width: 50%; vertical-align: top; padding-left: 20px">
-                            <span style="font-size: 20px; line-height: 1.3; width: 100%; display: inline-block"> Are
+                            <span style="font-size: 20px; line-height: 1.3; width: 100%; display: inline-block">
                                 Looking to save money and time? Get paid quicker and make payments with Echeck Systems.
                                 Visit us at <a href="https://www.echecksystems.com"
                                     target="_blank">www.echecksystems.com</a> for more info.

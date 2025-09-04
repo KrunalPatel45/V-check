@@ -1250,9 +1250,8 @@ class CheckController extends Controller
             return redirect()->back()->with('error', 'Something went wrong.');
         }
 
-
         Mail::to($user->Email)->send(new SendWebFormMail(5, $user_name, $payor->Name, $check));
-        Mail::to($request->email)->send(new SendWebFormMailForCilent(11, $request->name, ));
+        Mail::to($request->email)->send(new SendWebFormMailForCilent(11, $payee->Name,$request->check_number,$check->Total));
         return redirect()->back()->with('success', 'Check form successfully submitted.');
     }
 

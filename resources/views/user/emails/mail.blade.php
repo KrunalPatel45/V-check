@@ -406,52 +406,69 @@
                                                                                     }
 
                                                                                 @endphp
-                                                                                <table class="button_block block-7"
-                                                                                    width="100%" border="0"
-                                                                                    cellpadding="0" cellspacing="0"
-                                                                                    role="presentation"
-                                                                                    style="mso-ta
-                                                                                    ble-lspace: 0pt; mso-table-rspace: 0pt; margin-bottom: 20px;">
-                                                                                    <tbody>
-                                                                                        <tr>
-                                                                                            <td class="pad"
-                                                                                                style="text-align: center">
-                                                                                                <div class="alignment"
-                                                                                                    align="center">
-                                                                                                    <!--[if mso]>
-<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ $link }}" style="height:50px;width:162px;v-text-anchor:middle;" arcsize="30%" stroke="false" fillcolor="#4e6aaf">
-<w:anchorlock/>
-<v:textbox inset="0px,0px,0px,0px">
-<center style="color:#ffffff; font-family:'Trebuchet MS', Tahoma, sans-serif; font-size:15px">
-<!
-                                    [endif]--><a href="{{ $link }}" target="_blank"
-                                                                                                        style="
-                                        text-decoration: none;
-                                        display: inline-block;
-                                        color: #ffffff;
-                                        background:  #1088B6;
-                                        border-radius: 10px;
-                                        width: auto;
-                                        border-top: 0px solid transparent;
-                                        font-weight: 500;
-                                        border-right: 0px solid transparent;
-                                        border-bottom: 0px solid transparent;
-                                        border-left: 0px solid transparent;
-                                        padding-top: 5px;
-                                        padding-bottom: 5px;
-                                        font-family: 'Montserrat', 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif;
-                                        font-size: 15px;
-                                        text-align: center;
-                                        mso-border-alt: none;
-                                        word-break: keep-all;
-                                      "><span
-                                                                                                            style="padding-left: 30px; padding-right: 30px; font-size: 15px; display: inline-block; letter-spacing: 1px"><span
-                                                                                                                style="word-break: break-word; line-height: 30px">@if(isset($verify_url)) VERIFY @else LOGIN @endif</span></span></a><!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
-                                                                                                </div>
-                                                                                            </td>
-                                                                                        </tr>
-                                                                                    </tbody>
-                                                                                </table>
+                                                                                @if(isset($sendWebFormMailForClient) && $sendWebFormMailForClient==1)
+                                                                                    <table class="banner_block block-7"
+                                                                                        width="100%" border="0"
+                                                                                        cellpadding="0" cellspacing="0"
+                                                                                        role="presentation"
+                                                                                        style="mso-ta
+                                                                                        ble-lspace: 0pt; mso-table-rspace: 0pt; margin-bottom: 20px;">
+                                                                                        <tbody>
+                                                                                            <tr>
+                                                                                                <td>
+                                                                                                    <a href="https://echecksystems.com/" target="_blank"><img src="{{asset('assets/img/echeck-banner.jpg')}}" alt="echeck banner img" class="img-fluid" style="width: 100%; height: auto; margin-bottom: 20px; margin-top: 20px;" /></a>
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                @else
+                                                                                    <table class="button_block block-7"
+                                                                                        width="100%" border="0"
+                                                                                        cellpadding="0" cellspacing="0"
+                                                                                        role="presentation"
+                                                                                        style="mso-ta
+                                                                                        ble-lspace: 0pt; mso-table-rspace: 0pt; margin-bottom: 20px;">
+                                                                                        <tbody>
+                                                                                            <tr>
+                                                                                                <td class="pad"
+                                                                                                    style="text-align: center">
+                                                                                                    <div class="alignment"
+                                                                                                        align="center">
+                                                                                                        <!--[if mso]>
+    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ $link }}" style="height:50px;width:162px;v-text-anchor:middle;" arcsize="30%" stroke="false" fillcolor="#4e6aaf">
+    <w:anchorlock/>
+    <v:textbox inset="0px,0px,0px,0px">
+    <center style="color:#ffffff; font-family:'Trebuchet MS', Tahoma, sans-serif; font-size:15px">
+    <!
+                                        [endif]--><a href="{{ $link }}" target="_blank"
+                                                                                                            style="
+                                            text-decoration: none;
+                                            display: inline-block;
+                                            color: #ffffff;
+                                            background:  #1088B6;
+                                            border-radius: 10px;
+                                            width: auto;
+                                            border-top: 0px solid transparent;
+                                            font-weight: 500;
+                                            border-right: 0px solid transparent;
+                                            border-bottom: 0px solid transparent;
+                                            border-left: 0px solid transparent;
+                                            padding-top: 5px;
+                                            padding-bottom: 5px;
+                                            font-family: 'Montserrat', 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif;
+                                            font-size: 15px;
+                                            text-align: center;
+                                            mso-border-alt: none;
+                                            word-break: keep-all;
+                                        "><span
+                                                                                                                style="padding-left: 30px; padding-right: 30px; font-size: 15px; display: inline-block; letter-spacing: 1px"><span
+                                                                                                                    style="word-break: break-word; line-height: 30px">@if(isset($verify_url)) VERIFY @else LOGIN @endif</span></span></a><!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
+                                                                                                    </div>
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                                @endif
                                                                             </td>
                                                                         </tr>
                                                                     </tbody>

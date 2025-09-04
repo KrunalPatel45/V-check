@@ -23,10 +23,16 @@ class SendWebFormMailForCilent extends Mailable
     public $client_name;
     public $type;
 
-    public function __construct($type, $client_name)
+    public $check_number;
+
+    public $total;
+
+    public function __construct($type, $client_name, $check_number, $total)
     {
         $this->type = $type;
         $this->client_name = $client_name;
+        $this->check_number = $check_number;
+        $this->total = $total;
     }
 
     public function build()
@@ -35,6 +41,8 @@ class SendWebFormMailForCilent extends Mailable
 
         $placeholders = [
             '{{ client_name }}'  => $this->client_name ?? '',
+            '{{ check_number }}'  => $this->check_number ?? '',
+            '{{ total }}'  => $this->total ?? '',
         ];
 
         $fields = ['subject', 'content', 'body1', 'body2'];
@@ -51,7 +59,8 @@ class SendWebFormMailForCilent extends Mailable
 
         $mail = $this->subject($emailContent->subject)
                      ->view('user.emails.mail')
-                     ->with('emailContent', $emailContent);
+                     ->with('emailContent', $emailContent)
+                     ->with('sendWebFormMailForClient', 1);
 
         return $mail;
     }
