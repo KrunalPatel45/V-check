@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\HowItWorksController;
 use App\Http\Middleware\EnsurePaymentIsComplete;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\laravel_example\UserManagement;
@@ -241,6 +242,11 @@ Route::middleware([AdminMiddleware::class])->group(function () {
     Route::get('/admin/suggestions', [SuggestionController::class, 'index'])->name('admin.suggestions.index');
     Route::get('/admin/suggestions/list', [SuggestionController::class, 'list'])->name('admin.suggestions.list');
     Route::get('/admin/suggestions/view/{id}', [SuggestionController::class, 'view'])->name('admin.suggestions.view');
+
+    Route::get('/admin/how-it-works', [HowItWorksController::class, 'index'])->name('admin.how_it_works');
+    Route::get('/admin/how-it-works/list', [HowItWorksController::class, 'list'])->name('admin.how_it_works.list');
+    Route::get('/admin/how-it-works/edit/{howItWork}', [HowItWorksController::class, 'edit'])->name('admin.how_it_works.edit');
+    Route::post('/admin/how-it-works/update/{howItWork}', [HowItWorksController::class, 'update'])->name('admin.how_it_works.update');
 });
 
 Route::get('verify-email/{id}/{hash}', [UserAuthController::class, 'verify_email'])->name('user.verify_email');

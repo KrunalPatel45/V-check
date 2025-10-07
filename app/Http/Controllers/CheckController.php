@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Grid;
 use App\Models\GridHistory;
 use App\Models\GridItem;
+use App\Models\HowItWork;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Company;
@@ -1004,8 +1005,9 @@ class CheckController extends Controller
         $is_web_form = (Auth::user()->CurrentPackageID != -1) ? $package->web_forms : 0;
 
         $grids = Grid::where('UserID', Auth::id())->get();
+        $how_it_works = HowItWork::select('section','link')->where('status','Active')->pluck('link','section');
 
-        return view('user.web_form.index', compact('is_web_form', 'grids'));
+        return view('user.web_form.index', compact('is_web_form', 'grids','how_it_works'));
     }
 
     public function new_web_form()

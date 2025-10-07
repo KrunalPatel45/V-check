@@ -12,7 +12,7 @@
 <!-- Vendor Scripts -->
 @section('vendor-script')
     @vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js', 'resources/assets/vendor/libs/moment/moment.js', 'resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
-    <script>
+    <!-- <script>
         const videoModal = document.getElementById('videoModal');
         const myVideo = document.getElementById('myVideo');
 
@@ -24,7 +24,7 @@
             myVideo.pause();
             myVideo.currentTime = 0; // reset video
         });
-    </script>
+    </script> -->
 @endsection
 
 @section('content')
@@ -278,7 +278,7 @@
 
     <div class="card mt-5">
         <!-- Video Modal -->
-        <div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
+        <!-- <div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-body p-0">
@@ -289,16 +289,18 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
         <form action="{{ route('save_grid') }}" method="POST">
             @csrf
             <div class="d-flex justify-content-between align-items-center">
                 <h5 class="card-header">
                     Check Stub Custom Itemization Fields
-                    <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#videoModal"
-                        class="ms-2 text-muted fs-6">
-                        <i class="ti ti-help-circle"></i> Click to see how it works?
-                    </a>
+                    @if(isset($how_it_works['Check Stub Custom Itemization Fields']))
+                        <a href="{{ $how_it_works['Check Stub Custom Itemization Fields'] }}"
+                            class="ms-2 text-muted fs-6" target="_blank">
+                            <i class="ti ti-help-circle"></i> Click to see how it works?
+                        </a>
+                    @endif
                 </h5>
 
                 <button type="submit" class="btn btn-primary mr-4"
