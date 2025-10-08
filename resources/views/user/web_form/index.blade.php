@@ -293,13 +293,13 @@
         <form action="{{ route('save_grid') }}" method="POST">
             @csrf
             <div class="d-flex justify-content-between align-items-center">
-                <h5 class="card-header">
+                <!-- <h5 class="card-header">
                     Check Stub Custom Itemization Fields
                     <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#videoModal"
                         class="ms-2 text-muted fs-6">
                         <i class="ti ti-help-circle"></i> Click to see how it works?
                     </a>
-                </h5>
+                </h5> -->
 
                 <button type="submit" class="btn btn-primary mr-4"
                     style="height: 40px !important;margin-right: 25px !important;">Save</button>
