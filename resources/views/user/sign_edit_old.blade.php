@@ -6,11 +6,16 @@
 @section('vendor-style')
     @vite(['resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
     <style>
-        #sig {
+        .kbw-signature {
+            width: 500px;
+            height: 200px;
+            border: none !important;
+        }
+
+        #sig canvas {
             width: 500px;
             height: 200px;
             border: 1px solid #555;
-            cursor: crosshair;
         }
     </style>
 @endsection
@@ -22,77 +27,44 @@
 
 <!-- Page Scripts -->
 @section('page-script')
-<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
-
     @vite(['resources/assets/js/form-layouts.js'])
     <script type="text/javascript">
-        // Wait for DOM to be fully loaded
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize signature pad
-            var canvas = document.getElementById('sig');
-            if (!canvas) {
-                console.error('Canvas element not found');
-                return;
-            }
-            
-            var signaturePad = new SignaturePad(canvas, {
-                backgroundColor: 'rgb(255, 255, 255)',
-                penColor: 'rgb(0, 0, 0)'
-            });
+        var sig = $('#sig').signature({
+            syncField: '#signature64',
+            syncFormat: 'PNG'
+        });
 
-        // Handle window resize
-        function resizeCanvas() {
-            var ratio = Math.max(window.devicePixelRatio || 1, 1);
-            canvas.width = canvas.offsetWidth * ratio;
-            canvas.height = canvas.offsetHeight * ratio;
-            canvas.getContext("2d").scale(ratio, ratio);
-            signaturePad.clear();
-        }
-
-        window.addEventListener("resize", resizeCanvas);
-        resizeCanvas();
-
-        // Load existing signature if available
-        var existingSignature = {!! json_encode(!empty($check->DigitalSignature) ? asset('sign/' . $check->DigitalSignature) : '') !!};
+        var existingSignature = {!! json_encode(!empty($userSignature->Sign) ? asset('sign/' . $userSignature->Sign) : '') !!};
 
         if (existingSignature) {
             var img = new Image();
-            img.crossOrigin = "Anonymous";
+            img.crossOrigin = "Anonymous"; // Prevent CORS issues when converting to Base64
             img.src = existingSignature;
 
             img.onload = function() {
-                // Create a temporary canvas to convert the image to dataURL
-                var tempCanvas = document.createElement('canvas');
-                var tempCtx = tempCanvas.getContext('2d');
-                tempCanvas.width = canvas.width;
-                tempCanvas.height = canvas.height;
-                
-                // Draw the image on temporary canvas
-                tempCtx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                
-                // Get the dataURL from temporary canvas
-                var dataURL = tempCanvas.toDataURL();
-                
-                // Load the signature into signature pad
-                signaturePad.fromDataURL(dataURL);
-                
-                // Save to hidden field
-                $("#signature64").val(dataURL);
+                var canvas = $('#sig canvas')[0];
+                var ctx = canvas.getContext("2d");
+
+                // Draw existing signature on canvas
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                // Convert canvas content to Base64
+                var base64Signature = canvas.toDataURL("image/png");
+
+                // Save Base64 signature to hidden field
+                $("#signature64").val(base64Signature);
             };
         }
 
-        // Update hidden field when signature changes
-        signaturePad.addEventListener("endStroke", function() {
-            var dataURL = signaturePad.toDataURL();
-            $("#signature64").val(dataURL);
-        });
 
-        // Clear button functionality
         $('#clear').click(function(e) {
+
             e.preventDefault();
-            signaturePad.clear();
+
+            sig.signature('clear');
+
             $("#signature64").val('');
-        });
+
         });
     </script>
 @endsection
@@ -113,11 +85,12 @@
                         </div>
                     </div>
                     <div class="card-body">
+                        <input type="hidden" name="id" id="id" value="{{ $userSignature->Id }}" />
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label" for="name">Name</label>
                             <div class="col-sm-10">
                                 <input type="text" name="name" id="name" class="form-control"
-                                    value="{{ old('name') }}" />
+                                    value="{{ $userSignature->Name }}" />
                                 @if ($errors->has('name'))
                                     <span class="text-danger">
                                         {{ $errors->first('name') }}
@@ -128,7 +101,7 @@
                         <div class="row mb-6">
                             <label class="col-sm-2 col-form-label">Signature</label>
                             <div class="col-sm-10">
-                                <canvas id="sig" style="border: 1px solid #555; width: 500px; height: 200px;"></canvas>
+                                <div id="sig"></div>
                                 <br />
                                 <button id="clear" class="btn btn-sm btn-danger">Clear</button>
                                 <input type="hidden" name="signature" id="signature64">
