@@ -38,6 +38,10 @@ class SubscriptionController extends Controller
         //     return redirect()->back();    
         // }
 
+        if ($user->EmailVerified == false) {
+            return redirect()->back()->with('verify_error', 'Your email is not verified.');
+        }
+
         $package = Package::find($plan);
 
         if ($package != null && strtolower(trim($package->Name)) == 'trial') {

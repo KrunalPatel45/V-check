@@ -42,6 +42,7 @@
         .btn-custom:hover {
             background-color: #4f46e5;
         }
+        
     </style>
 @endsection
 <!-- Vendor Scripts -->
@@ -143,12 +144,12 @@
     @php
         $progress = $package_id != '-1' ? ($package_data['remainingDays'] * 100) / $package_data['total_days'] : 0;
     @endphp
-    <div class="row">
         @if (session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
             </div>
         @endif
+    <div class="row">
         @if (session('error'))
             <div class="alert alert-danger">
                 {{ session('error') }}

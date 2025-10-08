@@ -81,6 +81,11 @@
 @endsection
 
 @section('content')
+@if (session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
     @php
         $progress = !empty($package_data['remainingDays'])
             ? ($package_data['remainingDays'] * 100) / $package_data['total_days']
