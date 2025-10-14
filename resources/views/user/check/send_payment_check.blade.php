@@ -33,7 +33,14 @@
         <div id="alert-message">
         </div>
         <div class="d-flex justify-content-between align-items-center">
-            <h5 class="card-header">Send Payment</h5>
+            <h5 class="card-header">Send Payment
+                @if(isset($how_it_works['Send Payment']))
+                        <a href="{{ $how_it_works['Send Payment'] }}"
+                            class="ms-2 text-primary fs-6" target="_blank">
+                            <i class="ti ti-help-circle"></i> Click to see how it works?
+                        </a>
+                @endif
+            </h5>
             <div>
                 <a href="{{ route('check.send_payment_check') }}" class="btn btn-primary mr-4"
                     style="height: 40px !important;margin-right: 25px !important;">

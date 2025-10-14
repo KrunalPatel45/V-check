@@ -125,7 +125,9 @@ class CheckController extends Controller
                 ->make(true);
         }
 
-        return view('user.check.process_payment_check');
+        $how_it_works = HowItWork::select('section','link')->where('status','Active')->pluck('link','section');
+
+        return view('user.check.process_payment_check', compact('how_it_works'));
     }
     public function process_payment_check()
     {
@@ -335,8 +337,9 @@ class CheckController extends Controller
                 ->rawColumns(['logo', 'Status', 'actions'])
                 ->make(true);
         }
-
-        return view('user.check.send_payment_check');
+        
+        $how_it_works = HowItWork::select('section','link')->where('status','Active')->pluck('link','section');
+        return view('user.check.send_payment_check', compact('how_it_works'));
     }
     public function send_payment_check()
     {

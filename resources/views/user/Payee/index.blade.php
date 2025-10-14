@@ -34,7 +34,14 @@
             </div>
         @endif
         <div class="d-flex justify-content-between align-items-center">
-            <h5 class="card-header">Manage Payees (Pay To)</h5>
+            <h5 class="card-header">Manage Payees (Pay To)
+                @if(isset($how_it_works['Manage Payees']))
+                        <a href="{{ $how_it_works['Manage Payees'] }}"
+                            class="ms-2 text-primary fs-6" target="_blank">
+                            <i class="ti ti-help-circle"></i> Click to see how it works?
+                        </a>
+                @endif
+            </h5>
             {{-- <a href="{{ route('user.payee.add') }}" class="btn btn-primary mr-4"
                 style="height: 40px !important;margin-right: 25px !important;">
                 <i class="fa-solid fa-plus"></i> &nbsp; Add Pay TO

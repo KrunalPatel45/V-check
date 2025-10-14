@@ -226,7 +226,14 @@
             </div>
         @endif
         <div class="d-flex justify-content-between align-items-center">
-            <h5 class="card-header">Signatures</h5>
+            <h5 class="card-header">Signatures
+                @if(isset($how_it_works['Signatures']))
+                        <a href="{{ $how_it_works['Signatures'] }}"
+                            class="ms-2 text-primary fs-6" target="_blank">
+                            <i class="ti ti-help-circle"></i> Click to see how it works?
+                        </a>
+                    @endif
+            </h5>
             <a href="{{ route('add_sign') }}" class="btn btn-primary mr-4"
                 style="height: 40px !important;margin-right: 25px !important;">
                 <i class="fa-solid fa-plus"></i> &nbsp; Add Signature
@@ -254,7 +261,14 @@
                 </div>
             @endif
             <div class="d-flex justify-content-between align-items-center">
-                <h5 class="card-header">Web Forms</h5>
+                <h5 class="card-header">Web Forms
+                    @if(isset($how_it_works['Web Forms']))
+                        <a href="{{ $how_it_works['Web Forms'] }}"
+                            class="ms-2 text-primary fs-6" target="_blank">
+                            <i class="ti ti-help-circle"></i> Click to see how it works?
+                        </a>
+                    @endif
+                </h5>
                 <a href="{{ route('new_web_form') }}" class="btn btn-primary mr-4"
                     style="height: 40px !important;margin-right: 25px !important;">
                     <i class="fa-solid fa-plus"></i> &nbsp; Add Web Form
@@ -297,7 +311,7 @@
                     Check Stub Custom Itemization Fields
                     @if(isset($how_it_works['Check Stub Custom Itemization Fields']))
                         <a href="{{ $how_it_works['Check Stub Custom Itemization Fields'] }}"
-                            class="ms-2 text-muted fs-6" target="_blank">
+                            class="ms-2 text-primary fs-6" target="_blank">
                             <i class="ti ti-help-circle"></i> Click to see how it works?
                         </a>
                     @endif
