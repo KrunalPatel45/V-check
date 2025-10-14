@@ -611,7 +611,7 @@
     </div>
 @endif
 </nav>
-@if(Auth::user()->EmailVerified == 0)
+@if(Auth::guard()->check() && Auth::user()->EmailVerified == 0)
 @php
      $enc_user_id = \Illuminate\Support\Facades\Crypt::encrypt(Auth::user()->UserID);
      $link = route('user.resend_verify_email', $enc_user_id);

@@ -22,7 +22,7 @@ use App\Mail\SendNewSubMail;
 use App\Mail\RegistrationVerificationMail;
 use Illuminate\Support\Facades\Log;
 
-class SubscriptionController extends Controller
+class SubscriptionControllerOld extends Controller
 {
     protected $SubscriptionHelper;
     public function __construct(SubscriptionHelper $subscriptionHelper)
@@ -103,14 +103,52 @@ class SubscriptionController extends Controller
         $invoiceId = $invoiceData['id'] ?? null;
 
         if (!empty($invoiceId)) {
+            // 3. Update user and create subscription record
+            $user->Status = 'Active';
+            $user->SubID = $subscriptionId;
+            $user->CurrentPackageID = $plan;
+            $user->save();
 
-            $packages = Package::findOrFail($plan);
+            // PaymentSubscription::where('UserID', $user->UserID)
+            //     ->whereIn('Status', ['Canceled', 'Pending'])
+            //     ->delete();
+
+            $packages = Package::findOrFail($user->CurrentPackageID);
 
             $paymentStartDate = Carbon::now();
             $paymentEndDate = $paymentStartDate->copy()->addHours(24);
             $nextRenewalDate = $paymentStartDate->copy()->addDays((int) $packages->Duration + 1);
 
-           
+            $paymentSubscription = PaymentSubscription::create([
+                'UserID' => $user->UserID,
+                'PackageID' => $user->CurrentPackageID,
+                'PaymentMethodID' => 1,
+                'PaymentAmount' => $packages->Price,
+                'PaymentStartDate' => $paymentStartDate,
+                'PaymentEndDate' => $paymentEndDate,
+                'NextRenewalDate' => $nextRenewalDate,
+                'ChecksGiven' => $packages->CheckLimitPerMonth,
+                'ChecksReceived' => 0,
+                'ChecksSent' => 0,
+                'ChecksUsed' => 0,
+                'RemainingChecks' => $packages->CheckLimitPerMonth,
+                'PaymentDate' => $paymentStartDate,
+                'PaymentAttempts' => 0,
+                'TransactionID' => $invoiceId,
+                'InvoiceID' => $invoiceId,
+                'Status' => 'Active',
+            ]);
+
+            PaymentHistory::create([
+                'PaymentSubscriptionID' => $paymentSubscription->PaymentSubscriptionID,
+                'PaymentAmount' => $packages->Price,
+                'PaymentDate' => $paymentStartDate,
+                'PaymentStatus' => 'Success',
+                'PaymentAttempts' => 0,
+                'TransactionID' => $invoiceId,
+                'InvoiceID' => $invoiceId,
+            ]);
+
             $user_name = $user->FirstName . ' ' . $user->LastName;
             $link = route('user.verify_email', [$user->UserID, sha1($user->Email)]);
 

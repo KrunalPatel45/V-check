@@ -208,10 +208,10 @@ class UserAuthController extends Controller
         $PaymentHistory = PaymentHistory::where('PaymentSubscriptionID', $PaymentSubscription->PaymentSubscriptionID)
             ->orderBy('PaymentHistoryID', 'desc')->first();
 
-        if ($PaymentSubscription->Status != 'Canceled') {
+        if ($PaymentSubscription->Status != 'Canceled' && $PaymentSubscription->Status != 'Inactive') {
             return redirect()->route('user.dashboard');
         }
-
+        
         $user = Auth::user();
         $package_id = $PaymentSubscription->PackageID;
 

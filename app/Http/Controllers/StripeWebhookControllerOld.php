@@ -234,123 +234,105 @@ class StripeWebhookController extends Controller
 
             DB::beginTransaction();
 
-            $subscription = null;
-
             $invoice = $event['data']['object'];
+
             $user = User::where('CusID', $invoice['customer'])->first();
 
-            $response = $this->subscriptionHelper->getSubscriptions($invoice['customer']);
+            $PaymentSubscription = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
+                ->whereNot('Status', 'Canceled')->orderBy('PaymentSubscriptionID', 'desc')->first();
 
-            $stripe_product_id = $response['data'][0]['plan']['product'];
-            $newPackage = Package::where('ProductID', $stripe_product_id)->first();
+            $renew = false;
+            $is_downgraded = false;
+            $is_upgraded = false;
 
-            $CurrentPaymentSubscription = PaymentSubscription::where('UserID', $user->UserID)
-            // ->where('PackageID', $user->CurrentPackageID)
-                ->orderBy('PaymentSubscriptionID', 'desc')->first();
+            if ($PaymentSubscription) {
 
-            $current_subscription_id = $CurrentPaymentSubscription?->PaymentSubscriptionID;
+                $amount_paid = $invoice['amount_paid'];
+                $current_amount = bcmul((string) $PaymentSubscription->PaymentAmount, '100', 0);
 
-            if ($CurrentPaymentSubscription && $CurrentPaymentSubscription->Status == 'Active') {
-                
-                if ($user->CurrentPackageID == '-1') {
+                if ($invoice['amount_paid'] == $current_amount) {
 
-                    $subscription = 'created';
-                    $newPaymentSubscription = $this->generateSubscription($invoice, $user, $newPackage);
-                } else {
+                    $start_date = $invoice['lines']['data'][0]['period']['start'];
+                    $end_date = $invoice['lines']['data'][0]['period']['end'];
 
-                    $oldPackage = Package::where('PackageID', $user->CurrentPackageID)->first();
+                    $PaymentStartDate = Carbon::createFromTimestamp($start_date)->toDateString();
+                    $PaymentEndDate = Carbon::createFromTimestamp($start_date)->addHours(24)->toDateString();
+                    $NextRenewalDate = Carbon::createFromTimestamp($end_date)->toDateString();
+                    $PaymentDate = Carbon::createFromTimestamp($start_date)->toDateTimeString();
 
-                    if ($CurrentPaymentSubscription) {
+                    $newPaymentSubscription = PaymentSubscription::create([
+                        'UserID' => $user->UserID,
+                        'PackageID' => $PaymentSubscription->PackageID,
+                        'PaymentMethodID' => 1,
+                        'PaymentAmount' => $invoice['amount_paid'] / 100,
+                        'PaymentStartDate' => $PaymentStartDate,
+                        'PaymentEndDate' => $PaymentEndDate,
+                        'NextRenewalDate' => $NextRenewalDate,
+                        'ChecksGiven' => $PaymentSubscription->ChecksGiven,
+                        'ChecksReceived' => 0,
+                        'ChecksSent' => 0,
+                        'ChecksUsed' => 0,
+                        'RemainingChecks' => $PaymentSubscription->ChecksGiven,
+                        'PaymentDate' => $PaymentDate,
+                        'Status' => 'Active',
+                        'TransactionID' => $invoice['id'],
+                        'NextPackageID' => null
+                    ]);
+                    $renew = true;
 
-                        $amount_paid = $invoice['amount_paid'];
-                        $current_amount = bcmul((string) $CurrentPaymentSubscription->PaymentAmount, '100', 0);
-                        Log::info('out');
-                        if ($oldPackage?->PackageID == $newPackage?->PackageID) {
+                } elseif ($invoice['amount_paid'] < $current_amount) {
 
-                            $subscription = 'created';
+                    //Handle downgrade plan payments
+                    if ($invoice['billing_reason'] == 'subscription_cycle') {
 
-                            $newPaymentSubscription = $this->generateSubscription($invoice, $user, $oldPackage);
-
-                        } elseif ($newPackage->Price < $oldPackage->Price) {
-                            if ($invoice['billing_reason'] == 'subscription_cycle') {
-
-                                $this->hanldeDowngradeSubscription($invoice);
-                                $is_downgraded = true;
-                                 DB::commit();
-                                return;
-                            }
-                        } elseif ($newPackage->Price > $oldPackage->Price) {
-                                $subscription = 'upgrade';
-                            $this->updateSubscription($invoice, $oldPackage, $newPackage, $CurrentPaymentSubscription);
-                        }
+                        $this->hanldeDowngradeSubscription($invoice);
+                        $is_downgraded = true;
                     }
-
+                } elseif ($invoice['amount_paid'] > $current_amount) {
+                    $is_upgraded = true;
                 }
 
-                // $paymentHistory = PaymentHistory::where('PaymentSubscriptionID', $CurrentPaymentSubscription->PaymentSubscriptionID)
-                //     ->where('TransactionID', $invoice['id'])->where('PaymentStatus', 'Success')->exists();
-                // if (!$paymentHistory) {
 
-                //     if ($renew) {
-                //         $payment_sub_id = $newPaymentSubscription->PaymentSubscriptionID;
-                //     } else {
-                //         $payment_sub_id = $CurrentPaymentSubscription->PaymentSubscriptionID;
-                //     }
-                //     if ($is_downgraded != true && $is_upgraded != true) {
+                $paymentHistory = PaymentHistory::where('PaymentSubscriptionID', $PaymentSubscription->PaymentSubscriptionID)
+                    ->where('TransactionID', $invoice['id'])->where('PaymentStatus', 'Success')->exists();
+                if (!$paymentHistory) {
 
-                //         PaymentHistory::create([
-                //             'PaymentSubscriptionID' => $payment_sub_id,
-                //             'PaymentAmount' => $invoice['amount_paid'] / 100,
-                //             'PaymentDate' => now(),
-                //             'PaymentStatus' => 'Success',
-                //             'PaymentAttempts' => $invoice['attempt_count'],
-                //             'TransactionID' => $invoice['id'],
-                //         ]);
+                    if ($renew) {
+                        $payment_sub_id = $newPaymentSubscription->PaymentSubscriptionID;
+                    } else {
+                        $payment_sub_id = $PaymentSubscription->PaymentSubscriptionID;
+                    }
+                    if ($is_downgraded != true && $is_upgraded != true) {
 
-                //     }
-                // }
-              
+                        PaymentHistory::create([
+                            'PaymentSubscriptionID' => $payment_sub_id,
+                            'PaymentAmount' => $invoice['amount_paid'] / 100,
+                            'PaymentDate' => now(),
+                            'PaymentStatus' => 'Success',
+                            'PaymentAttempts' => $invoice['attempt_count'],
+                            'TransactionID' => $invoice['id'],
+                        ]);
+                        // PaymentHistory::create([
+                        // 'PaymentSubscriptionID' => $payment_sub_id,
+                        // 'PaymentAmount' => (isset($newPaymentSubscription)) ? $newPaymentSubscription->PaymentAmount : $PaymentSubscription->PaymentAmount,
+                        // 'PaymentDate' => now(),
+                        // 'PaymentStatus' => 'Success',
+                        // 'PaymentAttempts' => $invoice['attempt_count'],
+                        // 'TransactionID' => (isset($newPaymentSubscription)) ? $newPaymentSubscription->TransactionID : $PaymentSubscription->TransactionID,
+                        // ]);
+                    }
+                }
 
-            }else if($CurrentPaymentSubscription && $CurrentPaymentSubscription->Status == 'Canceled'){
-                $subscription = 'canceled';
-                $newPaymentSubscription = $this->generateSubscription($invoice, $user, $newPackage);
+                if ($renew) {
+                    $PaymentSubscription->update([
+                        'Status' => 'Inactive'
+                    ]);
+                } else {
+                    $PaymentSubscription->update([
+                        'Status' => 'Active'
+                    ]);
+                }
             }
-
-            if ($subscription == 'created') {
-                $CurrentPaymentSubscription->update([
-                    'Status' => 'Inactive'
-                ]);
-            }else if ($subscription == 'upgrade') {
-                $CurrentPaymentSubscription->update([
-                    'Status' => 'Active'
-                ]);
-            }
-
-            $user->update([
-                'CurrentPackageID' => $newPackage->PackageID,
-                'SubID' => $response['data'][0]['id']
-            ]);
-
-            if(isset($newPaymentSubscription) && $newPaymentSubscription != null){
-                PaymentHistory::create([
-                    'PaymentSubscriptionID' => $newPaymentSubscription->PaymentSubscriptionID,
-                    'PaymentAmount' => $invoice['amount_paid'] / 100,
-                    'PaymentDate' => now(),
-                    'PaymentStatus' => 'Success',
-                    'PaymentAttempts' => $invoice['attempt_count'],
-                    'TransactionID' => $invoice['id'],
-                ]);
-            }else{
-                PaymentHistory::create([
-                    'PaymentSubscriptionID' => $CurrentPaymentSubscription->PaymentSubscriptionID,
-                    'PaymentAmount' => $invoice['amount_paid'] / 100,
-                    'PaymentDate' => now(),
-                    'PaymentStatus' => 'Success',
-                    'PaymentAttempts' => $invoice['attempt_count'],
-                    'TransactionID' => $invoice['id'],
-                ]);
-            }
-            
 
             DB::commit();
 
@@ -407,52 +389,17 @@ class StripeWebhookController extends Controller
         }
     }
 
-    public function generateSubscription($invoice, $user, $package)
-    {
-        $start_date = $invoice['lines']['data'][0]['period']['start'];
-        $end_date = $invoice['lines']['data'][0]['period']['end'];
+    // public function cancelSubscriptionAfterFailedAttempts($user)
+    // {
 
-        $PaymentStartDate = Carbon::createFromTimestamp($start_date)->toDateString();
-        $PaymentEndDate = Carbon::createFromTimestamp($start_date)->addHours(24)->toDateString();
-        $NextRenewalDate = Carbon::createFromTimestamp($end_date)->toDateString();
-        $PaymentDate = Carbon::createFromTimestamp($start_date)->toDateTimeString();
+    //     $res = $this->subscriptionHelper->cancelImmediately($user->SubID);
+    //     $data_current_package = PaymentSubscription::where('UserId', $user->UserID)->where('Status', 'Pending')
+    //     ->orderBy('PaymentSubscriptionID', 'desc')->first();
 
-        $newPaymentSubscription = PaymentSubscription::create([
-            'UserID' => $user->UserID,
-            'PackageID' => $package->PackageID,
-            'PaymentMethodID' => 1,
-            'PaymentAmount' => $invoice['amount_paid'] / 100,
-            'PaymentStartDate' => $PaymentStartDate,
-            'PaymentEndDate' => $PaymentEndDate,
-            'NextRenewalDate' => $NextRenewalDate,
-            'ChecksGiven' => $package->CheckLimitPerMonth,
-            'ChecksReceived' => 0,
-            'ChecksSent' => 0,
-            'ChecksUsed' => 0,
-            'RemainingChecks' => $package->CheckLimitPerMonth,
-            'PaymentDate' => $PaymentDate,
-            'Status' => 'Active',
-            'TransactionID' => $invoice['id'],
-            'NextPackageID' => null
-        ]);
-
-        return $newPaymentSubscription;
-    }
-
-    public function updateSubscription($invoice, $oldPackage, $newPackage, $CurrentPaymentSubscription)
-    {
-        $res = $invoice['lines']['data'][0];
-
-        $CurrentPaymentSubscription->update([
-            'PackageID' => $newPackage->PackageID,
-            'PaymentAmount' => $newPackage->Price,
-            'ChecksGiven' => $newPackage->CheckLimitPerMonth,
-            'RemainingChecks' => $newPackage->CheckLimitPerMonth - $CurrentPaymentSubscription->ChecksUsed,
-            'ChecksReceived' => $CurrentPaymentSubscription->ChecksReceived,
-            'ChecksSent' => $CurrentPaymentSubscription->ChecksSent,
-            'ChecksUsed' => $CurrentPaymentSubscription->ChecksUsed,
-            'TransactionID' => $res['id'],
-            'Status' => 'Active',
-        ]);
-    }
+    //     if (!empty($res) && !empty($data_current_package)) {
+    //         $data_current_package->CancelAt = now()->toDateString();
+    //         $data_current_package->Status = 'Canceled';
+    //         $data_current_package->save();
+    //     }
+    // }
 }

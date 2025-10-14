@@ -110,9 +110,10 @@
                         <div class="col-xl-6 order-1 order-xl-0">
                             <div class="mb-4">
                                 <h6 class="mb-1">Your Current Plan is
-                                    {{ $package == '-1' ? 'Trial' : $package_data['package_name'] }}</h6>
+                                    {{ $current_package_id == '-1' ? 'Trial' : $package_data['package_name'] }}</h6>
                             </div>
-                            @if ($package != '-1')
+                            
+                            @if ($current_package_id != '-1')
                                 <div class="mb-4">
                                     <h6 class="mb-1">Active until {{ $package_data['expiryDate'] }}</h6>
                                     <!-- <p>We will send you a notification upon Subscription expiration</p> -->
@@ -123,7 +124,7 @@
                                 Upgrade Plan
                             </button>
                         </div>
-                        @if ($package != '-1')
+                        @if ($current_package_id != '-1')
                             <div class="col-xl-6 order-0 order-xl-0">
                                 <div class="plan-statistics">
                                     <div class="d-flex justify-content-between">
@@ -263,10 +264,10 @@
                                 @else
                                     @if ($user->CurrentPackageID != '-1')
                                         <a href="{{ route('user.select-package', ['id' => $user->UserID, 'plan' => $package->PackageID]) }}"
-                                            class="plan-button">Select Plan</a>
+                                            class="plan-button" onclick="$('#payment-loader').show();">Select Plan</a>
                                     @else
                                         <a href="{{ route('user-select-package', ['id' => $user->UserID, 'plan' => $package->PackageID]) }}"
-                                            class="plan-button">Select Plan</a>
+                                            class="plan-button" onclick="$('#payment-loader').show();">Select Plan</a>
                                     @endif
                                 @endif
                             </div>

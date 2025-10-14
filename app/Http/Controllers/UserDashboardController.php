@@ -25,6 +25,7 @@ class UserDashboardController extends Controller
 
         $user = User::where('userID', Auth::user()->UserID)->first();
         $package = $user->CurrentPackageID;
+        $current_package_id = $user->CurrentPackageID;
         if($package == -1) {
             $package = Package::whereRaw('LOWER(Name) = ?', ['trial'])->first();
         } else {
@@ -74,7 +75,8 @@ class UserDashboardController extends Controller
        
         $webforms = WebForm::where('UserID', Auth::user()->UserID)->get();
 
-        return view('content.dashboard.user-dashboards-analytics', compact('webforms','user','packages','checks_received', 'checks_sent', 'package_data', 'total_vendor', 'total_client', 'total_companies', 'given_checks', 'used_checks', 'remaining_checks', 'package', 'paymentSubscription'));
+
+        return view('content.dashboard.user-dashboards-analytics', compact('current_package_id','webforms','user','packages','checks_received', 'checks_sent', 'package_data', 'total_vendor', 'total_client', 'total_companies', 'given_checks', 'used_checks', 'remaining_checks', 'package', 'paymentSubscription'));
     }
 
     public function profile()

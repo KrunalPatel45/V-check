@@ -25,9 +25,7 @@ class BillingAndPlanController extends Controller
     }
     public function index()
     {
-
         $user = User::where('userID', Auth::user()->UserID)->first();
-
         $package_id = $user->CurrentPackageID;
         $paymentSubscription = PaymentSubscription::where('UserID', Auth::user()->UserID)
             ->where('Status', 'Active')->where('PackageID', $user->CurrentPackageID)
@@ -117,10 +115,53 @@ class BillingAndPlanController extends Controller
                     'upgrade_amount' => $price_difference * 100
                 ];
                 $res = $this->subscriptionHelper->updateSubscription($data);
-                
                 if (!empty($res['id'])) {
-                   
+                    // Delete any pending or canceled subscriptions
+                    // $cancel_or_pending_query = PaymentSubscription::where('UserId', $id)
+                    //     ->whereIn('Status', ['Pending', 'Canceled']);
+
+                    // $subscriptionIds = $cancel_or_pending_query->pluck('PaymentSubscriptionID')->toArray();
+
+                    // if (!empty($subscriptionIds)) {
+                    //     PaymentHistory::whereIn('PaymentSubscriptionID', $subscriptionIds)->delete();
+                    // }
+
+                    // $cancel_or_pending_query->delete();
+
+                    // Update current subscription
+                    $paymentSubscription = PaymentSubscription::find($data_current_package->PaymentSubscriptionID);
+                    $paymentSubscription->update([
+                        'UserID' => $id,
+                        'PackageID' => $plan,
+                        'PaymentMethodID' => 1,
+                        'PaymentAmount' => $package->Price,
+                        'PaymentStartDate' => $data_current_package->PaymentStartDate,
+                        'PaymentEndDate' => $data_current_package->PaymentEndDate,
+                        'NextRenewalDate' => $data_current_package->NextRenewalDate,
+                        'ChecksGiven' => $package->CheckLimitPerMonth,
+                        'RemainingChecks' => $package->CheckLimitPerMonth - $data_current_package->ChecksUsed,
+                        'ChecksReceived' => $data_current_package->ChecksReceived,
+                        'ChecksSent' => $data_current_package->ChecksSent,
+                        'ChecksUsed' => $data_current_package->ChecksUsed,
+                        'PaymentDate' => $data_current_package->PaymentDate,
+                        'PaymentAttempts' => 0,
+                        'TransactionID' => $res['id'],
+                        'Status' => 'Active',
+                    ]);
+
+                    // Create payment history for the upgrade charge
+                    PaymentHistory::create([
+                        'PaymentSubscriptionID' => $paymentSubscription->PaymentSubscriptionID,
+                        'PaymentAmount' => $price_difference,
+                        'PaymentDate' => now(),
+                        'PaymentStatus' => 'Success',
+                        'PaymentAttempts' => 0,
+                        'TransactionID' => $res['id'],
+                    ]);
+
                     $old_plan = Package::find($user->CurrentPackageID);
+                    $user->CurrentPackageID = $plan;
+                    $user->save();
 
                     $paymentStartDate = Carbon::now();
 
@@ -155,7 +196,7 @@ class BillingAndPlanController extends Controller
                 }
             }
         }
-        
+
         return redirect()->route('billing_and_plan')->with('success', 'Your plan has been updated successfully');
     }
 
