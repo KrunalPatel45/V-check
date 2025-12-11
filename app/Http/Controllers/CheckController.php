@@ -550,6 +550,11 @@ class CheckController extends Controller
             $grid_histories = GridHistory::where('UserID', Auth::user()->UserID)
                 ->whereIn('id', $grid_history_ids)->get();
         }
+        
+        if(empty($grid_history_ids)){
+            $grid_history_ids = $grid_histories->pluck('id')->toArray();
+        }
+        
         return view('user.check.send_payment_generate_check', compact('grid_history_ids', 'grid_histories', 'grid_items', 'payees', 'payors', 'check', 'old_payee', 'old_payor', 'old_sign', 'userSignatures'));
     }
 
