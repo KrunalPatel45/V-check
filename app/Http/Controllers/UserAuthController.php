@@ -142,7 +142,7 @@ class UserAuthController extends Controller
             'address' => 'required',
             'email' => 'required|string|email|unique:User,Email|max:255',
             'phone_number' => 'required|regex:/^\d{3}-\d{3}-\d{4}$/',
-            'company_name' => 'required'
+            // 'company_name' => 'required'
         ]);
 
         if ($validator->fails()) {

@@ -37,24 +37,6 @@
             border: 1px solid !important;
         }
 
-        /* Select2 dropdown styling to match other form inputs */
-        .select2-container--default .select2-selection--single {
-            border: 1px solid !important;
-            height: 38px;
-        }
-
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
-            line-height: 38px;
-        }
-
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 36px;
-        }
-
-        .select2-container--default.select2-container--focus .select2-selection--single {
-            border: 1px solid !important;
-        }
-
         /* For Chrome, Safari, Edge, Opera */
         .no-spinner::-webkit-inner-spin-button,
         .no-spinner::-webkit-outer-spin-button {
@@ -140,63 +122,15 @@
 
         $(document).ready(function() {
 
-            // Function to initialize Select2 for a dropdown
-            function initSelect2(selector, placeholder) {
-                var $select = $(selector);
-                if ($select.length && $select.find('option').length > 0) {
-                    // Destroy existing Select2 instance if any
-                    if ($select.hasClass('select2-hidden-accessible')) {
-                        $select.select2('destroy');
-                    }
-                    
-                    // Get the current selected value
-                    // Check all options to find the one with selected attribute (excluding placeholder)
-                    var currentVal = null;
-                    $select.find('option').each(function() {
-                        if ($(this).attr('selected') && $(this).val() !== '') {
-                            currentVal = $(this).val();
-                            return false; // Break the loop
-                        }
-                    });
-                    
-                    // If no selected option found (other than placeholder), use the select's value
-                    if (!currentVal || currentVal === '') {
-                        currentVal = $select.val();
-                    }
-                    
-                    // Initialize Select2
-                    $select.select2({
-                        placeholder: placeholder,
-                        allowClear: false,
-                        width: '100%',
-                        minimumResultsForSearch: 0
-                    });
-                    
-                    // Ensure Select2 displays the selected value if present (important for edit mode)
-                    if (currentVal && currentVal !== '' && currentVal !== 'add_new_payor' && currentVal !== 'add_new_payee') {
-                        // Set the value and trigger change to update Select2 display
-                        $select.val(currentVal).trigger('change.select2');
-                    } else {
-                        // If no valid value, set to empty to show placeholder
-                        $select.val('').trigger('change.select2');
-                    }
-                }
-            }
-
-            // Initialize Select2 for both dropdowns
-            // Use a small delay to ensure all DOM manipulations are complete (especially for edit mode)
-            setTimeout(function() {
-                initSelect2('#payor', 'Select Pay From');
-                initSelect2('#payee', 'Select Pay To');
-            }, 100);
-
             $(document).find('.mydatepicker').flatpickr({
                 dateFormat: 'm-d-Y',
                 monthSelectorType: 'static'
             });
             $('#payee').on('change', function() {
                 id = $(this).val();
-                if (id == 'add_new_payee') {
+                const selectedValue = $(this).find('option:selected').attr(
+                    'id');
+                if (selectedValue == 'add_other_company') {
                     $('#payee-edit').addClass('d-none');
                     $('#payee_id').val('');
                     $('#payee-name').val('');
@@ -258,31 +192,11 @@
                             // Success message
 
                             if (id) {
-                                // Format name with email if available
-                                let displayName = response.payee.Name;
-                                if (response.payee.Email && response.payee.Email.trim() !== '') {
-                                    displayName = response.payee.Name + ' (' + response.payee.Email + ')';
-                                }
-                                $('#payee option:selected').text(displayName);
-                                $('#payee').trigger('change.select2');
+                                $('#payee option:selected').text(response.payee.Name);
                             } else {
-                                // Format name with email if available
-                                let displayName = response.payee.Name;
-                                if (response.payee.Email && response.payee.Email.trim() !== '') {
-                                    displayName = response.payee.Name + ' (' + response.payee.Email + ')';
-                                }
                                 let newOption =
-                                    `<option value="${response.payee.EntityID}" selected>${displayName}</option>`;
-                                // Insert before the last "Add New Payee" option
-                                const $addNewOptions = $('#payee option[value="add_new_payee"]');
-                                if ($addNewOptions.length > 0) {
-                                    // Insert before the last "Add New Payee" option
-                                    $addNewOptions.last().before(newOption);
-                                } else {
-                                    $('#payee').append(newOption);
-                                }
-                                // Refresh Select2 and set value
-                                $('#payee').val(response.payee.EntityID).trigger('change.select2');
+                                    `<option value="${response.payee.EntityID}" selected>${response.payee.Name}</option>`;
+                                $('#payee').append(newOption).val(response.payee.EntityID);
                             }
                         }
                     },
@@ -298,13 +212,9 @@
 
             $('#payor').on('change', function() {
                 id = $(this).val();
-
-                    $('#address').val('');
-                    $('#city').val('');
-                    $('#state').val('');
-                    $('#zip').val('');
-
-                if (id === 'add_new_payor') {
+                const selectedValue = $(this).find('option:selected').attr(
+                    'id');
+                if (selectedValue === 'add_other_payor') {
                     $('#payor-edit').addClass('d-none');
                     $('#payorModel').modal('show');
                     $('#payor_id').val('');
@@ -317,7 +227,7 @@
                     $('#add-payor #bank_name').val('');
                     $('#add-payor #account_number').val('');
                     $('#add-payor #routing_number').val('');
-                    $('#payor_h').text('Add');
+                    ('#payor_h').text('Add');
                 } else {
                     $.ajax({
                         url: "{{ route('get_payor', ':id') }}".replace(':id', id) + '?type=SP',
@@ -394,30 +304,11 @@
                             // Success message
 
                             if (id) {
-                                // Format name with email if available
-                                let displayName = response.payor.Name;
-                                if (response.payor.Email && response.payor.Email.trim() !== '') {
-                                    displayName = response.payor.Name + ' (' + response.payor.Email + ')';
-                                }
-                                $('#payor option:selected').text(displayName);
-                                $('#payor').trigger('change.select2');
+                                $('#payor option:selected').text(response.payor.Name);
                             } else {
-                                // Format name with email if available
-                                let displayName = response.payor.Name;
-                                if (response.payor.Email && response.payor.Email.trim() !== '') {
-                                    displayName = response.payor.Name + ' (' + response.payor.Email + ')';
-                                }
                                 let newOption =
-                                    `<option value="${response.payor.EntityID}" selected>${displayName}</option>`;
-                                // Insert before the last "Add New Payors" option
-                                const $addNewOptions = $('#payor option[value="add_new_payor"]');
-                                if ($addNewOptions.length > 0) {
-                                    // Insert before the last "Add New Payors" option
-                                    $addNewOptions.last().before(newOption);
-                                } else {
-                                    $('#payor').append(newOption);
-                                }
-                                $('#payor').val(response.payor.EntityID).trigger('change.select2');
+                                    `<option value="${response.payor.EntityID}" selected>${response.payor.Name}</option>`;
+                                $('#payor').append(newOption).val(response.payor.EntityID);
                             }
 
                             var address = response.payor.Address1;
@@ -489,22 +380,7 @@
             $('#payor_close').on('click', function(e) {
                 event.preventDefault();
                 $('#payorModel').modal('hide');
-                if ($('#payor').val() === 'add_new_payor') {
-                    $("#payor").val("").trigger('change.select2');
-                }
-            });
-
-            // Reset dropdown if modal is closed without submitting
-            $('#payorModel').on('hidden.bs.modal', function() {
-                if ($('#payor').val() === 'add_new_payor') {
-                    $('#payor').val('').trigger('change.select2');
-                }
-            });
-
-            $('#payeeModel').on('hidden.bs.modal', function() {
-                if ($('#payee').val() === 'add_new_payee') {
-                    $('#payee').val('').trigger('change.select2');
-                }
+                $("#payor").val("");
             });
             $('#payor-edit').on('click', function(e) {
                 event.preventDefault();
@@ -529,16 +405,6 @@
                     $('.sing-box').removeClass('d-none'); // Show the signature field
                 } else {
                     $('.sing-box').addClass('d-none'); // Hide the signature field
-                }
-            });
-
-            // Clear invalid values before form submission
-            $('form').on('submit', function(e) {
-                if ($('#payor').val() === 'add_new_payor') {
-                    $('#payor').val('').trigger('change.select2');
-                }
-                if ($('#payee').val() === 'add_new_payee') {
-                    $('#payee').val('').trigger('change.select2');
                 }
             });
 
@@ -775,39 +641,33 @@
                         <div class="row">
                             {{-- <label class="col-sm-12 col-form-label" for="account-name">Account Holder's Name:</label>
                             --}}
-                            <div class="col-sm-8">
-                                <div class="d-flex align-items-center gap-1">
-                                    <select id="payor" name="payor" class="form-control">
-                                        <option value="" selected>Select Pay From</option>
-                                        @if(count($payors) > 0)
-                                            <option value="add_new_payor" id="add_other_payor" style="font-weight: bold;">Add New Payors</option>
-                                            @foreach ($payors as $payor)
-                                                @php
-                                                    if (!empty($payor->Email)) {
-                                                        $name = $payor->Name . ' (' . $payor->Email . ')';
-                                                    } else {
-                                                        $name = $payor->Name;
-                                                    }
-                                                @endphp
-                                                <option value="{{ $payor->EntityID }}"
-                                                    {{ old('payor', $check->PayorID ?? '') == $payor->EntityID ? 'selected' : '' }}>
-                                                    {{ $name }}
-                                                </option>
-                                            @endforeach
-                                            <option value="add_new_payor" id="add_other_payor_bottom" style="font-weight: bold;">Add New Payors</option>
-                                        @else
-                                            <option value="add_new_payor" id="add_other_payor" style="font-weight: bold;">Add New Payors</option>
-                                        @endif
-                                    </select>
-                                    <span id="payor-edit" class="{{ !empty($check->PayorID) ? '' : 'd-none' }}"><i
-                                            class="ti ti-pencil me-1"></i></span>
-                                </div>
-                                @if ($errors->has('payor'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('payor') }}
-                                    </span>
-                                @endif
+                            <div class="col-sm-8 d-flex align-items-center gap-1">
+                                <select id="payor" name="payor" class="form-control">
+                                    <option value="" selected>Select Pay From</option>
+                                    @foreach ($payors as $payor)
+                                        @php
+                                            if (!empty($payor->Email)) {
+                                                $name = $payor->Name . ' (' . $payor->Email . ')';
+                                            } else {
+                                                $name = $payor->Name;
+                                            }
+                                        @endphp
+                                        <option value="{{ $payor->EntityID }}"
+                                            {{ old('payor', $check->PayorID ?? '') == $payor->EntityID ? 'selected' : '' }}>
+                                            {{ $name }}
+                                        </option>
+                                    @endforeach
+                                    <option value="" id="add_other_payor" style="font-weight: bold;">Add New Payors
+                                    </option>
+                                </select>
+                                <span id="payor-edit" class="{{ !empty($check->PayorID) ? '' : 'd-none' }}"><i
+                                        class="ti ti-pencil me-1"></i></span>
                             </div>
+                            @if ($errors->has('payor'))
+                                <span class="text-danger">
+                                    {{ $errors->first('payor') }}
+                                </span>
+                            @endif
                         </div>
                     </div>
                     <div class="col-sm-6">
@@ -919,34 +779,32 @@
                                 style="font-size: 15px;font-weight: bold;">Pay to the
                                 Order
                                 of:</label>
-                            <div class="col-sm-8">
-                                <div class="d-flex align-items-center gap-1">
-                                    <select id="payee" name="payee" class="form-control" style="font-size: 16px;">
-                                        <option value="" selected>Select Pay To</option>
-                                        @if(count($payees) > 0)
-                                            <option value="add_new_payee" id="add_other_company" style="font-weight: bold;">Add New Payee</option>
-                                            @foreach ($payees as $payee)
-                                                @php
-                                                    if (!empty($payee->Email)) {
-                                                        $name = $payee->Name . ' (' . $payee->Email . ')';
-                                                    } else {
-                                                        $name = $payee->Name;
-                                                    }
-                                                @endphp
-                                                <option value="{{ $payee->EntityID }}"
-                                                    {{ old('payee', $check->PayeeID ?? '') == $payee->EntityID ? 'selected' : '' }}>
-                                                    {{ $name }}
-                                                </option>
-                                            @endforeach
-                                            <option value="add_new_payee" id="add_other_company_bottom" style="font-weight: bold;">Add New Payee</option>
-                                        @else
-                                            <option value="add_new_payee" id="add_other_company" style="font-weight: bold;">Add New Payee</option>
+                            <div class="col-sm-8 d-flex align-items-center gap-1">
+                                <select id="payee" name="payee" class="form-control" style="font-size: 16px;">
+                                    <option value="" selected>Select Pay To</option>
+                                    @foreach ($payees as $payee)
+                                        @php
+                                            if (!empty($payee->Email)) {
+                                                $name = $payee->Name . ' (' . $payee->Email . ')';
+                                            } else {
+                                                $name = $payee->Name;
+                                            }
+                                        @endphp
+                                        @if (!empty($payee->Email))
                                         @endif
-                                    </select>
-                                    <span id="payee-edit" class="{{ !empty($check->PayeeID) ? '' : 'd-none' }}"><i
-                                            class="ti ti-pencil me-1"></i></span>
-                                </div>
+                                        <option value="{{ $payee->EntityID }}"
+                                            {{ old('payee', $check->PayeeID ?? '') == $payee->EntityID ? 'selected' : '' }}>
+                                            {{ $name }}
+                                        </option>
+                                    @endforeach
+                                    <option value="" id="add_other_company" style="font-weight: bold;">Add New
+                                        Payee
+                                    </option>
+                                </select>
+                                <span id="payee-edit" class="{{ !empty($check->PayeeID) ? '' : 'd-none' }}"><i
+                                        class="ti ti-pencil me-1"></i></span>
                                 @if ($errors->has('payee'))
+                                    <br>
                                     <span class="text-danger">
                                         {{ $errors->first('payee') }}
                                     </span>
@@ -1321,7 +1179,7 @@
                         <input type="hidden" name="itemization" id="itemization"
                             @if ((isset($grid_items) && $grid_items->IsNotEmpty()) || session('grid_error') || old('itemization')) value="1" @else value="0" @endif>
                         <table id="gridTable" class="table table-bordered"
-                            @if ((isset($grid_items) && $grid_items->IsNotEmpty()) || session('grid_error') || old('itemization')) @else style="display: none" @endif>
+                            @if (isset($grid_items) && $grid_items->IsNotEmpty()) @else style="display: none" @endif>
                             <thead>
                                 <tr>
                                     @foreach ($grid_histories as $key => $item)
@@ -1445,69 +1303,7 @@
                                         $date = false;
                                         $inputContent = '';
                                     @endphp
-                                    @if (old('itemization') && old('grid_items'))
-                                        @php
-                                            $old_items = old('grid_items');
-                                            $old_items = reset($old_items);
-                                        @endphp
-
-                                        @foreach ($old_items as $key => $item)
-                                            @php
-                                                $loop_index = $loop->iteration;
-                                            @endphp
-                                            <tr>
-                                                @foreach ($grid_histories as $row_key => $val)
-                                                    @if ($val->Status == 1)
-                                                        @php
-
-                                                            if ($val->Type == 'text') {
-                                                                $inputContent =
-                                                                    'name="grid_items[' .
-                                                                    $val->id .
-                                                                    '][]" type="text" class="form-control" autocomplete="off" value="' .
-                                                                    old('grid_items.' . $val->id . '.' . $key) .
-                                                                    '"';
-                                                            } elseif ($val->Type == 'number') {
-                                                                $inputContent =
-                                                                    'name="grid_items[' .
-                                                                    $val->id .
-                                                                    '][]" type="text" class="form-control" onkeypress="return /^[0-9.]+$/.test(event.key)" autocomplete="off" value="' .
-                                                                    old('grid_items.' . $val->id . '.' . $key) .
-                                                                    '"';
-                                                            } elseif ($val->Type == 'date') {
-                                                                $inputContent =
-                                                                    'name="grid_items[' .
-                                                                    $val->id .
-                                                                    '][]" id="test1" type="text" class="form-control mydatepicker" autocomplete="off" value="' .
-                                                                    old('grid_items.' . $val->id . '.' . $key) .
-                                                                    '"';
-                                                                $date = true;
-                                                            }
-
-                                                        @endphp
-                                                        <td>
-                                                            <input {!! $inputContent !!}>
-                                                        </td>
-                                                    @endif
-                                                @endforeach
-                                                @if ($loop_index == 1)
-                                                    <td class="text-center">
-                                                        <button type="button" class="btn btn-sm btn-primary"
-                                                            onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
-                                                                class="ti ti-plus"></i></button>
-                                                    </td>
-                                                @else
-                                                    <td class="text-center">
-                                                        <button type="button" class="btn btn-sm btn-primary"
-                                                            onclick="addRow('{{ implode(',', $grid_history_ids) }}')"><i
-                                                                class="ti ti-plus"></i></button>
-                                                        <button type="button" class="btn btn-sm btn-danger removeRow"><i
-                                                                class="ti ti-trash"></i></button>
-                                                    </td>
-                                                @endif
-                                            </tr>
-                                        @endforeach
-                                    @elseif (isset($grid_items) && $grid_items->IsNotEmpty())
+                                    @if (isset($grid_items) && $grid_items->IsNotEmpty())
                                         @foreach ($grid_items as $key => $item)
                                             @php
                                                 foreach ($item as $key => $val) {
