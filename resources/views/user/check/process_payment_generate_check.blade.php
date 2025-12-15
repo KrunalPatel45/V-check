@@ -64,6 +64,21 @@
                         $select.select2('destroy');
                     }
                     
+                    // Get the current selected value
+                    // Check all options to find the one with selected attribute (excluding placeholder)
+                    var currentVal = null;
+                    $select.find('option').each(function() {
+                        if ($(this).attr('selected') && $(this).val() !== '') {
+                            currentVal = $(this).val();
+                            return false; // Break the loop
+                        }
+                    });
+                    
+                    // If no selected option found (other than placeholder), use the select's value
+                    if (!currentVal || currentVal === '') {
+                        currentVal = $select.val();
+                    }
+                    
                     // Initialize Select2
                     $select.select2({
                         placeholder: placeholder,
@@ -72,17 +87,23 @@
                         minimumResultsForSearch: 0
                     });
                     
-                    // Ensure Select2 displays the selected value if present
-                    var currentVal = $select.val();
+                    // Ensure Select2 displays the selected value if present (important for edit mode)
                     if (currentVal && currentVal !== '' && currentVal !== 'add_new_payor' && currentVal !== 'add_new_payee') {
+                        // Set the value and trigger change to update Select2 display
                         $select.val(currentVal).trigger('change.select2');
+                    } else {
+                        // If no valid value, set to empty to show placeholder
+                        $select.val('').trigger('change.select2');
                     }
                 }
             }
 
             // Initialize Select2 for both dropdowns
-            initSelect2('#payor', 'Select Pay From');
-            initSelect2('#payee', 'Select Pay To');
+            // Use a small delay to ensure all DOM manipulations are complete (especially for edit mode)
+            setTimeout(function() {
+                initSelect2('#payor', 'Select Pay From');
+                initSelect2('#payee', 'Select Pay To');
+            }, 100);
 
             $('#payee').on('change', function() {
                 id = $(this).val();
