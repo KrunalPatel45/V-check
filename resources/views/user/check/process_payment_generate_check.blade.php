@@ -4,7 +4,7 @@
 
 <!-- Vendor Styles -->
 @section('vendor-style')
-    <style>
+    <style> 
         input,
         select {
             border: 1px solid !important;
