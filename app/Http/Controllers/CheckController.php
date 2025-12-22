@@ -1494,6 +1494,7 @@ class CheckController extends Controller
             Mail::to($payee->Email)->send(new SendCheckMail(4, $data, $check_pdf));
 
             $check->is_email_send = 1;
+            $check->is_seen = 1;
             $check->save();
 
             return redirect()->back()->with('success', 'Email sent successfully.');

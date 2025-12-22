@@ -16,10 +16,11 @@
             /* margin: 20px; */
         }
 
-        #sig canvas {
+        #sig {
             width: 350px;
             height: 100px;
             border: 1px solid #555;
+            cursor: crosshair;
         }
 
         #sign img {
@@ -79,43 +80,124 @@
 @section('page-script')
     @vite(['resources/assets/js/form-layouts.js'])
     @vite(['resources/assets/js/ui-modals.js'])
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <script type="text/javascript">
-        var sig = $('#sig').signature({
-            syncField: '#signature64',
-            syncFormat: 'PNG'
-        });
+        var signaturePad = null;
 
-        var existingSignature = {!! json_encode(!empty($old_sign->Sign) ? asset('sign/' . $old_sign->Sign) : '') !!};
+        // Initialize SignaturePad
+        function initSignaturePad() {
+            var canvas = document.getElementById('sig');
+            if (!canvas) {
+                return;
+            }
 
-        if (existingSignature) {
+            // Destroy existing instance if any
+            if (signaturePad) {
+                signaturePad.clear();
+            }
+
+            signaturePad = new SignaturePad(canvas, {
+                backgroundColor: 'rgb(255, 255, 255)',
+                penColor: 'rgb(0, 0, 0)'
+            });
+
+            // Handle canvas resize
+            function resizeCanvas() {
+                var ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext("2d").scale(ratio, ratio);
+                signaturePad.clear();
+            }
+
+            resizeCanvas();
+            window.addEventListener("resize", resizeCanvas);
+
+            // Update hidden field when signature changes
+            signaturePad.addEventListener("endStroke", function() {
+                var dataURL = signaturePad.toDataURL();
+                $("#signature64").val(dataURL);
+            });
+
+            // Load existing signature if available
+            var existingSignature = {!! json_encode(!empty($old_sign->Sign) ? asset('sign/' . $old_sign->Sign) : '') !!};
+
+            if (existingSignature) {
+                var img = new Image();
+                img.crossOrigin = "Anonymous";
+                img.src = existingSignature;
+
+                img.onload = function() {
+                    // Create a temporary canvas to convert the image to dataURL
+                    var tempCanvas = document.createElement('canvas');
+                    var tempCtx = tempCanvas.getContext('2d');
+                    tempCanvas.width = canvas.width;
+                    tempCanvas.height = canvas.height;
+                    
+                    // Draw the image on temporary canvas
+                    tempCtx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    // Get the dataURL from temporary canvas
+                    var dataURL = tempCanvas.toDataURL();
+                    
+                    // Load the signature into signature pad
+                    signaturePad.fromDataURL(dataURL);
+                    
+                    // Save to hidden field
+                    $("#signature64").val(dataURL);
+                };
+            }
+        }
+
+        // Function to load signature into pad
+        function loadSignatureIntoPad(signatureUrl) {
+            if (!signaturePad || !signatureUrl) return;
+            
             var img = new Image();
-            img.crossOrigin = "Anonymous"; // Prevent CORS issues when converting to Base64
-            img.src = existingSignature;
-
+            img.crossOrigin = "Anonymous";
+            img.src = signatureUrl;
             img.onload = function() {
-                var canvas = $('#sig canvas')[0];
-                var ctx = canvas.getContext("2d");
-
-                // Draw existing signature on canvas
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                // Convert canvas content to Base64
-                var base64Signature = canvas.toDataURL("image/png");
-
-                // Save Base64 signature to hidden field
-                $("#signature64").val(base64Signature);
+                var canvas = document.getElementById('sig');
+                if (canvas && signaturePad) {
+                    var tempCanvas = document.createElement('canvas');
+                    var tempCtx = tempCanvas.getContext('2d');
+                    tempCanvas.width = canvas.width;
+                    tempCanvas.height = canvas.height;
+                    tempCtx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    var dataURL = tempCanvas.toDataURL();
+                    signaturePad.fromDataURL(dataURL);
+                    $("#signature64").val(dataURL);
+                }
             };
         }
 
+        // Initialize on page load
+        $(document).ready(function() {
+            // Initialize SignaturePad when modal is shown
+            $('#signModel').on('shown.bs.modal', function() {
+                setTimeout(function() {
+                    initSignaturePad();
+                    
+                    // If editing, load existing signature
+                    var signId = $('#sign_id').val();
+                    if (signId) {
+                        // Try to get signature from old_sign first (for initial page load)
+                        var existingSignature = {!! json_encode(!empty($old_sign->Sign) ? asset('sign/' . $old_sign->Sign) : '') !!};
+                        if (existingSignature) {
+                            loadSignatureIntoPad(existingSignature);
+                        }
+                    }
+                }, 100);
+            });
 
-        $('#clear').click(function(e) {
-
-            e.preventDefault();
-
-            sig.signature('clear');
-
-            $("#signature64").val('');
-
+            // Clear button functionality
+            $(document).on('click', '#clear', function(e) {
+                e.preventDefault();
+                if (signaturePad) {
+                    signaturePad.clear();
+                    $("#signature64").val('');
+                }
+            });
         });
     </script>
 
@@ -512,9 +594,31 @@
                 $('#payor_h').text('Edit');
             });
             $('#signature-edit').on('click', function(e) {
-                event.preventDefault();
-                $('#signModel').modal('show');
-                $('.sign_h').text('Edit');
+                e.preventDefault();
+                var signatureId = $('#signature').val();
+                if (signatureId) {
+                    $.ajax({
+                        url: "{{ route('get_signature', ':id') }}".replace(':id', signatureId),
+                        method: 'GET',
+                        success: function(response) {
+                            $('#sign-name').val(response.signature.Name);
+                            $('#sign_id').val(response.signature.Id);
+                            $('#signModel').modal('show');
+                            $('.sign_h').text('Edit');
+                            
+                            // Load signature into pad after modal is shown and pad is initialized
+                            $('#signModel').one('shown.bs.modal', function() {
+                                setTimeout(function() {
+                                    var existingSignature = base_url + '/sign/' + response.signature.Sign;
+                                    loadSignatureIntoPad(existingSignature);
+                                }, 200);
+                            });
+                        }
+                    });
+                } else {
+                    $('#signModel').modal('show');
+                    $('.sign_h').text('Edit');
+                }
             });
 
             $('#payee-edit').on('click', function(e) {
@@ -550,8 +654,13 @@
                     $('#signature-edit').addClass('d-none');
                     $('#signModel').modal('show');
                     $('#sign_id').val('');
-                    $('#name').val('');
+                    $('#sign-name').val('');
                     $('.sign_h').text('Add');
+                    // Clear signature pad when adding new
+                    if (signaturePad) {
+                        signaturePad.clear();
+                        $("#signature64").val('');
+                    }
                 } else {
                     $.ajax({
                         url: "{{ route('get_signature', ':id') }}".replace(':id', id),
@@ -570,27 +679,6 @@
 
                             $('#sign-name').val(response.signature.Name);
                             $('#sign_id').val(response.signature.Id);
-
-                            if (existingSignature) {
-                                var img = new Image();
-                                img.crossOrigin =
-                                    "Anonymous"; // Prevent CORS issues when converting to Base64
-                                img.src = existingSignature;
-
-                                img.onload = function() {
-                                    var canvas = $('#sig canvas')[0];
-                                    var ctx = canvas.getContext("2d");
-
-                                    // Draw existing signature on canvas
-                                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                                    // Convert canvas content to Base64
-                                    var base64Signature = canvas.toDataURL("image/png");
-
-                                    // Save Base64 signature to hidden field
-                                    $("#signature64").val(base64Signature);
-                                };
-                            }
                         }
 
                     });
@@ -1288,7 +1376,7 @@
                                     <div class="col-md-12">
                                         <label class="form-label" for="signature">Signature</label>
                                         <div class="col-sm-10">
-                                            <div id="sig"></div>
+                                            <canvas id="sig" style="border: 1px solid #555; width: 350px; height: 100px;"></canvas>
                                             <br />
                                             <button id="clear" class="btn btn-sm btn-danger">Clear</button>
                                             <input type="hidden" name="signature" id="signature64">
