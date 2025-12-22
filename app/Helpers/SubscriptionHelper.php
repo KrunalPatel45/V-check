@@ -143,7 +143,6 @@ class SubscriptionHelper
         }
 
         $subscription = $subscriptionResponse->json();
-        
         $scheduleId = $data['schedule'] ?? null;
 
         if($scheduleId) {
@@ -397,6 +396,20 @@ class SubscriptionHelper
         $response = Http::withToken($stripeSecret)
             ->asForm()
             ->post("https://api.stripe.com/v1/subscription_schedules/{$scheduleId}/release");
+        if (!$response->successful()) {
+            return false;
+        }
+        return $response->json();
+    }
+
+    public function getSubscriptions($stripeCustomerId){
+        $stripeSecret = config('services.stripe.secret');
+
+        $response = Http::withToken($stripeSecret)
+        ->get('https://api.stripe.com/v1/subscriptions', [
+            'customer' => $stripeCustomerId,
+            'status' => 'active',
+        ]);
         if (!$response->successful()) {
             return false;
         }

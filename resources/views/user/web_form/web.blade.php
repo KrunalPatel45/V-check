@@ -758,6 +758,30 @@
         }
 
         $(document).ready(function() {
+ // Hide server-side validation errors when user starts typing
+            
+            $('#webForm input, #webForm select').on('input change', function() {
+                // Find the error div - it's typically a sibling or within the same parent container
+                const $input = $(this);
+                const inputId = $input.attr('id');
+                
+                // For account_number_verify, we need to hide the server-side error div, not the client-side span
+                if (inputId === 'account_number_verify') {
+                    // Find the server-side error div (exclude the #error_verify span)
+                    $input.parent().find('div.error').hide();
+                } else {
+                    // For other fields, try to find error as next sibling first
+                    let $errorDiv = $input.next('.error');
+                    // If not found, look in the parent container (for nested structures)
+                    if ($errorDiv.length === 0) {
+                        $errorDiv = $input.parent().find('.error').first();
+                    }
+                    // Hide the error if found (but not the #error_verify span)
+                    if ($errorDiv.length && !$errorDiv.is('#error_verify')) {
+                        $errorDiv.hide();
+                    }
+                }
+            });
 
             // Hide server-side validation errors when user starts typing
             $('#webForm input, #webForm select').on('input change', function() {

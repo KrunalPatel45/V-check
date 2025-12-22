@@ -112,6 +112,13 @@
       "slug": "admin.suggestions",
       "access": "admin"
     },
+     {
+      "url": "/admin/how-it-works",
+      "name": "How It Works",
+      "icon": "menu-icon tf-icons ti ti-help",
+      "slug": "admin.how_it_works",
+      "access": "admin"
+    },
     {
       "url": "/admin/logout",
       "name": "Logout",

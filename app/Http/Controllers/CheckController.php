@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Grid;
 use App\Models\GridHistory;
 use App\Models\GridItem;
+use App\Models\HowItWork;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Company;
@@ -124,7 +125,9 @@ class CheckController extends Controller
                 ->make(true);
         }
 
-        return view('user.check.process_payment_check');
+        $how_it_works = HowItWork::select('section','link')->where('status','Active')->pluck('link','section');
+
+        return view('user.check.process_payment_check', compact('how_it_works'));
     }
     public function process_payment_check()
     {
@@ -334,8 +337,9 @@ class CheckController extends Controller
                 ->rawColumns(['logo', 'Status', 'actions'])
                 ->make(true);
         }
-
-        return view('user.check.send_payment_check');
+        
+        $how_it_works = HowItWork::select('section','link')->where('status','Active')->pluck('link','section');
+        return view('user.check.send_payment_check', compact('how_it_works'));
     }
     public function send_payment_check()
     {
@@ -550,7 +554,6 @@ class CheckController extends Controller
             $grid_histories = GridHistory::where('UserID', Auth::user()->UserID)
                 ->whereIn('id', $grid_history_ids)->get();
         }
-        
         if(empty($grid_history_ids)){
             $grid_history_ids = $grid_histories->pluck('id')->toArray();
         }
@@ -1009,8 +1012,9 @@ class CheckController extends Controller
         $is_web_form = (Auth::user()->CurrentPackageID != -1) ? $package->web_forms : 0;
 
         $grids = Grid::where('UserID', Auth::id())->get();
+        $how_it_works = HowItWork::select('section','link')->where('status','Active')->pluck('link','section');
 
-        return view('user.web_form.index', compact('is_web_form', 'grids'));
+        return view('user.web_form.index', compact('is_web_form', 'grids','how_it_works'));
     }
 
     public function new_web_form()

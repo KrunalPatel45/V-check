@@ -42,6 +42,7 @@
         .btn-custom:hover {
             background-color: #4f46e5;
         }
+        
     </style>
 @endsection
 <!-- Vendor Scripts -->
@@ -143,12 +144,17 @@
     @php
         $progress = $package_id != '-1' ? ($package_data['remainingDays'] * 100) / $package_data['total_days'] : 0;
     @endphp
-    <div class="row">
         @if (session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
             </div>
+            <script>
+                setTimeout(function() {
+                    window.location.reload();
+                },1000);
+            </script>
         @endif
+    <div class="row">
         @if (session('error'))
             <div class="alert alert-danger">
                 {{ session('error') }}
@@ -206,7 +212,7 @@
                                         until then
                                     </div>
                                 @endif
-                                @if ($paymentSubscription->Status == 'Canceled')
+                                @if ($paymentSubscription->Status == 'Active' && $paymentSubscription->CancelAt != null)
                                     <div class="alert alert-danger mt-3" role="alert">
                                         Your subscription cancellation has been scheduled. The change will take effect after
                                         your current plan ends. You will continue to enjoy your current plan benefits until

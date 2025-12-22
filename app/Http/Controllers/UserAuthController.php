@@ -99,11 +99,11 @@ class UserAuthController extends Controller
                 return redirect()->route('user.package', ['user_id' => $user->UserID]);
             }
 
-            if ($user->EmailVerified == false) {
-                $enc_user_id = Crypt::encrypt($user->UserID);
-                $link = route('user.resend_verify_email', $enc_user_id);
-                return redirect()->back()->withErrors(['login' => 'Please verify your email first <a href="' . $link . '">Resend</a>'])->withInput();
-            }
+            // if ($user->EmailVerified == false) {
+            //     $enc_user_id = Crypt::encrypt($user->UserID);
+            //     $link = route('user.resend_verify_email', $enc_user_id);
+            //     return redirect()->back()->withErrors(['login' => 'Please verify your email first <a href="' . $link . '">Resend</a>'])->withInput();
+            // }
 
             Auth::login($user);
             $name = $user->FirstName . ' ' . $user->LastName;
@@ -174,7 +174,10 @@ class UserAuthController extends Controller
             'timezone' => $request->timezone,
         ]);
 
-        return redirect()->route('user.package', ['user_id' => $user->UserID]);
+       $package = Package::whereRaw('LOWER(Name) = ?', ['trial'])->first();
+
+        return redirect()->route('user-select-free-package', [$user->UserID,$package->PackageID]);
+        // return redirect()->route('user.package', ['user_id' => $user->UserID]);
     }
 
     public function select_package(Request $request, $id, $plan)
@@ -205,10 +208,10 @@ class UserAuthController extends Controller
         $PaymentHistory = PaymentHistory::where('PaymentSubscriptionID', $PaymentSubscription->PaymentSubscriptionID)
             ->orderBy('PaymentHistoryID', 'desc')->first();
 
-        if ($PaymentSubscription->Status != 'Canceled') {
+        if ($PaymentSubscription->Status != 'Canceled' && $PaymentSubscription->Status != 'Inactive') {
             return redirect()->route('user.dashboard');
         }
-
+        
         $user = Auth::user();
         $package_id = $PaymentSubscription->PackageID;
 
@@ -425,8 +428,8 @@ class UserAuthController extends Controller
 
                 Mail::to($user->Email)->send(new SendNewSubMail(6, $name, $data));
             }
-
-            return redirect()->route('user.login')->with('success', 'Verification link sent to your email');
+            
+            return redirect()->back()->with('success', 'Verification link sent to your email');
             
         } catch (\Exception $e) {
             return redirect()->route('user.login')->with('error', 'Something went wrong!');

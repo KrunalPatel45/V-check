@@ -211,6 +211,16 @@
     100% { transform: rotate(360deg); }
 }
 
+.animated-alert {
+            display: block;
+            animation: shake 1.5s;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-20px); }
+            50% { transform: translateX(20px); }
+            75% { transform: translateX(-20px); }
+        }
     </style>
 
 </head>

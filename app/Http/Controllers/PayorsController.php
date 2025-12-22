@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\HowItWork;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -93,8 +94,9 @@ class PayorsController extends Controller
                 ->rawColumns(['Name','status', 'actions'])
                 ->make(true);
         }
+        $how_it_works = HowItWork::select('section','link')->where('status','Active')->pluck('link','section');
 
-        return view('user.Payee.index');
+        return view('user.Payee.index', compact('how_it_works'));
     }
 
     public function vendor_index(Request $request)
@@ -177,7 +179,9 @@ class PayorsController extends Controller
                 ->make(true);
         }
 
-        return view('user.Payors.index');
+        $how_it_works = HowItWork::select('section','link')->where('status','Active')->pluck('link','section');
+
+        return view('user.Payors.index',compact('how_it_works'));
     }
 
     public function payor_create()

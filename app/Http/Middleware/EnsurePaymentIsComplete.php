@@ -25,7 +25,7 @@ class EnsurePaymentIsComplete
 
         if ($PaymentSubscription) {
             // $CancelAt = Carbon::parse($PaymentSubscription->CancelAt);
-            if ($PaymentSubscription->Status == 'Canceled') {
+            if ($PaymentSubscription->Status == 'Canceled' || $PaymentSubscription->Status == 'Inactive') {
                 return redirect()->route('expired_sub');
             }
             if ($PaymentSubscription->Status == 'Pending') {
