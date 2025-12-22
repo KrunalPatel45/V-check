@@ -145,13 +145,53 @@
                                         <small class="text-danger">Your plan requires update</small>
                                     @endif
                                     @if (!empty($paymentSubscription->NextPackageID))
-                                        <div class="alert alert-warning mt-3" role="alert">
+                                        <!-- <div class="alert alert-warning mt-3" role="alert">
                                             Your subscription plan downgrade has been scheduled. The change will take effect
                                             on
                                             after your current plan expires. You can continue to enjoy your current plan
                                             benefits
                                             until then
+                                        </div> -->
+                                        <div class="alert alert-warning mt-5 shadow-sm" role="alert">
+                                        <div class="d-flex align-items-center mb-5">
+                                            <i class="ti ti-clock fs-4 me-2"></i>
+                                            <h5 class="mb-0 fw-semibold">Plan Change Scheduled</h5>
                                         </div>
+
+                                        <div class="row mt-3">
+                                            <div class="col-md-4 mb-2">
+                                                <small class="text-muted">Current Plan</small>
+                                                <div class="fw-bold">
+                                                    <span class="badge bg-success">
+                                                        {{ $package_data['package_name'] }}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-4 mb-2">
+                                                <small class="text-muted">Next Plan</small>
+                                                <div class="fw-bold">
+                                                    <span class="badge bg-secondary">
+                                                        {{ $paymentSubscription->nextPlan->Name }}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-4 mb-2">
+                                                <small class="text-muted">Effective On</small>
+                                                <div class="fw-bold">
+                                                    <i class="bi bi-calendar-event me-1"></i>
+                                                    {{ $package_data['expiryDate'] }}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <hr class="my-2">
+
+                                        <p class="mb-0 small text-muted">
+                                            You can continue enjoying your current plan benefits until the effective date.
+                                        </p>
+                                    </div>
                                     @endif
                                     @if ($paymentSubscription->Status == 'Canceled')
                                         <div class="alert alert-danger mt-3" role="alert">
