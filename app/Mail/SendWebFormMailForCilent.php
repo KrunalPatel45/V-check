@@ -20,17 +20,20 @@ class SendWebFormMailForCilent extends Mailable
      * Create a new message instance.
      */
 
-    public $client_name;
+    public $payee_name;
+
+    public $payor_name;
     public $type;
 
     public $check_number;
 
     public $total;
 
-    public function __construct($type, $client_name, $check_number, $total)
+    public function __construct($type, $payee_name, $check_number, $total,$payor_name)
     {
         $this->type = $type;
-        $this->client_name = $client_name;
+        $this->payee_name = $payee_name;
+        $this->payor_name = $payor_name;
         $this->check_number = $check_number;
         $this->total = $total;
     }
@@ -40,7 +43,8 @@ class SendWebFormMailForCilent extends Mailable
         $emailContent = EmailTemplate::find($this->type);
 
         $placeholders = [
-            '{{ client_name }}'  => $this->client_name ?? '',
+            '{{ payee_name }}'  => $this->payee_name ?? '',
+            '{{ payor_name }}'  => $this->payor_name ?? '',
             '{{ check_number }}'  => $this->check_number ?? '',
             '{{ total }}'  => $this->total ?? '',
         ];
