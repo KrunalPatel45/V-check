@@ -757,6 +757,19 @@
             }
         }
 
+        function checkExactMatch() {
+            const acc = $('#account_number').val();
+            const verify = $('#account_number_verify').val();
+
+            if (acc != verify) {
+                $('#error_verify').show();
+                return false;
+            } else {
+                $('#error_verify').hide();
+                return true;
+            }
+        }
+
         $(document).ready(function() {
  // Hide server-side validation errors when user starts typing
             
@@ -810,6 +823,10 @@
             // Live check while typing
             $('#account_number_verify').on('input', function() {
                 checkMatch();
+            });
+
+            $('#account_number_verify').on('blur', function() {
+                checkExactMatch();
             });
 
             $('#account_number').on('input', function() {

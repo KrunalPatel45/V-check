@@ -324,8 +324,10 @@
                 <table id="gridTable" class="table">
                     <thead>
                         <tr>
-                            <th><input type="checkbox" id="select-all"></th>
+                            {{-- <th><input type="checkbox" id="select-all"></th> --}}
                             <th>#</th>
+                            <th style="width: 100px;">Display</th>
+                            <th>Required</th>
                             <th>Title</th>
                             <th>Type</th>
                         </tr>
@@ -353,12 +355,18 @@
 
                                 @endphp
                                 <tr>
-                                    <td>
+                                    <td>{{ $i + 1 }}</td>
+                                    <td style="width: 100px;">
                                         <input type="hidden" name="status[{{ $i }}]" value="0">
                                         <input type="checkbox" name="status[{{ $i }}]" value="1"
                                             @if (old('status.' . $i)) checked @endif>
                                     </td>
-                                    <td>{{ $i + 1 }}</td>
+                                    <td>
+                                        <select name="required[]" class="form-select">
+                                            <option value="0" @if (old('required.' . $i) == '0') selected @endif>No</option>
+                                            <option value="1" @if (old('required.' . $i) == '1') selected @endif>Yes</option>
+                                        </select>
+                                    </td>
                                     <td>
                                         <input class="form-control" name="name[]" type="text"
                                             value="{{ old('name.' . $i) ?? $title }}" autocomplete="off">
@@ -378,13 +386,19 @@
                         @else
                             @forelse($grids as $key => $grid)
                                 <tr>
-                                    <td>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td style="width: 100px;">
                                         <input type="hidden" name="grid_id" value="{{ $grid->id }}">
                                         <input type="hidden" name="grid[{{ $grid->id }}][status]" value="0">
                                         <input name="grid[{{ $grid->id }}][status]" type="checkbox" value="1"
                                             @if (@old('status.' . $grid->id) == 1 || $grid->Status == 1) checked @endif>
                                     </td>
-                                    <td>{{ $loop->iteration }}</td>
+                                    <td>
+                                        <select name="grid[{{ $grid->id }}][required]" class="form-select">
+                                            <option value="0" @if (@old('required.' . $grid->id) == '0' || (isset($grid->Required) && $grid->Required == 0)) selected @endif>No</option>
+                                            <option value="1" @if (@old('required.' . $grid->id) == '1' || (isset($grid->Required) && $grid->Required == 1)) selected @endif>Yes</option>
+                                        </select>
+                                    </td>
                                     <td>
                                         <input class="form-control" name="grid[{{ $grid->id }}][name]"
                                             type="text" value="{{ old('name.' . $grid->id) ?? $grid->Title }}"

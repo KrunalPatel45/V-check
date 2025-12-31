@@ -67,6 +67,30 @@
         .no-spinner {
             -moz-appearance: textfield;
         }
+
+        /* Prevent horizontal scrollbars when Select2 dropdown is open */
+        html.select2-dropdown-open {
+            overflow-x: hidden !important;
+        }
+
+        body.select2-dropdown-open {
+            overflow-x: hidden !important;
+        }
+
+        /* Ensure Select2 dropdown doesn't cause horizontal scroll */
+        .select2-container {
+            max-width: 100%;
+        }
+
+        .select2-dropdown {
+            max-width: 100vw !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Ensure Select2 results container doesn't overflow */
+        .select2-results {
+            max-width: 100% !important;
+        }
     </style>
     @vite(['resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
@@ -251,7 +275,8 @@
                         placeholder: placeholder,
                         allowClear: false,
                         width: '100%',
-                        minimumResultsForSearch: 0
+                        minimumResultsForSearch: 0,
+                        dropdownParent: $('body')
                     });
                     
                     // Ensure Select2 displays the selected value if present (important for edit mode)
@@ -271,6 +296,38 @@
                 initSelect2('#payor', 'Select Pay From');
                 initSelect2('#payee', 'Select Pay To');
             }, 100);
+
+            // Variable to track dropdown state
+            var select2OpenTimeout = null;
+
+            // Prevent scrollbars when Select2 dropdown opens
+            $(document).on('select2:open', function(e) {
+                // Clear any pending close timeout
+                if (select2OpenTimeout) {
+                    clearTimeout(select2OpenTimeout);
+                    select2OpenTimeout = null;
+                }
+                // Always add the class when a dropdown opens
+                $('html, body').addClass('select2-dropdown-open');
+            });
+
+            // Remove class when Select2 dropdown closes
+            $(document).on('select2:close', function(e) {
+                // Clear any existing timeout
+                if (select2OpenTimeout) {
+                    clearTimeout(select2OpenTimeout);
+                }
+                // Use a delay to check if any dropdown is still open
+                // This handles the case where one dropdown closes and another opens immediately
+                select2OpenTimeout = setTimeout(function() {
+                    // Check if any Select2 dropdown is still open
+                    var hasOpenDropdown = $('.select2-container--open').length > 0;
+                    if (!hasOpenDropdown) {
+                        $('html, body').removeClass('select2-dropdown-open');
+                    }
+                    select2OpenTimeout = null;
+                }, 100);
+            });
 
             $(document).find('.mydatepicker').flatpickr({
                 dateFormat: 'm-d-Y',
