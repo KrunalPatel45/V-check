@@ -17,5 +17,6 @@ class GridHistory extends Model
         'Title',
         'Type',
         'Status',
+        'Required',
     ];
 }

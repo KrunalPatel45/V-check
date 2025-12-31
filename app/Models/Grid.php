@@ -17,5 +17,6 @@ class Grid extends Model
         'Title',
         'Type',
         'Status',
+        'Required',
     ];
 }

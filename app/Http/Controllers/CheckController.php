@@ -143,8 +143,8 @@ class CheckController extends Controller
 
         // $lastCheck = Checks::where('UserID', Auth::id())->where('CheckType', 'Process Payment')->latest('CheckID')->first();
 
-        $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'RP')->get();
-        $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'RP')->get();
+        $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'RP')->orderBy('Name', 'asc')->get();
+        $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'RP')->orderBy('Name', 'asc')->get();
         return view('user.check.process_payment_generate_check', compact('payees', 'payors'));
     }
     public function process_payment_check_generate(Request $request)
@@ -248,8 +248,8 @@ class CheckController extends Controller
     {
         $check = Checks::find($id);
         $check->ExpiryDate = Carbon::parse($check->ExpiryDate)->format('m-d-Y');
-        $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'RP')->get();
-        $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'RP')->get();
+        $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'RP')->orderBy('Name', 'asc')->get();
+        $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'RP')->orderBy('Name', 'asc')->get();
         $old_payee = Payors::find($check->PayeeID);
         $old_payor = Payors::find($check->PayorID);
         return view('user.check.process_payment_generate_check', compact('payees', 'payors', 'check', 'old_payee', 'old_payor'));
@@ -353,8 +353,8 @@ class CheckController extends Controller
             return redirect()->route('check.send_payment')->with('info', 'Your check limit has been exceeded. Please upgrade your plan.');
         }
 
-        $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'SP')->get();
-        $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'SP')->get();
+        $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'SP')->orderBy('Name', 'asc')->get();
+        $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'SP')->orderBy('Name', 'asc')->get();
 
         $lastCheck = Checks::where('UserID', Auth::id())->where('CheckType', 'Make Payment')->latest('CheckID')->first();
         $userSignatures = UserSignature::where('UserID', Auth::id())->get();
@@ -438,23 +438,62 @@ class CheckController extends Controller
 
             if (isset($request->itemization) && $request->itemization == 1) {
 
-                foreach ($request->grid_items as $id => $item) {
+                if (isset($request->grid_items) && !empty($request->grid_items)) {
+                    // Get all required grid history fields
+                    $requiredGridHistories = GridHistory::where('UserID', Auth::id())
+                        ->where('Status', 1)
+                        ->where('Required', 1)
+                        ->pluck('Title', 'id')
+                        ->toArray();
 
-                    $row = 1;
-
-                    foreach ($item as $key => $value) {
-                        $grid_history = GridHistory::find($id);
-                        if ($value == null || $value == '') {
-                            DB::rollBack();
-                            return redirect()->back()->with('grid_error', 'Value for ' . $grid_history->Title . ' is required.')->withInput();
+                    // Reorganize data by row instead of by column
+                    $rowsData = [];
+                    foreach ($request->grid_items as $gridHistoryID => $item) {
+                        foreach ($item as $rowIndex => $value) {
+                            if (!isset($rowsData[$rowIndex])) {
+                                $rowsData[$rowIndex] = [];
+                            }
+                            $rowsData[$rowIndex][$gridHistoryID] = $value;
                         }
-                        GridItem::create([
-                            'CheckID' => $checks->CheckID,
-                            'Row' => $row,
-                            'GridHistoryID' => $id,
-                            'Value' => $value
-                        ]);
-                        $row++;
+                    }
+
+                    // Process each row
+                    foreach ($rowsData as $rowIndex => $rowValues) {
+                        // Check if all values in the row are null or blank
+                        $allEmpty = true;
+                        foreach ($rowValues as $value) {
+                            if ($value != null && $value != '') {
+                                $allEmpty = false;
+                                break;
+                            }
+                        }
+
+                        // If all values are empty, skip this row
+                        if ($allEmpty) {
+                            continue;
+                        }
+
+                        // Validate required fields for this row
+                        foreach ($rowValues as $gridHistoryID => $value) {
+                            if (isset($requiredGridHistories[$gridHistoryID])) {
+                                if ($value == null || $value == '') {
+                                    $grid_history = GridHistory::find($gridHistoryID);
+                                    DB::rollBack();
+                                    return redirect()->back()->with('grid_error', 'Value for ' . $grid_history->Title . ' is required.')->withInput();
+                                }
+                            }
+                        }
+
+                        // If any value exists, save the entire row (even if some values are empty)
+                        $rowNumber = $rowIndex + 1;
+                        foreach ($rowValues as $gridHistoryID => $value) {
+                            GridItem::create([
+                                'CheckID' => $checks->CheckID,
+                                'Row' => $rowNumber,
+                                'GridHistoryID' => $gridHistoryID,
+                                'Value' => $value ?? ''
+                            ]);
+                        }
                     }
                 }
             }
@@ -492,24 +531,60 @@ class CheckController extends Controller
             if (isset($request->itemization) && $request->itemization == 1) {
 
                 if (isset($request->grid_items) && !empty($request->grid_items)) {
-                    foreach ($request->grid_items as $id => $item) {
-                        $row = 1;
+                    // Get all required grid history fields
+                    $requiredGridHistories = GridHistory::where('UserID', Auth::id())
+                        ->where('Status', 1)
+                        ->where('Required', 1)
+                        ->pluck('Title', 'id')
+                        ->toArray();
 
-                        foreach ($item as $key => $value) {
-
-                            if ($value == null || $value == '') {
-                                $grid_history = GridHistory::find($id);
-                                DB::rollBack();
-                                return redirect()->back()->with('grid_error', 'Value for ' . $grid_history->Title . ' is required.')->withInput();
+                    // Reorganize data by row instead of by column
+                    $rowsData = [];
+                    foreach ($request->grid_items as $gridHistoryID => $item) {
+                        foreach ($item as $rowIndex => $value) {
+                            if (!isset($rowsData[$rowIndex])) {
+                                $rowsData[$rowIndex] = [];
                             }
+                            $rowsData[$rowIndex][$gridHistoryID] = $value;
+                        }
+                    }
 
+                    // Process each row
+                    foreach ($rowsData as $rowIndex => $rowValues) {
+                        // Check if all values in the row are null or blank
+                        $allEmpty = true;
+                        foreach ($rowValues as $value) {
+                            if ($value != null && $value != '') {
+                                $allEmpty = false;
+                                break;
+                            }
+                        }
+
+                        // If all values are empty, skip this row
+                        if ($allEmpty) {
+                            continue;
+                        }
+
+                        // Validate required fields for this row
+                        foreach ($rowValues as $gridHistoryID => $value) {
+                            if (isset($requiredGridHistories[$gridHistoryID])) {
+                                if ($value == null || $value == '') {
+                                    $grid_history = GridHistory::find($gridHistoryID);
+                                    DB::rollBack();
+                                    return redirect()->back()->with('grid_error', 'Value for ' . $grid_history->Title . ' is required.')->withInput();
+                                }
+                            }
+                        }
+
+                        // If any value exists, save the entire row (even if some values are empty)
+                        $rowNumber = $rowIndex + 1;
+                        foreach ($rowValues as $gridHistoryID => $value) {
                             GridItem::create([
                                 'CheckID' => $checks->CheckID,
-                                'Row' => $row,
-                                'GridHistoryID' => $id,
-                                'Value' => $value
+                                'Row' => $rowNumber,
+                                'GridHistoryID' => $gridHistoryID,
+                                'Value' => $value ?? ''
                             ]);
-                            $row++;
                         }
                     }
                 }
@@ -526,8 +601,8 @@ class CheckController extends Controller
     {
         $check = Checks::find($id);
         $check->ExpiryDate = Carbon::parse($check->ExpiryDate)->format('m-d-Y');
-        $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'SP')->get();
-        $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'SP')->get();
+        $payees = Payors::where('UserID', Auth::id())->where('Type', 'Payee')->where('Category', 'SP')->orderBy('Name', 'asc')->get();
+        $payors = Payors::where('UserID', Auth::id())->where('Type', 'Payor')->where('Category', 'SP')->orderBy('Name', 'asc')->get();
         $old_payee = Payors::find($check->PayeeID);
         $old_payor = Payors::find($check->PayorID);
         $old_sign = UserSignature::find($check->SignID);
@@ -1584,6 +1659,7 @@ class CheckController extends Controller
                 $row[$key]['name'] = $input['name'][$key];
                 $row[$key]['type'] = $input['type'][$key];
                 $row[$key]['status'] = ($input['status'][$key] == '1') ? 1 : 0;
+                $row[$key]['required'] = isset($input['required'][$key]) ? (($input['required'][$key] == '1') ? 1 : 0) : 0;
 
                 if ($row[$key]['status'] == 1 && $row[$key]['name'] == '') {
                     return redirect()->back()->with('grid_error', 'Title is required.')->withInput();
@@ -1596,7 +1672,8 @@ class CheckController extends Controller
                     'UserID' => Auth::user()->UserID,
                     'Title' => $row[$key]['name'],
                     'Type' => $row[$key]['type'],
-                    'Status' => $row[$key]['status']
+                    'Status' => $row[$key]['status'],
+                    'Required' => $row[$key]['required']
                 ]);
 
                 if ($row[$key]['status'] == 1) {
@@ -1605,7 +1682,8 @@ class CheckController extends Controller
                         'GridID' => $grid->id,
                         'Title' => $row[$key]['name'],
                         'Type' => $row[$key]['type'],
-                        'Status' => $row[$key]['status']
+                        'Status' => $row[$key]['status'],
+                        'Required' => $row[$key]['required']
                     ]);
                 }
             }
@@ -1622,10 +1700,13 @@ class CheckController extends Controller
                     return redirect()->back()->with('grid_error', 'Type is required.')->withInput();
                 }
 
+                $required = isset($val['required']) ? (($val['required'] == '1') ? 1 : 0) : 0;
+
                 Grid::find($key)->update([
                     'Title' => $val['name'],
                     'Type' => $val['type'],
-                    'Status' => $val['status']
+                    'Status' => $val['status'],
+                    'Required' => $required
                 ]);
 
                 if ($val['status'] == 1) {
@@ -1633,7 +1714,8 @@ class CheckController extends Controller
                         'UserID' => Auth::user()->UserID,
                         'Title' => $val['name'],
                         'Type' => $val['type'],
-                        'Status' => $val['status']
+                        'Status' => $val['status'],
+                        'Required' => $required
                     ]);
                 }
             }
