@@ -391,8 +391,8 @@ class StripeWebhookController extends Controller
                 // if ($invoice['attempt_count'] >= 3) {
                 //     $this->cancelSubscriptionAfterFailedAttempts($user);
                 // } else {
-                if ($invoice['attempt_count'] >= 4) {
-                    if($user->CurrentPackageID != '-1'){
+                if ($invoice['attempt_count'] < 4) {
+                    if($PaymentSubscription->PackageID != '-1'){
                         $PaymentSubscription->update([
                             'Status' => 'Pending'
                         ]);
