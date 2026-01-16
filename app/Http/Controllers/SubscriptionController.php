@@ -110,7 +110,7 @@ class SubscriptionController extends Controller
             $paymentEndDate = $paymentStartDate->copy()->addHours(24);
             $nextRenewalDate = $paymentStartDate->copy()->addDays((int) $packages->Duration + 1);
 
-           
+
             $user_name = $user->FirstName . ' ' . $user->LastName;
             $link = route('user.verify_email', [$user->UserID, sha1($user->Email)]);
 
@@ -127,11 +127,11 @@ class SubscriptionController extends Controller
             Mail::to($user->Email)->send(new SendNewSubMail(6, $user_name, $data));
             Mail::to(env('ADMIN_EMAIL'))->send(new AdminMail(10, $packages->Name, $user_name, $user->Email));
             // Optional: redirect or show a view
-             if($user->EmailVerified == 1){
+            if ($user->EmailVerified == 1) {
                 return redirect()->route('user.login');
-             }else{
-                 return redirect()->route('user.login')->with('success', 'Verification link sent to your email');
-             }
+            } else {
+                return redirect()->route('user.login')->with('success', 'Verification link sent to your email');
+            }
         }
         return redirect()->route('user.login')->with('error', 'Something want to wrong');
     }
@@ -143,7 +143,7 @@ class SubscriptionController extends Controller
 
     // public function add_card(Request $request) 
     // {
-    
+
     //     $stripeSecretKey = env('STRIPE_SECRET');
     //     $stripeToken = $request->stripeToken; 
     //     $customerId =Auth::user()->CusID;
@@ -169,9 +169,11 @@ class SubscriptionController extends Controller
     // }
     public function add_card(Request $request)
     {
+        
         $stripeSecretKey = env('STRIPE_SECRET');
         $paymentMethodId = $request->payment_method;
         $customerId = Auth::user()->CusID;
+        $subscriptionId = Auth::user()->SubID;
 
         try {
             // Step 1: List existing payment methods
@@ -219,6 +221,33 @@ class SubscriptionController extends Controller
                 return redirect()->back()->with('error_card', $message);
             }
 
+            $response = Http::withBasicAuth($stripeSecretKey, '')
+                ->asForm()
+                ->post("https://api.stripe.com/v1/customers/{$customerId}", [
+                    'invoice_settings[default_payment_method]' => $paymentMethodId,
+                ]);
+
+            $data = $response->json();
+
+            if ($response->failed() || isset($data['error'])) {
+                return back()->with('error_card', $data['error']['message'] ?? 'Failed to set default card.');
+            }
+
+            if ($subscriptionId) {
+                $subscriptionResponse = Http::withBasicAuth($stripeSecretKey, '')
+                    ->asForm()
+                    ->post("https://api.stripe.com/v1/subscriptions/{$subscriptionId}", [
+                        'default_payment_method' => $paymentMethodId,
+                    ]);
+
+                if ($subscriptionResponse->failed()) {
+                    return back()->with(
+                        'error_card',
+                        $subscriptionResponse->json()['error']['message'] ?? 'Failed to update subscription card.'
+                    );
+                }
+            }
+
             return redirect()->back()->with('success_card', 'Card added successfully');
 
         } catch (\Exception $e) {
@@ -247,48 +276,75 @@ class SubscriptionController extends Controller
     //         return redirect()->back()->with('error_card', 'Failed to delete card');
     //     }
     // }
-    public function delete_card($id)
+    public function delete_card($pmId)
     {
         $stripeSecretKey = env('STRIPE_SECRET');
         $customerId = Auth::user()->CusID;
+        $subscriptionId = Auth::user()->SubID; // adjust if needed
 
         try {
-            $paymentMethods = Http::withToken($stripeSecretKey)
+            // 1️⃣ Get all cards
+            $paymentMethods = Http::withBasicAuth($stripeSecretKey, '')
                 ->get("https://api.stripe.com/v1/payment_methods", [
                     'customer' => $customerId,
                     'type' => 'card',
                 ])
                 ->json()['data'] ?? [];
 
-            if (!empty($paymentMethods)) {
-                // If only one card, do not delete
-                if (count($paymentMethods) <= 1) {
-                    return redirect()->back()->with('error_card', 'At least one card is required.');
-                }
-
-                // Delete (detach) this payment method
-                $response = Http::withToken($stripeSecretKey)
-                    ->asForm()
-                    ->post("https://api.stripe.com/v1/payment_methods/{$id}/detach");
-
+            // Must have at least one remaining card
+            if (count($paymentMethods) <= 1) {
+                return back()->with('error_card', 'At least one card is required.');
             }
 
-            if ($response->failed() || isset($data['error'])) {
-                $message = $data['error']['message'] ?? 'Failed to delete card';
-                return redirect()->back()->with('error_card', $message);
+            // 2️⃣ Pick a fallback card (first one that is NOT being deleted)
+            $fallbackPm = collect($paymentMethods)
+                ->first(fn($pm) => $pm['id'] !== $pmId);
+
+            if (!$fallbackPm) {
+                return back()->with('error_card', 'No alternative card available.');
+            }
+
+            // 3️⃣ SWITCH SUBSCRIPTION FIRST (CRITICAL)
+            if ($subscriptionId) {
+                Http::withBasicAuth($stripeSecretKey, '')
+                    ->asForm()
+                    ->post("https://api.stripe.com/v1/subscriptions/{$subscriptionId}", [
+                        'default_payment_method' => $fallbackPm['id'],
+                    ]);
+            }
+
+            // 4️⃣ Update customer default (optional but recommended)
+            Http::withBasicAuth($stripeSecretKey, '')
+                ->asForm()
+                ->post("https://api.stripe.com/v1/customers/{$customerId}", [
+                    'invoice_settings[default_payment_method]' => $fallbackPm['id'],
+                ]);
+
+            // 5️⃣ NOW it is safe to detach the old card
+            $response = Http::withBasicAuth($stripeSecretKey, '')
+                ->asForm()
+                ->post("https://api.stripe.com/v1/payment_methods/{$pmId}/detach");
+
+            if ($response->failed()) {
+                return back()->with(
+                    'error_card',
+                    $response->json()['error']['message'] ?? 'Failed to delete card'
+                );
             }
 
             return back()->with('success_card', 'Card deleted successfully!');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error_card', 'Failed to delete card');
+            return back()->with('error_card', 'Failed to delete card');
         }
     }
+
 
 
     public function set_default($id)
     {
         $stripeSecretKey = env('STRIPE_SECRET');
         $customerId = Auth::user()->CusID;
+        $subscriptionId = Auth::user()->SubID;
 
         $response = Http::withBasicAuth($stripeSecretKey, '')
             ->asForm()
@@ -301,6 +357,22 @@ class SubscriptionController extends Controller
         if ($response->failed() || isset($data['error'])) {
             return back()->with('error_card', $data['error']['message'] ?? 'Failed to set default card.');
         }
+
+        if ($subscriptionId) {
+            $subscriptionResponse = Http::withBasicAuth($stripeSecretKey, '')
+                ->asForm()
+                ->post("https://api.stripe.com/v1/subscriptions/{$subscriptionId}", [
+                    'default_payment_method' => $id,
+                ]);
+
+            if ($subscriptionResponse->failed()) {
+                return back()->with(
+                    'error_card',
+                    $subscriptionResponse->json()['error']['message'] ?? 'Failed to update subscription card.'
+                );
+            }
+        }
+
 
         return back()->with('success_card', 'Default card set successfully!');
     }

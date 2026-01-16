@@ -44,7 +44,7 @@ class StripeWebhookController extends Controller
                 Log::info('Event started : customer.subscription.deleted');
 
                 $this->cancelSubscription($event);
-
+                Log::info($event);
                 Log::info('Event finished : customer.subscription.deleted');
 
             } else if ($event['type'] === 'invoice.payment_succeeded') {
@@ -52,7 +52,7 @@ class StripeWebhookController extends Controller
                 Log::info('Event started : invoice.payment_succeeded');
 
                 $this->paymentSuccess($event);
-
+                Log::info($event);
                 Log::info('Event finished : invoice.payment_succeeded');
 
             } else if ($event['type'] === 'invoice.payment_failed') {
@@ -60,7 +60,7 @@ class StripeWebhookController extends Controller
                 Log::info('Event started : invoice.payment_failed');
 
                 $this->paymentFailed($event);
-
+                Log::info($event);
                 Log::info('Event finished : invoice.payment_failed');
 
             }
@@ -264,7 +264,7 @@ class StripeWebhookController extends Controller
 
                         $amount_paid = $invoice['amount_paid'];
                         $current_amount = bcmul((string) $CurrentPaymentSubscription->PaymentAmount, '100', 0);
-                        Log::info('out');
+
                         if ($oldPackage?->PackageID == $newPackage?->PackageID) {
 
                             $subscription = 'created';
@@ -314,6 +314,11 @@ class StripeWebhookController extends Controller
             }else if($CurrentPaymentSubscription && $CurrentPaymentSubscription->Status == 'Canceled'){
                 $subscription = 'canceled';
                 $newPaymentSubscription = $this->generateSubscription($invoice, $user, $newPackage);
+
+            }else if($CurrentPaymentSubscription && $CurrentPaymentSubscription->Status == 'Pending'){
+
+                $subscription = 'pendingClear';
+                $newPaymentSubscription = $this->generateSubscription($invoice, $user, $newPackage);
             }
 
             if ($subscription == 'created') {
@@ -323,6 +328,10 @@ class StripeWebhookController extends Controller
             }else if ($subscription == 'upgrade') {
                 $CurrentPaymentSubscription->update([
                     'Status' => 'Active'
+                ]);
+            }else if ($subscription == 'pendingClear') {
+                $CurrentPaymentSubscription->update([
+                    'Status' => 'Inactive'
                 ]);
             }
 
@@ -365,13 +374,11 @@ class StripeWebhookController extends Controller
     {
 
         try {
-
             DB::beginTransaction();
 
             $invoice = $event['data']['object'];
 
             $user = User::where('CusID', $invoice['customer'])->first();
-
 
             $PaymentSubscription = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
                 ->whereNot('Status', 'Canceled')
@@ -392,9 +399,11 @@ class StripeWebhookController extends Controller
                 //     $this->cancelSubscriptionAfterFailedAttempts($user);
                 // } else {
                 if ($invoice['attempt_count'] < 4) {
-                    $PaymentSubscription->update([
-                        'Status' => 'Pending'
-                    ]);
+                    if($PaymentSubscription->PackageID != '-1' && isset($invoice['billing_reason']) && $invoice['billing_reason'] == 'subscription_cycle'){
+                        $PaymentSubscription->update([
+                            'Status' => 'Pending'
+                        ]);
+                    }
                 }
                 // }
             }
