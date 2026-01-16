@@ -251,70 +251,72 @@
                         {{ session('error_card') }}
                     </div>
                 @endif
-                <h5 class="card-header">Payment Methods</h5>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <form id="cardForm" class="row g-6" method="POST" action="{{ route('stripe.add_card') }}">
-                                @csrf
-                                <div class="mb-3">
-                                    <label for="card-element" class="form-label">Card Details</label>
-                                    <div id="card-element"><!-- Stripe Element mounts here --></div>
-                                    <div id="card-errors" role="alert"></div>
-                                </div>
-                                <button type="submit" class="btn btn-custom w-100 mt-3">Save Card</button>
+                @if($package_id != '-1');
+                    <h5 class="card-header">Payment Methods</h5>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <form id="cardForm" class="row g-6" method="POST" action="{{ route('stripe.add_card') }}">
+                                    @csrf
+                                    <div class="mb-3">
+                                        <label for="card-element" class="form-label">Card Details</label>
+                                        <div id="card-element"><!-- Stripe Element mounts here --></div>
+                                        <div id="card-errors" role="alert"></div>
+                                    </div>
+                                    <button type="submit" class="btn btn-custom w-100 mt-3">Save Card</button>
+                            </div>
+                            </form>
+
                         </div>
-                        </form>
-
-                    </div>
-                    <div class="col-md-12 mt-5 mt-md-0">
-                        @if (!empty($cards['data']))
-                            <h5 class="mb-6">My Cards</h5>
-                            <div class="added-cards">
-                                @foreach ($cards['data'] as $card)
-                                    <div class="cardMaster p-6 bg-lighter rounded mb-6">
-                                        <div class="d-flex justify-content-between flex-sm-row flex-column">
-                                            <div class="card-information me-2">
-                                                <img class="mb-2 img-fluid"
-                                                    src="{{ asset('assets/img/icons/payments/' . $card['card']['brand'] . '.png') }}"
-                                                    alt="Master Card">
-                                                <div class="d-flex align-items-center mb-2 flex-wrap gap-2">
-                                                    <h6 class="mb-0 me-2">{{ $card['billing_details']['name'] }}</h6>
+                        <div class="col-md-12 mt-5 mt-md-0">
+                            @if (!empty($cards['data']))
+                                <h5 class="mb-6">My Cards</h5>
+                                <div class="added-cards">
+                                    @foreach ($cards['data'] as $card)
+                                        <div class="cardMaster p-6 bg-lighter rounded mb-6">
+                                            <div class="d-flex justify-content-between flex-sm-row flex-column">
+                                                <div class="card-information me-2">
+                                                    <img class="mb-2 img-fluid"
+                                                        src="{{ asset('assets/img/icons/payments/' . $card['card']['brand'] . '.png') }}"
+                                                        alt="Master Card">
+                                                    <div class="d-flex align-items-center mb-2 flex-wrap gap-2">
+                                                        <h6 class="mb-0 me-2">{{ $card['billing_details']['name'] }}</h6>
+                                                    </div>
+                                                    <span class="card-number">&#8727;&#8727;&#8727;&#8727;
+                                                        &#8727;&#8727;&#8727;&#8727; {{ $card['card']['last4'] }}</span>
                                                 </div>
-                                                <span class="card-number">&#8727;&#8727;&#8727;&#8727;
-                                                    &#8727;&#8727;&#8727;&#8727; {{ $card['card']['last4'] }}</span>
-                                            </div>
-                                            <div class="d-flex flex-column text-start text-lg-end">
-                                                <div class="d-flex order-sm-0 order-1 mt-sm-0 mt-4">
-                                                    @php
-                                                        $isOnlyCard = count($cards['data']) === 1;
-                                                        $isDefault =
-                                                            (!empty($default_card) && $default_card == $card['id']) ||
-                                                            ($isOnlyCard && empty($default_card));
-                                                    @endphp
+                                                <div class="d-flex flex-column text-start text-lg-end">
+                                                    <div class="d-flex order-sm-0 order-1 mt-sm-0 mt-4">
+                                                        @php
+                                                            $isOnlyCard = count($cards['data']) === 1;
+                                                            $isDefault =
+                                                                (!empty($default_card) && $default_card == $card['id']) ||
+                                                                ($isOnlyCard && empty($default_card));
+                                                        @endphp
 
-                                                    @if ($isDefault)
-                                                        <button class="btn btn-sm btn-label-info">Default</button>
-                                                    @else
-                                                        <a href="{{ route('stripe.set_default', ['id' => $card['id']]) }}"
-                                                            class="btn btn-sm btn-label-info">Set Default</a>
-                                                    @endif
-                                                    <a href="{{ route('stripe.delete_card', ['id' => $card['id']]) }}"
-                                                        class="btn btn-sm btn-label-danger">Delete</a>
+                                                        @if ($isDefault)
+                                                            <button class="btn btn-sm btn-label-info">Default</button>
+                                                        @else
+                                                            <a href="{{ route('stripe.set_default', ['id' => $card['id']]) }}"
+                                                                class="btn btn-sm btn-label-info">Set Default</a>
+                                                        @endif
+                                                        <a href="{{ route('stripe.delete_card', ['id' => $card['id']]) }}"
+                                                            class="btn btn-sm btn-label-danger">Delete</a>
+                                                    </div>
+                                                    <small class="mt-sm-4 mt-2 order-sm-1 order-0">Card expires at
+                                                        {{ $card['card']['exp_month'] }}/{{ $card['card']['exp_year'] }}</small>
                                                 </div>
-                                                <small class="mt-sm-4 mt-2 order-sm-1 order-0">Card expires at
-                                                    {{ $card['card']['exp_month'] }}/{{ $card['card']['exp_year'] }}</small>
                                             </div>
                                         </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @endif
-                        <!-- Modal -->
-                        @include('_partials/_modals/modal-edit-cc')
-                        <!--/ Modal -->
+                                    @endforeach
+                                </div>
+                            @endif
+                            <!-- Modal -->
+                            @include('_partials/_modals/modal-edit-cc')
+                            <!--/ Modal -->
+                        </div>
                     </div>
-                </div>
+                @endif
             </div>
         </div>
         @if (false)

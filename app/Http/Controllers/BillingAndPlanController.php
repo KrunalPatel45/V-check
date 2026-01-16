@@ -131,6 +131,8 @@ class BillingAndPlanController extends Controller
                         'upgrade_date' => $paymentStartDate->format('m/d/Y'),
                     ];
                     Mail::to($user->Email)->send(new SendUpgradeSubMail(7, $user_name, $data));
+                }else {
+                    return redirect()->route('billing_and_plan')->with('error', 'Something went wrong');
                 }
             } else {
 
