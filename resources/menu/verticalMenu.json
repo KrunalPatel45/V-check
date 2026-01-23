@@ -91,6 +91,13 @@
       "slug": "admin.setting",
       "access": "admin"
     },
+    {
+      "url": "admin/transactions",
+      "name": "Transactions",
+      "icon": "menu-icon tf-icons ti ti-currency-dollar",
+      "slug": "admin.transactions",
+      "access": "admin"
+    },
      {
       "url": "/user/suggestion/add",
       "name": "Suggestions",

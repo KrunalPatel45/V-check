@@ -20,7 +20,12 @@ class PaymentHistory extends Model
         'PaymentStatus',
         'PaymentAttempts',
         'TransactionID',
-        'PaymentUrl'
+        'PaymentUrl',
+        'Remarks'
     ];
 
+    public function subscription()
+    {
+        return $this->belongsTo(PaymentSubscription::class, 'PaymentSubscriptionID');
+    }
 }

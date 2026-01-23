@@ -422,6 +422,7 @@ class AdminDashboardController extends Controller
                         'PaymentAmount' => $price_difference,
                         'PaymentDate' => now(),
                         'PaymentStatus' => 'Success',
+                        'Remarks' => 'Upgrade to ' . $package->Name,
                         'PaymentAttempts' => 0,
                         'TransactionID' => $res['id'],
                     ]);
