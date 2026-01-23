@@ -38,4 +38,11 @@ class PaymentSubscription extends Model
     {
         return $this->belongsTo(Package::class, 'NextPackageID');
     }
+    public function package(){
+        return $this->belongsTo(Package::class, 'PackageID', 'PackageID');
+    }
+
+    public function user(){
+        return $this->belongsTo(User::class, 'UserID', 'UserID');
+    }
 }

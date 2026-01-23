@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\HowItWorksController;
+use App\Http\Controllers\TransactionController;
 use App\Http\Middleware\EnsurePaymentIsComplete;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\laravel_example\UserManagement;
@@ -247,6 +248,9 @@ Route::middleware([AdminMiddleware::class])->group(function () {
     Route::get('/admin/how-it-works/list', [HowItWorksController::class, 'list'])->name('admin.how_it_works.list');
     Route::get('/admin/how-it-works/edit/{howItWork}', [HowItWorksController::class, 'edit'])->name('admin.how_it_works.edit');
     Route::post('/admin/how-it-works/update/{howItWork}', [HowItWorksController::class, 'update'])->name('admin.how_it_works.update');
+
+    Route::get('/admin/transactions', [TransactionController::class, 'index'])->name('admin.transactions');
+    Route::get('/admin/transactions/list', [TransactionController::class, 'list'])->name('admin.transactions.list');
 });
 
 Route::get('verify-email/{id}/{hash}', [UserAuthController::class, 'verify_email'])->name('user.verify_email');
