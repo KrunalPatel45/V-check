@@ -34,6 +34,10 @@ class PaymentSubscription extends Model
         'ChecksSent',
     ];
 
+    public function nextPlan()
+    {
+        return $this->belongsTo(Package::class, 'NextPackageID');
+    }
     public function package(){
         return $this->belongsTo(Package::class, 'PackageID', 'PackageID');
     }
