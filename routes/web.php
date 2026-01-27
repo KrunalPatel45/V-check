@@ -222,6 +222,7 @@ Route::middleware([AdminMiddleware::class])->group(function () {
     Route::delete('/admin/delete/{id}', [PackageController::class, 'delete'])->name('admin.package.delete');
     Route::get('/admin/users', [AdminDashboardController::class, 'users'])->name('admin.users');
     Route::get('/admin/users/edit/{id}', [AdminDashboardController::class, 'user_edit'])->name('admin.user.edit');
+    Route::get('/admin/users/view/{id}', [AdminDashboardController::class, 'user_view'])->name('admin.user.view');
     Route::post('admin/user/profile', [AdminDashboardController::class, 'updateUserProfile'])->name('admin.user.update_profile');
     Route::post('admin/user/change-password', [AdminDashboardController::class, 'changeUserPassword'])->name('admin.user.change-password');
     Route::delete('/admin/users/delete/{id}', [AdminDashboardController::class, 'user_delete'])->name('admin.user.delete');

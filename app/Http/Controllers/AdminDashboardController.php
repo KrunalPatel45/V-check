@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\AdminUser;
 use App\Models\User;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Package;
@@ -130,7 +131,7 @@ class AdminDashboardController extends Controller
 
             foreach ($users as $user) {
                 $package = Package::find($user->CurrentPackageID);
-               
+
                 $user->package = $package ? $package->Name : 'N/A';
                 if ($user->CurrentPackageID == '-1') {
                     $user->package = 'TRIAL';
@@ -156,7 +157,11 @@ class AdminDashboardController extends Controller
                     // Dynamically build URLs for the edit and delete actions
                     $editUrl = route('admin.user.edit', ['id' => $user->UserID]);
                     $deleteUrl = route('admin.user.delete', ['id' => $user->UserID]);
+                    $viewUrl = route('admin.user.view', ['id' => $user->UserID]);
 
+                    // <a href="' . $viewUrl . '" class="dropdown-item">
+                    //             <i class="ti ti-eye me-1"></i> View
+                    //         </a>
                     return '
                         <div class="d-flex">
                             <a href="' . $editUrl . '" class="dropdown-item">
@@ -164,7 +169,7 @@ class AdminDashboardController extends Controller
                             </a>
                         </div>';
                 })
-                ->rawColumns(['status', 'created_at','actions'])
+                ->rawColumns(['status', 'created_at', 'actions'])
                 ->make(true);
         }
 
@@ -368,7 +373,7 @@ class AdminDashboardController extends Controller
         $data_current_package = PaymentSubscription::where('UserId', $id)
             ->where('Status', 'Active')->where('PackageID', $user->CurrentPackageID)
             ->orderBy('PaymentSubscriptionID', 'desc')->first();
-       
+
         if (!empty($data_current_package)) {
             // If upgrading to a higher priced plan
             if ($package->Price > $user_current_package->Price) {
@@ -581,4 +586,64 @@ class AdminDashboardController extends Controller
         return response()->json(['message' => 'Status updated successfully.']);
     }
 
+    public function user_view($id)
+    {
+        $user = User::findOrFail($id);
+
+        $currentSubscription = PaymentSubscription::where('UserID', $user->UserID)->orderBy('PaymentSubscriptionID', 'desc')->first();
+
+        $firstSubscription = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', '!=', -1)->first();
+
+        $firstBillingDate = Carbon::parse($firstSubscription?->PaymentStartDate)?->format('m/d/Y');
+
+        $IPAddress = UserHistory::where('UserID', $user->UserID)->orderBy('id', 'desc')->first()?->ip;
+
+        $subscriptions = PaymentSubscription::with([
+            'package' => function ($query) {
+                return $query->select('PackageID', 'Name');
+            }
+        ])->select('PackageID', 'PaymentStartDate')->where('UserID', $user->UserID)->get();
+
+        $stripeSecret = config('services.stripe.secret');
+
+        $paymentMethods = Http::withToken($stripeSecret)
+            ->get("https://api.stripe.com/v1/payment_methods", [
+                'customer' => $user->CusID,
+                'type' => 'card',
+            ]);
+
+        if (!$paymentMethods->successful()) {
+            return $paymentMethods->json();
+        }
+
+        $cards = $paymentMethods->json('data');
+
+
+        $cardList = [];
+
+        foreach ($cards as $card) {
+            $cardList[] = [
+                'payment_method_id' => $card['id'],
+                'card_holder' => $card['billing_details']['name'] ?? null,
+                'brand' => $card['card']['brand'],
+                'last4' => $card['card']['last4'],
+                'exp_month' => $card['card']['exp_month'],
+                'exp_year' => $card['card']['exp_year'],
+                'address' => $card['billing_details']['address']['line1'] ?? null,
+                'city' => $card['billing_details']['address']['city'] ?? null,
+                'state' => $card['billing_details']['address']['state'] ?? null,
+                'postal_code' => $card['billing_details']['address']['postal_code'] ?? null,
+                'country' => $card['billing_details']['address']['country'] ?? null,
+            ];
+        }
+
+        return view('admin.user.activity', compact(
+            'user',
+            'currentSubscription',
+            'firstBillingDate',
+            'IPAddress',
+            'subscriptions',
+            'cardList'
+        ));
+    }
 }
