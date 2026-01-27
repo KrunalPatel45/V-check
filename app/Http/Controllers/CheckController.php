@@ -75,6 +75,7 @@ class CheckController extends Controller
                     // $deleteUrl = route('user.payors.delete', ['type' => 'Payee', 'id' => $row->EntityID]);
                     $editUrl = route('check.process_payment_check_edit', ['id' => $row->CheckID]);
                     $check_generate = route('check_generate', ['id' => $row->CheckID]);
+                    $delete_check = route('check.delete', ['id' => $row->CheckID]);
 
                     if ($row->Status == 'draft') {
                         return '<div class="d-flex gap-3">
@@ -85,6 +86,27 @@ class CheckController extends Controller
                                     data-bs-target="#check-generate' . $row->CheckID . '">
                                         <i class="ti ti-bookmark-plus me-1"></i> generate
                                 </a>
+                                <a href="javascript:void(0);" class="dropdown-item" data-bs-toggle="modal" 
+                                    data-bs-target="#delete-check' . $row->CheckID . '">
+                                        <i class="ti ti-trash me-1"></i> Delete
+                                </a>
+                            </div>
+                            <div class="modal fade" id="delete-check' . $row->CheckID . '" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Delete Check</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to delete check ?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <a href="' . $delete_check . '" class="btn btn-primary">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="modal fade" id="check-generate' . $row->CheckID . '" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
@@ -125,10 +147,58 @@ class CheckController extends Controller
                 ->make(true);
         }
 
-        $how_it_works = HowItWork::select('section','link')->where('status','Active')->pluck('link','section');
+        $how_it_works = HowItWork::select('section', 'link')->where('status', 'Active')->pluck('link', 'section');
 
         return view('user.check.process_payment_check', compact('how_it_works'));
     }
+
+    public function delete($id)
+    {
+        try {
+
+            DB::beginTransaction();
+
+            $check = Checks::where('UserID', Auth::user()->UserID)->where('CheckID', $id)->first();
+            
+            if($check && $check->Status == 'draft'){ 
+                
+                $subscription = PaymentSubscription::where('UserID', Auth::user()->UserID)->where('Status', 'Active')->first();
+
+                if ($subscription != null) {
+
+                    if ($check->CheckType == 'Process Payment') {
+
+                        $subscription->ChecksReceived -= 1;
+
+                    } else if ($check->CheckType == 'Make Payment') {
+
+                        $subscription->ChecksSent -= 1;
+
+                        GridItem::where('CheckID', $check->CheckID)->delete();
+                    }
+
+                    $subscription->ChecksUsed -= 1;
+                    $subscription->RemainingChecks += 1;
+
+                    $subscription->save();
+                    
+                    $check->delete();
+                }
+            }else{
+                return redirect()->back()->with('info', 'Check not found.');
+            }
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Check deleted successfully.');
+
+        } catch (Exception $e) {
+
+            DB::rollBack();
+            return redirect()->back()->with('info', 'Something went wrong. Please try again.');
+        }
+
+    }
+
     public function process_payment_check()
     {
         if (!Auth::check()) {
@@ -287,6 +357,7 @@ class CheckController extends Controller
                     $check_generate = route('send_check_generate', ['id' => $row->CheckID]);
                     $send_email_url = route('send_check_email', ['id' => $row->CheckID]);
                     $send_email_lable = !empty($row->is_email_send) ? 'Resend' : 'Send';
+                    $delete_check = route('check.delete', ['id' => $row->CheckID]);
 
                     if ($row->Status == 'draft') {
                         return '<div class="d-flex">
@@ -297,6 +368,27 @@ class CheckController extends Controller
                                     data-bs-target="#check-generate' . $row->CheckID . '">
                                         <i class="ti ti-bookmark-plus me-1"></i> generate
                                 </a>
+                                <a href="javascript:void(0);" class="dropdown-item" data-bs-toggle="modal" 
+                                    data-bs-target="#delete-check' . $row->CheckID . '">
+                                        <i class="ti ti-trash me-1"></i> Delete
+                                </a>
+                            </div>
+                            <div class="modal fade" id="delete-check' . $row->CheckID . '" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Delete Check</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to delete check ?</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <a href="' . $delete_check . '" class="btn btn-primary">Delete</a>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="modal fade" id="check-generate' . $row->CheckID . '" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
@@ -337,8 +429,8 @@ class CheckController extends Controller
                 ->rawColumns(['logo', 'Status', 'actions'])
                 ->make(true);
         }
-        
-        $how_it_works = HowItWork::select('section','link')->where('status','Active')->pluck('link','section');
+
+        $how_it_works = HowItWork::select('section', 'link')->where('status', 'Active')->pluck('link', 'section');
         return view('user.check.send_payment_check', compact('how_it_works'));
     }
     public function send_payment_check()
@@ -362,14 +454,14 @@ class CheckController extends Controller
         $grid_histories = GridHistory::where('UserID', Auth::user()->UserID)
             ->where('Status', 1)
             ->get();
-       
+
         $grid_history_ids = $grid_histories->pluck('id')->toArray();
 
         return view('user.check.send_payment_generate_check', compact('grid_history_ids', 'grid_histories', 'lastCheck', 'payees', 'payors', 'userSignatures'));
     }
     public function send_payment_check_generate(Request $request)
     {
-        
+
         DB::beginTransaction();
         if (!Auth::check()) {
             return redirect()->route('user.login');
@@ -433,7 +525,7 @@ class CheckController extends Controller
                     'SignID' => $request->signature_id,
                 ]);
             }
-           
+
             GridItem::where('CheckID', $checks->CheckID)->delete();
 
             if (isset($request->itemization) && $request->itemization == 1) {
@@ -527,7 +619,7 @@ class CheckController extends Controller
             $paymentSubscription->RemainingChecks = $paymentSubscription->ChecksGiven - $paymentSubscription->ChecksUsed;
             $paymentSubscription->save();
             // }
-            
+
             if (isset($request->itemization) && $request->itemization == 1) {
 
                 if (isset($request->grid_items) && !empty($request->grid_items)) {
@@ -623,16 +715,16 @@ class CheckController extends Controller
         if ($grid_items->isEmpty()) {
             $grid_histories = GridHistory::where('UserID', Auth::user()->UserID)
                 ->where('Status', 1)->get();
-                
+
         } else {
             // $grid_history_ids = $grid_items->pluck('GridHistoryID')->toArray();
             $grid_histories = GridHistory::where('UserID', Auth::user()->UserID)
                 ->whereIn('id', $grid_history_ids)->get();
         }
-        if(empty($grid_history_ids)){
+        if (empty($grid_history_ids)) {
             $grid_history_ids = $grid_histories->pluck('id')->toArray();
         }
-        
+
         return view('user.check.send_payment_generate_check', compact('grid_history_ids', 'grid_histories', 'grid_items', 'payees', 'payors', 'check', 'old_payee', 'old_payor', 'old_sign', 'userSignatures'));
     }
 
@@ -679,7 +771,7 @@ class CheckController extends Controller
             // ->setPaper([0, 0, 1000, 1200])
             ->setOptions(['dpi' => 150])
             ->set_option('isHtml5ParserEnabled', true)
-            ->set_option('isRemoteEnabled', true);
+            ->set_option('isRemoteEnabled', false);
 
         // Define the file path where you want to save the PDF
         $file_name = 'check-' . $data['check_number'] . '-' . time() . '.pdf';
@@ -1079,7 +1171,7 @@ class CheckController extends Controller
                                 </div>
                             </div>';
                 })
-                ->rawColumns(['page_url','logo', 'actions'])
+                ->rawColumns(['page_url', 'logo', 'actions'])
                 ->make(true);
         }
 
@@ -1087,9 +1179,9 @@ class CheckController extends Controller
         $is_web_form = (Auth::user()->CurrentPackageID != -1) ? $package->web_forms : 0;
 
         $grids = Grid::where('UserID', Auth::id())->get();
-        $how_it_works = HowItWork::select('section','link')->where('status','Active')->pluck('link','section');
+        $how_it_works = HowItWork::select('section', 'link')->where('status', 'Active')->pluck('link', 'section');
 
-        return view('user.web_form.index', compact('is_web_form', 'grids','how_it_works'));
+        return view('user.web_form.index', compact('is_web_form', 'grids', 'how_it_works'));
     }
 
     public function new_web_form()
@@ -1335,7 +1427,7 @@ class CheckController extends Controller
         }
 
         Mail::to($user->Email)->send(new SendWebFormMail(5, $user_name, $payor->Name, $check));
-        Mail::to($request->email)->send(new SendWebFormMailForCilent(11, $payee->Name,$request->check_number,$check->Total, $payor->Name));
+        Mail::to($request->email)->send(new SendWebFormMailForCilent(11, $payee->Name, $request->check_number, $check->Total, $payor->Name));
         return redirect()->back()->with('success', 'Check form successfully submitted.');
     }
 
