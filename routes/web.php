@@ -356,6 +356,8 @@ Route::middleware([UserMiddleware::class])->group(function () {
         Route::get('/quickbooks/companies', [QuickBooksController::class, 'getCompanies'])->name('qbo.getCompanies');
         Route::get('/quickbooks/companies/connect/{id}', [QuickBooksController::class, 'connectCompany'])->name('qbo.connect.company');
         Route::get('//quickbooks/sync/{qbo_company_id}', [QuickBooksController::class, 'sync'])->name('qbo.sync');
+
+        Route::get('/check/delete/{id}', [CheckController::class, 'delete'])->name('check.delete');
     });
     
     Route::get('/invoice', [BillingAndPlanController::class, 'invoice'])->name('user_invoice');
