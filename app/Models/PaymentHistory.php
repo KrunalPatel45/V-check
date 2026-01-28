@@ -21,7 +21,8 @@ class PaymentHistory extends Model
         'PaymentAttempts',
         'TransactionID',
         'PaymentUrl',
-        'Remarks'
+        'Remarks',
+        'created_at'
     ];
 
     public function subscription()

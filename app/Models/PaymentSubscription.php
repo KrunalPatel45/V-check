@@ -32,6 +32,9 @@ class PaymentSubscription extends Model
         'NextPackageID',
         'ChecksReceived',
         'ChecksSent',
+        'ip_address',
+        'created_at',
+        'is_sys_generated'
     ];
 
     public function nextPlan()

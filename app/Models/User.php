@@ -44,7 +44,8 @@ class User extends Authenticatable
     'Zip',
     'SubID',
     'timezone',
-    'EmailVerified'
+    'EmailVerified',
+    'ip_address'
   ];
 
   /**

@@ -602,22 +602,18 @@ class AdminDashboardController extends Controller
             'package' => function ($query) {
                 return $query->select('PackageID', 'Name');
             }
-        ])->select('PackageID', 'PaymentStartDate')->where('UserID', $user->UserID)->get();
+        ])->select('PaymentSubscriptionID', 'PackageID', 'PaymentStartDate','ip_address','created_at','is_sys_generated')->where('UserID', $user->UserID)->get();
 
         $stripeSecret = config('services.stripe.secret');
 
-        $paymentMethods = Http::withToken($stripeSecret)
-            ->get("https://api.stripe.com/v1/payment_methods", [
-                'customer' => $user->CusID,
-                'type' => 'card',
-            ]);
-
-        if (!$paymentMethods->successful()) {
-            return $paymentMethods->json();
-        }
+       $paymentMethods = Http::withToken(config('services.stripe.secret'))
+        ->get('https://api.stripe.com/v1/payment_methods', [
+            'customer' => $user->CusID,
+            'type'     => 'card',
+            'limit'    => 3,
+        ]);
 
         $cards = $paymentMethods->json('data');
-
 
         $cardList = [];
 
@@ -629,7 +625,8 @@ class AdminDashboardController extends Controller
                 'last4' => $card['card']['last4'],
                 'exp_month' => $card['card']['exp_month'],
                 'exp_year' => $card['card']['exp_year'],
-                'address' => $card['billing_details']['address']['line1'] ?? null,
+                'address_line1' => $card['billing_details']['address']['line1'] ?? null,
+                'address_line2' => $card['billing_details']['address']['line2'] ?? null,
                 'city' => $card['billing_details']['address']['city'] ?? null,
                 'state' => $card['billing_details']['address']['state'] ?? null,
                 'postal_code' => $card['billing_details']['address']['postal_code'] ?? null,
@@ -637,13 +634,38 @@ class AdminDashboardController extends Controller
             ];
         }
 
+        $subscriptionIds = $subscriptions->pluck('PaymentSubscriptionID')->toArray();
+
+        $PaymentHistories = PaymentHistory::with(['subscription' => function($q){
+            return $q->with(['package' => function($q1) { return $q1->select('PackageID', 'Name',); }])->select('PaymentSubscriptionID','PackageID','PaymentStartDate','NextRenewalDate');
+        }])->select('PaymentHistoryID','PaymentSubscriptionID','PaymentDate','PaymentStatus','PaymentAmount','Remarks','created_at')->whereIn('PaymentSubscriptionID', $subscriptionIds)->get();
+
+        $payment_histories = [];
+        foreach ($PaymentHistories as $PaymentHistory) {
+            $payment_histories[] = [
+                'billing_id' => $PaymentHistory->PaymentHistoryID,
+                'plan' => $PaymentHistory?->subscription?->package?->Name,
+                'details' => $PaymentHistory->Remarks,
+                'price' => $PaymentHistory->PaymentAmount,
+                'charged' => $PaymentHistory->PaymentStatus == 'Success' ? 'True' : 'False',
+                'error_message'=> '',
+                'billing_start_dt' => $PaymentHistory?->subscription?->PaymentStartDate ? Carbon::parse($PaymentHistory?->subscription?->PaymentStartDate)->format('m/d/Y') : '-',
+                'billing_end_dt' => $PaymentHistory?->subscription?->NextRenewalDate ? Carbon::parse($PaymentHistory?->subscription?->NextRenewalDate)->format('m/d/Y') : '-',
+                'created_at' => $PaymentHistory->created_at ? Carbon::parse($PaymentHistory->created_at)->format('m/d/Y h:i A') : '-',
+            ];
+        }
+
+        $checks = Checks::where('UserID', $id)->get();
+
         return view('admin.user.activity', compact(
             'user',
             'currentSubscription',
             'firstBillingDate',
             'IPAddress',
             'subscriptions',
-            'cardList'
+            'cardList',
+            'payment_histories',
+            'checks'
         ));
     }
 }
