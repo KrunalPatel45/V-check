@@ -159,15 +159,15 @@ class AdminDashboardController extends Controller
                     $deleteUrl = route('admin.user.delete', ['id' => $user->UserID]);
                     $viewUrl = route('admin.user.view', ['id' => $user->UserID]);
 
-                    // <a href="' . $viewUrl . '" class="dropdown-item">
-                    //             <i class="ti ti-eye me-1"></i> View
-                    //         </a>
                     return '
-                        <div class="d-flex">
-                            <a href="' . $editUrl . '" class="dropdown-item">
-                                <i class="ti ti-pencil me-1"></i> Edit
+                    <div class="d-flex">
+                        <a href="' . $editUrl . '" class="dropdown-item">
+                        <i class="ti ti-pencil me-1"></i> Edit
+                        </a>
+                        <a href="' . $viewUrl . '" class="dropdown-item">
+                                <i class="ti ti-eye me-1"></i> View
                             </a>
-                        </div>';
+                    </div>';
                 })
                 ->rawColumns(['status', 'created_at', 'actions'])
                 ->make(true);
@@ -602,16 +602,16 @@ class AdminDashboardController extends Controller
             'package' => function ($query) {
                 return $query->select('PackageID', 'Name');
             }
-        ])->select('PaymentSubscriptionID', 'PackageID', 'PaymentStartDate','ip_address','created_at','is_sys_generated')->where('UserID', $user->UserID)->get();
+        ])->select('PaymentSubscriptionID', 'PackageID', 'PaymentStartDate', 'ip_address', 'created_at', 'is_sys_generated')->where('UserID', $user->UserID)->get();
 
         $stripeSecret = config('services.stripe.secret');
 
-       $paymentMethods = Http::withToken(config('services.stripe.secret'))
-        ->get('https://api.stripe.com/v1/payment_methods', [
-            'customer' => $user->CusID,
-            'type'     => 'card',
-            'limit'    => 3,
-        ]);
+        $paymentMethods = Http::withToken(config('services.stripe.secret'))
+            ->get('https://api.stripe.com/v1/payment_methods', [
+                'customer' => $user->CusID,
+                'type' => 'card',
+                'limit' => 3,
+            ]);
 
         $cards = $paymentMethods->json('data');
 
@@ -636,9 +636,12 @@ class AdminDashboardController extends Controller
 
         $subscriptionIds = $subscriptions->pluck('PaymentSubscriptionID')->toArray();
 
-        $PaymentHistories = PaymentHistory::with(['subscription' => function($q){
-            return $q->with(['package' => function($q1) { return $q1->select('PackageID', 'Name',); }])->select('PaymentSubscriptionID','PackageID','PaymentStartDate','NextRenewalDate');
-        }])->select('PaymentHistoryID','PaymentSubscriptionID','PaymentDate','PaymentStatus','PaymentAmount','Remarks','created_at')->whereIn('PaymentSubscriptionID', $subscriptionIds)->get();
+        $PaymentHistories = PaymentHistory::with([
+            'subscription' => function ($q) {
+                return $q->with(['package' => function ($q1) {
+                    return $q1->select('PackageID', 'Name', ); }])->select('PaymentSubscriptionID', 'PackageID', 'PaymentStartDate', 'NextRenewalDate');
+            }
+        ])->select('PaymentHistoryID', 'PaymentSubscriptionID', 'PaymentDate', 'PaymentStatus', 'PaymentAmount', 'Remarks', 'created_at')->whereIn('PaymentSubscriptionID', $subscriptionIds)->get();
 
         $payment_histories = [];
         foreach ($PaymentHistories as $PaymentHistory) {
@@ -648,7 +651,7 @@ class AdminDashboardController extends Controller
                 'details' => $PaymentHistory->Remarks,
                 'price' => $PaymentHistory->PaymentAmount,
                 'charged' => $PaymentHistory->PaymentStatus == 'Success' ? 'True' : 'False',
-                'error_message'=> '',
+                'error_message' => '',
                 'billing_start_dt' => $PaymentHistory?->subscription?->PaymentStartDate ? Carbon::parse($PaymentHistory?->subscription?->PaymentStartDate)->format('m/d/Y') : '-',
                 'billing_end_dt' => $PaymentHistory?->subscription?->NextRenewalDate ? Carbon::parse($PaymentHistory?->subscription?->NextRenewalDate)->format('m/d/Y') : '-',
                 'created_at' => $PaymentHistory->created_at ? Carbon::parse($PaymentHistory->created_at)->format('m/d/Y h:i A') : '-',

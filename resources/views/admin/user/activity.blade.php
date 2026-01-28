@@ -157,9 +157,16 @@
                     @endif
 
                     <td>{{ date('m/d/Y', strtotime($currentSubscription->PaymentStartDate)) }}</td>
-                    <td>{{ date('m/d/Y', strtotime($currentSubscription->NextRenewalDate)) }}</td>
-                    <td>{{ $firstBillingDate }}</td>
-                    <td>{{ $currentSubscription->ip_address }}</td>
+                    
+                    @if(($currentSubscription->PackageID == -1))
+                        <td>-</td>
+                        <td>-</td>
+                    @else
+                        <td>{{ date('m/d/Y', strtotime($currentSubscription->NextRenewalDate)) }}</td>
+                        <td>{{ $firstBillingDate }}</td>
+                    @endif
+                    
+                    <td>{{ $currentSubscription->ip_address ?? '-' }}</td>
                 </tr>
             </table>
         </div>
