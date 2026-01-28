@@ -159,13 +159,13 @@ class AdminDashboardController extends Controller
                     $deleteUrl = route('admin.user.delete', ['id' => $user->UserID]);
                     $viewUrl = route('admin.user.view', ['id' => $user->UserID]);
 
-                    // <a href="' . $viewUrl . '" class="dropdown-item">
-                    //         <i class="ti ti-eye me-1"></i> View
-                    //     </a>
                     return '
                     <div class="d-flex">
                         <a href="' . $editUrl . '" class="dropdown-item">
                         <i class="ti ti-pencil me-1"></i> Edit
+                        </a>
+                        <a href="' . $viewUrl . '" class="dropdown-item">
+                            <i class="ti ti-eye me-1"></i> View
                         </a>
                     </div>';
                 })
