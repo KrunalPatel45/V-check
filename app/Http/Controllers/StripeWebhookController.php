@@ -150,7 +150,10 @@ class StripeWebhookController extends Controller
                 'PaymentDate' => $PaymentDate,
                 'Status' => 'Active',
                 'TransactionID' => $invoice['id'],
-                'NextPackageID' => null
+                'NextPackageID' => null,
+                'ip_address' => $invoice['parent']['subscription_details']['metadata']['ip_address'] ?? null,
+                'created_at' => Carbon::now(),
+                'is_sys_generated' => 0
             ]);
 
             PaymentHistory::create([
@@ -159,7 +162,8 @@ class StripeWebhookController extends Controller
                 'PaymentDate' => now(),
                 'TransactionID' => $invoice['id'],
                 'PaymentStatus' => 'Success',
-                'Remarks' => 'Downgraded to ' . $new_package->Name
+                'Remarks' => 'Downgraded to ' . $new_package->Name,
+                'created_at' => Carbon::now()
             ]);
 
             $user->update([
@@ -238,6 +242,8 @@ class StripeWebhookController extends Controller
             $subscription = null;
             $remarks = '';
             $invoice = $event['data']['object'];
+            Log::info('ip address');
+            Log::info($invoice);
             $user = User::where('CusID', $invoice['customer'])->first();
 
             $response = $this->subscriptionHelper->getSubscriptions($invoice['customer']);
@@ -369,6 +375,7 @@ class StripeWebhookController extends Controller
                     'PaymentAttempts' => $invoice['attempt_count'],
                     'Remarks' => $remarks,
                     'TransactionID' => $invoice['id'],
+                    'created_at' => Carbon::now()
                 ]);
             }else{
                 PaymentHistory::create([
@@ -379,6 +386,7 @@ class StripeWebhookController extends Controller
                     'PaymentAttempts' => $invoice['attempt_count'],
                     'Remarks' => $remarks,
                     'TransactionID' => $invoice['id'],
+                    'created_at' => Carbon::now()
                 ]);
             }
             
@@ -415,7 +423,8 @@ class StripeWebhookController extends Controller
                     'PaymentAttempts' => $invoice['attempt_count'],
                     'TransactionID' => $invoice['id'],
                     'Remarks' => 'Payment Failed',
-                    'PaymentUrl' => $invoice['hosted_invoice_url']
+                    'PaymentUrl' => $invoice['hosted_invoice_url'],
+                    'created_at' => Carbon::now()
                 ]);
 
                 // if ($invoice['attempt_count'] >= 3) {
@@ -465,7 +474,10 @@ class StripeWebhookController extends Controller
             'PaymentDate' => $PaymentDate,
             'Status' => 'Active',
             'TransactionID' => $invoice['id'],
-            'NextPackageID' => null
+            'NextPackageID' => null,
+            'created_at' => Carbon::now(),
+            'ip_address' => $invoice['parent']['subscription_details']['metadata']['ip_address'] ?? null,
+            'is_sys_generated' => $invoice['billing_reason'] == 'subscription_cycle' ? 1 : 0
         ]);
 
         return $newPaymentSubscription;

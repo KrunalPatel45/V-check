@@ -172,6 +172,7 @@ class UserAuthController extends Controller
             'State' => $request->state,
             'Zip' => $request->zip,
             'timezone' => $request->timezone,
+            'ip_address' => $request->ip(),
         ]);
 
        $package = Package::whereRaw('LOWER(Name) = ?', ['trial'])->first();
@@ -356,6 +357,9 @@ class UserAuthController extends Controller
             'TransactionID' => 'Trial',
             'InvoiceID' => 'Tiral',
             'Status' => 'Active',
+            'created_at' => Carbon::now(),
+            'ip_address' => $request->ip(),
+            'is_sys_generated' => 1
         ]);
 
         $user->save();

@@ -125,7 +125,7 @@
                     <td>{{ $user->Email }}</td>
                     <td>{{ $user->FirstName }}</td>
                     <td>{{ $user->LastName }}</td>
-                    <td>{{ $user->CompanyName }}</td>
+                    <td>{{ $user->CompanyName ?? '-' }}</td>
                     <td>{{ $user->PhoneNumber }}</td>
                 </tr>
             </table>
@@ -135,14 +135,14 @@
             <table>
                 <tr>
                     <th>Membership Plan</th>
-                    <th>Status</th>
+                    <th>Membership Status</th>
                     <th>Trial Start</th>
                     <th>Trial End</th>
-                    <th>First Billing Date</th>
+                    <th>First Billing Cycle Start Date</th>
                     <th>IP Address</th>
                 </tr>
                 <tr>
-                    <td>{{ $currentSubscription->package->Name }}</td>
+                    <td>{{ ($currentSubscription->PackageID == -1) ? 'Free Trial' : $currentSubscription->package->Name }}</td>
 
                     @if($currentSubscription->Status == 'Canceled')
                         <td class="text-danger">Canceled</td>
@@ -159,7 +159,7 @@
                     <td>{{ date('m/d/Y', strtotime($currentSubscription->PaymentStartDate)) }}</td>
                     <td>{{ date('m/d/Y', strtotime($currentSubscription->NextRenewalDate)) }}</td>
                     <td>{{ $firstBillingDate }}</td>
-                    <td>{{ $IPAddress }}</td>
+                    <td>{{ $currentSubscription->ip_address }}</td>
                 </tr>
             </table>
         </div>
@@ -170,7 +170,7 @@
             <div class="section-title">Membership History</div>
             <table>
                 <tr>
-                    <th>Plan</th>
+                    <th>Membership Plan</th>
                     <th>IP Address</th>
                     <th>System Generated</th>
                     <th>Created At</th>
@@ -178,9 +178,9 @@
                 @forelse($subscriptions as $subscription)
                     <tr>
                         <td>{{ ($subscription->PackageID == -1) ? 'Free Trial' : $subscription->package?->Name }}</td>
-                        <td>{{ $subscription->IPAddress ?? '-' }}</td>
-                        <td>{{ $subscription->SystemGenerated ?? '-' }}</td>
-                        <td>{{ $subscription?->PaymentStartDate ? \Carbon\Carbon::parse($subscription->PaymentStartDate)->format('m/d/Y') : '-' }}</td>
+                        <td>{{ $subscription->ip_address ?? '-' }}</td>
+                        <td>{{ ($subscription->is_sys_generated == 1) ? 'Yes' : 'No' ?? '-' }}</td>
+                        <td>{{ $subscription?->created_at ? \Carbon\Carbon::parse($subscription->created_at)->format('m/d/Y h:i A') : '-' }}</td>
                     </tr>
                 @empty
                     <tr>
@@ -198,20 +198,30 @@
                 <tr>
                     <th>Card Holder</th>
                     <th>Card Number</th>
-                    <th>Exp</th>
-                    <th>Billing Address</th>
+                    <th>Exp Month</th>
+                    <th>Exp Year</th>
+                    <th>Street Address 1</th>
+                    <th>Street Address 2</th>
+                    <th>City</th>
+                    <th>State</th>
+                    <th>Zip Code</th>
                 </tr>
                 @forelse($cardList as $card)
                 
                     <tr>
                         <td>{{ $card['card_holder'] ?? '-' }}</td>
-                        <td>{{ 'xxxxxx'.$card['last4'] ?? '-' }}</td>
-                        <td>{{ $card['exp_month'] ?? '-' }}/{{ $card['exp_year'] ?? '-' }}</td>
-                        <td>{{ $card['address'] ?? '-' }}</td>
+                        <td>{{ 'XXXXXX'.$card['last4'] ?? '-' }}</td>
+                        <td>{{ $card['exp_month'] ?? '-' }}</td>
+                        <td>{{ $card['exp_year'] ?? '-' }}</td>
+                        <td>{{ $card['address_line1'] ?? '-' }}</td>
+                        <td>{{ $card['address_line2'] ?? '-' }}</td>
+                        <td>{{ $card['city'] ?? '-' }}</td>
+                        <td>{{ $card['state'] ?? '-' }}</td>
+                        <td>{{ $card['postal_code'] ?? '-' }}</td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5">No payment information found.</td>
+                        <td colspan="9">No payment information found.</td>
                     </tr>
                 @endforelse
             </table>
@@ -223,37 +233,65 @@
             <table>
                 <tr>
                     <th>Billing ID</th>
-                    <th>Plan</th>
+                    <th>Membership Plan</th>
+                    <th>Details</th>
                     <th>Price</th>
                     <th>Charged</th>
-                    <th>Error Message</th>
-                    <th>Start</th>
-                    <th>End</th>
-                    <th>Date</th>
+                    <th>Billing Cycle Start Date</th>
+                    <th>Billing Cycle End Date</th>
+                    <th>Created At</th>
                 </tr>
-                <tr>
-                    <td>27711</td>
-                    <td>Mini</td>
-                    <td>$1.99</td>
-                    <td class="text-success">True</td>
-                    <td>-</td>
-                    <td>8/13/2020</td>
-                    <td>9/12/2020</td>
-                    <td>8/13/2020 3:17 PM</td>
-                </tr>
-                <tr>
-                    <td>29186</td>
-                    <td>Silver</td>
-                    <td>$9.95</td>
-                    <td class="text-danger">False</td>
-                    <td>DECLINED</td>
-                    <td>10/22/2020</td>
-                    <td>11/21/2020</td>
-                    <td>10/22/2020 12:41 AM</td>
-                </tr>
+                @forelse($payment_histories as $paymentHistory)
+                    <tr>
+                        <td>{{ $paymentHistory['billing_id'] ?? '-' }}</td>
+                        <td>{{ $paymentHistory['plan'] ?? '-' }}</td>
+                        <td>{{ $paymentHistory['details'] ?? '-' }}</td>
+                        <td>{{ '$'.$paymentHistory['price'] ?? '-' }}</td>
+                        <td>{{ $paymentHistory['charged'] ?? '-' }}</td>
+                        <td>{{ $paymentHistory['billing_start_dt'] ?? '-' }}</td>
+                        <td>{{ $paymentHistory['billing_end_dt'] ?? '-' }}</td>
+                        <td>{{ ($paymentHistory['created_at']) ?? '-' }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="8">No billing history found.</td>
+                    </tr>
+                @endforelse
             </table>
         </div>
 
+        <!-- ================= PAYMENT HISTORY ================= -->
+        <div class="section">
+            <div class="section-title">Payment History</div>
+            <table>
+                <tr>
+                    <th>Payee Name</th>
+                    <th>Check Date</th>
+                    <th>Check Number</th>
+                    <th>Payor Name</th>
+                    <th>Amount</th>
+                    <th>Memo</th>
+                    <th>Create Date Time</th>
+                    <th>Ip Address</th>
+                </tr>
+                @forelse($checks as $check)
+                    <tr>
+                        <td>{{ $check?->payee?->Name ?? '-' }}</td>
+                        <td>{{ ($check?->IssueDate) ? \Carbon\Carbon::parse($check->IssueDate)->format('m/d/Y') : '-'  ?? '-' }}</td>
+                        <td>{{ $check?->CheckNumber ?? '-' }}</td>
+                        <td>{{ $check?->payor?->Name ?? '-' }}</td>
+                        <td>{{ '$'.$check?->Total ?? '-' }}</td>
+                        <td>{{ $check?->Memo ?? '-' }}</td>
+                         <td>{{ ($check?->created_at) ? \Carbon\Carbon::parse($check->created_at)->format('m/d/Y h:i A') : '-'  ?? '-' }}</td>
+                        <td>{{ $check->ip_address ?? '-' }}</td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="8">No billing history found.</td>
+                    </tr>
+                @endforelse
+            </table>
+        </div>
     </div>
 
 </body>

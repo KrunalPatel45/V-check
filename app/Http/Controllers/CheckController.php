@@ -277,6 +277,7 @@ class CheckController extends Controller
                     'CheckPDF' => null,
                     'DigitalSignatureRequired' => (!empty($request->is_sign) && $request->is_sign == 'on') ? 1 : 0,
                     'DigitalSignature' => (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '',
+                    'ip_address' => request()->ip()
                 ]);
             }
             $message = 'Check Updated successfully';
@@ -298,6 +299,8 @@ class CheckController extends Controller
                 'CheckPDF' => null,
                 'DigitalSignatureRequired' => (!empty($request->is_sign) && $request->is_sign == 'on') ? 1 : 0,
                 'DigitalSignature' => (!empty($request->is_sign) && $request->is_sign == 'on') ? $fileName : '',
+                'ip_address' => request()->ip(),
+                'created_at' => Carbon::now(),
             ]);
 
             // if (Auth::user()->CurrentPackageID != -1) {
@@ -523,6 +526,7 @@ class CheckController extends Controller
                     'Memo' => $request->memo,
                     'CheckPDF' => null,
                     'SignID' => $request->signature_id,
+                    'ip_address' => request()->ip(),
                 ]);
             }
 
@@ -609,6 +613,8 @@ class CheckController extends Controller
                 'Memo' => $request->memo,
                 'CheckPDF' => null,
                 'SignID' => $request->signature_id,
+                'ip_address' => request()->ip(),
+                'created_at' => Carbon::now(),
             ]);
 
             // if (Auth::user()->CurrentPackageID != -1) {
@@ -1025,7 +1031,7 @@ class CheckController extends Controller
 
         $check->Status = 'generated';
         $check->CheckPDF = $check_file;
-
+        $check->ip_address = request()->ip();
         $check->save();
 
         return redirect()->back()->with('success', 'Check generated successfully.');
@@ -1090,7 +1096,7 @@ class CheckController extends Controller
 
         $check->Status = 'generated';
         $check->CheckPDF = $check_file;
-
+        $check->ip_address = request()->ip();
         $check->save();
 
         return redirect()->back()->with('success', 'Check generated successfully.');
@@ -1401,6 +1407,8 @@ class CheckController extends Controller
                 // 'Memo' => $request->Memo, 
                 'CheckPDF' => null,
                 'DigitalSignatureRequired' => 0,
+                'ip_address' => $request->ip(),
+                'created_at' => Carbon::now(),
             ];
 
             $check = Checks::create($check_data);
