@@ -85,6 +85,13 @@
       "access": "admin"
     },
     {
+      "url": "/admin/bulk-email",
+      "name": "Send Email to Clients",
+      "icon": "menu-icon tf-icons ti ti-send",
+      "slug": "admin.bulk-email.create",
+      "access": "admin"
+    },
+    {
       "url": "admin/setting",
       "name": "Settings",
       "icon": "menu-icon tf-icons ti ti-settings",

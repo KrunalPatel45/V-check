@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\BulkEmailController;
 use App\Http\Controllers\HowItWorksController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Middleware\EnsurePaymentIsComplete;
@@ -252,6 +253,9 @@ Route::middleware([AdminMiddleware::class])->group(function () {
 
     Route::get('/admin/transactions', [TransactionController::class, 'index'])->name('admin.transactions');
     Route::get('/admin/transactions/list', [TransactionController::class, 'list'])->name('admin.transactions.list');
+
+    Route::get('/admin/bulk-email', [BulkEmailController::class, 'create'])->name('admin.bulk-email.create');
+    Route::post('/admin/bulk-email', [BulkEmailController::class, 'send'])->name('admin.bulk-email.send');
 });
 
 Route::get('verify-email/{id}/{hash}', [UserAuthController::class, 'verify_email'])->name('user.verify_email');
