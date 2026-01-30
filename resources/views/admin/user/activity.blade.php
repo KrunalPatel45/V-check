@@ -142,27 +142,31 @@
                     <th>IP Address</th>
                 </tr>
                 <tr>
-                    <td>{{ ($currentSubscription->PackageID == -1) ? 'Free Trial' : $currentSubscription->package->Name }}</td>
+                    <td>{{ ($currentSubscription?->PackageID == -1) ? 'Free Trial' : $currentSubscription?->package?->Name }}</td>
 
-                    @if($currentSubscription->Status == 'Canceled')
+                    @if($currentSubscription?->Status == 'Canceled')
                         <td class="text-danger">Canceled</td>
-                    @elseif($currentSubscription->Status == 'Pending')
+                    @elseif($currentSubscription?->Status == 'Pending')
                         <td class="text-alert">Pending</td>
-                    @elseif($currentSubscription->Status == 'Inactive')
+                    @elseif($currentSubscription?->Status == 'Inactive')
                         <td class="text-danger">Inactive</td>
-                    @elseif($currentSubscription->Status == 'Active')
+                    @elseif($currentSubscription?->Status == 'Active')
                         <td class="text-success">Active</td>
                     @else
                         <td>-</td>
                     @endif
 
-                    <td>{{ date('m/d/Y', strtotime($currentSubscription->PaymentStartDate)) }}</td>
+                    @if($currentSubscription == null)
+                        <td>-</td>
+                    @else
+                        <td>{{ date('m/d/Y', strtotime($currentSubscription?->PaymentStartDate)) }}</td>
+                    @endif
                     
-                    @if(($currentSubscription->PackageID == -1))
+                    @if($currentSubscription == null || ($currentSubscription?->PackageID == -1))
                         <td>-</td>
                         <td>-</td>
                     @else
-                        <td>{{ date('m/d/Y', strtotime($currentSubscription->NextRenewalDate)) }}</td>
+                        <td>{{ date('m/d/Y', strtotime($currentSubscription?->NextRenewalDate)) }}</td>
                         <td>{{ $firstBillingDate }}</td>
                     @endif
                     
