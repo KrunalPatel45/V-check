@@ -616,22 +616,24 @@ class AdminDashboardController extends Controller
         $cards = $paymentMethods->json('data');
 
         $cardList = [];
-
-        foreach ($cards as $card) {
-            $cardList[] = [
-                'payment_method_id' => $card['id'],
-                'card_holder' => $card['billing_details']['name'] ?? null,
-                'brand' => $card['card']['brand'],
-                'last4' => $card['card']['last4'],
-                'exp_month' => $card['card']['exp_month'],
-                'exp_year' => $card['card']['exp_year'],
-                'address_line1' => $card['billing_details']['address']['line1'] ?? null,
-                'address_line2' => $card['billing_details']['address']['line2'] ?? null,
-                'city' => $card['billing_details']['address']['city'] ?? null,
-                'state' => $card['billing_details']['address']['state'] ?? null,
-                'postal_code' => $card['billing_details']['address']['postal_code'] ?? null,
-                'country' => $card['billing_details']['address']['country'] ?? null,
-            ];
+        
+        if($cards != null){
+            foreach ($cards as $card) {
+                $cardList[] = [
+                    'payment_method_id' => $card['id'],
+                    'card_holder' => $card['billing_details']['name'] ?? null,
+                    'brand' => $card['card']['brand'],
+                    'last4' => $card['card']['last4'],
+                    'exp_month' => $card['card']['exp_month'],
+                    'exp_year' => $card['card']['exp_year'],
+                    'address_line1' => $card['billing_details']['address']['line1'] ?? null,
+                    'address_line2' => $card['billing_details']['address']['line2'] ?? null,
+                    'city' => $card['billing_details']['address']['city'] ?? null,
+                    'state' => $card['billing_details']['address']['state'] ?? null,
+                    'postal_code' => $card['billing_details']['address']['postal_code'] ?? null,
+                    'country' => $card['billing_details']['address']['country'] ?? null,
+                ];
+            }
         }
 
         $subscriptionIds = $subscriptions->pluck('PaymentSubscriptionID')->toArray();
