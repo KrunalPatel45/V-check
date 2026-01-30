@@ -117,64 +117,155 @@ class AdminDashboardController extends Controller
         return redirect()->route('admin.profile')->with('pass_success', 'Password changed successfully');
     }
 
+    // public function users(Request $request)
+    // {
+    //     if ($request->ajax()) {
+
+    //         $query = User::query();
+
+    //         if (isset($request->status)) {
+    //             $query->where('status', $request->status);
+    //         }
+
+    //         $users = $query->get();
+
+    //         foreach ($users as $user) {
+    //             $package = Package::find($user->CurrentPackageID);
+
+    //             $user->package = $package ? $package->Name : 'N/A';
+    //             if ($user->CurrentPackageID == '-1') {
+    //                 $user->package = 'TRIAL';
+    //             }
+    //             $user->package_price = $package ? '$' . number_format($package->Price, 2) : '$0';
+
+    //         }
+
+    //         return datatables()->of($users)
+    //             ->addIndexColumn()
+
+    //             ->editColumn('PhoneNumber', function ($user) {
+    //                 return $this->formatPhoneNumber($user->PhoneNumber);
+    //             })
+    //             ->addColumn('status', function ($user) {
+    //                 return $user->Status == 'Active'
+    //                     ? '<span class="badge bg-label-primary">' . $user->Status . '</span>'
+    //                     : '<span class="badge bg-label-warning">' . $user->Status . '</span>';
+    //             })
+    //             ->addColumn('created_at', function ($user) {
+    //                 return Carbon::parse($user->CreatedAt)->format('m-d-Y'); // Convert to MM/DD/YYYY
+    //             })
+    //             ->addColumn('actions', function ($user) {
+    //                 // Dynamically build URLs for the edit and delete actions
+    //                 $editUrl = route('admin.user.edit', ['id' => $user->UserID]);
+    //                 $deleteUrl = route('admin.user.delete', ['id' => $user->UserID]);
+    //                 $viewUrl = route('admin.user.view', ['id' => $user->UserID]);
+
+    //                 return '
+    //                 <div class="d-flex">
+    //                     <a href="' . $editUrl . '" class="dropdown-item">
+    //                     <i class="ti ti-pencil me-1"></i> Edit
+    //                     </a>
+    //                     <a href="' . $viewUrl . '" class="dropdown-item">
+    //                         <i class="ti ti-eye me-1"></i> View
+    //                     </a>
+    //                 </div>';
+    //             })
+    //             ->rawColumns(['status', 'created_at', 'actions'])
+    //             ->make(true);
+    //     }
+
+    //     return view('admin.user.index');
+    // }
+
     public function users(Request $request)
-    {
-        if ($request->ajax()) {
+{
+    if ($request->ajax()) {
 
-            $query = User::query();
+        $query = User::query();
 
-            if (isset($request->status)) {
-                $query->where('status', $request->status);
-            }
-
-            $users = $query->get();
-
-            foreach ($users as $user) {
-                $package = Package::find($user->CurrentPackageID);
-
-                $user->package = $package ? $package->Name : 'N/A';
-                if ($user->CurrentPackageID == '-1') {
-                    $user->package = 'TRIAL';
-                }
-                $user->package_price = $package ? '$' . number_format($package->Price, 2) : '$0';
-
-            }
-
-            return datatables()->of($users)
-                ->addIndexColumn()
-                ->editColumn('PhoneNumber', function ($user) {
-                    return $this->formatPhoneNumber($user->PhoneNumber);
-                })
-                ->addColumn('status', function ($user) {
-                    return $user->Status == 'Active'
-                        ? '<span class="badge bg-label-primary">' . $user->Status . '</span>'
-                        : '<span class="badge bg-label-warning">' . $user->Status . '</span>';
-                })
-                ->addColumn('created_at', function ($user) {
-                    return Carbon::parse($user->CreatedAt)->format('m-d-Y'); // Convert to MM/DD/YYYY
-                })
-                ->addColumn('actions', function ($user) {
-                    // Dynamically build URLs for the edit and delete actions
-                    $editUrl = route('admin.user.edit', ['id' => $user->UserID]);
-                    $deleteUrl = route('admin.user.delete', ['id' => $user->UserID]);
-                    $viewUrl = route('admin.user.view', ['id' => $user->UserID]);
-
-                    return '
-                    <div class="d-flex">
-                        <a href="' . $editUrl . '" class="dropdown-item">
-                        <i class="ti ti-pencil me-1"></i> Edit
-                        </a>
-                        <a href="' . $viewUrl . '" class="dropdown-item">
-                            <i class="ti ti-eye me-1"></i> View
-                        </a>
-                    </div>';
-                })
-                ->rawColumns(['status', 'created_at', 'actions'])
-                ->make(true);
+        if ($request->status) {
+            $query->where('Status', $request->status);
         }
 
-        return view('admin.user.index');
+        return datatables()->of($query)
+
+            ->addIndexColumn()
+
+            // 🔍 Search hidden email
+            ->filter(function ($query) use ($request) {
+                $search = $request->input('search.value');
+
+                if ($search) {
+                    $query->where(function ($q) use ($search) {
+                        $q->where('FirstName', 'like', "%{$search}%")
+                          ->orWhere('LastName', 'like', "%{$search}%")
+                          ->orWhere('PhoneNumber', 'like', "%{$search}%")
+                          ->orWhere('Email', 'like', "%{$search}%");
+                    });
+                }
+            })
+
+            ->editColumn('PhoneNumber', function ($user) {
+                return $this->formatPhoneNumber($user->PhoneNumber);
+            })
+
+            ->addColumn('package', function ($user) {
+
+                if ($user->CurrentPackageID == '-1') {
+                    return 'TRIAL';
+                }
+
+                $package = Package::find($user->CurrentPackageID);
+
+                return $package ? $package->Name : 'N/A';
+            })
+
+            ->addColumn('package_price', function ($user) {
+
+                if ($user->CurrentPackageID == '-1') {
+                    return '$0';
+                }
+
+                $package = Package::find($user->CurrentPackageID);
+
+                return $package
+                    ? '$' . number_format($package->Price, 2)
+                    : '$0';
+            })
+
+            ->addColumn('status', function ($user) {
+                return $user->Status == 'Active'
+                    ? '<span class="badge bg-label-primary">' . $user->Status . '</span>'
+                    : '<span class="badge bg-label-warning">' . $user->Status . '</span>';
+            })
+
+            ->editColumn('created_at', function ($user) {
+                return Carbon::parse($user->CreatedAt)->format('m-d-Y');
+            })
+
+            ->addColumn('actions', function ($user) {
+
+                $editUrl = route('admin.user.edit', ['id' => $user->UserID]);
+                $viewUrl = route('admin.user.view', ['id' => $user->UserID]);
+
+                return '
+                <div class="d-flex">
+                    <a href="' . $editUrl . '" class="dropdown-item">
+                        <i class="ti ti-pencil me-1"></i> Edit
+                    </a>
+                    <a href="' . $viewUrl . '" class="dropdown-item">
+                        <i class="ti ti-eye me-1"></i> View
+                    </a>
+                </div>';
+            })
+
+            ->rawColumns(['status', 'actions'])
+            ->make(true);
     }
+
+    return view('admin.user.index');
+}
+
 
     public function user_edit(Request $request, $id)
     {
@@ -616,8 +707,8 @@ class AdminDashboardController extends Controller
         $cards = $paymentMethods->json('data');
 
         $cardList = [];
-        
-        if($cards != null){
+
+        if ($cards != null) {
             foreach ($cards as $card) {
                 $cardList[] = [
                     'payment_method_id' => $card['id'],
@@ -640,8 +731,11 @@ class AdminDashboardController extends Controller
 
         $PaymentHistories = PaymentHistory::with([
             'subscription' => function ($q) {
-                return $q->with(['package' => function ($q1) {
-                    return $q1->select('PackageID', 'Name', ); }])->select('PaymentSubscriptionID', 'PackageID', 'PaymentStartDate', 'NextRenewalDate');
+                return $q->with([
+                    'package' => function ($q1) {
+                        return $q1->select('PackageID', 'Name', );
+                    }
+                ])->select('PaymentSubscriptionID', 'PackageID', 'PaymentStartDate', 'NextRenewalDate');
             }
         ])->select('PaymentHistoryID', 'PaymentSubscriptionID', 'PaymentDate', 'PaymentStatus', 'PaymentAmount', 'Remarks', 'created_at')->whereIn('PaymentSubscriptionID', $subscriptionIds)->get();
 
