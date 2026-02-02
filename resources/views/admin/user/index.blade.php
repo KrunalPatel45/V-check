@@ -127,7 +127,7 @@
                     },
                     {
                         data: 'created_at',
-                        name: 'created_at',
+                        name: 'CreatedAt',
                     },
                     {
                         data: 'PhoneNumber',
@@ -184,7 +184,7 @@
                     },
                     {
                         data: 'created_at',
-                        name: 'created_at',
+                        name: 'CreatedAt',
                     },
                     {
                         data: 'PhoneNumber',
