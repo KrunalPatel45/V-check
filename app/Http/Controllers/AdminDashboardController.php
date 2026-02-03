@@ -187,6 +187,10 @@ class AdminDashboardController extends Controller
             $query->where('Status', $request->status);
         }
 
+        if($request->has('order') && $request->order[0]['column'] == 0) {
+            $query->orderBy('UserID','desc');
+        }
+        
         return datatables()->of($query)
 
             ->addIndexColumn()
