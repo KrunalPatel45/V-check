@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use App\Models\BlockedIp;
+use App\Models\BlockedIP;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
@@ -19,7 +19,7 @@ class CheckBlockedIp
 
     $ip = $request->ip();
 
-    $blocked = BlockedIp::where('ip_address', $ip)->first();
+    $blocked = BlockedIP::where('ip_address', $ip)->first();
 
     if ($blocked) {
         return response()->view('errors.blocked', [], 403);

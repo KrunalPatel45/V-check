@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\Checks;
 use App\Models\PaymentSubscription;
 use App\Models\User;
-use App\Models\BlockedIp;
+use App\Models\BlockedIP;
 
 class FraudService
 {
@@ -25,7 +25,7 @@ class FraudService
             ];
         })->toArray();
 
-        BlockedIp::insertOrIgnore($insertData);
+        BlockedIP::insertOrIgnore($insertData);
 
         return $ips;
     }
@@ -35,7 +35,7 @@ class FraudService
         $userId = $user->UserID;
 
         // Only remove blocks created for this user
-        BlockedIp::where('user_id', $userId)->delete();
+        BlockedIP::where('user_id', $userId)->delete();
     }
 
     /**
@@ -71,7 +71,7 @@ class FraudService
             return false; // only for fraud users
         }
 
-        return BlockedIp::firstOrCreate(
+        return BlockedIP::firstOrCreate(
             ['ip_address' => trim($ip)],
             [
                 'user_id' => $user->UserID,
