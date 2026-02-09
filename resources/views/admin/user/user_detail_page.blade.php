@@ -17,31 +17,31 @@
 @section('page-script')
     @vite(['resources/assets/js/modal-edit-user.js', 'resources/assets/js/app-user-view.js', 'resources/assets/js/app-user-view-account.js', 'resources/assets/js/pages-profile.js'])
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             $('#companyTable').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: "{{ route('admin.user.company', ['id' => $user->UserID]) }}",
                 columns: [{
-                        data: 'DT_RowIndex',
-                        name: 'DT_RowIndex',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'Name',
-                        name: 'Name'
-                    },
-                    {
-                        data: 'Email',
-                        name: 'Email'
-                    },
-                    {
-                        data: 'status',
-                        name: 'status',
-                        orderable: false,
-                        searchable: false
-                    },
+                    data: 'DT_RowIndex',
+                    name: 'DT_RowIndex',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'Name',
+                    name: 'Name'
+                },
+                {
+                    data: 'Email',
+                    name: 'Email'
+                },
+                {
+                    data: 'status',
+                    name: 'status',
+                    orderable: false,
+                    searchable: false
+                },
                 ]
             });
 
@@ -50,29 +50,29 @@
                 serverSide: true,
                 ajax: "{{ route('admin.user.client', ['id' => $user->UserID]) }}",
                 columns: [{
-                        data: 'DT_RowIndex',
-                        name: 'DT_RowIndex',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'Name',
-                        name: 'Name'
-                    },
-                    {
-                        data: 'Email',
-                        name: 'Email'
-                    },
-                    {
-                        data: 'Status',
-                        name: 'Status',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'CreatedAt',
-                        name: 'CreatedAt'
-                    },
+                    data: 'DT_RowIndex',
+                    name: 'DT_RowIndex',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'Name',
+                    name: 'Name'
+                },
+                {
+                    data: 'Email',
+                    name: 'Email'
+                },
+                {
+                    data: 'Status',
+                    name: 'Status',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'CreatedAt',
+                    name: 'CreatedAt'
+                },
                 ]
             });
 
@@ -81,29 +81,29 @@
                 serverSide: true,
                 ajax: "{{ route('admin.user.vendor', ['id' => $user->UserID]) }}",
                 columns: [{
-                        data: 'DT_RowIndex',
-                        name: 'DT_RowIndex',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'Name',
-                        name: 'Name'
-                    },
-                    {
-                        data: 'Email',
-                        name: 'Email'
-                    },
-                    {
-                        data: 'Status',
-                        name: 'Status',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'CreatedAt',
-                        name: 'CreatedAt'
-                    },
+                    data: 'DT_RowIndex',
+                    name: 'DT_RowIndex',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'Name',
+                    name: 'Name'
+                },
+                {
+                    data: 'Email',
+                    name: 'Email'
+                },
+                {
+                    data: 'Status',
+                    name: 'Status',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'CreatedAt',
+                    name: 'CreatedAt'
+                },
                 ]
             });
 
@@ -115,34 +115,49 @@
                     [0, 'desc']
                 ],
                 columns: [{
-                        data: 'PaymentHistoryID', // Hidden ID column for sorting
-                        name: 'PaymentHistoryID',
-                        visible: false // Hides the ID column
-                    },
-                    {
-                        data: 'DT_RowIndex',
-                        name: 'DT_RowIndex',
-                        orderable: false,
-                        searchable: false
-                    },
-                    {
-                        data: 'PaymentStatus',
-                        name: 'PaymentStatus',
-                    },
-                    {
-                        data: 'PaymentAmount',
-                        name: 'PaymentAmount',
-                    },
-                    {
-                        data: 'PaymentDate',
-                        name: 'PaymentDate'
-                    },
+                    data: 'PaymentHistoryID', // Hidden ID column for sorting
+                    name: 'PaymentHistoryID',
+                    visible: false // Hides the ID column
+                },
+                {
+                    data: 'DT_RowIndex',
+                    name: 'DT_RowIndex',
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: 'PaymentStatus',
+                    name: 'PaymentStatus',
+                },
+                {
+                    data: 'PaymentAmount',
+                    name: 'PaymentAmount',
+                },
+                {
+                    data: 'PaymentDate',
+                    name: 'PaymentDate'
+                },
                 ]
             });
 
-            $('#change_status').on('change', function() {
+            function toggleReasonField(status) {
+                if (status === 'inactive') {
+                    $('#reason-wrapper').slideDown();
+                } else {
+                    $('#reason-wrapper').slideUp();
+                    $('#reason').val('');
+                }
+            }
+
+            // On page load (important if already inactive)
+            toggleReasonField($('#change_status').val());
+
+            $('#change_status').on('change', function () {
+
                 var status = $(this).val();
                 var userId = $(this).data('user-id');
+
+                toggleReasonField(status);
 
                 $.ajax({
                     url: "{{ route('changeStatus') }}",
@@ -152,22 +167,44 @@
                         id: userId,
                         _token: '{{ csrf_token() }}'
                     },
-                    success: function(response) {
+                    success: function (response) {
                         const message = response.message || 'Status updated successfully!';
                         const alertHtml = `
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                ${message}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        `;
-
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    ${message}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            `;
                         $('#status-alert-container').html(alertHtml);
-                    },
-                    error: function(xhr) {
-                        alert('Something went wrong. Please try again.');
                     }
                 });
             });
+
+            $('#reason').on('change', function () {
+                var reason = $(this).val();
+                var userId = $(this).data('user-id');
+
+                $.ajax({
+                    url: "{{ route('changeStatus') }}",
+                    type: 'POST',
+                    data: {
+                        reason: reason,
+                        id: userId,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function (response) {
+                        const message = response.message || 'Status updated successfully!';
+                        const alertHtml = `
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    ${message}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            `;
+                        $('#status-alert-container').html(alertHtml);
+                    }
+                });
+            });
+
         });
     </script>
 @endsection
@@ -212,8 +249,8 @@
                 @php
                     $firstLetter =
                         isset($user->FirstName) && !empty($user->FirstName)
-                            ? strtoupper(substr($user->FirstName, 0, 1))
-                            : 'A';
+                        ? strtoupper(substr($user->FirstName, 0, 1))
+                        : 'A';
                 @endphp
                 <div class="card-body pt-12">
                     <div class="user-avatar-section">
@@ -222,8 +259,8 @@
                                 style="width:120px; height: 120px; font-size: 50px;margin-bottom: 10px;    border-radius: 6px;">
                                 {{ $firstLetter }}
                             </div>
-                            {{-- <img class="img-fluid rounded mb-4" src="{{ asset('assets/img/avatars/1.png') }}" height="120"
-                                width="120" alt="User avatar" /> --}}
+                            {{-- <img class="img-fluid rounded mb-4" src="{{ asset('assets/img/avatars/1.png') }}"
+                                height="120" width="120" alt="User avatar" /> --}}
                             <div class="user-info text-center">
                                 <h5>{{ $user->FirstName }} {{ $user->LastName }}</h5>
                                 {{-- <span class="badge bg-label-secondary">Author</span> --}}
@@ -268,28 +305,39 @@
                         </div>
                     @else
                         <div class="my-6 text-center">
-                            <label
-                                    class="text-danger">No active plan has been found</label>
+                            <label class="text-danger">No active plan has been found</label>
                         </div>
                     @endif
                     <h5 class="pb-4 border-bottom mb-4">Details</h5>
                     <div class="info-container">
                         <ul class="list-unstyled mb-6">
-                            {{-- <li class="mb-2">
-                                <span class="h6">Username:</span>
-                                <span>{{ $user->Username }}</span>
+
+                            {{-- <li class="mb-3">
+                                <div class="row">
+                                    <label class="col-sm-3 col-form-label h6">Username:</label>
+                                    <div class="col-sm-9">
+                                        <p class="form-control-plaintext mb-0">{{ $user->Username }}</p>
+                                    </div>
+                                </div>
                             </li> --}}
-                            <li class="mb-2">
-                                <span class="h6">Email:</span>
-                                <span>{{ $user->Email }}</span>
+
+                            <li class="mb-3">
+                                <div class="row">
+                                    <label class="col-sm-3 col-form-label h6">Email:</label>
+                                    <div class="col-sm-9">
+                                        <p class="form-control-plaintext mb-0">{{ $user->Email }}</p>
+                                    </div>
+                                </div>
                             </li>
-                            <li class="mb-2">
-                                <div class="row mb-6">
-                                    <label class="col-sm-3 col-form-label h6" for="status">Status:</label>
+
+                            <li class="mb-3">
+                                <div class="row">
+                                    <label class="col-sm-3 col-form-label h6" for="change_status">Status:</label>
                                     <div class="col-sm-9">
                                         <select id="change_status" name="status" class="form-control form-select"
                                             data-user-id="{{ $user->UserID }}">
-                                            <option value="active" {{ $user->Status == 'Active' ? 'selected' : '' }}>Active
+                                            <option value="active" {{ $user->Status == 'Active' ? 'selected' : '' }}>
+                                                Active
                                             </option>
                                             <option value="inactive" {{ $user->Status == 'Inactive' ? 'selected' : '' }}>
                                                 Inactive
@@ -298,9 +346,41 @@
                                     </div>
                                 </div>
                             </li>
-                            <li class="mb-2">
-                                <span class="h6">Phone Number:</span>
-                                <span>{{ formatPhoneNumber($user->PhoneNumber) }}</span>
+                            <li class="mb-3" id="reason-wrapper" style="display: none;">
+                                <div class="row">
+                                    <label class="col-sm-3 col-form-label h6">Reason:</label>
+                                    <div class="col-sm-9">
+                                        <select id="reason" name="reason" class="form-select"
+                                            data-user-id="{{ $user->UserID }}">
+
+                                            <option value="">Select Reason</option>
+                                            <option value="Fraud" {{ $user->reason == 'Fraud' ? 'selected' : '' }}>
+                                                Fraud
+                                            </option>
+                                            <option value="Suspended" {{ $user->reason == 'Suspended' ? 'selected' : '' }}>
+                                                Suspended
+                                            </option>
+                                            <option value="Duplicate" {{ $user->reason == 'Duplicate' ? 'selected' : '' }}>
+                                                Duplicate
+                                            </option>
+                                            <option value="Other" {{ $user->reason == 'Other' ? 'selected' : '' }}>
+                                                Other
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </li>
+
+
+                            <li class="mb-3">
+                                <div class="row">
+                                    <label class="col-sm-3 col-form-label h6">Phone:</label>
+                                    <div class="col-sm-9">
+                                        <p class="form-control-plaintext mb-0">
+                                            {{ formatPhoneNumber($user->PhoneNumber) }}
+                                        </p>
+                                    </div>
+                                </div>
                             </li>
                         </ul>
                         <div class="d-flex justify-content-center">
@@ -375,18 +455,15 @@
                                 <div class="alert alert-warning alert-dismissible" role="alert">
                                     <h5 class="alert-heading mb-1">Ensure that these requirements are met</h5>
                                     <span>Minimum 8 characters long, uppercase & symbol</span>
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                        aria-label="Close"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
                                 <div class="row gx-6">
                                     <div class="mb-4 col-12 col-sm-6 form-password-toggle">
                                         <label class="form-label" for="new_password">New Password</label>
                                         <div class="input-group input-group-merge">
-                                            <input class="form-control" type="password" id="new_password"
-                                                name="new_password"
+                                            <input class="form-control" type="password" id="new_password" name="new_password"
                                                 placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" />
-                                            <span class="input-group-text cursor-pointer"><i
-                                                    class="ti ti-eye-off"></i></span>
+                                            <span class="input-group-text cursor-pointer"><i class="ti ti-eye-off"></i></span>
                                             @if ($errors->has('new_password'))
                                                 <span class="text-danger">
                                                     {{ $errors->first('new_password') }}
@@ -402,8 +479,7 @@
                                             <input class="form-control" type="password" name="new_password_confirmation"
                                                 id="new_password_confirmation"
                                                 placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" />
-                                            <span class="input-group-text cursor-pointer"><i
-                                                    class="ti ti-eye-off"></i></span>
+                                            <span class="input-group-text cursor-pointer"><i class="ti ti-eye-off"></i></span>
                                             @if ($errors->has('new_password_confirmation'))
                                                 <span class="text-danger">
                                                     {{ $errors->first('new_password_confirmation') }}
@@ -442,8 +518,7 @@
                                         <td class="text-truncate">10, July 2021 20:07</td>
                                     </tr>
                                     <tr>
-                                        <td class="text-truncate"><i
-                                                class='ti ti-device-mobile ti-md text-danger me-4'></i>
+                                        <td class="text-truncate"><i class='ti ti-device-mobile ti-md text-danger me-4'></i>
                                             <span class="text-heading">Chrome on iPhone</span>
                                         </td>
                                         <td class="text-truncate">iPhone 12x</td>
@@ -451,8 +526,7 @@
                                         <td class="text-truncate">13, July 2021 10:10</td>
                                     </tr>
                                     <tr>
-                                        <td class="text-truncate"><i
-                                                class='ti ti-brand-android ti-md text-success me-4'></i>
+                                        <td class="text-truncate"><i class='ti ti-brand-android ti-md text-success me-4'></i>
                                             <span class="text-heading">Chrome on Android</span>
                                         </td>
                                         <td class="text-truncate">Oneplus 9 Pro</td>
@@ -478,13 +552,12 @@
                         @php
                             $progress =
                                 $currentPackage != -1
-                                    ? ($package_data['remainingDays'] * 100) / $package_data['total_days']
-                                    : 0;
+                                ? ($package_data['remainingDays'] * 100) / $package_data['total_days']
+                                : 0;
                         @endphp
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start">
-                                <span
-                                    class="badge bg-label-primary">{{ $currentPackage != '-1' ? $package->Name : 'Trial' }}</span>
+                                <span class="badge bg-label-primary">{{ $currentPackage != '-1' ? $package->Name : 'Trial' }}</span>
                                 @if ($currentPackage != '-1')
                                     <div class="d-flex justify-content-center">
                                         <sub class="h5 pricing-currency mb-auto mt-1 text-primary">$</sub>
@@ -504,8 +577,8 @@
                                         Days</span>
                                 </div>
                                 <div class="progress mb-1 bg-label-primary" style="height: 6px;">
-                                    <div class="progress-bar" role="progressbar" style="width: {{ $progress }}%;"
-                                        aria-valuenow="65" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <div class="progress-bar" role="progressbar" style="width: {{ $progress }}%;" aria-valuenow="65"
+                                        aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
                                 <small>{{ $package_data['remainingDays'] }} days remaining</small>
                                 @if (!empty($paymentSubscription->NextPackageID))
@@ -535,8 +608,7 @@
                     <div class="card mb-6 border border-2 border-primary rounded primary-shadow">
                         <div class="card-body">
                             <div class="text-center">
-                                <label
-                                    class="text-danger fs-5">No active plan has been found</label>
+                                <label class="text-danger fs-5">No active plan has been found</label>
                             </div>
                         </div>
                     </div>
@@ -557,8 +629,7 @@
                                     <div class="d-flex justify-content-between flex-sm-row flex-column">
                                         <div class="card-information">
                                             <img class="mb-2 img-fluid"
-                                                src="{{ asset('assets/img/icons/payments/mastercard.png') }}"
-                                                alt="Master Card">
+                                                src="{{ asset('assets/img/icons/payments/mastercard.png') }}" alt="Master Card">
                                             <div class="d-flex align-items-center mb-2">
                                                 <h6 class="mb-0 me-2">Kaith Morrison</h6>
                                                 <span class="badge bg-label-primary me-1">Popular</span>
@@ -581,8 +652,7 @@
                                 <div class="cardMaster border p-6 rounded mb-4">
                                     <div class="d-flex justify-content-between flex-sm-row flex-column">
                                         <div class="card-information">
-                                            <img class="mb-2 img-fluid"
-                                                src="{{ asset('assets/img/icons/payments/visa.png') }}"
+                                            <img class="mb-2 img-fluid" src="{{ asset('assets/img/icons/payments/visa.png') }}"
                                                 alt="Master Card">
                                             <h6 class="mb-2 me-2">Tom McBride</h6>
                                             <span class="card-number">&#8727;&#8727;&#8727;&#8727;
@@ -704,7 +774,8 @@
                                     <li>Up to
                                         {{ $package->Name != 'UNLIMITED' ? $package->CheckLimitPerMonth : 'Unlimited ' }}
                                         checks
-                                        / month</li>
+                                        / month
+                                    </li>
                                     <li>Email Support</li>
                                     <li>Unlimited Users</li>
                                     @if ($package->Name != 'BASIC')

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\QBOCompany;
+use App\Services\FraudService;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -67,7 +68,7 @@ class UserAuthController extends Controller
         return view('frontend.auth.package', compact('packages', 'userId'));
     }
 
-    public function login_action(Request $request)
+    public function login_action(Request $request,FraudService $fraudService)
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required',
@@ -83,9 +84,12 @@ class UserAuthController extends Controller
         if (!empty($user) && Hash::check($request->password, $user->PasswordHash)) {
 
             if (!empty($user) && $user->Status == 'Inactive') {
+                
+                $fraudService->addIpForFraudUser($user,$request->ip());
+                
                 return redirect()->back()->withErrors(['login' => 'User status is not Active'])->withInput();
             }
-
+            
             $packag_c = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', $user->CurrentPackageID)
                 ->orderBy('PaymentSubscriptionID', 'desc')->first()?->RemainingChecks ?? 0;
 

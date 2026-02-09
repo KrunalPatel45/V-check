@@ -86,6 +86,7 @@
                                 <th style="width: 10% !important;">Subscription Plan</th>
                                 <th style="width: 8% !important;">Plan Price</th>
                                 <th style="width: 7% !important;">Status</th>
+                                <th style="width: 7% !important;">Reason</th>
                                 <th style="width: 8% !important;">Actions</th>
                             </tr>
                         </thead>
@@ -203,6 +204,11 @@
                         name: 'status',
                         orderable: false,
                         searchable: false
+                    },
+                    {
+                        data: 'reason',
+                        name: 'reason',
+                        orderable: false,
                     },
                     {
                         data: 'actions',

@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\FraudService;
 use App\Models\AdminUser;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
@@ -178,81 +180,91 @@ class AdminDashboardController extends Controller
     // }
 
     public function users(Request $request)
-{
-    if ($request->ajax()) {
+    {
+        if ($request->ajax()) {
 
-        $query = User::query();
+            $query = User::query();
 
-        if ($request->status) {
-            $query->where('Status', $request->status);
-        }
+            if ($request->status) {
+                $query->where('Status', $request->status);
+            }
 
-        if($request->has('order') && $request->order[0]['column'] == 0) {
-            $query->orderBy('UserID','desc');
-        }
-        
-        return datatables()->of($query)
+            if ($request->has('order') && $request->order[0]['column'] == 0) {
+                $query->orderBy('UserID', 'desc');
+            }
 
-            ->addIndexColumn()
+            return datatables()->of($query)
 
-            // 🔍 Search hidden email
-            ->filter(function ($query) use ($request) {
-                $search = $request->input('search.value');
+                ->addIndexColumn()
 
-                if ($search) {
-                    $query->where(function ($q) use ($search) {
-                        $q->where('FirstName', 'like', "%{$search}%")
-                          ->orWhere('LastName', 'like', "%{$search}%")
-                          ->orWhere('PhoneNumber', 'like', "%{$search}%")
-                          ->orWhere('Email', 'like', "%{$search}%");
-                    });
-                }
-            })
+                // 🔍 Search hidden email
+                ->filter(function ($query) use ($request) {
+                    $search = $request->input('search.value');
 
-            ->editColumn('PhoneNumber', function ($user) {
-                return $this->formatPhoneNumber($user->PhoneNumber);
-            })
+                    if ($search) {
+                        $query->where(function ($q) use ($search) {
+                            $q->where('FirstName', 'like', "%{$search}%")
+                                ->orWhere('LastName', 'like', "%{$search}%")
+                                ->orWhere('PhoneNumber', 'like', "%{$search}%")
+                                ->orWhere('Email', 'like', "%{$search}%");
+                        });
+                    }
+                })
 
-            ->addColumn('package', function ($user) {
+                ->editColumn('PhoneNumber', function ($user) {
+                    return $this->formatPhoneNumber($user->PhoneNumber);
+                })
 
-                if ($user->CurrentPackageID == '-1') {
-                    return 'TRIAL';
-                }
+                ->addColumn('package', function ($user) {
 
-                $package = Package::find($user->CurrentPackageID);
+                    if ($user->CurrentPackageID == '-1') {
+                        return 'TRIAL';
+                    }
 
-                return $package ? $package->Name : 'N/A';
-            })
+                    $package = Package::find($user->CurrentPackageID);
 
-            ->addColumn('package_price', function ($user) {
+                    return $package ? $package->Name : 'N/A';
+                })
 
-                if ($user->CurrentPackageID == '-1') {
-                    return '$0';
-                }
+                ->addColumn('package_price', function ($user) {
 
-                $package = Package::find($user->CurrentPackageID);
+                    if ($user->CurrentPackageID == '-1') {
+                        return '$0';
+                    }
 
-                return $package
-                    ? '$' . number_format($package->Price, 2)
-                    : '$0';
-            })
+                    $package = Package::find($user->CurrentPackageID);
 
-            ->addColumn('status', function ($user) {
-                return $user->Status == 'Active'
-                    ? '<span class="badge bg-label-primary">' . $user->Status . '</span>'
-                    : '<span class="badge bg-label-warning">' . $user->Status . '</span>';
-            })
+                    return $package
+                        ? '$' . number_format($package->Price, 2)
+                        : '$0';
+                })
 
-            ->editColumn('created_at', function ($user) {
-                return Carbon::parse($user->CreatedAt)->format('m-d-Y');
-            })
+                ->editColumn('status', function ($user) {
+                    return $user->Status == 'Active'
+                        ? '<span class="badge bg-label-primary">' . $user->Status . '</span>'
+                        : '<span class="badge bg-danger">' . $user->Status . '</span>';
+                })
+                ->editColumn('reason', function ($user) {
+                    return $user->reason ? $user->reason : '-';
+                })
 
-            ->addColumn('actions', function ($user) {
+                ->editColumn('created_at', function ($user) {
+                    return Carbon::parse($user->CreatedAt)->format('m-d-Y');
+                })
+                ->setRowClass(function ($user) {
 
-                $editUrl = route('admin.user.edit', ['id' => $user->UserID]);
-                $viewUrl = route('admin.user.view', ['id' => $user->UserID]);
+                    if (strtolower($user->reason) === 'fraud') {
+                        return 'table-danger'; // or use custom class
+                    }
 
-                return '
+                    return '';
+                })
+                ->addColumn('actions', function ($user) {
+
+                    $editUrl = route('admin.user.edit', ['id' => $user->UserID]);
+                    $viewUrl = route('admin.user.view', ['id' => $user->UserID]);
+
+                    return '
                 <div class="d-flex">
                     <a href="' . $editUrl . '" class="dropdown-item">
                         <i class="ti ti-pencil me-1"></i> Edit
@@ -261,14 +273,14 @@ class AdminDashboardController extends Controller
                         <i class="ti ti-eye me-1"></i> View
                     </a>
                 </div>';
-            })
+                })
 
-            ->rawColumns(['status', 'actions'])
-            ->make(true);
+                ->rawColumns(['status', 'reason', 'actions'])
+                ->make(true);
+        }
+
+        return view('admin.user.index');
     }
-
-    return view('admin.user.index');
-}
 
 
     public function user_edit(Request $request, $id)
@@ -673,13 +685,55 @@ class AdminDashboardController extends Controller
         return preg_replace('/(\d{3})(\d{3})(\d{4})/', '$1-$2-$3', $number);
     }
 
-    public function changeStatus(Request $request)
+    // public function changeStatus(Request $request)
+    // {
+    //     $user = User::findOrFail($request->id);
+    //     $user->Status = $request->status == 'active' ? 'Active' : 'Inactive';
+    //     $user->save();
+    //     return response()->json(['message' => 'Status updated successfully.']);
+    // }
+    public function changeStatus(Request $request, FraudService $fraudService)
     {
         $user = User::findOrFail($request->id);
-        $user->Status = $request->status == 'active' ? 'Active' : 'Inactive';
+
+        // If status is being updated
+        if ($request->has('status')) {
+
+            $status = $request->status === 'active' ? 'Active' : 'Inactive';
+            $user->Status = $status;
+
+            // If activating user → clear reason
+            if ($status === 'Active') {
+                $user->reason = null;
+                $fraudService->removeFraudBlock($user);
+            } else {
+                DB::table('sessions')->where('user_id', $user->UserID)->delete();
+            }
+        }
+
+        // If reason is being updated
+        if ($request->has('reason')) {
+
+            // Only allow reason if user is inactive
+            if ($user->Status === 'Inactive') {
+
+                $user->reason = $request->reason;
+
+                if ($request->reason === 'Fraud') {
+                    $fraudService->handleFraudUser($user);
+                } else {
+                    $fraudService->removeFraudBlock($user);
+                }
+            }
+        }
+
         $user->save();
-        return response()->json(['message' => 'Status updated successfully.']);
+
+        return response()->json([
+            'message' => 'Status updated successfully.'
+        ]);
     }
+
 
     public function user_view($id)
     {
