@@ -8,7 +8,7 @@ use App\Models\BlockedIP;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
-class CheckBlockedIp
+class CheckBlockedIP
 {
     public function handle(Request $request, Closure $next)
 {
