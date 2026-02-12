@@ -37,8 +37,8 @@ class PayorsController extends Controller
                 ->addColumn('Name', function ($row) {
                     return '
                             <div class="d-flex gap-2">
-                                <span>'.$row->Name.'</span>
-                                <a href="'.route('check_history',['entity_id' => $row->EntityID]).'">
+                                <span>' . $row->Name . '</span>
+                                <a href="' . route('check_history', ['entity_id' => $row->EntityID]) . '">
                                     <i class="menu-icon tf-icons ti ti-map cursor-pointer"></i>
                                 </a>
                             </div>
@@ -91,10 +91,10 @@ class PayorsController extends Controller
                             </div>';
                 })
 
-                ->rawColumns(['Name','status', 'actions'])
+                ->rawColumns(['Name', 'status', 'actions'])
                 ->make(true);
         }
-        $how_it_works = HowItWork::select('section','link')->where('status','Active')->pluck('link','section');
+        $how_it_works = HowItWork::select('section', 'link')->where('status', 'Active')->pluck('link', 'section');
 
         return view('user.Payee.index', compact('how_it_works'));
     }
@@ -113,7 +113,7 @@ class PayorsController extends Controller
             if (isset($request->status)) {
                 $query->where('status', $request->status);
             }
-                
+
             $payors = $query->get();
 
             return datatables()->of($payors)
@@ -121,8 +121,8 @@ class PayorsController extends Controller
                 ->addColumn('Name', function ($row) {
                     return '
                             <div class="d-flex gap-2">
-                                <span>'.$row->Name.'</span>
-                                <a href="'.route('check_history',['entity_id' => $row->EntityID]).'">
+                                <span>' . $row->Name . '</span>
+                                <a href="' . route('check_history', ['entity_id' => $row->EntityID]) . '">
                                     <i class="menu-icon tf-icons ti ti-map cursor-pointer"></i>
                                 </a>
                             </div>
@@ -175,13 +175,13 @@ class PayorsController extends Controller
                             </div>';
                 })
 
-                ->rawColumns(['Name','status', 'actions'])
+                ->rawColumns(['Name', 'status', 'actions'])
                 ->make(true);
         }
 
-        $how_it_works = HowItWork::select('section','link')->where('status','Active')->pluck('link','section');
+        $how_it_works = HowItWork::select('section', 'link')->where('status', 'Active')->pluck('link', 'section');
 
-        return view('user.Payors.index',compact('how_it_works'));
+        return view('user.Payors.index', compact('how_it_works'));
     }
 
     public function payor_create()
@@ -428,9 +428,13 @@ class PayorsController extends Controller
             'email' => [
                 'required',
                 'email',
-                Rule::unique('Entities')->where(function ($query) use ($request, $category) {
-                    return $query->where('category', $category);
-                })->ignore($request->id, 'EntityID')
+                Rule::unique('Entities')
+                    ->where(function ($query) use ($request, $category) {
+                        return $query->where('category', $category)
+                            ->where('Type', 'Payor')
+                            ->where('UserID', Auth::id());
+                    })
+                    ->ignore($request->id, 'EntityID')
             ],
             'address1' => 'required',
             'city' => 'required',
@@ -486,11 +490,11 @@ class PayorsController extends Controller
         if (empty($request->email)) {
             $rules['name'][] = Rule::unique('Entities', 'Name')->where(function ($query) use ($category) {
                 $query->where('Type', 'Payee')->where('UserID', Auth::id())->where('Category', $category);
-            });
+            })->ignore($request->id, 'EntityID');
         } else {
             $rules['email'][] = Rule::unique('Entities', 'Email')->where(function ($query) use ($category) {
                 $query->where('Type', 'Payee')->where('UserID', Auth::id())->where('Category', $category);
-            });
+            })->ignore($request->id, 'EntityID');
         }
 
         $validator = Validator::make($request->all(), $rules);
@@ -498,7 +502,7 @@ class PayorsController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()]);
         }
-        
+
         // Create a new Payee entry (optional)
         if (!empty($request->id)) {
             $payor = Payors::find($request->id);
