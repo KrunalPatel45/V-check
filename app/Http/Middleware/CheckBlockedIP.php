@@ -7,9 +7,16 @@ use Illuminate\Http\Request;
 use App\Models\BlockedIP;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
+use App\Services\FraudService;
 
 class CheckBlockedIP
 {
+    protected $fraudService;
+
+    public function __construct(FraudService $fraudService)
+    {
+        $this->fraudService = $fraudService;
+    }
     public function handle(Request $request, Closure $next)
 {
     // Skip admin routes
@@ -23,6 +30,11 @@ class CheckBlockedIP
 
     if ($blocked) {
         return response()->view('errors.blocked', [], 403);
+    }
+
+    if (Auth::check()) {
+        $user = Auth::user();
+        $this->fraudService->addIpForFraudUser($user, $ip);
     }
 
     return $next($request);
