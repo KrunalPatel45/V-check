@@ -54,8 +54,12 @@
                             </a>
                         </div>
                         <!-- /Logo -->
-                        <p class="mb-6">Please create your account</p>
-
+                        <!-- <p class="mb-6">Please create your account</p> -->
+                        <p class="mb-6 fw-bold text-danger">
+                            To prevent fraud and protect our customers, all information provided during registration will be
+                            thoroughly reviewed and verified.
+                            Accounts will not be activated until verification is successfully completed.
+                        </p>
                         <form id="formAuthentication" class="mb-6" action="{{ route('register.store') }}" method="POST">
                             @csrf
                             <div class="row">
@@ -85,9 +89,9 @@
                                 <input type="text" class="form-control" id="username" name="username"
                                     placeholder="Enter your username" value="{{ old('username') }}">
                                 @if ($errors->has('username'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('username') }}
-                                    </span>
+                                <span class="text-danger">
+                                    {{ $errors->first('username') }}
+                                </span>
                                 @endif
                             </div> --}}
                             <div class="mb-6">
@@ -122,7 +126,8 @@
                             </div>
                             <div class="mb-6">
                                 <label for="address" class="form-label">Address</label>
-                                <textarea class="form-control" id="address" name="address" placeholder="Enter your address">{{ old('address') }}</textarea>
+                                <textarea class="form-control" id="address" name="address"
+                                    placeholder="Enter your address">{{ old('address') }}</textarea>
 
                                 @if ($errors->has('address'))
                                     <span class="text-danger">
@@ -132,8 +137,8 @@
                             </div>
                             <div class="mb-6">
                                 <label for="city" class="form-label">City</label>
-                                <input type="text" class="form-control" id="city" name="city"
-                                    placeholder="Enter your city" value="{{ old('city') }}">
+                                <input type="text" class="form-control" id="city" name="city" placeholder="Enter your city"
+                                    value="{{ old('city') }}">
                                 @if ($errors->has('city'))
                                     <span class="text-danger">
                                         {{ $errors->first('city') }}
@@ -200,8 +205,7 @@
                                     @endphp
 
                                     @foreach ($states as $state)
-                                        <option value="{{ $state }}"
-                                            {{ old('state') == $state ? 'selected' : '' }}>
+                                        <option value="{{ $state }}" {{ old('state') == $state ? 'selected' : '' }}>
                                             {{ $state }}
                                         </option>
                                     @endforeach
@@ -215,8 +219,8 @@
                             </div>
                             <div class="mb-6">
                                 <label for="zip" class="form-label">Zip</label>
-                                <input type="text" class="form-control" id="zip" name="zip"
-                                    placeholder="Enter your zip" value="{{ old('zip') }}">
+                                <input type="text" class="form-control" id="zip" name="zip" placeholder="Enter your zip"
+                                    value="{{ old('zip') }}">
                                 @if ($errors->has('zip'))
                                     <span class="text-danger">
                                         {{ $errors->first('zip') }}
@@ -251,7 +255,7 @@
                             {{-- <div class="mb-6">
                                 <label for="timezone" class="form-label">Timezone</label>
                                 <select name="timezone" id="timezone" class="form-control">
-                                     <option value="America/Chicago" selected>Central Time (CT)</option>
+                                    <option value="America/Chicago" selected>Central Time (CT)</option>
                                     <option value="America/New_York">Eastern Time (ET)</option>
                                     <option value="America/Denver">Mountain Time (MT)</option>
                                     <option value="America/Los_Angeles">Pacific Time (PT)</option>
@@ -260,11 +264,11 @@
                             <input type="hidden" id="timezone" name="timezone">
                             <div class="my-8">
                                 <div class="form-check mb-0 ms-2">
-                                    <input class="form-check-input" type="checkbox" id="terms-conditions"
-                                        name="terms">
+                                    <input class="form-check-input" type="checkbox" id="terms-conditions" name="terms">
                                     <label class="form-check-label" for="terms-conditions">
                                         I agree to
-                                        <a href="https://echecksystems.com/privacy/" target="_blank">privacy policy & terms</a>
+                                        <a href="https://echecksystems.com/privacy/" target="_blank">privacy policy &
+                                            terms</a>
                                     </label>
                                 </div>
                             </div>
