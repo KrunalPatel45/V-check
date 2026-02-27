@@ -12,6 +12,7 @@
 @endsection
 
 @section('page-style')
+
     @vite(['resources/assets/vendor/scss/pages/page-auth.scss'])
     <style>
         .authentication-wrapper.authentication-basic .authentication-inner {
