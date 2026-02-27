@@ -54,12 +54,16 @@
                             </a>
                         </div>
                         <!-- /Logo -->
+                        <p class="mb-6 fw-bold text-danger">
+                            To prevent fraud and protect our customers, all information provided during registration will be
+                            thoroughly reviewed and verified.
+                            Accounts will not be activated until verification is successfully completed.
+                        </p>
                         <p class="mb-6">Please create your account</p>
-
                         <form id="formAuthentication" class="mb-6" action="{{ route('register.store') }}" method="POST">
                             @csrf
                             <div class="row">
-                                <div class="col-6 mb-6">
+                                <div class="col-12 col-md-6 col-lg-4 mb-6">
                                     <label for="firstname" class="form-label">First Name</label>
                                     <input type="text" class="form-control" id="firstname" name="firstname"
                                         placeholder="First name" value="{{ old('firstname') }}" autofocus>
@@ -69,7 +73,7 @@
                                         </span>
                                     @endif
                                 </div>
-                                <div class="col-6 mb-6">
+                                <div class="col-12 col-md-6 col-lg-4 mb-6">
                                     <label for="lastname" class="form-label">Last Name</label>
                                     <input type="text" class="form-control" id="lastname" name="lastname"
                                         placeholder="Last name" value="{{ old('lastname') }}">
@@ -79,18 +83,18 @@
                                         </span>
                                     @endif
                                 </div>
-                            </div>
+                            
                             {{-- <div class="mb-6">
                                 <label for="username" class="form-label">Username</label>
                                 <input type="text" class="form-control" id="username" name="username"
                                     placeholder="Enter your username" value="{{ old('username') }}">
                                 @if ($errors->has('username'))
-                                    <span class="text-danger">
-                                        {{ $errors->first('username') }}
-                                    </span>
+                                <span class="text-danger">
+                                    {{ $errors->first('username') }}
+                                </span>
                                 @endif
                             </div> --}}
-                            <div class="mb-6">
+                            <div class="col-12 col-md-6 col-lg-4 mb-6">
                                 <label for="email" class="form-label">Email</label>
                                 <input type="text" class="form-control" id="email" name="email"
                                     placeholder="Enter your email" value="{{ old('email') }}">
@@ -100,7 +104,7 @@
                                     </span>
                                 @endif
                             </div>
-                            <div class="mb-6">
+                            <div class="col-12 col-md-6 mb-6">
                                 <label for="phone_number" class="form-label">Phone Number</label>
                                 <input type="text" class="form-control" id="phone_number" name="phone_number"
                                     placeholder="Enter your phone number" value="{{ old('phone_number') }}">
@@ -110,7 +114,7 @@
                                     </span>
                                 @endif
                             </div>
-                            <div class="mb-6">
+                            <div class="col-12 col-md-6 mb-6">
                                 <label for="company_name" class="form-label">Company Name</label>
                                 <input type="text" class="form-control" id="company_name" name="company_name"
                                     placeholder="Enter your company name" value="{{ old('company_name') }}">
@@ -120,9 +124,10 @@
                                     </span>
                                 @endif
                             </div>
-                            <div class="mb-6">
+                            <div class="col-12 mb-6">
                                 <label for="address" class="form-label">Address</label>
-                                <textarea class="form-control" id="address" name="address" placeholder="Enter your address">{{ old('address') }}</textarea>
+                                <textarea class="form-control" id="address" name="address"
+                                    placeholder="Enter your address">{{ old('address') }}</textarea>
 
                                 @if ($errors->has('address'))
                                     <span class="text-danger">
@@ -130,17 +135,17 @@
                                     </span>
                                 @endif
                             </div>
-                            <div class="mb-6">
+                            <div class="col-12 col-md-6 col-lg-4 mb-6">
                                 <label for="city" class="form-label">City</label>
-                                <input type="text" class="form-control" id="city" name="city"
-                                    placeholder="Enter your city" value="{{ old('city') }}">
+                                <input type="text" class="form-control" id="city" name="city" placeholder="Enter your city"
+                                    value="{{ old('city') }}">
                                 @if ($errors->has('city'))
                                     <span class="text-danger">
                                         {{ $errors->first('city') }}
                                     </span>
                                 @endif
                             </div>
-                            <div class="mb-6">
+                            <div class="col-12 col-md-6 col-lg-4 mb-6">
                                 <label for="state" class="form-label">State</label>
                                 <select name="state" id="state" class="form-control">
                                     <option value="">-- Select State --</option>
@@ -200,8 +205,7 @@
                                     @endphp
 
                                     @foreach ($states as $state)
-                                        <option value="{{ $state }}"
-                                            {{ old('state') == $state ? 'selected' : '' }}>
+                                        <option value="{{ $state }}" {{ old('state') == $state ? 'selected' : '' }}>
                                             {{ $state }}
                                         </option>
                                     @endforeach
@@ -213,17 +217,17 @@
                                     </span>
                                 @endif
                             </div>
-                            <div class="mb-6">
+                            <div class="col-12 col-md-6 col-lg-4 mb-6">
                                 <label for="zip" class="form-label">Zip</label>
-                                <input type="text" class="form-control" id="zip" name="zip"
-                                    placeholder="Enter your zip" value="{{ old('zip') }}">
+                                <input type="text" class="form-control" id="zip" name="zip" placeholder="Enter your zip"
+                                    value="{{ old('zip') }}">
                                 @if ($errors->has('zip'))
                                     <span class="text-danger">
                                         {{ $errors->first('zip') }}
                                     </span>
                                 @endif
                             </div>
-                            <div class="mb-6 form-password-toggle">
+                            <div class="col-12 col-md-6 mb-6 form-password-toggle">
                                 <label class="form-label" for="password">Password</label>
                                 <div class="input-group input-group-merge">
                                     <input type="password" id="password" class="form-control" name="password"
@@ -238,7 +242,7 @@
                                 </div>
                             </div>
 
-                            <div class="mb-6 form-password-toggle">
+                            <div class="col-12 col-md-6 mb-6 form-password-toggle">
                                 <label class="form-label" for="confirm-password">Confirm Password</label>
                                 <div class="input-group input-group-merge">
                                     <input type="password" id="confirm-password" class="form-control"
@@ -251,7 +255,7 @@
                             {{-- <div class="mb-6">
                                 <label for="timezone" class="form-label">Timezone</label>
                                 <select name="timezone" id="timezone" class="form-control">
-                                     <option value="America/Chicago" selected>Central Time (CT)</option>
+                                    <option value="America/Chicago" selected>Central Time (CT)</option>
                                     <option value="America/New_York">Eastern Time (ET)</option>
                                     <option value="America/Denver">Mountain Time (MT)</option>
                                     <option value="America/Los_Angeles">Pacific Time (PT)</option>
@@ -260,13 +264,14 @@
                             <input type="hidden" id="timezone" name="timezone">
                             <div class="my-8">
                                 <div class="form-check mb-0 ms-2">
-                                    <input class="form-check-input" type="checkbox" id="terms-conditions"
-                                        name="terms">
+                                    <input class="form-check-input" type="checkbox" id="terms-conditions" name="terms">
                                     <label class="form-check-label" for="terms-conditions">
                                         I agree to
-                                        <a href="https://echecksystems.com/privacy/" target="_blank">privacy policy & terms</a>
+                                        <a href="https://echecksystems.com/privacy/" target="_blank">privacy policy &
+                                            terms</a>
                                     </label>
                                 </div>
+                            </div>
                             </div>
                             <button class="btn btn-primary d-grid w-100">
                                 Sign up
