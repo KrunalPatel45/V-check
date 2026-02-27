@@ -300,12 +300,14 @@
     </header>
     <section class="main_content">
         @if (session('error'))
-            <div class="alert alert-danger mt-3">
-                {{ session('error') }}
+            <div class="alert alert-danger my-3" style="max-width: 1400px;
+    margin: 0 auto;">
+                {!! session('error') !!}
             </div>
         @endif
         @if (session('success'))
-            <div class="alert alert-success mt-3">
+            <div class="alert alert-success my-3" style="max-width: 1400px;
+    margin: 0 auto;">
                 {{ session('success') }}
             </div>
         @endif

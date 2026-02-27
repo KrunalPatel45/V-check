@@ -117,6 +117,7 @@ class SubscriptionHelper
             'success_url' => route('stripe.success') . '?session_id={CHECKOUT_SESSION_ID}&user=' . md5($data['user_id']) . '&plan=' . $data['plan'],
             'cancel_url' => route('stripe.cancel'),
             'subscription_data[metadata][set_default_pm]' => 'true',
+            'subscription_data[metadata][ip_address]' => request()->ip(),
         ]);
 
         if (!$session->successful()) {
@@ -145,10 +146,18 @@ class SubscriptionHelper
         $subscription = $subscriptionResponse->json();
         $scheduleId = $data['schedule'] ?? null;
 
-        if($scheduleId) {
-            $reponse =$this->releaseSchedule($scheduleId);
+        $ip = request()->ip();
 
-            if(!$reponse){
+        Http::withToken($stripeSecret)
+            ->asForm()
+            ->post("https://api.stripe.com/v1/subscriptions/{$subscriptionId}", [
+                'metadata[ip_address]' => $ip,
+            ]);
+
+        if ($scheduleId) {
+            $reponse = $this->releaseSchedule($scheduleId);
+
+            if (!$reponse) {
                 return false;
             }
         }
@@ -270,7 +279,7 @@ class SubscriptionHelper
         if ($response->successful()) {
             return true;
         } else {
-            
+
             $response = Http::withToken(config('services.stripe.secret'))
                 ->get("https://api.stripe.com/v1/subscriptions/{$subscriptionId}");
 
@@ -278,10 +287,10 @@ class SubscriptionHelper
 
             $scheduleId = $data['schedule'] ?? null;
 
-            if($scheduleId) {
-                $reponse =$this->releaseSchedule($scheduleId);
+            if ($scheduleId) {
+                $reponse = $this->releaseSchedule($scheduleId);
 
-                if($reponse){
+                if ($reponse) {
                     return $this->cancelAtPeriodEnd($subscriptionId);
                 }
             }
@@ -317,6 +326,14 @@ class SubscriptionHelper
 
         $subscription = $subscriptionResponse->json();
 
+        $ip = request()->ip();
+
+        Http::withToken($stripeSecret)
+            ->asForm()
+            ->post("https://api.stripe.com/v1/subscriptions/{$subscriptionId}", [
+                'metadata[ip_address]' => $ip,
+            ]);
+            
         // Correctly fetch current price ID and period end from subscription items data
         $currentPriceId = $subscription['items']['data'][0]['price']['id'] ?? null;
         $currentPeriodEnd = $subscription['items']['data'][0]['current_period_end'] ?? null;
@@ -328,7 +345,7 @@ class SubscriptionHelper
             return false;
         }
 
-       
+
         if (empty($subscription['schedule'])) {
 
             Log::info('Create schedule');
@@ -341,7 +358,7 @@ class SubscriptionHelper
                 ->post("https://api.stripe.com/v1/subscription_schedules", [
                     'from_subscription' => $subscriptionId,
                 ]);
-            
+
             if (!$scheduleResponse->successful()) {
                 return false;
             }
@@ -375,14 +392,14 @@ class SubscriptionHelper
             $scheduleId = $subscription['schedule'];
 
             $response = $this->releaseSchedule($scheduleId);
-            
-            if(empty($response)){
+
+            if (empty($response)) {
                 return false;
             }
 
-            $response =$this->schedulePlanDowngrade($subscriptionId, $newPriceId);
+            $response = $this->schedulePlanDowngrade($subscriptionId, $newPriceId);
 
-            if(empty($response)){
+            if (empty($response)) {
                 return false;
             }
         }
@@ -402,14 +419,15 @@ class SubscriptionHelper
         return $response->json();
     }
 
-    public function getSubscriptions($stripeCustomerId){
+    public function getSubscriptions($stripeCustomerId)
+    {
         $stripeSecret = config('services.stripe.secret');
 
         $response = Http::withToken($stripeSecret)
-        ->get('https://api.stripe.com/v1/subscriptions', [
-            'customer' => $stripeCustomerId,
-            'status' => 'active',
-        ]);
+            ->get('https://api.stripe.com/v1/subscriptions', [
+                'customer' => $stripeCustomerId,
+                'status' => 'active',
+            ]);
         if (!$response->successful()) {
             return false;
         }

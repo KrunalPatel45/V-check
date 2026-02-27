@@ -150,7 +150,10 @@ class StripeWebhookController extends Controller
                 'PaymentDate' => $PaymentDate,
                 'Status' => 'Active',
                 'TransactionID' => $invoice['id'],
-                'NextPackageID' => null
+                'NextPackageID' => null,
+                'ip_address' => $invoice['parent']['subscription_details']['metadata']['ip_address'] ?? null,
+                'created_at' => Carbon::now(),
+                'is_sys_generated' => 0
             ]);
 
             PaymentHistory::create([
@@ -158,7 +161,9 @@ class StripeWebhookController extends Controller
                 'PaymentAmount' => $new_package->Price,
                 'PaymentDate' => now(),
                 'TransactionID' => $invoice['id'],
-                'PaymentStatus' => 'Success'
+                'PaymentStatus' => 'Success',
+                'Remarks' => 'Downgraded to ' . $new_package->Name,
+                'created_at' => Carbon::now()
             ]);
 
             $user->update([
@@ -235,8 +240,10 @@ class StripeWebhookController extends Controller
             DB::beginTransaction();
 
             $subscription = null;
-
+            $remarks = '';
             $invoice = $event['data']['object'];
+            Log::info('ip address');
+            Log::info($invoice);
             $user = User::where('CusID', $invoice['customer'])->first();
 
             $response = $this->subscriptionHelper->getSubscriptions($invoice['customer']);
@@ -256,6 +263,8 @@ class StripeWebhookController extends Controller
 
                     $subscription = 'created';
                     $newPaymentSubscription = $this->generateSubscription($invoice, $user, $newPackage);
+                    $remarks = 'Purchased "' . $newPackage->Name . '" Plan';
+
                 } else {
 
                     $oldPackage = Package::where('PackageID', $user->CurrentPackageID)->first();
@@ -270,6 +279,8 @@ class StripeWebhookController extends Controller
                             $subscription = 'created';
 
                             $newPaymentSubscription = $this->generateSubscription($invoice, $user, $oldPackage);
+                    
+                            $remarks = 'Renewed "' . $newPackage->Name . '" Plan';
 
                         } elseif ($newPackage->Price < $oldPackage->Price) {
                             if ($invoice['billing_reason'] == 'subscription_cycle') {
@@ -281,6 +292,7 @@ class StripeWebhookController extends Controller
                             }
                         } elseif ($newPackage->Price > $oldPackage->Price) {
                                 $subscription = 'upgrade';
+                                $remarks = 'Upgraded to "' . $newPackage->Name . '" Plan';
                             $this->updateSubscription($invoice, $oldPackage, $newPackage, $CurrentPaymentSubscription);
                         }
                     }
@@ -313,13 +325,27 @@ class StripeWebhookController extends Controller
 
             }else if($CurrentPaymentSubscription && $CurrentPaymentSubscription->Status == 'Canceled'){
                 $subscription = 'canceled';
+                
+                $remarks = 'Purchased "' . $newPackage->Name . '" Plan';
                 $newPaymentSubscription = $this->generateSubscription($invoice, $user, $newPackage);
 
             }else if($CurrentPaymentSubscription && $CurrentPaymentSubscription->Status == 'Pending'){
 
                 $subscription = 'pendingClear';
+                
+                $oldPackage = Package::where('PackageID', $user->CurrentPackageID)->first();
+
+                if($newPackage?->Price < $oldPackage?->Price){
+                  $remarks = 'Downgraded to "' . $newPackage->Name . '" Plan';  
+                }else if($newPackage?->Price > $oldPackage?->Price){
+                  $remarks = 'Upgraded to "' . $newPackage->Name . '" Plan';
+                }else if($newPackage?->Price == $oldPackage?->Price){
+                  $remarks = 'Renewed "' . $newPackage->Name . '" Plan';
+                }
                 $newPaymentSubscription = $this->generateSubscription($invoice, $user, $newPackage);
             }
+
+            
 
             if ($subscription == 'created') {
                 $CurrentPaymentSubscription->update([
@@ -347,7 +373,9 @@ class StripeWebhookController extends Controller
                     'PaymentDate' => now(),
                     'PaymentStatus' => 'Success',
                     'PaymentAttempts' => $invoice['attempt_count'],
+                    'Remarks' => $remarks,
                     'TransactionID' => $invoice['id'],
+                    'created_at' => Carbon::now()
                 ]);
             }else{
                 PaymentHistory::create([
@@ -356,7 +384,9 @@ class StripeWebhookController extends Controller
                     'PaymentDate' => now(),
                     'PaymentStatus' => 'Success',
                     'PaymentAttempts' => $invoice['attempt_count'],
+                    'Remarks' => $remarks,
                     'TransactionID' => $invoice['id'],
+                    'created_at' => Carbon::now()
                 ]);
             }
             
@@ -384,7 +414,7 @@ class StripeWebhookController extends Controller
                 ->whereNot('Status', 'Canceled')
                 ->orderBy('PaymentSubscriptionID', 'desc')->first();
 
-            if ($PaymentSubscription) {
+            if ($PaymentSubscription && $PaymentSubscription->PackageID != '-1') {
                 PaymentHistory::create([
                     'PaymentSubscriptionID' => $PaymentSubscription->PaymentSubscriptionID,
                     'PaymentAmount' => $invoice['amount_due'] / 100,
@@ -392,7 +422,9 @@ class StripeWebhookController extends Controller
                     'PaymentStatus' => 'Failed',
                     'PaymentAttempts' => $invoice['attempt_count'],
                     'TransactionID' => $invoice['id'],
-                    'PaymentUrl' => $invoice['hosted_invoice_url']
+                    'Remarks' => 'Payment Failed',
+                    'PaymentUrl' => $invoice['hosted_invoice_url'],
+                    'created_at' => Carbon::now()
                 ]);
 
                 // if ($invoice['attempt_count'] >= 3) {
@@ -412,7 +444,7 @@ class StripeWebhookController extends Controller
         } catch (\Exception $e) {
 
             DB::rollBack();
-            Log::info('Webhook invoice.payment_succeeded error: ' . $e->getMessage() . ' on line ' . $e->getLine());
+            Log::info('Webhook invoice.payment_failed error: ' . $e->getMessage() . ' on line ' . $e->getLine());
         }
     }
 
@@ -442,7 +474,10 @@ class StripeWebhookController extends Controller
             'PaymentDate' => $PaymentDate,
             'Status' => 'Active',
             'TransactionID' => $invoice['id'],
-            'NextPackageID' => null
+            'NextPackageID' => null,
+            'created_at' => Carbon::now(),
+            'ip_address' => $invoice['parent']['subscription_details']['metadata']['ip_address'] ?? null,
+            'is_sys_generated' => $invoice['billing_reason'] == 'subscription_cycle' ? 1 : 0
         ]);
 
         return $newPaymentSubscription;

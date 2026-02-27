@@ -32,10 +32,20 @@ class PaymentSubscription extends Model
         'NextPackageID',
         'ChecksReceived',
         'ChecksSent',
+        'ip_address',
+        'created_at',
+        'is_sys_generated'
     ];
 
     public function nextPlan()
     {
         return $this->belongsTo(Package::class, 'NextPackageID');
+    }
+    public function package(){
+        return $this->belongsTo(Package::class, 'PackageID', 'PackageID');
+    }
+
+    public function user(){
+        return $this->belongsTo(User::class, 'UserID', 'UserID');
     }
 }

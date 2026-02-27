@@ -351,7 +351,7 @@
 
                             $('#payee_id').val(response.payee.EntityID);
                             $('#payee-name').val(response.payee.Name);
-                            $('#payee-email').val(response.payee.Name);
+                            $('#payee-email').val(response.payee.Email);
                         }
                     });
                 }
@@ -1305,7 +1305,7 @@
 
                                             @foreach ($states as $state)
                                                 <option value="{{ $state }}"
-                                                    {{ !empty($old_payor->state) && $old_payor->state ? 'selected' : '' }}>
+                                                    {{ !empty($old_payor->State) && $old_payor->State == $state ? 'selected' : '' }}>
                                                     {{ $state }}
                                                 </option>
                                             @endforeach

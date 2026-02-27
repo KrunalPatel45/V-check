@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\FraudService;
 use App\Models\AdminUser;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Package;
@@ -116,60 +119,169 @@ class AdminDashboardController extends Controller
         return redirect()->route('admin.profile')->with('pass_success', 'Password changed successfully');
     }
 
+    // public function users(Request $request)
+    // {
+    //     if ($request->ajax()) {
+
+    //         $query = User::query();
+
+    //         if (isset($request->status)) {
+    //             $query->where('status', $request->status);
+    //         }
+
+    //         $users = $query->get();
+
+    //         foreach ($users as $user) {
+    //             $package = Package::find($user->CurrentPackageID);
+
+    //             $user->package = $package ? $package->Name : 'N/A';
+    //             if ($user->CurrentPackageID == '-1') {
+    //                 $user->package = 'TRIAL';
+    //             }
+    //             $user->package_price = $package ? '$' . number_format($package->Price, 2) : '$0';
+
+    //         }
+
+    //         return datatables()->of($users)
+    //             ->addIndexColumn()
+
+    //             ->editColumn('PhoneNumber', function ($user) {
+    //                 return $this->formatPhoneNumber($user->PhoneNumber);
+    //             })
+    //             ->addColumn('status', function ($user) {
+    //                 return $user->Status == 'Active'
+    //                     ? '<span class="badge bg-label-primary">' . $user->Status . '</span>'
+    //                     : '<span class="badge bg-label-warning">' . $user->Status . '</span>';
+    //             })
+    //             ->addColumn('created_at', function ($user) {
+    //                 return Carbon::parse($user->CreatedAt)->format('m-d-Y'); // Convert to MM/DD/YYYY
+    //             })
+    //             ->addColumn('actions', function ($user) {
+    //                 // Dynamically build URLs for the edit and delete actions
+    //                 $editUrl = route('admin.user.edit', ['id' => $user->UserID]);
+    //                 $deleteUrl = route('admin.user.delete', ['id' => $user->UserID]);
+    //                 $viewUrl = route('admin.user.view', ['id' => $user->UserID]);
+
+    //                 return '
+    //                 <div class="d-flex">
+    //                     <a href="' . $editUrl . '" class="dropdown-item">
+    //                     <i class="ti ti-pencil me-1"></i> Edit
+    //                     </a>
+    //                     <a href="' . $viewUrl . '" class="dropdown-item">
+    //                         <i class="ti ti-eye me-1"></i> View
+    //                     </a>
+    //                 </div>';
+    //             })
+    //             ->rawColumns(['status', 'created_at', 'actions'])
+    //             ->make(true);
+    //     }
+
+    //     return view('admin.user.index');
+    // }
+
     public function users(Request $request)
     {
         if ($request->ajax()) {
 
             $query = User::query();
 
-            if (isset($request->status)) {
-                $query->where('status', $request->status);
+            if ($request->status) {
+                $query->where('Status', $request->status);
             }
 
-            $users = $query->get();
-
-            foreach ($users as $user) {
-                $package = Package::find($user->CurrentPackageID);
-               
-                $user->package = $package ? $package->Name : 'N/A';
-                if ($user->CurrentPackageID == '-1') {
-                    $user->package = 'TRIAL';
-                }
-                $user->package_price = $package ? '$' . number_format($package->Price, 2) : '$0';
-
+            if ($request->has('order') && $request->order[0]['column'] == 0) {
+                $query->orderBy('UserID', 'desc');
             }
 
-            return datatables()->of($users)
+            return datatables()->of($query)
+
                 ->addIndexColumn()
+
+                // 🔍 Search hidden email
+                ->filter(function ($query) use ($request) {
+                    $search = $request->input('search.value');
+
+                    if ($search) {
+                        $query->where(function ($q) use ($search) {
+                            $q->where('FirstName', 'like', "%{$search}%")
+                                ->orWhere('LastName', 'like', "%{$search}%")
+                                ->orWhere('PhoneNumber', 'like', "%{$search}%")
+                                ->orWhere('Email', 'like', "%{$search}%");
+                        });
+                    }
+                })
+
                 ->editColumn('PhoneNumber', function ($user) {
                     return $this->formatPhoneNumber($user->PhoneNumber);
                 })
-                ->addColumn('status', function ($user) {
+
+                ->addColumn('package', function ($user) {
+
+                    if ($user->CurrentPackageID == '-1') {
+                        return 'TRIAL';
+                    }
+
+                    $package = Package::find($user->CurrentPackageID);
+
+                    return $package ? $package->Name : 'N/A';
+                })
+
+                ->addColumn('package_price', function ($user) {
+
+                    if ($user->CurrentPackageID == '-1') {
+                        return '$0';
+                    }
+
+                    $package = Package::find($user->CurrentPackageID);
+
+                    return $package
+                        ? '$' . number_format($package->Price, 2)
+                        : '$0';
+                })
+
+                ->editColumn('status', function ($user) {
                     return $user->Status == 'Active'
                         ? '<span class="badge bg-label-primary">' . $user->Status . '</span>'
-                        : '<span class="badge bg-label-warning">' . $user->Status . '</span>';
+                        : '<span class="badge bg-danger">' . $user->Status . '</span>';
                 })
-                ->addColumn('created_at', function ($user) {
-                    return Carbon::parse($user->CreatedAt)->format('m-d-Y'); // Convert to MM/DD/YYYY
+                ->editColumn('reason', function ($user) {
+                    return $user->reason ? $user->reason : '-';
+                })
+
+                ->editColumn('created_at', function ($user) {
+                    return Carbon::parse($user->CreatedAt)->format('m-d-Y');
+                })
+                ->setRowClass(function ($user) {
+
+                    if (strtolower($user->reason) === 'fraud') {
+                        return 'table-danger'; // or use custom class
+                    }
+
+                    return '';
                 })
                 ->addColumn('actions', function ($user) {
-                    // Dynamically build URLs for the edit and delete actions
+
                     $editUrl = route('admin.user.edit', ['id' => $user->UserID]);
-                    $deleteUrl = route('admin.user.delete', ['id' => $user->UserID]);
+                    $viewUrl = route('admin.user.view', ['id' => $user->UserID]);
 
                     return '
-                        <div class="d-flex">
-                            <a href="' . $editUrl . '" class="dropdown-item">
-                                <i class="ti ti-pencil me-1"></i> Edit
-                            </a>
-                        </div>';
+                <div class="d-flex">
+                    <a href="' . $editUrl . '" class="dropdown-item">
+                        <i class="ti ti-pencil me-1"></i> Edit
+                    </a>
+                    <a href="' . $viewUrl . '" class="dropdown-item">
+                        <i class="ti ti-eye me-1"></i> View
+                    </a>
+                </div>';
                 })
-                ->rawColumns(['status', 'created_at','actions'])
+
+                ->rawColumns(['status', 'reason', 'actions'])
                 ->make(true);
         }
 
         return view('admin.user.index');
     }
+
 
     public function user_edit(Request $request, $id)
     {
@@ -368,7 +480,7 @@ class AdminDashboardController extends Controller
         $data_current_package = PaymentSubscription::where('UserId', $id)
             ->where('Status', 'Active')->where('PackageID', $user->CurrentPackageID)
             ->orderBy('PaymentSubscriptionID', 'desc')->first();
-       
+
         if (!empty($data_current_package)) {
             // If upgrading to a higher priced plan
             if ($package->Price > $user_current_package->Price) {
@@ -422,6 +534,7 @@ class AdminDashboardController extends Controller
                         'PaymentAmount' => $price_difference,
                         'PaymentDate' => now(),
                         'PaymentStatus' => 'Success',
+                        'Remarks' => 'Upgrade to ' . $package->Name,
                         'PaymentAttempts' => 0,
                         'TransactionID' => $res['id'],
                     ]);
@@ -572,12 +685,144 @@ class AdminDashboardController extends Controller
         return preg_replace('/(\d{3})(\d{3})(\d{4})/', '$1-$2-$3', $number);
     }
 
-    public function changeStatus(Request $request)
+    // public function changeStatus(Request $request)
+    // {
+    //     $user = User::findOrFail($request->id);
+    //     $user->Status = $request->status == 'active' ? 'Active' : 'Inactive';
+    //     $user->save();
+    //     return response()->json(['message' => 'Status updated successfully.']);
+    // }
+    public function changeStatus(Request $request, FraudService $fraudService)
     {
         $user = User::findOrFail($request->id);
-        $user->Status = $request->status == 'active' ? 'Active' : 'Inactive';
+
+        // If status is being updated
+        if ($request->has('status')) {
+
+            $status = $request->status === 'active' ? 'Active' : 'Inactive';
+            $user->Status = $status;
+
+            // If activating user → clear reason
+            if ($status === 'Active') {
+                $user->reason = null;
+                $fraudService->removeFraudBlock($user);
+            } else {
+                DB::table('sessions')->where('user_id', $user->UserID)->delete();
+            }
+        }
+
+        // If reason is being updated
+        if ($request->has('reason')) {
+
+            // Only allow reason if user is inactive
+            if ($user->Status === 'Inactive') {
+
+                $user->reason = $request->reason;
+
+                if ($request->reason === 'Fraud') {
+                    $fraudService->handleFraudUser($user);
+                } else {
+                    $fraudService->removeFraudBlock($user);
+                }
+            }
+        }
+
         $user->save();
-        return response()->json(['message' => 'Status updated successfully.']);
+
+        return response()->json([
+            'message' => 'Status updated successfully.'
+        ]);
     }
 
+
+    public function user_view($id)
+    {
+        $user = User::findOrFail($id);
+
+        $currentSubscription = PaymentSubscription::where('UserID', $user->UserID)->orderBy('PaymentSubscriptionID', 'desc')->first();
+
+        $firstSubscription = PaymentSubscription::where('UserID', $user->UserID)->where('PackageID', '!=', -1)->first();
+
+        $firstBillingDate = Carbon::parse($firstSubscription?->PaymentStartDate)?->format('m/d/Y');
+
+        $IPAddress = UserHistory::where('UserID', $user->UserID)->orderBy('id', 'desc')->first()?->ip;
+
+        $subscriptions = PaymentSubscription::with([
+            'package' => function ($query) {
+                return $query->select('PackageID', 'Name');
+            }
+        ])->select('PaymentSubscriptionID', 'PackageID', 'PaymentStartDate', 'ip_address', 'created_at', 'is_sys_generated')->where('UserID', $user->UserID)->get();
+
+        $stripeSecret = config('services.stripe.secret');
+
+        $paymentMethods = Http::withToken(config('services.stripe.secret'))
+            ->get('https://api.stripe.com/v1/payment_methods', [
+                'customer' => $user->CusID,
+                'type' => 'card',
+                'limit' => 3,
+            ]);
+
+        $cards = $paymentMethods->json('data');
+
+        $cardList = [];
+
+        if ($cards != null) {
+            foreach ($cards as $card) {
+                $cardList[] = [
+                    'payment_method_id' => $card['id'],
+                    'card_holder' => $card['billing_details']['name'] ?? null,
+                    'brand' => $card['card']['brand'],
+                    'last4' => $card['card']['last4'],
+                    'exp_month' => $card['card']['exp_month'],
+                    'exp_year' => $card['card']['exp_year'],
+                    'address_line1' => $card['billing_details']['address']['line1'] ?? null,
+                    'address_line2' => $card['billing_details']['address']['line2'] ?? null,
+                    'city' => $card['billing_details']['address']['city'] ?? null,
+                    'state' => $card['billing_details']['address']['state'] ?? null,
+                    'postal_code' => $card['billing_details']['address']['postal_code'] ?? null,
+                    'country' => $card['billing_details']['address']['country'] ?? null,
+                ];
+            }
+        }
+
+        $subscriptionIds = $subscriptions->pluck('PaymentSubscriptionID')->toArray();
+
+        $PaymentHistories = PaymentHistory::with([
+            'subscription' => function ($q) {
+                return $q->with([
+                    'package' => function ($q1) {
+                        return $q1->select('PackageID', 'Name', );
+                    }
+                ])->select('PaymentSubscriptionID', 'PackageID', 'PaymentStartDate', 'NextRenewalDate');
+            }
+        ])->select('PaymentHistoryID', 'PaymentSubscriptionID', 'PaymentDate', 'PaymentStatus', 'PaymentAmount', 'Remarks', 'created_at')->whereIn('PaymentSubscriptionID', $subscriptionIds)->get();
+
+        $payment_histories = [];
+        foreach ($PaymentHistories as $PaymentHistory) {
+            $payment_histories[] = [
+                'billing_id' => $PaymentHistory->PaymentHistoryID,
+                'plan' => $PaymentHistory?->subscription?->package?->Name,
+                'details' => $PaymentHistory->Remarks,
+                'price' => $PaymentHistory->PaymentAmount,
+                'charged' => $PaymentHistory->PaymentStatus == 'Success' ? 'True' : 'False',
+                'error_message' => '',
+                'billing_start_dt' => $PaymentHistory?->subscription?->PaymentStartDate ? Carbon::parse($PaymentHistory?->subscription?->PaymentStartDate)->format('m/d/Y') : '-',
+                'billing_end_dt' => $PaymentHistory?->subscription?->NextRenewalDate ? Carbon::parse($PaymentHistory?->subscription?->NextRenewalDate)->format('m/d/Y') : '-',
+                'created_at' => $PaymentHistory->created_at ? Carbon::parse($PaymentHistory->created_at)->format('m/d/Y h:i A') : '-',
+            ];
+        }
+
+        $checks = Checks::where('UserID', $id)->get();
+
+        return view('admin.user.activity', compact(
+            'user',
+            'currentSubscription',
+            'firstBillingDate',
+            'IPAddress',
+            'subscriptions',
+            'cardList',
+            'payment_histories',
+            'checks'
+        ));
+    }
 }

@@ -105,7 +105,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
           }
         },
         plugins: {
-          trigger: new FormValidation.plugins.Trigger(),
+          trigger: new FormValidation.plugins.Trigger({
+            event: {
+              email: 'blur'   // Only email validates on blur
+            }
+          }),
           bootstrap5: new FormValidation.plugins.Bootstrap5({
             eleValidClass: '',
             rowSelector: '.mb-6'

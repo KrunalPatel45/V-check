@@ -34,7 +34,18 @@ class Checks extends Model
         'is_email_send',
         'is_seen',
         'GridSchemaHistoryID',
-        'GridItems'
+        'GridItems',
+        'ip_address',
+        'created_at'
     ];
 
+    public function payee()
+    {
+        return $this->belongsTo(Payors::class, 'PayeeID', 'EntityID');
+    }
+
+    public function payor()
+    {
+        return $this->belongsTo(Payors::class, 'PayorID', 'EntityID');
+    }
 }
