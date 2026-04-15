@@ -518,7 +518,7 @@ class CheckController extends Controller
                     'Amount' => $request->amount,
                     'ServiceFees' => 0,
                     'Total' => $request->amount,
-                    'EntityID' => $request->payee,
+                    'PayeeID' => $request->payee,
                     'CheckNumber' => $request->check_number,
                     'IssueDate' => now(),
                     'ExpiryDate' => $check_date,
