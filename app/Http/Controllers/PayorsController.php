@@ -492,9 +492,9 @@ class PayorsController extends Controller
                 $query->where('Type', 'Payee')->where('UserID', Auth::id())->where('Category', $category);
             })->ignore($request->id, 'EntityID');
         } else {
-            $rules['email'][] = Rule::unique('Entities', 'Email')->where(function ($query) use ($category) {
-                $query->where('Type', 'Payee')->where('UserID', Auth::id())->where('Category', $category);
-            })->ignore($request->id, 'EntityID');
+            // $rules['email'][] = Rule::unique('Entities', 'Email')->where(function ($query) use ($category) {
+            //     $query->where('Type', 'Payee')->where('UserID', Auth::id())->where('Category', $category);
+            // })->ignore($request->id, 'EntityID');
         }
 
         $validator = Validator::make($request->all(), $rules);
