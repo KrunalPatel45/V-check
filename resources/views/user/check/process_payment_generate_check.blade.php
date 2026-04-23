@@ -590,7 +590,7 @@
                             <div class="col-sm-4 p-0">
                                 <input type="text" id="check_number" name="check_number" class="form-control no-spinner"
                                     placeholder="Check Number" maxlength="6"
-                                    oninput=""
+                                    oninput="" onkeypress="return /^[0-9]+$/.test(event.key)"
                                     value="{{ $checkNumber ?? '' }}">
                                 @if ($errors->has('check_number'))
                                     <span class="text-danger">

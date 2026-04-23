@@ -974,7 +974,7 @@
                                 <div class="input-group">
                                     <span class="input-group-text bg-light text-black"
                                         style="pointer-events: none; border:1px solid;">EC</span>
-                                    <input type="text" id="check_number" name="check_number"
+                                    <input type="text" id="check_number" name="check_number" onkeypress="return /^[0-9]+$/.test(event.key)"
                                         class="form-control no-spinner" placeholder="Check Number" maxlength="10"
                                         oninput="" value="{{ $checkNumber }}" autocomplete="off">
                                 </div>

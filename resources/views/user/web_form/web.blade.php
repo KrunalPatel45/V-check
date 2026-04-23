@@ -325,7 +325,7 @@
                     <div class="check_num_date input_row">
                         <div class="check_num w-50">
                             <label for="check_number">Check Number</label>
-                            <input type="text" id="check_number" name="check_number"
+                            <input type="text" id="check_number" name="check_number" onkeypress="return /^[0-9]+$/.test(event.key)"
                                 value="{{ old('check_number') }}" tabindex="1" class="no-spinner" autofocus />
                             @error('check_number')
                                 <div class="error">{{ $message }}</div>
