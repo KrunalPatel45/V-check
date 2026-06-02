@@ -780,7 +780,8 @@ class CheckController extends Controller
             ->set_option('isRemoteEnabled', true);
 
         // Define the file path where you want to save the PDF
-        $file_name = 'check-' . $data['check_number'] . '-' . time() . '.pdf';
+        // $file_name = 'check-' . $data['check_number'] . '-' . time() . '.pdf';
+        $file_name = 'check-' . $data['check_number'] . '-' . time() . '-' . $data['check_id'] . '.pdf';
         $filePath = $directoryPath . '/' . $file_name;
 
         // Save the PDF to the specified path
@@ -1025,7 +1026,7 @@ class CheckController extends Controller
         $data['signature'] = (!empty($check->DigitalSignatureRequired)) ? $check->DigitalSignature : '';
         $data['email'] = !empty($payee->Email) ? $payee->Email : '';
         $data['package'] = Auth::user()->CurrentPackageID;
-
+        $data['check_id'] = $id;
 
         $check_file = $this->generateAndSavePDF($data);
 
@@ -1557,6 +1558,7 @@ class CheckController extends Controller
                 $data['signature'] = (!empty($userSignature->Sign)) ? $userSignature->Sign : '';
                 $data['email'] = !empty($payee->Email) ? $payee->Email : '';
                 $data['package'] = Auth::user()->CurrentPackageID;
+                $data['check_id'] = $id;
 
                 // return view('user.check_formate.index', compact('data'));
 
