@@ -1559,7 +1559,7 @@ class CheckController extends Controller
                 $data['email'] = !empty($payee->Email) ? $payee->Email : '';
                 $data['package'] = Auth::user()->CurrentPackageID;
                 $data['check_id'] = $id;
-
+                
                 // return view('user.check_formate.index', compact('data'));
 
                 $check_file = $this->generateAndSavePDF($data);
