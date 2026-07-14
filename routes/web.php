@@ -319,6 +319,7 @@ Route::middleware([CheckBlockedIP::class])->group(function () {
             Route::get('billing-and-plan', [BillingAndPlanController::class, 'index'])->name('billing_and_plan');
             Route::post('add-payee', [PayorsController::class, 'add_payee'])->name('user.add-payee');
             Route::post('add-payor', [PayorsController::class, 'add_payor'])->name('user.add-payor');
+            Route::post('check-payor-email', [PayorsController::class, 'check_payor_email'])->name('user.check-payor-email');
             Route::post('amount-word', [CheckController::class, 'amount_word'])->name('amount_word');
             Route::get('get-payee/{id}', [CheckController::class, 'get_payee'])->name('get_payee');
             Route::get('get-payor/{id}', [CheckController::class, 'get_payor'])->name('get_payor');

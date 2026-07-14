@@ -196,9 +196,19 @@ class PayorsController extends Controller
     public function payor_store(Request $request)
     {
         $type = 'Payors';
+        $category = $request->category;
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'nullable|email',
+            'email' => [
+                'nullable',
+                'email',
+                Rule::unique('Entities')
+                    ->where(function ($query) use ($category) {
+                        return $query->where('category', $category)
+                            ->where('Type', 'Payor')
+                            ->where('UserID', Auth::id());
+                    })
+            ],
             'address1' => 'required',
             'city' => 'required',
             'state' => 'required',
@@ -255,9 +265,20 @@ class PayorsController extends Controller
     public function payor_update(Request $request, $id)
     {
         $type = 'Payors';
+        $category = $request->category;
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'nullable|email',
+            'email' => [
+                'nullable',
+                'email',
+                Rule::unique('Entities')
+                    ->where(function ($query) use ($category) {
+                        return $query->where('category', $category)
+                            ->where('Type', 'Payor')
+                            ->where('UserID', Auth::id());
+                    })
+                    ->ignore($id, 'EntityID')
+            ],
             'address1' => 'required',
             'city' => 'required',
             'state' => 'required',
@@ -418,6 +439,30 @@ class PayorsController extends Controller
         $package?->delete();
 
         return redirect()->route('user.' . $type)->with('success', $type . ' deleted successfully');
+    }
+
+    public function check_payor_email(Request $request)
+    {
+        $category = $request->category ?? 'RP';
+        $validator = Validator::make($request->all(), [
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('Entities')
+                    ->where(function ($query) use ($category) {
+                        return $query->where('category', $category)
+                            ->where('Type', 'Payor')
+                            ->where('UserID', Auth::id());
+                    })
+                    ->ignore($request->id, 'EntityID')
+            ],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()]);
+        }
+
+        return response()->json(['success' => true]);
     }
 
     public function add_payor(Request $request)

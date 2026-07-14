@@ -266,6 +266,7 @@
                     $('#add-payor #bank_name').val('');
                     $('#add-payor #account_number').val('');
                     $('#add-payor #routing_number').val('');
+                    $('#add-payor').closest('.modal').find('.text-danger').remove();
                     $('#payor_h').text('Add');
                 } else {
                     $.ajax({
@@ -300,9 +301,69 @@
                 }
             });
 
+            var payorEmailCheckXhr = null;
+
+            function clearPayorEmailError() {
+                $('#add-payor #email').closest('.col-md-6').find('.text-danger').remove();
+            }
+
+            function showPayorEmailError(message) {
+                clearPayorEmailError();
+                if (message) {
+                    $('#add-payor #email').closest('.col-md-6').append(
+                        '<span class="text-danger">' + message + '</span>'
+                    );
+                }
+            }
+
+            function checkPayorEmailUnique() {
+                var email = $.trim($('#add-payor #email').val());
+                clearPayorEmailError();
+
+                if (!email) {
+                    return;
+                }
+
+                if (payorEmailCheckXhr) {
+                    payorEmailCheckXhr.abort();
+                }
+
+                payorEmailCheckXhr = $.ajax({
+                    url: "{{ route('user.check-payor-email') }}",
+                    method: 'POST',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        email: email,
+                        category: 'RP',
+                        id: $('#payor_id').val()
+                    },
+                    success: function(response) {
+                        if (response.errors && response.errors.email) {
+                            showPayorEmailError(response.errors.email[0]);
+                        } else {
+                            clearPayorEmailError();
+                        }
+                    }
+                });
+            }
+
+            $('#add-payor #email').on('blur', function() {
+                checkPayorEmailUnique();
+            });
+
+            $('#add-payor #email').on('input', function() {
+                clearPayorEmailError();
+            });
+
             $('#add-payor-btn').on('click', function(event) {
                 event.preventDefault();
                 var id = $('#payor_id').val();
+
+                // Abort live email check so it cannot append a second error after Save
+                if (payorEmailCheckXhr) {
+                    payorEmailCheckXhr.abort();
+                    payorEmailCheckXhr = null;
+                }
 
                 // Collect form data manually
                 let formData = {
@@ -322,7 +383,7 @@
                 };
 
                 // Clear any previous error messages
-                $('.text-danger').remove();
+                $('#add-payor').closest('.modal').find('.text-danger').remove();
 
                 // Send Ajax request
                 $.ajax({
@@ -333,7 +394,9 @@
                         if (response.errors) {
                             // Display validation errors
                             $.each(response.errors, function(key, value) {
-                                $('#add-payor #' + key).closest('.col-md-6').append(
+                                var $wrap = $('#add-payor #' + key).closest('.col-md-6');
+                                $wrap.find('.text-danger').remove();
+                                $wrap.append(
                                     '<span class="text-danger">' + value[0] +
                                     '</span>'
                                 );
